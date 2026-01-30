@@ -17,6 +17,10 @@ const Header = () => {
               <Phone className="w-4 h-4" />
               <span>+91 9999790011</span>
             </a>
+            <a href="mailto:anilgoel.sphpnp@gmail.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
+              <Mail className="w-4 h-4" />
+              <span>anilgoel.sphpnp@gmail.com</span>
+            </a>
             <a 
               href="https://instagram.com/parasrampanipat" 
               target="_blank" 
@@ -49,6 +53,7 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-6">
             <a href="#about" className="font-medium text-foreground hover:text-secondary transition-colors">About</a>
             <a href="#services" className="font-medium text-foreground hover:text-secondary transition-colors">Services</a>
+            <a href="#app" className="font-medium text-foreground hover:text-secondary transition-colors">App</a>
             <a href="#contact" className="font-medium text-foreground hover:text-secondary transition-colors">Contact</a>
           </nav>
           
