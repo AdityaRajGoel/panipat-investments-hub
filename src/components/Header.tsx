@@ -1,5 +1,6 @@
-import { Phone, Mail, ExternalLink } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   return (
@@ -7,14 +8,23 @@ const Header = () => {
       {/* Top bar */}
       <div className="bg-hero text-primary-foreground py-2">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-sm gap-2">
-          <div className="flex items-center gap-4">
-            <a href="tel:+919876543210" className="flex items-center gap-1 hover:text-secondary transition-colors">
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <a href="tel:+919416400314" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Phone className="w-4 h-4" />
-              <span>+91 98765 43210</span>
+              <span>+91 9416400314</span>
             </a>
-            <a href="mailto:panipat@parasramindia.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
-              <Mail className="w-4 h-4" />
-              <span>panipat@parasramindia.com</span>
+            <a href="tel:+919999790011" className="flex items-center gap-1 hover:text-secondary transition-colors">
+              <Phone className="w-4 h-4" />
+              <span>+91 9999790011</span>
+            </a>
+            <a 
+              href="https://instagram.com/parasrampanipat" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:text-secondary transition-colors"
+            >
+              <Instagram className="w-4 h-4" />
+              <span>@parasrampanipat</span>
             </a>
           </div>
           <a 
@@ -31,15 +41,10 @@ const Header = () => {
       
       {/* Main header */}
       <div className="bg-card shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col">
-              <h1 className="font-heading text-2xl font-bold text-primary tracking-tight">
-                PARASRAM
-              </h1>
-              <span className="text-xs text-secondary font-medium -mt-1">Science of Investment</span>
-            </div>
-          </div>
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+          <a href="/" className="flex items-center">
+            <img src={logo} alt="Parasram - Science of Investment" className="h-14 md:h-16 w-auto" />
+          </a>
           
           <nav className="hidden md:flex items-center gap-6">
             <a href="#about" className="font-medium text-foreground hover:text-secondary transition-colors">About</a>

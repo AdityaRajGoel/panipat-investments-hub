@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ExternalLink, Instagram } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -27,8 +27,8 @@ const Contact = () => {
                   <div>
                     <h3 className="font-heading font-semibold text-foreground mb-1">Office Address</h3>
                     <p className="text-muted-foreground">
-                      Paras Ram India Pvt. Ltd.<br />
-                      GT Road, Near Bus Stand<br />
+                      Shri Parasram Holdings<br />
+                      Shakuntala Complex, Palika Bazaar<br />
                       Panipat, Haryana - 132103
                     </p>
                   </div>
@@ -45,11 +45,11 @@ const Contact = () => {
                   <div>
                     <h3 className="font-heading font-semibold text-foreground mb-1">Phone</h3>
                     <p className="text-muted-foreground">
-                      <a href="tel:+919876543210" className="hover:text-secondary transition-colors">
-                        +91 98765 43210
+                      <a href="tel:+919416400314" className="hover:text-secondary transition-colors">
+                        +91 9416400314
                       </a><br />
-                      <a href="tel:01802637XXX" className="hover:text-secondary transition-colors">
-                        0180-2637XXX
+                      <a href="tel:+919999790011" className="hover:text-secondary transition-colors">
+                        +91 9999790011
                       </a>
                     </p>
                   </div>
@@ -61,13 +61,18 @@ const Contact = () => {
               <CardContent className="p-6">
                 <div className="flex gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-primary" />
+                    <Instagram className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-heading font-semibold text-foreground mb-1">Email</h3>
+                    <h3 className="font-heading font-semibold text-foreground mb-1">Instagram</h3>
                     <p className="text-muted-foreground">
-                      <a href="mailto:panipat@parasramindia.com" className="hover:text-secondary transition-colors">
-                        panipat@parasramindia.com
+                      <a 
+                        href="https://instagram.com/parasrampanipat" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:text-secondary transition-colors"
+                      >
+                        @parasrampanipat
                       </a>
                     </p>
                   </div>
@@ -100,11 +105,11 @@ const Contact = () => {
               <div className="text-center p-6">
                 <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">
-                  View our location on Google Maps
+                  Shakuntala Complex, Palika Bazaar, Panipat
                 </p>
                 <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                   <a 
-                    href="https://maps.google.com/?q=Panipat,Haryana" 
+                    href="https://maps.google.com/?q=Shakuntala+Complex+Palika+Bazaar+Panipat+Haryana" 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
