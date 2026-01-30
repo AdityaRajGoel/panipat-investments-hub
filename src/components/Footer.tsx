@@ -1,4 +1,4 @@
-import { ExternalLink, Instagram, Phone } from "lucide-react";
+import { ExternalLink, Instagram, Phone, Mail } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -25,6 +25,12 @@ const Footer = () => {
                 className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
               >
                 <Phone className="w-5 h-5" />
+              </a>
+              <a 
+                href="mailto:anilgoel.sphpnp@gmail.com" 
+                className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+              >
+                <Mail className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -62,9 +68,12 @@ const Footer = () => {
               Shakuntala Complex, Palika Bazaar<br />
               Panipat - 132103
             </p>
-            <p className="text-primary-foreground/70 text-sm">
+            <p className="text-primary-foreground/70 text-sm mb-2">
               <a href="tel:+919416400314" className="hover:text-secondary">+91 9416400314</a><br />
               <a href="tel:+919999790011" className="hover:text-secondary">+91 9999790011</a>
+            </p>
+            <p className="text-primary-foreground/70 text-sm">
+              <a href="mailto:anilgoel.sphpnp@gmail.com" className="hover:text-secondary">anilgoel.sphpnp@gmail.com</a>
             </p>
           </div>
         </div>
