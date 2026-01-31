@@ -16,12 +16,12 @@ const About = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Welcome to Paras Ram India
+              Welcome to Parasram India
               <span className="block text-secondary mt-2">Panipat Branch</span>
             </h2>
             
             <p className="text-muted-foreground text-lg mb-6">
-              Paras Ram India is one of India's most trusted stock broking firms with over 
+              Parasram India is one of India's most trusted stock broking firms with over 
               five decades of experience in the financial markets. Our Panipat branch brings 
               world-class investment services right to your doorstep.
             </p>
