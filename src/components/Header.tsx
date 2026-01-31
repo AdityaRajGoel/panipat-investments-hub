@@ -22,7 +22,7 @@ const Header = () => {
               <span>anilgoel.sphpnp@gmail.com</span>
             </a>
             <a 
-              href="https://instagram.com/parasrampanipat" 
+              href="https://www.instagram.com/parasrampanipat/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-1 hover:text-secondary transition-colors"
