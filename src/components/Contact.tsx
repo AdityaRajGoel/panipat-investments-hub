@@ -65,7 +65,7 @@ const Contact = () => {
                 title: "Instagram",
                 content: (
                   <a 
-                    href="https://instagram.com/parasrampanipat" 
+                    href="https://www.instagram.com/parasrampanipat/" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="hover:text-secondary transition-colors"
@@ -113,20 +113,30 @@ const Contact = () => {
           {/* Map placeholder & CTA */}
           <div className="space-y-6">
             <motion.div 
-              className="bg-primary/5 rounded-2xl h-64 flex items-center justify-center border border-border/50"
+              className="rounded-2xl overflow-hidden border border-border/50 shadow-lg"
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <div className="text-center p-6">
-                <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3469.037453247!2d76.96786!3d29.38917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390dda2a2b0e82e1%3A0x8a8a8a8a8a8a8a8a!2sShakuntala%20Complex%2C%20Palika%20Bazaar%2C%20Panipat%2C%20Haryana%20132103!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                width="100%"
+                height="300"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Parasram Panipat Office Location"
+                className="w-full"
+              />
+              <div className="bg-card p-4 flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
                   Shakuntala Complex, Palika Bazaar, Panipat
                 </p>
-                <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105">
+                <Button asChild variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                   <a 
-                    href="https://maps.google.com/?q=Shakuntala+Complex+Palika+Bazaar+Panipat+Haryana" 
+                    href="https://maps.app.goo.gl/g9hDv9cKfdz28Hhx6" 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
