@@ -94,7 +94,7 @@ const Footer = () => {
                 SEBI Registration No: INZ000175134 | NSE: 12583 | BSE: 1153 | MCX: 46510
               </p>
               <p>
-                © {new Date().getFullYear()} Paras Ram India Pvt. Ltd. All rights reserved. | Panipat Branch
+                © {new Date().getFullYear()} Parasram India Pvt. Ltd. All rights reserved. | Panipat Branch
               </p>
             </div>
           </div>
