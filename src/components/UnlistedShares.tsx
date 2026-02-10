@@ -2,6 +2,18 @@ import { Phone, TrendingUp, ShieldCheck, Handshake, ArrowRight, Sparkles } from 
 import { Button } from "@/components/ui/button";
 import { motion, Variants } from "framer-motion";
 
+const unlistedStocks = [
+  { name: "Metropolitan Stock Exchange of India Ltd", short: "MSE", tag: "Exchange" },
+  { name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Exchange" },
+  { name: "SBI Funds Management Ltd (SBI AMC)", short: "SBI", tag: "AMC" },
+  { name: "Chennai Super Kings Cricket Ltd (CSK)", short: "CSK", tag: "Sports" },
+  { name: "NCDEX Ltd", short: "NCX", tag: "Commodity Exchange" },
+  { name: "HDB Financial Services Ltd", short: "HDB", tag: "NBFC" },
+  { name: "Tata Capital Ltd", short: "TCL", tag: "Finance" },
+  { name: "OYO Rooms (Oravel Stays)", short: "OYO", tag: "Hospitality" },
+  { name: "Swiggy Ltd", short: "SWG", tag: "Food Tech" },
+];
+
 const benefits = [
   { icon: TrendingUp, title: "High Growth Potential", desc: "Invest early in companies before they go public for maximum returns." },
   { icon: ShieldCheck, title: "Verified Companies", desc: "We deal only in thoroughly vetted and verified unlisted companies." },
@@ -99,6 +111,51 @@ const UnlistedShares = () => {
               </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Available Unlisted Shares */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <h3 className="font-heading text-2xl md:text-3xl font-bold text-foreground text-center mb-10">
+            Available <span className="text-secondary">Unlisted Shares</span>
+          </h3>
+          <motion.div
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+          >
+            {unlistedStocks.map((stock) => (
+              <motion.div
+                key={stock.name}
+                className="group bg-card rounded-xl p-5 border border-border/50 hover:border-secondary/50 shadow-md hover:shadow-xl transition-all duration-300 flex items-center gap-4"
+                variants={itemVariants}
+                whileHover={{ y: -4, scale: 1.02 }}
+              >
+                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center text-xl font-bold text-secondary shrink-0 group-hover:bg-secondary/20 transition-colors">
+                  {stock.short}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-heading font-semibold text-foreground text-sm leading-tight">{stock.name}</h4>
+                  <p className="text-secondary text-xs font-medium mt-1">{stock.tag}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+          <motion.p
+            className="text-center text-muted-foreground mt-8 text-lg"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            ...and many more! <span className="text-secondary font-semibold">Contact us for pricing & availability.</span>
+          </motion.p>
         </motion.div>
 
         {/* CTA Section */}
