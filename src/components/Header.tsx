@@ -1,10 +1,22 @@
-import { Phone, Mail, ExternalLink, Instagram } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { href: "#about", label: "About" },
+    { href: "#services", label: "Services" },
+    { href: "#unlisted-shares", label: "Unlisted Shares" },
+    { href: "#app", label: "App" },
+    { href: "#contact", label: "Contact" },
+  ];
+
   return (
-    <header className="w-full">
+    <header className="w-full sticky top-0 z-50">
       {/* Top bar */}
       <div className="bg-hero text-primary-foreground py-2">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-sm gap-2">
@@ -17,9 +29,9 @@ const Header = () => {
               <Phone className="w-4 h-4" />
               <span>+91 9999790011</span>
             </a>
-            <a href="mailto:anilgoel.sphpnp@gmail.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
+            <a href="mailto:parasrampnp@gmail.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Mail className="w-4 h-4" />
-              <span>anilgoel.sphpnp@gmail.com</span>
+              <span>parasrampnp@gmail.com</span>
             </a>
             <a 
               href="https://www.instagram.com/parasrampanipat/" 
@@ -51,21 +63,70 @@ const Header = () => {
           </a>
           
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#about" className="font-medium text-foreground hover:text-secondary transition-colors">About</a>
-            <a href="#services" className="font-medium text-foreground hover:text-secondary transition-colors">Services</a>
-            <a href="#app" className="font-medium text-foreground hover:text-secondary transition-colors">App</a>
-            <a href="#contact" className="font-medium text-foreground hover:text-secondary transition-colors">Contact</a>
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href} className="font-medium text-foreground hover:text-secondary transition-colors">
+                {link.label}
+              </a>
+            ))}
           </nav>
           
-          <Button 
-            asChild
-            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold"
-          >
-            <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer">
-              Open Account
-            </a>
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              asChild
+              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold hidden sm:inline-flex"
+            >
+              <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer">
+                Open Account
+              </a>
+            </Button>
+            
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden p-2 text-foreground hover:text-secondary transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden overflow-hidden border-t border-border"
+            >
+              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
+                {navLinks.map((link, i) => (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    className="font-medium text-foreground hover:text-secondary transition-colors py-2 border-b border-border/30"
+                    onClick={() => setMobileMenuOpen(false)}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                  >
+                    {link.label}
+                  </motion.a>
+                ))}
+                <Button 
+                  asChild
+                  className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold mt-2 w-full"
+                >
+                  <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer">
+                    Open Account
+                  </a>
+                </Button>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );
