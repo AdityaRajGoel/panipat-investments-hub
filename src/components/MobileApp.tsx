@@ -103,33 +103,55 @@ const MobileApp = () => {
               <div className="relative bg-foreground rounded-[3rem] p-3 shadow-2xl">
                 <div className="bg-background rounded-[2.5rem] overflow-hidden w-64 h-[500px] flex flex-col">
                   {/* Phone screen content */}
-                  <div className="bg-hero p-4 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-5 h-5 text-secondary-foreground" />
-                    </div>
-                    <div>
-                      <div className="text-primary-foreground text-sm font-semibold">Parasram Trade</div>
-                      <div className="text-primary-foreground/60 text-xs">Live Market</div>
+                  {/* Dashboard Header */}
+                  <div className="bg-muted px-3 py-2 flex items-center justify-between border-b border-border">
+                    <span className="text-foreground text-xs font-bold">Dashboard</span>
+                    <div className="flex gap-1">
+                      <div className="w-4 h-4 bg-secondary/20 rounded-full" />
+                      <div className="w-4 h-4 bg-muted-foreground/20 rounded-full" />
                     </div>
                   </div>
-                  
-                  <div className="flex-1 p-4 space-y-3">
-                    {/* Mock stocks */}
-                    {[
-                      { name: "RELIANCE", price: "2,847.50", change: "+2.3%" },
-                      { name: "TCS", price: "3,456.80", change: "+1.5%" },
-                      { name: "HDFC BANK", price: "1,678.25", change: "-0.8%" },
-                      { name: "INFOSYS", price: "1,523.40", change: "+3.1%" },
-                      { name: "ICICI BANK", price: "987.65", change: "+0.9%" },
-                    ].map((stock, i) => (
-                      <div key={stock.name} className="bg-muted rounded-lg p-3 flex justify-between items-center">
-                        <div>
-                          <div className="text-xs font-semibold text-foreground">{stock.name}</div>
-                          <div className="text-xs text-muted-foreground">₹{stock.price}</div>
-                        </div>
-                        <div className={`text-xs font-medium ${stock.change.startsWith('+') ? 'text-secondary' : 'text-destructive'}`}>
-                          {stock.change}
-                        </div>
+
+                  {/* Net Holdings */}
+                  <div className="bg-muted/50 mx-2 mt-2 rounded-lg p-3 text-center">
+                    <div className="text-[10px] text-muted-foreground">Net Holdings</div>
+                    <div className="text-foreground text-sm font-bold">₹ 10,42,507.50</div>
+                    <div className="text-secondary text-[10px] font-semibold mt-1">81,502.50 (39.11%)</div>
+                  </div>
+
+                  {/* Sector Allocation Mini Pie */}
+                  <div className="mx-2 mt-2 bg-muted/50 rounded-lg p-2">
+                    <div className="text-[9px] text-center text-muted-foreground font-semibold mb-1">Sector Allocation</div>
+                    <div className="flex justify-center gap-3 text-[8px]">
+                      <span className="text-secondary font-medium">Financial 69.89%</span>
+                      <span className="text-brand-gold font-medium">Goods 18.22%</span>
+                    </div>
+                  </div>
+
+                  {/* Position Summary */}
+                  <div className="mx-2 mt-2 bg-muted/50 rounded-lg p-2 flex justify-between items-center">
+                    <div className="text-[10px] text-muted-foreground font-semibold">Position Summary</div>
+                    <div className="text-right">
+                      <div className="text-secondary text-xs font-bold">₹ 642.80</div>
+                      <div className="text-[8px] text-muted-foreground">4 Scrips</div>
+                    </div>
+                  </div>
+
+                  {/* Orders */}
+                  <div className="mx-2 mt-2 bg-muted/50 rounded-lg p-2">
+                    <div className="text-[9px] text-center text-muted-foreground font-semibold mb-1">Total Orders: 4</div>
+                    <div className="grid grid-cols-3 text-center text-[8px]">
+                      <div><div className="font-bold text-foreground">1</div><div className="text-muted-foreground">Executed</div></div>
+                      <div className="border-x border-border"><div className="font-bold text-foreground">0</div><div className="text-muted-foreground">Open</div></div>
+                      <div><div className="font-bold text-foreground">3</div><div className="text-muted-foreground">Others</div></div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Nav */}
+                  <div className="mt-auto border-t border-border flex justify-around py-2">
+                    {["Markets", "Watch", "Dashboard", "Position"].map((tab, i) => (
+                      <div key={tab} className={`text-[8px] text-center ${i === 2 ? "text-secondary font-bold" : "text-muted-foreground"}`}>
+                        {tab}
                       </div>
                     ))}
                   </div>
