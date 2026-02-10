@@ -209,7 +209,7 @@ const Hero = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-2 border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/15 font-bold text-lg px-10 py-6 backdrop-blur-sm transition-all duration-300"
+                  className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-lg px-10 py-6 backdrop-blur-sm transition-all duration-300"
                 >
                   <a href="#contact">
                     Visit Our Branch

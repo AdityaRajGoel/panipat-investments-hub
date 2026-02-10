@@ -55,8 +55,8 @@ const Contact = () => {
                 icon: Mail,
                 title: "Email",
                 content: (
-                  <a href="mailto:anilgoel.sphpnp@gmail.com" className="hover:text-secondary transition-colors">
-                    anilgoel.sphpnp@gmail.com
+                  <a href="mailto:parasrampnp@gmail.com" className="hover:text-secondary transition-colors">
+                    parasrampnp@gmail.com
                   </a>
                 ),
               },
