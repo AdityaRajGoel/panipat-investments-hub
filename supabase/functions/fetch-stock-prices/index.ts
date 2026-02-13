@@ -14,6 +14,11 @@ const STOCK_SYMBOLS = [
   { symbol: "ICICIBANK.NS", name: "ICICI BANK" },
   { symbol: "ITC.NS", name: "ITC" },
   { symbol: "BAJFINANCE.NS", name: "BAJAJ FIN" },
+  { symbol: "TATAMOTORS.NS", name: "TATA MOTORS" },
+  { symbol: "SBIN.NS", name: "SBI" },
+  { symbol: "BHARTIARTL.NS", name: "BHARTI AIRTEL" },
+  { symbol: "WIPRO.NS", name: "WIPRO" },
+  { symbol: "HCLTECH.NS", name: "HCL TECH" },
 ];
 
 async function fetchYahooQuote(symbol: string): Promise<{price: number; change: number; changePercent: number} | null> {
