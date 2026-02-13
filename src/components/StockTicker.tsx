@@ -70,7 +70,7 @@ const StockTicker = () => {
         ref={tickerRef}
         className="inline-flex gap-10"
         animate={isPaused ? {} : { x: ["0%", "-50%"] }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
       >
         {duplicated.map((stock, i) => (
           <motion.div
