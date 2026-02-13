@@ -21,6 +21,11 @@ const fallbackStocks: Stock[] = [
   { name: "ICICI BANK", price: "987.65", change: "+0.90%", up: true },
   { name: "ITC", price: "435.20", change: "+1.15%", up: true },
   { name: "BAJAJ FIN", price: "6,892.30", change: "-1.20%", up: false },
+  { name: "TATA MOTORS", price: "785.40", change: "+1.45%", up: true },
+  { name: "SBI", price: "625.80", change: "+0.65%", up: true },
+  { name: "BHARTI AIRTEL", price: "1,245.60", change: "+2.10%", up: true },
+  { name: "WIPRO", price: "478.90", change: "-0.55%", up: false },
+  { name: "HCL TECH", price: "1,567.30", change: "+1.80%", up: true },
 ];
 
 const StockTicker = () => {
