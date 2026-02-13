@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { motion, Variants } from "framer-motion";
 
 const unlistedStocks = [
-  { name: "Metropolitan Stock Exchange of India Ltd", short: "MSE", tag: "Exchange" },
-  { name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Exchange" },
-  { name: "SBI Funds Management Ltd (SBI AMC)", short: "SBI", tag: "AMC" },
-  { name: "Chennai Super Kings Cricket Ltd (CSK)", short: "CSK", tag: "Sports" },
-  { name: "NCDEX Ltd", short: "NCX", tag: "Commodity Exchange" },
-  { name: "HDB Financial Services Ltd", short: "HDB", tag: "NBFC" },
-  { name: "Tata Capital Ltd", short: "TCL", tag: "Finance" },
-  { name: "OYO Rooms (Oravel Stays)", short: "OYO", tag: "Hospitality" },
-  { name: "Swiggy Ltd", short: "SWG", tag: "Food Tech" },
+  { name: "Metropolitan Stock Exchange of India Ltd", short: "MSE", tag: "Exchange", color: "from-blue-600 to-blue-800" },
+  { name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Exchange", color: "from-indigo-600 to-indigo-800" },
+  { name: "SBI Funds Management Ltd (SBI AMC)", short: "SBI", tag: "AMC", color: "from-blue-500 to-cyan-600" },
+  { name: "Chennai Super Kings Cricket Ltd (CSK)", short: "CSK", tag: "Sports", color: "from-yellow-500 to-amber-600" },
+  { name: "NCDEX Ltd", short: "NCX", tag: "Commodity Exchange", color: "from-emerald-600 to-green-700" },
+  { name: "OYO Rooms (Oravel Stays)", short: "OYO", tag: "Hospitality", color: "from-red-500 to-rose-600" },
+  { name: "Orbis Financial Corporation Ltd", short: "OFC", tag: "Financial Services", color: "from-purple-600 to-violet-700" },
+  { name: "Apollo Green Energy Ltd", short: "AGE", tag: "Energy", color: "from-green-500 to-emerald-600" },
+  { name: "PharmEasy (API Holdings Ltd.)", short: "PE", tag: "HealthTech", color: "from-teal-500 to-cyan-600" },
 ];
 
 const benefits = [
@@ -138,7 +138,7 @@ const UnlistedShares = () => {
                 variants={itemVariants}
                 whileHover={{ y: -4, scale: 1.02 }}
               >
-                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center text-xl font-bold text-secondary shrink-0 group-hover:bg-secondary/20 transition-colors">
+                <div className={`w-12 h-12 bg-gradient-to-br ${stock.color} rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md`}>
                   {stock.short}
                 </div>
                 <div className="min-w-0">

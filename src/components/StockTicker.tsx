@@ -18,14 +18,14 @@ const StockTicker = () => {
   const duplicated = [...stocks, ...stocks];
 
   return (
-    <div className="bg-foreground text-primary-foreground py-2 overflow-hidden whitespace-nowrap">
+    <div className="bg-foreground text-primary-foreground py-3 overflow-hidden whitespace-nowrap">
       <motion.div
-        className="inline-flex gap-8"
+        className="inline-flex gap-10"
         animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
       >
         {duplicated.map((stock, i) => (
-          <div key={i} className="inline-flex items-center gap-2 text-sm">
+          <div key={i} className="inline-flex items-center gap-3 text-base">
             <span className="font-semibold">{stock.name}</span>
             <span className="text-primary-foreground/80">₹{stock.price}</span>
             <span className={`flex items-center gap-0.5 font-medium ${stock.up ? "text-secondary" : "text-destructive"}`}>
