@@ -35,6 +35,9 @@ const fallbackCommodities: Stock[] = [
   { name: "CRUDE OIL", price: "78.45", change: "-0.65%", up: false, unit: "USD/bbl" },
   { name: "NAT GAS", price: "2.34", change: "-1.10%", up: false, unit: "USD/MMBtu" },
   { name: "COPPER", price: "4.52", change: "+0.80%", up: true, unit: "USD/lb" },
+  { name: "ALUMINIUM", price: "0.96", change: "-0.45%", up: false, unit: "USD/lb" },
+  { name: "ZINC", price: "2,785.00", change: "+0.60%", up: true, unit: "USD/t" },
+  { name: "MCX LEAD", price: "0.88", change: "-0.30%", up: false, unit: "USD/lb" },
   { name: "WHEAT", price: "548.25", change: "-0.30%", up: false, unit: "USD/bu" },
   { name: "NIFTY FUT", price: "22,180.00", change: "+0.90%", up: true, unit: "INR" },
   { name: "BANKNIFTY FUT", price: "46,950.00", change: "-0.25%", up: false, unit: "INR" },
@@ -168,8 +171,8 @@ const StockTicker = () => {
       <TickerRow items={stocks} direction="left" bgClass="bg-foreground" textClass="text-primary-foreground" duration={45} />
       {/* Divider */}
       <div className="h-px bg-primary/20" />
-      {/* Row 2: F&O & Commodities — scrolls right, slightly different shade */}
-      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={50} />
+      {/* Row 2: F&O & Commodities — scrolls right */}
+      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={45} />
     </div>
   );
 };
