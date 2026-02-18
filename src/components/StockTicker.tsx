@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, TrendingDown, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Stock = {
@@ -8,6 +8,7 @@ type Stock = {
   price: string;
   change: string;
   up: boolean;
+  unit?: string;
 };
 
 const fallbackStocks: Stock[] = [
@@ -28,98 +29,106 @@ const fallbackStocks: Stock[] = [
   { name: "HCL TECH", price: "1,567.30", change: "+1.80%", up: true },
 ];
 
-const StockTicker = () => {
-  const [stocks, setStocks] = useState<Stock[]>(fallbackStocks);
-  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
+const fallbackCommodities: Stock[] = [
+  { name: "GOLD", price: "2,345.60", change: "+0.45%", up: true, unit: "USD/oz" },
+  { name: "SILVER", price: "29.82", change: "+1.20%", up: true, unit: "USD/oz" },
+  { name: "CRUDE OIL", price: "78.45", change: "-0.65%", up: false, unit: "USD/bbl" },
+  { name: "NAT GAS", price: "2.34", change: "-1.10%", up: false, unit: "USD/MMBtu" },
+  { name: "COPPER", price: "4.52", change: "+0.80%", up: true, unit: "USD/lb" },
+  { name: "WHEAT", price: "548.25", change: "-0.30%", up: false, unit: "USD/bu" },
+  { name: "NIFTY FUT", price: "22,180.00", change: "+0.90%", up: true, unit: "INR" },
+  { name: "BANKNIFTY FUT", price: "46,950.00", change: "-0.25%", up: false, unit: "INR" },
+  { name: "INDIA VIX", price: "13.45", change: "-2.10%", up: false, unit: "" },
+  { name: "USD/INR", price: "83.42", change: "+0.05%", up: true, unit: "" },
+  { name: "EUR/INR", price: "90.15", change: "-0.12%", up: false, unit: "" },
+  { name: "GBP/INR", price: "105.78", change: "+0.08%", up: true, unit: "" },
+];
+
+interface TickerRowProps {
+  items: Stock[];
+  direction?: "left" | "right";
+  bgClass?: string;
+  textClass?: string;
+  duration?: number;
+}
+
+const TickerRow = ({ items, direction = "left", bgClass = "bg-foreground", textClass = "text-primary-foreground", duration = 45 }: TickerRowProps) => {
+  const [selectedItem, setSelectedItem] = useState<Stock | null>(null);
   const [isPaused, setIsPaused] = useState(false);
-  const tickerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchPrices = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('fetch-stock-prices');
-        if (!error && data?.success && data.data?.length > 0) {
-          setStocks(data.data);
-        }
-      } catch (e) {
-        console.log('Using fallback stock data');
-      }
-    };
+  const duplicated = [...items, ...items];
+  const animateX = direction === "left" ? ["0%", "-50%"] : ["-50%", "0%"];
 
-    fetchPrices();
-    // Refresh every 5 minutes during market hours
-    const interval = setInterval(fetchPrices, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const duplicated = [...stocks, ...stocks];
-
-  const handleStockClick = (stock: Stock) => {
-    setSelectedStock(stock);
+  const handleClick = (item: Stock) => {
+    setSelectedItem(item);
     setIsPaused(true);
   };
 
   const handleClose = () => {
-    setSelectedStock(null);
+    setSelectedItem(null);
     setIsPaused(false);
   };
 
   return (
-    <div className="bg-foreground text-primary-foreground py-3 overflow-hidden whitespace-nowrap relative">
+    <div className={`${bgClass} ${textClass} py-2.5 overflow-hidden whitespace-nowrap relative`}>
       <motion.div
-        ref={tickerRef}
         className="inline-flex gap-10"
-        animate={isPaused ? {} : { x: ["0%", "-50%"] }}
-        transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+        animate={isPaused ? {} : { x: animateX }}
+        transition={{ duration, repeat: Infinity, ease: "linear" }}
       >
-        {duplicated.map((stock, i) => (
+        {duplicated.map((item, i) => (
           <motion.div
             key={i}
-            className="inline-flex items-center gap-3 text-base cursor-pointer select-none px-3 py-1 rounded-md hover:bg-primary-foreground/10 transition-colors"
-            onClick={() => handleStockClick(stock)}
-            whileHover={{ scale: 1.1 }}
+            className="inline-flex items-center gap-3 text-sm cursor-pointer select-none px-3 py-1 rounded-md hover:bg-white/10 transition-colors"
+            onClick={() => handleClick(item)}
+            whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="font-semibold">{stock.name}</span>
-            <span className="text-primary-foreground/80">₹{stock.price}</span>
-            <span className={`flex items-center gap-0.5 font-medium ${stock.up ? "text-secondary" : "text-destructive"}`}>
-              {stock.up ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-              {stock.change}
+            <span className="font-semibold tracking-wide">{item.name}</span>
+            {item.unit ? (
+              <span className="opacity-70 text-xs">{item.unit}</span>
+            ) : null}
+            <span className="opacity-80">{item.price}</span>
+            <span className={`flex items-center gap-0.5 font-medium ${item.up ? "text-secondary" : "text-destructive"}`}>
+              {item.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {item.change}
             </span>
           </motion.div>
         ))}
       </motion.div>
 
-      {/* Expanded stock overlay */}
       <AnimatePresence>
-        {selectedStock && (
+        {selectedItem && (
           <motion.div
-            className="absolute inset-0 bg-foreground flex items-center justify-center z-10"
+            className={`absolute inset-0 ${bgClass} flex items-center justify-center z-10`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
             <motion.div
-              className="flex items-center gap-6 text-primary-foreground"
+              className={`flex items-center gap-6 ${textClass}`}
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="text-center">
-                <h3 className="text-2xl md:text-3xl font-bold">{selectedStock.name}</h3>
+                <h3 className="text-xl md:text-2xl font-bold">
+                  {selectedItem.name}
+                  {selectedItem.unit ? <span className="text-sm font-normal ml-2 opacity-60">({selectedItem.unit})</span> : null}
+                </h3>
                 <div className="flex items-center justify-center gap-4 mt-1">
-                  <span className="text-xl md:text-2xl font-semibold text-primary-foreground/90">₹{selectedStock.price}</span>
-                  <span className={`flex items-center gap-1 text-lg md:text-xl font-bold ${selectedStock.up ? "text-secondary" : "text-destructive"}`}>
-                    {selectedStock.up ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
-                    {selectedStock.change}
+                  <span className="text-lg md:text-xl font-semibold opacity-90">{selectedItem.price}</span>
+                  <span className={`flex items-center gap-1 text-base md:text-lg font-bold ${selectedItem.up ? "text-secondary" : "text-destructive"}`}>
+                    {selectedItem.up ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                    {selectedItem.change}
                   </span>
                 </div>
               </div>
               <button
                 onClick={handleClose}
-                className="p-2 rounded-full hover:bg-primary-foreground/10 transition-colors"
+                className="p-2 rounded-full hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -127,6 +136,40 @@ const StockTicker = () => {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+};
+
+const StockTicker = () => {
+  const [stocks, setStocks] = useState<Stock[]>(fallbackStocks);
+  const [commodities, setCommodities] = useState<Stock[]>(fallbackCommodities);
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('fetch-stock-prices');
+        if (!error && data?.success) {
+          if (data.data?.length > 0) setStocks(data.data);
+          if (data.commodities?.length > 0) setCommodities(data.commodities);
+        }
+      } catch (e) {
+        console.log('Using fallback stock data');
+      }
+    };
+
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="border-b border-border/20">
+      {/* Row 1: Equities & Indices — scrolls left */}
+      <TickerRow items={stocks} direction="left" bgClass="bg-foreground" textClass="text-primary-foreground" duration={45} />
+      {/* Divider */}
+      <div className="h-px bg-primary/20" />
+      {/* Row 2: F&O & Commodities — scrolls right, slightly different shade */}
+      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={50} />
     </div>
   );
 };

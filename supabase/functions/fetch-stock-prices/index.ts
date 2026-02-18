@@ -21,6 +21,21 @@ const STOCK_SYMBOLS = [
   { symbol: "HCLTECH.NS", name: "HCL TECH" },
 ];
 
+const COMMODITY_SYMBOLS = [
+  { symbol: "GC=F", name: "GOLD", unit: "USD/oz" },
+  { symbol: "SI=F", name: "SILVER", unit: "USD/oz" },
+  { symbol: "CL=F", name: "CRUDE OIL", unit: "USD/bbl" },
+  { symbol: "NG=F", name: "NAT GAS", unit: "USD/MMBtu" },
+  { symbol: "HG=F", name: "COPPER", unit: "USD/lb" },
+  { symbol: "ZW=F", name: "WHEAT", unit: "USD/bu" },
+  { symbol: "^NSEI", name: "NIFTY FUT", unit: "INR" },
+  { symbol: "^NSEBANK", name: "BANKNIFTY FUT", unit: "INR" },
+  { symbol: "^INDIAVIX", name: "INDIA VIX", unit: "" },
+  { symbol: "USDINR=X", name: "USD/INR", unit: "" },
+  { symbol: "EURINR=X", name: "EUR/INR", unit: "" },
+  { symbol: "GBPINR=X", name: "GBP/INR", unit: "" },
+];
+
 async function fetchYahooQuote(symbol: string): Promise<{price: number; change: number; changePercent: number} | null> {
   try {
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`;
@@ -50,26 +65,45 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const results = await Promise.all(
-      STOCK_SYMBOLS.map(async (stock) => {
-        const quote = await fetchYahooQuote(stock.symbol);
-        if (quote) {
-          return {
-            name: stock.name,
-            symbol: stock.symbol,
-            price: quote.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-            change: `${quote.changePercent >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%`,
-            up: quote.changePercent >= 0,
-          };
-        }
-        return null;
-      })
-    );
-
-    const validResults = results.filter(Boolean);
+    const [stockResults, commodityResults] = await Promise.all([
+      Promise.all(
+        STOCK_SYMBOLS.map(async (stock) => {
+          const quote = await fetchYahooQuote(stock.symbol);
+          if (quote) {
+            return {
+              name: stock.name,
+              price: quote.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+              change: `${quote.changePercent >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%`,
+              up: quote.changePercent >= 0,
+            };
+          }
+          return null;
+        })
+      ),
+      Promise.all(
+        COMMODITY_SYMBOLS.map(async (item) => {
+          const quote = await fetchYahooQuote(item.symbol);
+          if (quote) {
+            return {
+              name: item.name,
+              price: quote.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+              change: `${quote.changePercent >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%`,
+              up: quote.changePercent >= 0,
+              unit: item.unit,
+            };
+          }
+          return null;
+        })
+      ),
+    ]);
 
     return new Response(
-      JSON.stringify({ success: true, data: validResults, fetchedAt: new Date().toISOString() }),
+      JSON.stringify({
+        success: true,
+        data: stockResults.filter(Boolean),
+        commodities: commodityResults.filter(Boolean),
+        fetchedAt: new Date().toISOString(),
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
