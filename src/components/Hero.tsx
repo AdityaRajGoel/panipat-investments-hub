@@ -1,55 +1,99 @@
-import { ArrowRight, TrendingUp, Shield, Users, ChevronDown, Sparkles } from "lucide-react";
+import { ArrowRight, TrendingUp, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, Variants, Easing } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const easeOut: Easing = [0.16, 1, 0.3, 1];
+
+// Animated count-up hook
+function useCountUp(target: number, duration = 2) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (!started) return;
+    let start = 0;
+    const step = target / (duration * 60);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { setCount(target); clearInterval(timer); }
+      else setCount(Math.floor(start));
+    }, 1000 / 60);
+    return () => clearInterval(timer);
+  }, [started, target, duration]);
+
+  return { count, start: () => setStarted(true) };
+}
+
+const FloatingCard = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
+  <motion.div
+    className={`absolute bg-card/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-4 ${className}`}
+    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+    animate={{ opacity: 1, scale: 1, y: 0 }}
+    transition={{ delay, duration: 0.6, ease: easeOut }}
+  >
+    <motion.div
+      animate={{ y: [-4, 4, -4] }}
+      transition={{ duration: 3 + delay, repeat: Infinity, ease: "easeInOut" }}
+    >
+      {children}
+    </motion.div>
+  </motion.div>
+);
+
+const StatCounter = ({ target, label, suffix = "", delay = 0 }: { target: number; label: string; suffix?: string; delay?: number }) => {
+  const { count, start } = useCountUp(target, 2);
+  return (
+    <motion.div
+      className="text-center"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.6 }}
+      onAnimationComplete={start}
+    >
+      <div className="text-3xl md:text-4xl font-bold text-primary-foreground">
+        {count.toLocaleString('en-IN')}{suffix}
+      </div>
+      <div className="text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">{label}</div>
+    </motion.div>
+  );
+};
 
 const Hero = () => {
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.12, delayChildren: 0.1 },
     },
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.7, ease: easeOut },
-    },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: easeOut } },
   };
 
-  const statsVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.8, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: easeOut },
-    },
-  };
+  const trustBadges = [
+    { icon: Award, label: "SEBI Registered" },
+    { icon: Lock, label: "Secure Trading" },
+    { icon: Star, label: "5-Star Rated" },
+  ];
 
-  const floatingVariants: Variants = {
-    animate: {
-      y: [-10, 10, -10],
-      rotate: [0, 5, -5, 0],
-      transition: {
-        duration: 6,
-        repeat: Infinity,
-        ease: "easeInOut",
-      },
-    },
-  };
+  const tips = [
+    "💡 Diversify your portfolio across sectors",
+    "📈 SIP builds wealth over time",
+    "🛡️ Never invest money you can't afford to lose",
+    "🔍 Research before you invest",
+  ];
+  const [tipIndex, setTipIndex] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTipIndex(i => (i + 1) % tips.length), 3500);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <section 
+    <section
       className="relative min-h-screen flex items-center overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(135deg, hsl(213 80% 12% / 0.92) 0%, hsl(213 80% 22% / 0.88) 50%, hsl(145 70% 25% / 0.85) 100%), url(${heroBg})`,
@@ -60,117 +104,92 @@ const Hero = () => {
     >
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Large gradient orbs */}
-        <motion.div 
+        <motion.div
           className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-secondary/30 to-brand-gold/20 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{ 
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3], x: [0, 50, 0], y: [0, 30, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div 
+        <motion.div
           className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-tl from-brand-gold/20 to-secondary/30 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.5, 0.2],
-            x: [0, -40, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{ 
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2], x: [0, -40, 0], y: [0, -20, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div 
+        <motion.div
           className="absolute top-1/2 left-1/3 w-72 h-72 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl"
-          animate={{ 
-            scale: [1, 1.4, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{ 
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
+          animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         />
-
         {/* Floating particles */}
-        {[...Array(6)].map((_, i) => (
+        {[...Array(10)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-secondary/40 rounded-full"
+            className="absolute rounded-full"
             style={{
-              left: `${15 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
+              width: `${4 + (i % 3) * 4}px`,
+              height: `${4 + (i % 3) * 4}px`,
+              left: `${8 + i * 9}%`,
+              top: `${15 + (i % 5) * 17}%`,
+              background: i % 2 === 0 ? 'hsl(145 70% 40% / 0.4)' : 'hsl(45 90% 55% / 0.3)',
             }}
-            animate={{
-              y: [-20, 20, -20],
-              x: [-10, 10, -10],
-              opacity: [0.3, 0.8, 0.3],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 4 + i,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5,
-            }}
+            animate={{ y: [-20, 20, -20], x: [-10, 10, -10], opacity: [0.3, 0.9, 0.3], scale: [1, 1.5, 1] }}
+            transition={{ duration: 4 + i * 0.7, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
           />
         ))}
-
-        {/* Grid pattern overlay */}
-        <div 
+        {/* Grid pattern */}
+        <div
           className="absolute inset-0 opacity-5"
           style={{
             backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
             backgroundSize: '50px 50px',
           }}
         />
+        {/* Animated diagonal lines */}
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={`line-${i}`}
+            className="absolute h-px opacity-10"
+            style={{
+              width: '200px',
+              background: 'linear-gradient(90deg, transparent, hsl(145 70% 40%), transparent)',
+              top: `${20 + i * 15}%`,
+              left: '-200px',
+            }}
+            animate={{ x: ['0vw', '120vw'] }}
+            transition={{ duration: 8 + i * 2, repeat: Infinity, ease: "linear", delay: i * 1.5 }}
+          />
+        ))}
       </div>
 
       <div className="container mx-auto px-4 py-24 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <motion.div 
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-secondary/30 to-brand-gold/20 border border-secondary/40 rounded-full px-5 py-2.5 mb-8 backdrop-blur-md shadow-lg"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-4 h-4 text-brand-gold" />
-              </motion.div>
-              <span className="text-primary-foreground text-sm font-semibold tracking-wide">Panipat Branch • Now Open</span>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible">
+
+            {/* Trust badges row */}
+            <motion.div className="flex flex-wrap gap-3 mb-8" variants={itemVariants}>
+              {trustBadges.map(({ icon: Icon, label }, i) => (
+                <motion.div
+                  key={label}
+                  className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 backdrop-blur-md"
+                  whileHover={{ scale: 1.08, backgroundColor: "rgba(255,255,255,0.15)" }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + i * 0.1 }}
+                >
+                  <Icon className="w-3.5 h-3.5 text-secondary" />
+                  <span className="text-primary-foreground text-xs font-semibold">{label}</span>
+                </motion.div>
+              ))}
             </motion.div>
-            
-            <motion.h1 
+
+            <motion.h1
               className="font-heading text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-8 leading-[1.1]"
               variants={itemVariants}
             >
-              <motion.span
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.7 }}
-              >
+              <motion.span initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.7 }}>
                 Your Trusted Partner
               </motion.span>
               <br />
-              <motion.span 
+              <motion.span
                 className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary"
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -179,21 +198,38 @@ const Hero = () => {
                 for Smart Investments
               </motion.span>
             </motion.h1>
-            
-            <motion.p 
-              className="text-lg md:text-xl text-primary-foreground/85 mb-10 max-w-xl leading-relaxed"
-              variants={itemVariants}
-            >
-              Parasram India brings decades of stock broking expertise to Panipat. 
+
+            <motion.p className="text-lg md:text-xl text-primary-foreground/85 mb-6 max-w-xl leading-relaxed" variants={itemVariants}>
+              Parasram India brings decades of stock broking expertise to Panipat.
               Join thousands of investors who trust us with their financial future.
             </motion.p>
-            
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 mb-14"
+
+            {/* Rotating investment tip */}
+            <motion.div
+              className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-10 backdrop-blur-md"
               variants={itemVariants}
             >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className="w-4 h-4 text-brand-gold flex-shrink-0" />
+              </motion.div>
+              <motion.span
+                key={tipIndex}
+                className="text-sm text-primary-foreground/90"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.4 }}
+              >
+                {tips[tipIndex]}
+              </motion.span>
+            </motion.div>
+
+            <motion.div className="flex flex-col sm:flex-row gap-4 mb-14" variants={itemVariants}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                <Button 
+                <Button
                   asChild
                   size="lg"
                   className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-lg px-10 py-6 shadow-xl shadow-secondary/30 transition-all duration-300"
@@ -205,86 +241,64 @@ const Hero = () => {
                 </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                <Button 
+                <Button
                   asChild
                   variant="outline"
                   size="lg"
                   className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-lg px-10 py-6 backdrop-blur-sm transition-all duration-300"
                 >
-                  <a href="#contact">
-                    Visit Our Branch
-                  </a>
+                  <a href="#contact">Visit Our Branch</a>
                 </Button>
               </motion.div>
             </motion.div>
-            
-            {/* Stats */}
-            <motion.div 
+
+            {/* Stats with count-up */}
+            <motion.div
               className="grid grid-cols-3 gap-6 pt-8 border-t border-primary-foreground/20"
               variants={containerVariants}
             >
-              {[
-                { icon: TrendingUp, value: "50+", label: "Years Legacy" },
-                { icon: Users, value: "10L+", label: "Happy Clients" },
-                { icon: Shield, value: "SEBI", label: "Registered" },
-              ].map((stat, index) => (
-                <motion.div 
-                  key={stat.label}
-                  className="flex items-center gap-3 group"
-                  variants={statsVariants}
-                  whileHover={{ scale: 1.08, y: -5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <motion.div 
-                    className="p-3 bg-gradient-to-br from-secondary/30 to-brand-gold/20 rounded-xl backdrop-blur-sm border border-secondary/30 group-hover:shadow-lg group-hover:shadow-secondary/20 transition-all duration-300"
-                    whileHover={{ rotate: [0, -10, 10, 0] }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <stat.icon className="w-6 h-6 text-secondary" />
-                  </motion.div>
-                  <div>
-                    <motion.div 
-                      className="text-2xl md:text-3xl font-bold text-primary-foreground"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1 + index * 0.2 }}
-                    >
-                      {stat.value}
-                    </motion.div>
-                    <div className="text-sm text-primary-foreground/70">{stat.label}</div>
-                  </div>
-                </motion.div>
-              ))}
+              <StatCounter target={50} suffix="+" label="Years Legacy" delay={0.8} />
+              <StatCounter target={1000000} suffix="+" label="Happy Clients" delay={1.0} />
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2, duration: 0.6 }}
+              >
+                <div className="text-3xl md:text-4xl font-bold text-primary-foreground">SEBI</div>
+                <div className="text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Registered</div>
+              </motion.div>
             </motion.div>
           </motion.div>
 
-          {/* Right side - Animated graphic */}
-          <motion.div 
-            className="hidden lg:flex items-center justify-center relative"
+          {/* Right side — animated graphic + floating cards */}
+          <motion.div
+            className="hidden lg:flex items-center justify-center relative h-[520px]"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
+            {/* Central orb */}
             <motion.div
               className="relative w-80 h-80"
-              variants={floatingVariants}
-              animate="animate"
+              animate={{ y: [-10, 10, -10], rotate: [0, 3, -3, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             >
-              {/* Outer ring */}
               <motion.div
                 className="absolute inset-0 rounded-full border-4 border-dashed border-secondary/30"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
               />
-              
-              {/* Middle ring */}
               <motion.div
                 className="absolute inset-8 rounded-full border-2 border-brand-gold/40"
                 animate={{ rotate: -360 }}
                 transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
               />
-              
-              {/* Inner content */}
+              <motion.div
+                className="absolute inset-16 rounded-full border border-secondary/20"
+                animate={{ rotate: 180 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              />
               <div className="absolute inset-12 rounded-full bg-gradient-to-br from-secondary/20 to-brand-gold/10 backdrop-blur-xl flex items-center justify-center border border-secondary/30">
                 <motion.div
                   className="text-center"
@@ -292,47 +306,84 @@ const Hero = () => {
                   transition={{ duration: 3, repeat: Infinity }}
                 >
                   <div className="text-4xl font-bold text-primary-foreground mb-1">₹</div>
-                  <div className="text-sm text-primary-foreground/80">Invest Smart</div>
+                  <div className="text-sm text-primary-foreground/80 font-semibold">Invest Smart</div>
                 </motion.div>
               </div>
-
-              {/* Orbiting elements */}
-              {[TrendingUp, Shield, Users].map((Icon, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-12 h-12 bg-gradient-to-br from-secondary to-brand-green rounded-full flex items-center justify-center shadow-lg"
-                  style={{
-                    top: '50%',
-                    left: '50%',
-                  }}
-                  animate={{
-                    x: [
-                      Math.cos((i * 2 * Math.PI) / 3) * 130,
-                      Math.cos((i * 2 * Math.PI) / 3 + Math.PI) * 130,
-                      Math.cos((i * 2 * Math.PI) / 3) * 130,
-                    ],
-                    y: [
-                      Math.sin((i * 2 * Math.PI) / 3) * 130,
-                      Math.sin((i * 2 * Math.PI) / 3 + Math.PI) * 130,
-                      Math.sin((i * 2 * Math.PI) / 3) * 130,
-                    ],
-                  }}
-                  transition={{
-                    duration: 15,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                >
-                  <Icon className="w-5 h-5 text-white" />
-                </motion.div>
-              ))}
+              {/* Orbiting icons */}
+              {[TrendingUp, Shield, Users, BarChart2].map((Icon, i) => {
+                const angle = (i * 2 * Math.PI) / 4;
+                const nextAngle = angle + 2 * Math.PI;
+                return (
+                  <motion.div
+                    key={i}
+                    className="absolute w-11 h-11 bg-gradient-to-br from-secondary to-brand-green rounded-full flex items-center justify-center shadow-lg"
+                    style={{ top: '50%', left: '50%', marginTop: '-22px', marginLeft: '-22px' }}
+                    animate={{
+                      x: [Math.cos(angle) * 140, Math.cos(angle + Math.PI) * 140, Math.cos(nextAngle) * 140],
+                      y: [Math.sin(angle) * 140, Math.sin(angle + Math.PI) * 140, Math.sin(nextAngle) * 140],
+                    }}
+                    transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Icon className="w-5 h-5 text-white" />
+                  </motion.div>
+                );
+              })}
             </motion.div>
+
+            {/* Floating info cards */}
+            <FloatingCard delay={1.0} className="top-4 left-0 min-w-[160px]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-secondary/20 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-secondary" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">NIFTY 50</div>
+                  <div className="font-bold text-foreground text-sm">+0.85%</div>
+                </div>
+              </div>
+            </FloatingCard>
+
+            <FloatingCard delay={1.2} className="top-4 right-0 min-w-[160px]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-brand-gold/20 rounded-lg flex items-center justify-center">
+                  <Award className="w-5 h-5 text-brand-gold" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Trust Score</div>
+                  <div className="font-bold text-foreground text-sm">98.5%</div>
+                </div>
+              </div>
+            </FloatingCard>
+
+            <FloatingCard delay={1.4} className="bottom-4 left-0 min-w-[170px]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Active Clients</div>
+                  <div className="font-bold text-foreground text-sm">10 Lakh+</div>
+                </div>
+              </div>
+            </FloatingCard>
+
+            <FloatingCard delay={1.6} className="bottom-4 right-0 min-w-[160px]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-secondary/10 rounded-lg flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-secondary" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Since</div>
+                  <div className="font-bold text-foreground text-sm">1970</div>
+                </div>
+              </div>
+            </FloatingCard>
           </motion.div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <motion.a 
+      <motion.a
         href="#about"
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-primary-foreground/60 hover:text-primary-foreground transition-colors cursor-pointer"
         initial={{ opacity: 0, y: -20 }}

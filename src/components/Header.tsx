@@ -59,7 +59,7 @@ const Header = () => {
       <div className="bg-card shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <a href="/" className="flex items-center">
-            <img src={logo} alt="Parasram - Science of Investment" className="h-14 md:h-16 w-auto" />
+            <img src={logo} alt="Parasram - Science of Investment" className="h-20 md:h-24 w-auto" />
           </a>
           
           <nav className="hidden md:flex items-center gap-6">
