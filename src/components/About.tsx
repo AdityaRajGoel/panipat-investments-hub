@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, TrendingUp, Users, Award, BarChart2 } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 
 const features = [
@@ -41,8 +41,60 @@ const About = () => {
   };
 
   return (
-    <section id="about" className="py-24 bg-background overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section id="about" className="py-24 bg-background overflow-hidden relative">
+      {/* Ambient orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          className="absolute top-20 right-10 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-10 left-10 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"
+          animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.35, 0.15] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Stats strip */}
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20 bg-gradient-to-r from-primary/5 via-secondary/5 to-brand-gold/5 rounded-2xl p-8 border border-border/50"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          {[
+            { icon: TrendingUp, value: "50+", label: "Years of Experience", color: "text-secondary" },
+            { icon: Users, value: "10L+", label: "Happy Clients", color: "text-brand-gold" },
+            { icon: Award, value: "SEBI", label: "Registered Broker", color: "text-primary" },
+            { icon: BarChart2, value: "NSE·BSE·MCX", label: "Exchange Member", color: "text-secondary" },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              className="flex flex-col items-center text-center gap-3 group"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              whileHover={{ y: -4 }}
+            >
+              <motion.div
+                className="w-12 h-12 rounded-xl bg-white border border-border/50 shadow-sm flex items-center justify-center group-hover:shadow-md transition-shadow"
+                whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              </motion.div>
+              <div>
+                <div className={`font-bold text-xl md:text-2xl ${stat.color}`}>{stat.value}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial="hidden"
@@ -50,12 +102,12 @@ const About = () => {
             viewport={{ once: true, margin: "-100px" }}
             variants={containerVariants}
           >
-            <motion.h2 
+            <motion.h2
               className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6"
               variants={itemVariants}
             >
               Welcome to Parasram India
-              <motion.span 
+              <motion.span
                 className="block text-secondary mt-2"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -65,36 +117,27 @@ const About = () => {
                 Panipat Branch
               </motion.span>
             </motion.h2>
-            
-            <motion.p 
-              className="text-muted-foreground text-lg mb-6"
-              variants={itemVariants}
-            >
-              Parasram India is one of India's most trusted stock broking firms with over 
-              five decades of experience in the financial markets. Our Panipat branch brings 
+
+            <motion.p className="text-muted-foreground text-lg mb-6" variants={itemVariants}>
+              Parasram India is one of India's most trusted stock broking firms with over
+              five decades of experience in the financial markets. Our Panipat branch brings
               world-class investment services right to your doorstep.
             </motion.p>
-            
-            <motion.p 
-              className="text-muted-foreground mb-8"
-              variants={itemVariants}
-            >
-              Whether you're a seasoned investor or just starting your investment journey, 
-              our team of experts is here to guide you every step of the way. We combine 
-              traditional values with cutting-edge technology to deliver the best trading 
+
+            <motion.p className="text-muted-foreground mb-8" variants={itemVariants}>
+              Whether you're a seasoned investor or just starting your investment journey,
+              our team of experts is here to guide you every step of the way. We combine
+              traditional values with cutting-edge technology to deliver the best trading
               experience.
             </motion.p>
-            
-            <motion.div 
-              className="grid sm:grid-cols-2 gap-4"
-              variants={containerVariants}
-            >
+
+            <motion.div className="grid sm:grid-cols-2 gap-4" variants={containerVariants}>
               {features.map((feature, index) => (
-                <motion.div 
-                  key={feature} 
+                <motion.div
+                  key={feature}
                   className="flex items-center gap-3 group"
                   variants={itemVariants}
-                  whileHover={{ x: 5 }}
+                  whileHover={{ x: 6, backgroundColor: "hsl(145 70% 40% / 0.05)", borderRadius: "8px", padding: "4px 8px" }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <motion.div
@@ -110,15 +153,15 @@ const About = () => {
               ))}
             </motion.div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="relative"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={cardVariants}
           >
-            <motion.div 
+            <motion.div
               className="bg-hero rounded-2xl p-8 lg:p-12 text-primary-foreground shadow-2xl"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -130,15 +173,16 @@ const About = () => {
                   { num: 2, title: "Personalized Service", desc: "Face-to-face consultations with our advisors" },
                   { num: 3, title: "Quick Resolution", desc: "On-ground support for all your queries" },
                 ].map((item, index) => (
-                  <motion.li 
+                  <motion.li
                     key={item.num}
-                    className="flex gap-4"
+                    className="flex gap-4 group"
                     initial={{ opacity: 0, x: 30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3 + index * 0.15, duration: 0.5 }}
+                    whileHover={{ x: 4 }}
                   >
-                    <motion.span 
+                    <motion.span
                       className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-secondary-foreground font-bold"
                       whileHover={{ scale: 1.2, rotate: 360 }}
                       transition={{ type: "spring", stiffness: 300 }}
@@ -146,28 +190,36 @@ const About = () => {
                       {item.num}
                     </motion.span>
                     <div>
-                      <div className="font-semibold">{item.title}</div>
+                      <div className="font-semibold group-hover:text-secondary transition-colors duration-200">{item.title}</div>
                       <div className="text-primary-foreground/70 text-sm">{item.desc}</div>
                     </div>
                   </motion.li>
                 ))}
               </ul>
             </motion.div>
-            
+
             {/* Decorative elements */}
-            <motion.div 
+            <motion.div
               className="absolute -bottom-4 -right-4 w-24 h-24 bg-secondary/20 rounded-2xl -z-10"
               initial={{ opacity: 0, scale: 0 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5, duration: 0.5 }}
+              animate={{ rotate: [0, 5, -5, 0] }}
             />
-            <motion.div 
+            <motion.div
               className="absolute -top-4 -left-4 w-16 h-16 bg-brand-gold/20 rounded-xl -z-10"
               initial={{ opacity: 0, scale: 0 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.6, duration: 0.5 }}
+              animate={{ rotate: [0, -8, 8, 0] }}
+            />
+            {/* Extra floating dot */}
+            <motion.div
+              className="absolute top-1/2 -right-8 w-6 h-6 bg-secondary/40 rounded-full -z-10"
+              animate={{ y: [-10, 10, -10], opacity: [0.4, 0.9, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             />
           </motion.div>
         </div>
