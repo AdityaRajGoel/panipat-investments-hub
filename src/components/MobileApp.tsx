@@ -1,7 +1,7 @@
 import { Smartphone, Download, Star, Shield, Zap, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 const features = [
   { icon: Zap, text: "Lightning Fast Trading" },
   { icon: Shield, text: "Bank-Level Security" },
@@ -10,8 +10,15 @@ const features = [
 ];
 
 const MobileApp = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const phoneY = useTransform(scrollYProgress, [0, 1], [60, -60]);
+
   return (
-    <section id="app" className="py-20 bg-hero overflow-hidden">
+    <section ref={sectionRef} id="app" className="py-20 bg-hero overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
@@ -94,6 +101,7 @@ const MobileApp = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
+            style={{ y: phoneY }}
           >
             <div className="relative">
               {/* Glow effect */}

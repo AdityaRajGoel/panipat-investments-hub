@@ -1,5 +1,6 @@
 import { CheckCircle2, TrendingUp, Users, Award, BarChart2 } from "lucide-react";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 const features = [
   "SEBI Registered Stock Broker",
@@ -11,6 +12,12 @@ const features = [
 ];
 
 const About = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [50, -50]);
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -41,9 +48,9 @@ const About = () => {
   };
 
   return (
-    <section id="about" className="py-24 bg-background overflow-hidden relative">
-      {/* Ambient orbs */}
-      <div className="absolute inset-0 pointer-events-none">
+    <section ref={sectionRef} id="about" className="py-24 bg-background overflow-hidden relative">
+      {/* Ambient orbs with parallax */}
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: parallaxY }}>
         <motion.div
           className="absolute top-20 right-10 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"
           animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
@@ -54,7 +61,7 @@ const About = () => {
           animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.35, 0.15] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
-      </div>
+      </motion.div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Stats strip */}
