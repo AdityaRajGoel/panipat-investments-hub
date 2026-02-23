@@ -1,4 +1,4 @@
-import { Phone, Mail, ExternalLink, Instagram, Menu, X } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,19 +18,23 @@ const Header = () => {
   return (
     <header className="w-full sticky top-0 z-50">
       {/* Top bar */}
-      <div className="bg-hero text-primary-foreground py-2">
-        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-sm gap-2">
-          <div className="flex items-center gap-4 flex-wrap justify-center">
+      <div className="bg-hero text-primary-foreground py-1.5">
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-xs gap-1.5">
+          <div className="flex items-center gap-3 flex-wrap justify-center">
             <a href="tel:+919416400314" className="flex items-center gap-1 hover:text-secondary transition-colors">
-              <Phone className="w-4 h-4" />
+              <Phone className="w-3.5 h-3.5" />
               <span>+91 9416400314</span>
             </a>
             <a href="tel:+919999790011" className="flex items-center gap-1 hover:text-secondary transition-colors">
-              <Phone className="w-4 h-4" />
+              <Phone className="w-3.5 h-3.5" />
               <span>+91 9999790011</span>
             </a>
+            <a href="tel:+919416400277" className="flex items-center gap-1 hover:text-secondary transition-colors">
+              <Phone className="w-3.5 h-3.5" />
+              <span>+91 9416400277</span>
+            </a>
             <a href="mailto:parasrampnp@gmail.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
-              <Mail className="w-4 h-4" />
+              <Mail className="w-3.5 h-3.5" />
               <span>parasrampnp@gmail.com</span>
             </a>
             <a 
@@ -39,8 +43,17 @@ const Header = () => {
               rel="noopener noreferrer"
               className="flex items-center gap-1 hover:text-secondary transition-colors"
             >
-              <Instagram className="w-4 h-4" />
+              <Instagram className="w-3.5 h-3.5" />
               <span>@parasrampanipat</span>
+            </a>
+            <a 
+              href="https://www.facebook.com/share/18B5W5rZaT/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:text-secondary transition-colors"
+            >
+              <Facebook className="w-3.5 h-3.5" />
+              <span>Facebook</span>
             </a>
           </div>
           <a 
@@ -57,9 +70,9 @@ const Header = () => {
       
       {/* Main header */}
       <div className="bg-card shadow-md">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-1 flex justify-between items-center">
           <a href="/" className="flex items-center">
-            <img src={logo} alt="Parasram - Science of Investment" className="h-20 md:h-24 w-auto" />
+            <img src={logo} alt="Parasram - Science of Investment" className="h-16 md:h-20 w-auto" />
           </a>
           
           <nav className="hidden md:flex items-center gap-6">

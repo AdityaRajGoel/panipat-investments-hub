@@ -1,4 +1,4 @@
-import { ExternalLink, Instagram, Phone, Mail } from "lucide-react";
+import { ExternalLink, Instagram, Phone, Mail, Facebook } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -31,6 +31,14 @@ const Footer = () => {
                 className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
               >
                 <Mail className="w-5 h-5" />
+              </a>
+              <a 
+                href="https://www.facebook.com/share/18B5W5rZaT/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+              >
+                <Facebook className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -70,7 +78,8 @@ const Footer = () => {
             </p>
             <p className="text-primary-foreground/70 text-sm mb-2">
               <a href="tel:+919416400314" className="hover:text-secondary">+91 9416400314</a><br />
-              <a href="tel:+919999790011" className="hover:text-secondary">+91 9999790011</a>
+              <a href="tel:+919999790011" className="hover:text-secondary">+91 9999790011</a><br />
+              <a href="tel:+919416400277" className="hover:text-secondary">+91 9416400277</a>
             </p>
             <p className="text-primary-foreground/70 text-sm">
               <a href="mailto:parasrampnp@gmail.com" className="hover:text-secondary">parasrampnp@gmail.com</a>
