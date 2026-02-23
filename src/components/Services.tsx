@@ -1,7 +1,7 @@
 import { TrendingUp, BarChart3, Wallet, Globe, FileText, Smartphone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, Variants } from "framer-motion";
-
+import { motion, Variants, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 const services = [
   {
     icon: TrendingUp,
@@ -36,6 +36,13 @@ const services = [
 ];
 
 const Services = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -60,8 +67,14 @@ const Services = () => {
   };
 
   return (
-    <section id="services" className="py-24 bg-muted/50 overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section ref={sectionRef} id="services" className="py-24 bg-muted/50 overflow-hidden relative">
+      {/* Parallax background orbs */}
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl" />
+      </motion.div>
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div 
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}

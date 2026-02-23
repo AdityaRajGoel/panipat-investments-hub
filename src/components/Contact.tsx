@@ -1,7 +1,8 @@
-import { MapPin, Phone, Mail, Clock, ExternalLink, Instagram, ArrowRight } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ExternalLink, Instagram, Facebook, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 const contactItems = [
   {
@@ -21,7 +22,8 @@ const contactItems = [
     content: (
       <>
         <a href="tel:+919416400314" className="hover:text-secondary transition-colors">+91 9416400314</a><br />
-        <a href="tel:+919999790011" className="hover:text-secondary transition-colors">+91 9999790011</a>
+        <a href="tel:+919999790011" className="hover:text-secondary transition-colors">+91 9999790011</a><br />
+        <a href="tel:+919416400277" className="hover:text-secondary transition-colors">+91 9416400277</a>
       </>
     ),
   },
@@ -36,11 +38,16 @@ const contactItems = [
   },
   {
     icon: Instagram,
-    title: "Instagram",
+    title: "Social Media",
     content: (
-      <a href="https://www.instagram.com/parasrampanipat/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
-        @parasrampanipat
-      </a>
+      <div className="flex flex-col gap-1">
+        <a href="https://www.instagram.com/parasrampanipat/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
+          Instagram: @parasrampanipat
+        </a>
+        <a href="https://www.facebook.com/share/18B5W5rZaT/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors flex items-center gap-1">
+          <Facebook className="w-3.5 h-3.5" /> Facebook
+        </a>
+      </div>
     ),
   },
   {
@@ -57,8 +64,15 @@ const contactItems = [
 ];
 
 const Contact = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const mapY = useTransform(scrollYProgress, [0, 1], [30, -30]);
+
   return (
-    <section id="contact" className="py-20 bg-muted/50 relative overflow-hidden">
+    <section ref={sectionRef} id="contact" className="py-20 bg-muted/50 relative overflow-hidden">
       {/* Ambient background orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
@@ -141,7 +155,7 @@ const Contact = () => {
           </div>
 
           {/* Map & CTA */}
-          <div className="space-y-6">
+          <motion.div className="space-y-6" style={{ y: mapY }}>
             <motion.div
               className="rounded-2xl overflow-hidden border border-border/50 shadow-lg"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -224,7 +238,7 @@ const Contact = () => {
                 </CardContent>
               </Card>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

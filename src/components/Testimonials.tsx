@@ -1,5 +1,6 @@
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { useRef } from "react";
 
 const testimonials = [
   {
@@ -37,6 +38,13 @@ const testimonials = [
 ];
 
 const Testimonials = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -61,9 +69,9 @@ const Testimonials = () => {
   };
 
   return (
-    <section id="testimonials" className="py-24 bg-gradient-to-b from-muted/50 to-background relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none">
+    <section ref={sectionRef} id="testimonials" className="py-24 bg-gradient-to-b from-muted/50 to-background relative overflow-hidden">
+      {/* Background decoration with parallax */}
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
         <motion.div
           className="absolute top-20 left-10 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"
           animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -74,7 +82,7 @@ const Testimonials = () => {
           animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
           transition={{ duration: 10, repeat: Infinity }}
         />
-      </div>
+      </motion.div>
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
