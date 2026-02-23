@@ -1,7 +1,7 @@
-import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, TrendingDown, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Stock = {
   name: string;
@@ -55,37 +55,34 @@ interface TickerRowProps {
   duration?: number;
 }
 
-const TickerRow = ({ items, direction = "left", bgClass = "bg-foreground", textClass = "text-primary-foreground", duration = 45 }: TickerRowProps) => {
+const TickerRow = ({ items, direction = "left", bgClass = "bg-foreground", textClass = "text-primary-foreground", duration = 40 }: TickerRowProps) => {
   const [selectedItem, setSelectedItem] = useState<Stock | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
 
   const duplicated = [...items, ...items];
-  const animateX = direction === "left" ? ["0%", "-50%"] : ["-50%", "0%"];
+  const isReverse = direction === "right";
 
   const handleClick = (item: Stock) => {
     setSelectedItem(item);
-    setIsPaused(true);
   };
 
   const handleClose = () => {
     setSelectedItem(null);
-    setIsPaused(false);
   };
 
   return (
     <div className={`${bgClass} ${textClass} py-2.5 overflow-hidden whitespace-nowrap relative`}>
-      <motion.div
+      <div
         className="inline-flex gap-10"
-        animate={isPaused ? {} : { x: animateX }}
-        transition={{ duration, repeat: Infinity, ease: "linear" }}
+        style={{
+          animation: `${isReverse ? 'ticker-right' : 'ticker-left'} ${duration}s linear infinite`,
+          animationPlayState: selectedItem ? 'paused' : 'running',
+        }}
       >
         {duplicated.map((item, i) => (
-          <motion.div
+          <div
             key={i}
             className="inline-flex items-center gap-3 text-sm cursor-pointer select-none px-3 py-1 rounded-md hover:bg-white/10 transition-colors"
             onClick={() => handleClick(item)}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
           >
             <span className="font-semibold tracking-wide">{item.name}</span>
             {item.unit ? (
@@ -96,9 +93,9 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-foreground", textC
               {item.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
               {item.change}
             </span>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {selectedItem && (
@@ -167,12 +164,9 @@ const StockTicker = () => {
 
   return (
     <div className="border-b border-border/20">
-      {/* Row 1: Equities & Indices — scrolls left */}
-      <TickerRow items={stocks} direction="left" bgClass="bg-foreground" textClass="text-primary-foreground" duration={45} />
-      {/* Divider */}
+      <TickerRow items={stocks} direction="left" bgClass="bg-foreground" textClass="text-primary-foreground" duration={40} />
       <div className="h-px bg-primary/20" />
-      {/* Row 2: F&O & Commodities — scrolls right */}
-      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={45} />
+      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={40} />
     </div>
   );
 };

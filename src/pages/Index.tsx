@@ -5,6 +5,7 @@ import About from "@/components/About";
 import Services from "@/components/Services";
 import UnlistedShares from "@/components/UnlistedShares";
 import Testimonials from "@/components/Testimonials";
+import GoogleReviews from "@/components/GoogleReviews";
 import MobileApp from "@/components/MobileApp";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -20,6 +21,7 @@ const Index = () => {
       <Services />
       <UnlistedShares />
       <Testimonials />
+      <GoogleReviews />
       <MobileApp />
       <Contact />
       <Footer />
