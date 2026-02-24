@@ -1,6 +1,7 @@
 import { Star, ExternalLink, MessageSquare } from "lucide-react";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useRef } from "react";
 
 const googleReviews = [
   {
@@ -41,6 +42,13 @@ const googleReviews = [
 ];
 
 const GoogleReviews = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], [30, -30]);
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -60,9 +68,9 @@ const GoogleReviews = () => {
   };
 
   return (
-    <section id="google-reviews" className="py-20 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+    <section ref={sectionRef} id="google-reviews" className="py-20 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
       {/* Background decorations */}
-      <div className="absolute inset-0 pointer-events-none">
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
         <motion.div
           className="absolute top-10 right-20 w-72 h-72 bg-brand-gold/5 rounded-full blur-3xl"
           animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -73,6 +81,21 @@ const GoogleReviews = () => {
           animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
           transition={{ duration: 11, repeat: Infinity }}
         />
+      </motion.div>
+
+      {/* Floating stars background */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-brand-gold/10"
+            style={{ top: `${15 + i * 18}%`, left: `${5 + i * 20}%` }}
+            animate={{ y: [0, -10, 0], rotate: [0, 15, 0], opacity: [0.1, 0.3, 0.1] }}
+            transition={{ duration: 4 + i, repeat: Infinity, delay: i * 0.5 }}
+          >
+            <Star className="w-6 h-6 fill-current" />
+          </motion.div>
+        ))}
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -95,6 +118,13 @@ const GoogleReviews = () => {
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             What People Say on Google
           </h2>
+          <motion.div
+            className="w-20 h-1 bg-gradient-to-r from-brand-gold to-secondary mx-auto rounded-full mb-6"
+            initial={{ width: 0 }}
+            whileInView={{ width: 80 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          />
 
           {/* Rating summary */}
           <motion.div
@@ -103,13 +133,27 @@ const GoogleReviews = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ scale: 1.03, boxShadow: "0 20px 40px -10px hsl(45 90% 50% / 0.15)" }}
           >
-            <div className="text-5xl font-bold text-foreground">5.0</div>
+            <motion.div
+              className="text-5xl font-bold text-foreground"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              5.0
+            </motion.div>
             <div className="text-left">
               <div className="flex gap-0.5 mb-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-brand-gold text-brand-gold" />
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0, rotate: -180 }}
+                    whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + i * 0.1 }}
+                  >
+                    <Star className="w-5 h-5 fill-brand-gold text-brand-gold" />
+                  </motion.div>
                 ))}
               </div>
               <div className="text-sm text-muted-foreground">Based on 5 Google Reviews</div>
@@ -140,10 +184,10 @@ const GoogleReviews = () => {
               {/* Google icon badge */}
               <motion.div
                 className="absolute -top-2 -right-2 w-8 h-8 bg-card rounded-full border border-border shadow-md flex items-center justify-center"
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
+                initial={{ scale: 0, rotate: -180 }}
+                whileInView={{ scale: 1, rotate: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.3 + index * 0.1 }}
+                transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
               >
                 <svg viewBox="0 0 24 24" className="w-4 h-4">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -157,7 +201,7 @@ const GoogleReviews = () => {
               <div className="flex items-center gap-3 mb-4">
                 <motion.div
                   className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-brand-green flex items-center justify-center text-white font-bold text-sm"
-                  whileHover={{ scale: 1.15 }}
+                  whileHover={{ scale: 1.15, rotate: 10 }}
                 >
                   {review.avatar}
                 </motion.div>
