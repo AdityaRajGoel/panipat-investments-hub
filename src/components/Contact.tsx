@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import brandImage from "@/assets/parasram-brand.jpeg";
 
 const contactItems = [
   {
@@ -110,6 +111,27 @@ const Contact = () => {
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Reach out to us for personalized investment guidance
           </p>
+        </motion.div>
+
+        {/* Brand Banner */}
+        <motion.div
+          className="mb-12 flex justify-center"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            className="bg-card rounded-3xl shadow-2xl border border-border/50 overflow-hidden max-w-2xl w-full"
+            whileHover={{ scale: 1.01, boxShadow: "0 30px 60px -15px hsl(213 80% 25% / 0.25)" }}
+            transition={{ duration: 0.4 }}
+          >
+            <img
+              src={brandImage}
+              alt="Parasram - Science of Investment"
+              className="w-full h-auto"
+            />
+          </motion.div>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-8">
