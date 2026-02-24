@@ -164,9 +164,9 @@ const StockTicker = () => {
 
   return (
     <div className="border-b border-border/20">
-      <TickerRow items={stocks} direction="left" bgClass="bg-foreground" textClass="text-primary-foreground" duration={40} />
+      <TickerRow items={stocks} direction="left" bgClass="bg-foreground" textClass="text-primary-foreground" duration={80} />
       <div className="h-px bg-primary/20" />
-      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={40} />
+      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={80} />
     </div>
   );
 };
