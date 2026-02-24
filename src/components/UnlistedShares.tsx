@@ -1,6 +1,7 @@
 import { Phone, TrendingUp, ShieldCheck, Handshake, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 const unlistedStocks = [
   { name: "Metropolitan Stock Exchange of India Ltd", short: "MSE", tag: "Exchange", color: "from-blue-600 to-blue-800" },
@@ -21,6 +22,14 @@ const benefits = [
 ];
 
 const UnlistedShares = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const cardsX = useTransform(scrollYProgress, [0, 0.5, 1], [30, 0, -30]);
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -39,9 +48,9 @@ const UnlistedShares = () => {
   };
 
   return (
-    <section id="unlisted-shares" className="py-24 bg-gradient-to-b from-background to-muted/50 relative overflow-hidden">
+    <section ref={sectionRef} id="unlisted-shares" className="py-24 bg-gradient-to-b from-background to-muted/50 relative overflow-hidden">
       {/* Background decorations */}
-      <div className="absolute inset-0 pointer-events-none">
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
         <motion.div
           className="absolute top-10 right-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
           animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -51,6 +60,20 @@ const UnlistedShares = () => {
           className="absolute bottom-10 left-10 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl"
           animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
           transition={{ duration: 10, repeat: Infinity }}
+        />
+      </motion.div>
+
+      {/* Animated diagonal lines */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          className="absolute -top-20 -left-20 w-[200%] h-px bg-gradient-to-r from-transparent via-secondary/15 to-transparent rotate-[25deg]"
+          animate={{ x: [-200, 200] }}
+          transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
+        />
+        <motion.div
+          className="absolute -bottom-20 -right-20 w-[200%] h-px bg-gradient-to-r from-transparent via-brand-gold/15 to-transparent rotate-[-25deg]"
+          animate={{ x: [200, -200] }}
+          transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
         />
       </div>
 
@@ -67,6 +90,8 @@ const UnlistedShares = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
+            animate={{ boxShadow: ["0 0 0 0 hsl(145 70% 40% / 0)", "0 0 0 8px hsl(145 70% 40% / 0.1)", "0 0 0 0 hsl(145 70% 40% / 0)"] }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
             <Sparkles className="w-4 h-4 text-secondary" />
             <span className="text-secondary font-semibold text-sm">New Offering</span>
@@ -75,6 +100,13 @@ const UnlistedShares = () => {
             We Also Deal in{" "}
             <span className="text-secondary">Unlisted Shares</span>
           </h2>
+          <motion.div
+            className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full mb-4"
+            initial={{ width: 0 }}
+            whileInView={{ width: 80 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          />
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Get access to pre-IPO and unlisted shares of top Indian companies. 
             Invest early and ride the growth wave with Parasram India.
@@ -88,27 +120,33 @@ const UnlistedShares = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {benefits.map((benefit) => (
+          {benefits.map((benefit, index) => (
             <motion.div
               key={benefit.title}
               className="group bg-card rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-border/50 hover:border-secondary/50 relative overflow-hidden"
               variants={itemVariants}
               whileHover={{ y: -8, scale: 1.02 }}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              />
+              <motion.div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative z-10">
                 <motion.div
                   className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-secondary/20 transition-all"
-                  whileHover={{ rotate: [0, -10, 10, 0] }}
-                  transition={{ duration: 0.5 }}
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, delay: index * 0.5 }}
                 >
                   <benefit.icon className="w-7 h-7 text-secondary" />
                 </motion.div>
                 <h3 className="font-heading text-xl font-semibold text-foreground mb-2">{benefit.title}</h3>
                 <p className="text-muted-foreground">{benefit.desc}</p>
               </div>
+              {/* Animated corner accent */}
+              <motion.div
+                className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-secondary/10 to-transparent rounded-tl-3xl"
+                initial={{ opacity: 0, scale: 0 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 + index * 0.15 }}
+              />
             </motion.div>
           ))}
         </motion.div>
@@ -126,23 +164,28 @@ const UnlistedShares = () => {
           </h3>
           <motion.div
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            style={{ x: cardsX }}
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
           >
-            {unlistedStocks.map((stock) => (
+            {unlistedStocks.map((stock, index) => (
               <motion.div
                 key={stock.name}
                 className="group bg-card rounded-xl p-5 border border-border/50 hover:border-secondary/50 shadow-md hover:shadow-xl transition-all duration-300 flex items-center gap-4"
                 variants={itemVariants}
-                whileHover={{ y: -4, scale: 1.02 }}
+                whileHover={{ y: -4, scale: 1.02, x: 4 }}
               >
-                <div className={`w-12 h-12 bg-gradient-to-br ${stock.color} rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md`}>
+                <motion.div
+                  className={`w-12 h-12 bg-gradient-to-br ${stock.color} rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md`}
+                  animate={{ rotate: [0, 2, -2, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, delay: index * 0.3 }}
+                >
                   {stock.short}
-                </div>
+                </motion.div>
                 <div className="min-w-0">
-                  <h4 className="font-heading font-semibold text-foreground text-sm leading-tight">{stock.name}</h4>
+                  <h4 className="font-heading font-semibold text-foreground text-sm leading-tight group-hover:text-secondary transition-colors duration-300">{stock.name}</h4>
                   <p className="text-secondary text-xs font-medium mt-1">{stock.tag}</p>
                 </div>
               </motion.div>
@@ -176,9 +219,14 @@ const UnlistedShares = () => {
             }}
           />
           <div className="relative z-10">
-            <h3 className="font-heading text-2xl md:text-3xl font-bold mb-4">
+            <motion.h3
+              className="font-heading text-2xl md:text-3xl font-bold mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
               Interested in Unlisted Shares?
-            </h3>
+            </motion.h3>
             <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
               Contact us now to explore premium unlisted share opportunities. Our experts will guide you through the process.
             </p>
@@ -191,7 +239,9 @@ const UnlistedShares = () => {
                 >
                   <a href="#contact">
                     Contact Now
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    <motion.span className="ml-2" animate={{ x: [0, 4, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>
+                      <ArrowRight className="w-5 h-5 inline" />
+                    </motion.span>
                   </a>
                 </Button>
               </motion.div>
