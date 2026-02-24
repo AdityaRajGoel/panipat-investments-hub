@@ -105,10 +105,10 @@ const Contact = () => {
             Get In Touch
           </motion.span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Visit Our Branch
+            Contact Us
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Come visit us at our Panipat branch for personalized investment guidance
+            Reach out to us for personalized investment guidance
           </p>
         </motion.div>
 
