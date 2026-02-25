@@ -1,8 +1,11 @@
-import { ArrowRight, TrendingUp, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, Variants, Easing } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import heroBg from "@/assets/hero-bg.jpg";
+
+type IndexData = { name: string; price: string; change: string; up: boolean };
 
 const easeOut: Easing = [0.16, 1, 0.3, 1];
 
@@ -61,6 +64,28 @@ const StatCounter = ({ target, label, suffix = "", delay = 0 }: { target: number
 };
 
 const Hero = () => {
+  const [indices, setIndices] = useState<IndexData[]>([
+    { name: "NIFTY 50", price: "22,147.00", change: "+0.85%", up: true },
+    { name: "SENSEX", price: "72,831.94", change: "+0.72%", up: true },
+    { name: "BANK NIFTY", price: "46,893.65", change: "-0.32%", up: false },
+  ]);
+
+  useEffect(() => {
+    const fetchIndices = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('fetch-stock-prices');
+        if (!error && data?.success && data.data?.length > 0) {
+          const indexNames = ["NIFTY 50", "SENSEX", "BANK NIFTY"];
+          const filtered = data.data.filter((s: IndexData) => indexNames.includes(s.name));
+          if (filtered.length > 0) setIndices(filtered);
+        }
+      } catch {}
+    };
+    fetchIndices();
+    const interval = setInterval(fetchIndices, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -165,7 +190,7 @@ const Hero = () => {
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
 
             {/* Trust badges row */}
-            <motion.div className="flex flex-wrap gap-3 mb-8" variants={itemVariants}>
+            <motion.div className="flex flex-wrap gap-3 mb-6" variants={itemVariants}>
               {trustBadges.map(({ icon: Icon, label }, i) => (
                 <motion.div
                   key={label}
@@ -177,6 +202,29 @@ const Hero = () => {
                 >
                   <Icon className="w-3.5 h-3.5 text-secondary" />
                   <span className="text-primary-foreground text-xs font-semibold">{label}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Live Index Cards — Groww/Moneycontrol style */}
+            <motion.div className="flex flex-wrap gap-3 mb-8" variants={itemVariants}>
+              {indices.map((idx, i) => (
+                <motion.div
+                  key={idx.name}
+                  className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-md min-w-[160px]"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
+                  whileHover={{ scale: 1.04, backgroundColor: "rgba(255,255,255,0.15)" }}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idx.up ? "bg-secondary/20" : "bg-destructive/20"}`}>
+                    {idx.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
+                  </div>
+                  <div>
+                    <div className="text-[10px] text-primary-foreground/60 font-semibold uppercase tracking-wide">{idx.name}</div>
+                    <div className="text-sm font-bold text-primary-foreground">{idx.price}</div>
+                    <div className={`text-xs font-bold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
