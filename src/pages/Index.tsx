@@ -26,7 +26,7 @@ const Index = () => {
       <Header />
       <StockTicker />
       <Hero />
-      <QuickActions />
+      
       <TrustBadges />
       <MarketOverview />
       <About />
