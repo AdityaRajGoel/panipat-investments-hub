@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import StockTicker from "@/components/StockTicker";
 import Hero from "@/components/Hero";
-import QuickActions from "@/components/QuickActions";
+
 import TrustBadges from "@/components/TrustBadges";
 import MarketOverview from "@/components/MarketOverview";
 import About from "@/components/About";
