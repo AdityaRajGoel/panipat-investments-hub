@@ -2,17 +2,20 @@ import { Phone, Mail, ExternalLink, Instagram, Menu, X, Facebook } from "lucide-
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const navLinks = [
-    { href: "#about", label: "About" },
-    { href: "#services", label: "Services" },
-    { href: "#unlisted-shares", label: "Unlisted Shares" },
-    { href: "#app", label: "App" },
-    { href: "#contact", label: "Contact" },
+    { href: "/", label: "Home" },
+    { href: "/about", label: "About" },
+    { href: "/services", label: "Services" },
+    { href: "/unlisted-zone", label: "Unlisted Zone" },
+    { href: "/team", label: "Team" },
+    { href: "/contact", label: "Contact" },
   ];
 
   return (
@@ -71,15 +74,23 @@ const Header = () => {
       {/* Main header */}
       <div className="bg-card shadow-md">
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
-          <a href="/" className="flex items-center">
+          <Link to="/" className="flex items-center">
             <img src={logo} alt="Parasram - Science of Investment" className="h-16 md:h-20 w-auto" />
-          </a>
+          </Link>
           
           <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
-              <a key={link.href} href={link.href} className="font-medium text-foreground hover:text-secondary transition-colors">
+              <Link
+                key={link.href}
+                to={link.href}
+                className={`font-medium transition-colors ${
+                  location.pathname === link.href
+                    ? "text-secondary"
+                    : "text-foreground hover:text-secondary"
+                }`}
+              >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
           
@@ -116,17 +127,24 @@ const Header = () => {
             >
               <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
                 {navLinks.map((link, i) => (
-                  <motion.a
+                  <motion.div
                     key={link.href}
-                    href={link.href}
-                    className="font-medium text-foreground hover:text-secondary transition-colors py-2 border-b border-border/30"
-                    onClick={() => setMobileMenuOpen(false)}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
                   >
-                    {link.label}
-                  </motion.a>
+                    <Link
+                      to={link.href}
+                      className={`block font-medium py-2 border-b border-border/30 transition-colors ${
+                        location.pathname === link.href
+                          ? "text-secondary"
+                          : "text-foreground hover:text-secondary"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
                 ))}
                 <Button 
                   asChild
