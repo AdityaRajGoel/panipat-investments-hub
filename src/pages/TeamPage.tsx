@@ -7,39 +7,31 @@ import { Phone, Mail, Award, TrendingUp, Users, Briefcase } from "lucide-react";
 
 const teamMembers = [
   {
-    name: "Rajesh Parasram",
-    role: "Branch Head",
-    experience: "25+ Years",
-    specialization: "Equity & Derivatives",
+    name: "Anil Kumar Goel",
+    role: "Director / Owner",
     phone: "+91 9416400314",
-    email: "parasrampnp@gmail.com",
+    email: "anil@sphpnp.com",
     icon: Award,
   },
   {
-    name: "Amit Sharma",
-    role: "Senior Relationship Manager",
-    experience: "15+ Years",
-    specialization: "Mutual Funds & SIP",
-    phone: "+91 9999790011",
-    email: "parasrampnp@gmail.com",
+    name: "Ajay Gupta",
+    role: "Director / Owner",
+    phone: "+91 9416400277",
+    email: "ajay@sphpnp.com",
     icon: Users,
   },
   {
-    name: "Vikas Gupta",
-    role: "Research Analyst",
-    experience: "10+ Years",
-    specialization: "Technical & Fundamental Analysis",
-    phone: "+91 9416400277",
+    name: "Aditya Raj Goel",
+    role: "Director / Owner",
+    phone: "+91 8295565443",
     email: "parasrampnp@gmail.com",
     icon: TrendingUp,
   },
   {
-    name: "Priya Mehta",
-    role: "Operations Manager",
-    experience: "12+ Years",
-    specialization: "Account Opening & KYC",
-    phone: "+91 9416400314",
-    email: "parasrampnp@gmail.com",
+    name: "Rajat Gupta",
+    role: "Director / Owner",
+    phone: "+91 9999790011",
+    email: "rajat@sphpnp.com",
     icon: Briefcase,
   },
 ];
@@ -124,17 +116,7 @@ const TeamPage = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">
-                        {member.experience}
-                      </span>
-                      <span className="text-muted-foreground text-sm">Experience</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm">
-                      <span className="font-semibold text-foreground">Specialization:</span> {member.specialization}
-                    </p>
-                  </div>
+                  <div className="mb-6" />
 
                   <div className="flex flex-col gap-2">
                     <a
