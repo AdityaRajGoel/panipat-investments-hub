@@ -8,28 +8,28 @@ import { Phone, Mail, Award, TrendingUp, Users, Briefcase } from "lucide-react";
 const teamMembers = [
   {
     name: "Anil Kumar Goel",
-    role: "Director / Owner",
+    role: "Principal Financial Consultant",
     phone: "+91 9416400314",
     email: "anil@sphpnp.com",
     icon: Award,
   },
   {
     name: "Ajay Gupta",
-    role: "Director / Owner",
+    role: "Senior Financial Advisor",
     phone: "+91 9416400277",
     email: "ajay@sphpnp.com",
     icon: Users,
   },
   {
     name: "Aditya Raj Goel",
-    role: "Director / Owner",
+    role: "Operations & Processing Executive",
     phone: "+91 8295565443",
     email: "parasrampnp@gmail.com",
     icon: TrendingUp,
   },
   {
     name: "Rajat Gupta",
-    role: "Director / Owner",
+    role: "Client Relationship Manager",
     phone: "+91 9999790011",
     email: "rajat@sphpnp.com",
     icon: Briefcase,
