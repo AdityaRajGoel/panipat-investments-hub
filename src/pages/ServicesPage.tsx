@@ -4,6 +4,7 @@ import Services from "@/components/Services";
 import InvestmentTools from "@/components/InvestmentTools";
 import SIPCalculator from "@/components/SIPCalculator";
 import MobileApp from "@/components/MobileApp";
+import ClientMarquee from "@/components/ClientMarquee";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 
@@ -15,6 +16,7 @@ const ServicesPage = () => {
       <Services />
       <InvestmentTools />
       <SIPCalculator />
+      <ClientMarquee />
       <MobileApp />
       <Footer />
       <WhatsAppButton />
