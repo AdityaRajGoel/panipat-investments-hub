@@ -20,10 +20,10 @@ const Header = () => {
 
   return (
     <header className="w-full sticky top-0 z-50">
-      {/* Top bar */}
-      <div className="bg-hero text-primary-foreground py-1.5">
-        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-xs gap-1.5">
-          <div className="flex items-center gap-3 flex-wrap justify-center">
+      {/* Top bar - hidden on mobile */}
+      <div className="bg-hero text-primary-foreground py-1.5 hidden sm:block">
+        <div className="container mx-auto px-4 flex justify-between items-center text-xs">
+          <div className="flex items-center gap-3 flex-wrap">
             <a href="tel:+919416400314" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Phone className="w-3.5 h-3.5" />
               <span>+91 9416400314</span>
@@ -32,39 +32,18 @@ const Header = () => {
               <Phone className="w-3.5 h-3.5" />
               <span>+91 9999790011</span>
             </a>
-            <a href="tel:+919416400277" className="flex items-center gap-1 hover:text-secondary transition-colors">
-              <Phone className="w-3.5 h-3.5" />
-              <span>+91 9416400277</span>
-            </a>
             <a href="mailto:parasrampnp@gmail.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Mail className="w-3.5 h-3.5" />
               <span>parasrampnp@gmail.com</span>
             </a>
-            <a 
-              href="https://www.instagram.com/parasrampanipat/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-secondary transition-colors"
-            >
+            <a href="https://www.instagram.com/parasrampanipat/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Instagram className="w-3.5 h-3.5" />
-              <span>@parasrampanipat</span>
             </a>
-            <a 
-              href="https://www.facebook.com/share/18B5W5rZaT/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-secondary transition-colors"
-            >
+            <a href="https://www.facebook.com/share/18B5W5rZaT/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Facebook className="w-3.5 h-3.5" />
-              <span>Facebook</span>
             </a>
           </div>
-          <a 
-            href="https://parasramindia.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-secondary transition-colors"
-          >
+          <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
             <span>Visit Main Website</span>
             <ExternalLink className="w-4 h-4" />
           </a>
@@ -75,7 +54,7 @@ const Header = () => {
       <div className="bg-card shadow-md">
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Parasram - Science of Investment" className="h-16 md:h-20 w-auto" />
+            <img src={logo} alt="Parasram - Science of Investment" className="h-10 md:h-20 w-auto" />
           </Link>
           
           <nav className="hidden md:flex items-center gap-6">
