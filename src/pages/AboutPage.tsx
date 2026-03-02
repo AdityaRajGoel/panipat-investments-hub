@@ -4,6 +4,7 @@ import About from "@/components/About";
 import HowItWorks from "@/components/HowItWorks";
 import GoogleReviews from "@/components/GoogleReviews";
 import Testimonials from "@/components/Testimonials";
+import ClientMarquee from "@/components/ClientMarquee";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 
@@ -14,6 +15,7 @@ const AboutPage = () => {
       <Header />
       <About />
       <HowItWorks />
+      <ClientMarquee />
       <Testimonials />
       <GoogleReviews />
       <Footer />
