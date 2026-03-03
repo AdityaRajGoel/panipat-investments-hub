@@ -10,12 +10,11 @@ const Header = () => {
   const location = useLocation();
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
     { href: "/services", label: "Services" },
-    { href: "/unlisted-zone", label: "Unlisted Zone" },
-    { href: "/team", label: "Team" },
+    { href: "/unlisted-zone", label: "Unlisted Zone", highlight: true },
+    { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
+    { href: "/team", label: "Team" },
   ];
 
   return (
@@ -65,10 +64,15 @@ const Header = () => {
                 className={`font-medium transition-colors ${
                   location.pathname === link.href
                     ? "text-secondary"
+                    : (link as any).highlight
+                    ? "text-brand-gold font-bold hover:text-secondary"
                     : "text-foreground hover:text-secondary"
                 }`}
               >
                 {link.label}
+                {(link as any).highlight && (
+                  <span className="ml-1 text-[9px] bg-brand-gold text-white px-1.5 py-0.5 rounded-full font-bold align-super">NEW</span>
+                )}
               </Link>
             ))}
           </nav>
