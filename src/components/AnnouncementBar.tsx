@@ -5,7 +5,7 @@ const announcements = [
   { icon: Flame, text: "Open a FREE Demat Account Today" },
   { icon: TrendingUp, text: "IPO Applications Now Open" },
   { icon: Shield, text: "SEBI Registered • NSE • BSE • MCX" },
-  { icon: Zap, text: "Zero Brokerage on Delivery Trades" },
+  { icon: Zap, text: "Explore Pre-IPO & Unlisted Shares" },
 ];
 
 const AnnouncementBar = () => {

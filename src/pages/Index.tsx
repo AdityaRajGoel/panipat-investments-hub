@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import StockTicker from "@/components/StockTicker";
 import Hero from "@/components/Hero";
+import LiveChart from "@/components/LiveChart";
 import TrustBadges from "@/components/TrustBadges";
 import MarketOverview from "@/components/MarketOverview";
 import MarketNews from "@/components/MarketNews";
@@ -18,6 +19,7 @@ const Index = () => {
       <AnnouncementBar />
       <StockTicker />
       <Hero />
+      <LiveChart />
       <TrustBadges />
       <MarketOverview />
       <ClientMarquee />
