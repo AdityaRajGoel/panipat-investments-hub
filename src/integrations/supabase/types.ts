@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      unlisted_shares: {
+        Row: {
+          created_at: string
+          display_order: number
+          gradient_color: string
+          id: string
+          is_active: boolean
+          min_qty: string
+          name: string
+          price: string
+          short_code: string
+          tag: string
+          tag_color: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          gradient_color?: string
+          id?: string
+          is_active?: boolean
+          min_qty?: string
+          name: string
+          price: string
+          short_code: string
+          tag?: string
+          tag_color?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          gradient_color?: string
+          id?: string
+          is_active?: boolean
+          min_qty?: string
+          name?: string
+          price?: string
+          short_code?: string
+          tag?: string
+          tag_color?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
