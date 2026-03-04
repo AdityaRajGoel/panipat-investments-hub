@@ -2,7 +2,8 @@ import { Phone, TrendingUp, ShieldCheck, Handshake, ArrowRight, Sparkles, Star, 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, Variants } from "framer-motion";
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const unlistedStocks = [
   { name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Most Bought", tagColor: "bg-secondary/10 text-secondary", price: "₹2,060", minQty: "1 Share", color: "from-indigo-600 to-indigo-800" },
@@ -41,6 +42,32 @@ const itemVariants: Variants = {
 
 const UnlistedShares = () => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [stocks, setStocks] = useState(unlistedStocks);
+
+  useEffect(() => {
+    const fetchShares = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('unlisted_shares' as any)
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true });
+        
+        if (!error && data && data.length > 0) {
+          setStocks(data.map((s: any) => ({
+            name: s.name,
+            short: s.short_code,
+            tag: s.tag,
+            tagColor: s.tag_color,
+            price: s.price,
+            minQty: s.min_qty,
+            color: s.gradient_color,
+          })));
+        }
+      } catch {}
+    };
+    fetchShares();
+  }, []);
 
   return (
     <div>
@@ -130,7 +157,7 @@ const UnlistedShares = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
           >
-            {unlistedStocks.map((stock, index) => (
+            {stocks.map((stock, index) => (
               <motion.div
                 key={stock.name}
                 variants={itemVariants}
