@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { Lock, Plus, Pencil, Trash2, Save, X, ArrowLeft } from "lucide-react";
+import { Lock, Plus, Pencil, Trash2, Save, X, ArrowLeft, Upload, ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type UnlistedShare = {
@@ -20,6 +20,7 @@ type UnlistedShare = {
   gradient_color: string;
   display_order: number;
   is_active: boolean;
+  image_url: string | null;
 };
 
 const TAG_PRESETS = [
@@ -53,6 +54,7 @@ const emptyShare: Omit<UnlistedShare, "id"> = {
   gradient_color: "from-blue-600 to-blue-800",
   display_order: 0,
   is_active: true,
+  image_url: null,
 };
 
 const AdminPage = () => {
@@ -64,6 +66,7 @@ const AdminPage = () => {
   const [editForm, setEditForm] = useState<Partial<UnlistedShare>>({});
   const [creating, setCreating] = useState(false);
   const [newForm, setNewForm] = useState(emptyShare);
+  const [uploading, setUploading] = useState(false);
 
   const fetchShares = async () => {
     setLoading(true);
@@ -75,18 +78,53 @@ const AdminPage = () => {
   };
 
   const handleLogin = async () => {
-    // Test with a simple list + update to verify password
     const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
       body: { action: "update", password, data: { id: "test" } },
     });
-    // If password is wrong, error will say "Invalid password"
-    // If password works but ID doesn't exist, it's fine - means auth passed
     if (data?.error === "Invalid password") {
       toast({ title: "Invalid password", variant: "destructive" });
     } else {
       setAuthenticated(true);
       fetchShares();
     }
+  };
+
+  const handleImageUpload = async (file: File, shareId?: string, setForm?: (f: any) => void, currentForm?: any) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("password", password);
+      formData.append("file", file);
+      if (shareId) formData.append("share_id", shareId);
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/manage-unlisted-shares`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${anonKey}`,
+          },
+          body: formData,
+        }
+      );
+
+      const result = await response.json();
+      if (result.success && result.url) {
+        toast({ title: "Logo uploaded successfully" });
+        if (setForm && currentForm) {
+          setForm({ ...currentForm, image_url: result.url });
+        }
+        if (shareId) fetchShares();
+      } else {
+        toast({ title: "Upload failed", description: result.error, variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Upload error", description: err.message, variant: "destructive" });
+    }
+    setUploading(false);
   };
 
   const handleUpdate = async (share: UnlistedShare) => {
@@ -154,12 +192,64 @@ const AdminPage = () => {
     );
   }
 
-  const ShareForm = ({ form, setForm, onSave, onCancel, title }: {
+  const LogoUpload = ({ form, setForm, shareId }: { form: any; setForm: (f: any) => void; shareId?: string }) => {
+    const fileRef = useRef<HTMLInputElement>(null);
+    return (
+      <div>
+        <Label>Logo / Image</Label>
+        <div className="flex items-center gap-3 mt-1">
+          {form.image_url ? (
+            <img src={form.image_url} alt="Logo" className="w-14 h-14 rounded-xl object-contain border border-border bg-white" />
+          ) : (
+            <div className="w-14 h-14 rounded-xl border border-dashed border-border flex items-center justify-center bg-muted/30">
+              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+            </div>
+          )}
+          <div className="flex flex-col gap-1">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageUpload(file, shareId, setForm, form);
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploading}
+              onClick={() => fileRef.current?.click()}
+            >
+              <Upload className="w-4 h-4 mr-1" />
+              {uploading ? "Uploading..." : "Upload Logo"}
+            </Button>
+            {form.image_url && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-destructive text-xs h-7"
+                onClick={() => setForm({ ...form, image_url: null })}
+              >
+                Remove
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ShareForm = ({ form, setForm, onSave, onCancel, title, shareId }: {
     form: any;
     setForm: (f: any) => void;
     onSave: () => void;
     onCancel: () => void;
     title: string;
+    shareId?: string;
   }) => (
     <Card className="border-secondary/30 mb-4">
       <CardHeader>
@@ -171,12 +261,14 @@ const AdminPage = () => {
           <div><Label>Short Code</Label><Input value={form.short_code} onChange={(e) => setForm({ ...form, short_code: e.target.value })} placeholder="e.g. NSE" /></div>
           <div><Label>Price</Label><Input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="e.g. ₹2,060" /></div>
           <div><Label>Min Quantity</Label><Input value={form.min_qty} onChange={(e) => setForm({ ...form, min_qty: e.target.value })} placeholder="e.g. 1 Share" /></div>
+          <LogoUpload form={form} setForm={setForm} shareId={shareId} />
           <div>
             <Label>Tag</Label>
             <div className="flex flex-wrap gap-2 mt-1">
               {TAG_PRESETS.map((t) => (
                 <button
                   key={t.value}
+                  type="button"
                   onClick={() => setForm({ ...form, tag: t.value, tag_color: t.color })}
                   className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${form.tag === t.value ? "ring-2 ring-secondary" : ""} ${t.color}`}
                 >
@@ -186,11 +278,12 @@ const AdminPage = () => {
             </div>
           </div>
           <div>
-            <Label>Color</Label>
+            <Label>Color (fallback if no logo)</Label>
             <div className="flex flex-wrap gap-2 mt-1">
               {GRADIENT_PRESETS.map((g) => (
                 <button
                   key={g.value}
+                  type="button"
                   onClick={() => setForm({ ...form, gradient_color: g.value })}
                   className={`w-8 h-8 rounded-lg bg-gradient-to-br ${g.value} border-2 transition-all ${form.gradient_color === g.value ? "ring-2 ring-secondary scale-110" : "border-transparent"}`}
                   title={g.label}
@@ -250,13 +343,18 @@ const AdminPage = () => {
                   onSave={() => handleUpdate(share)}
                   onCancel={() => setEditingId(null)}
                   title={`Edit: ${share.name}`}
+                  shareId={share.id}
                 />
               ) : (
                 <Card key={share.id} className={`${!share.is_active ? "opacity-50" : ""}`}>
                   <CardContent className="p-4 flex items-center gap-4">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${share.gradient_color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0`}>
-                      {share.short_code}
-                    </div>
+                    {share.image_url ? (
+                      <img src={share.image_url} alt={share.short_code} className="w-12 h-12 rounded-xl object-contain border border-border bg-white shrink-0" />
+                    ) : (
+                      <div className={`w-12 h-12 bg-gradient-to-br ${share.gradient_color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0`}>
+                        {share.short_code}
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-foreground text-sm truncate">{share.name}</h3>
                       <div className="flex items-center gap-2 mt-1">

@@ -62,6 +62,7 @@ const UnlistedShares = () => {
             price: s.price,
             minQty: s.min_qty,
             color: s.gradient_color,
+            imageUrl: s.image_url,
           })));
         }
       } catch {}
@@ -167,13 +168,23 @@ const UnlistedShares = () => {
                 <Card className={`group cursor-pointer transition-all duration-300 border-border/50 hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/5 ${hoveredCard === index ? "scale-[1.02]" : ""}`}>
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      <motion.div
-                        className={`w-14 h-14 bg-gradient-to-br ${stock.color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}
-                        whileHover={{ rotate: [0, -5, 5, 0] }}
-                        transition={{ duration: 0.4 }}
-                      >
-                        {stock.short}
-                      </motion.div>
+                      {(stock as any).imageUrl ? (
+                        <motion.img
+                          src={(stock as any).imageUrl}
+                          alt={stock.short}
+                          className="w-14 h-14 rounded-xl object-contain border border-border bg-white shrink-0 shadow-lg"
+                          whileHover={{ rotate: [0, -5, 5, 0] }}
+                          transition={{ duration: 0.4 }}
+                        />
+                      ) : (
+                        <motion.div
+                          className={`w-14 h-14 bg-gradient-to-br ${stock.color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}
+                          whileHover={{ rotate: [0, -5, 5, 0] }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          {stock.short}
+                        </motion.div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <h4 className="font-heading font-semibold text-foreground text-sm leading-tight group-hover:text-secondary transition-colors line-clamp-2">
                           {stock.name}
