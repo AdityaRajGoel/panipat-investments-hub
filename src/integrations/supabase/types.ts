@@ -20,6 +20,7 @@ export type Database = {
           display_order: number
           gradient_color: string
           id: string
+          image_url: string | null
           is_active: boolean
           min_qty: string
           name: string
@@ -34,6 +35,7 @@ export type Database = {
           display_order?: number
           gradient_color?: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           min_qty?: string
           name: string
@@ -48,6 +50,7 @@ export type Database = {
           display_order?: number
           gradient_color?: string
           id?: string
+          image_url?: string | null
           is_active?: boolean
           min_qty?: string
           name?: string
