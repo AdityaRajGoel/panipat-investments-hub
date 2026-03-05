@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
 Deno.serve(async (req) => {
@@ -56,7 +56,6 @@ Deno.serve(async (req) => {
         .from('stock-logos')
         .getPublicUrl(fileName)
 
-      // Update the share's image_url if shareId provided
       if (shareId) {
         await supabase
           .from('unlisted_shares')
@@ -72,6 +71,7 @@ Deno.serve(async (req) => {
     // JSON body requests
     const { action, password, data } = await req.json()
 
+    // Public action - no password needed
     if (action === 'list') {
       const { data: shares, error } = await supabase
         .from('unlisted_shares')
@@ -84,6 +84,27 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Verify password action - dedicated endpoint for login
+    if (action === 'verify') {
+      const ADMIN_PASSWORD = Deno.env.get('ADMIN_PASSWORD')
+      if (!ADMIN_PASSWORD) {
+        return new Response(JSON.stringify({ success: false, error: 'Admin password not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
+      if (password !== ADMIN_PASSWORD) {
+        return new Response(JSON.stringify({ success: false, error: 'Invalid password' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    // All other actions require password
     const ADMIN_PASSWORD = Deno.env.get('ADMIN_PASSWORD')
     if (!ADMIN_PASSWORD) {
       return new Response(JSON.stringify({ success: false, error: 'Admin password not configured' }), {
