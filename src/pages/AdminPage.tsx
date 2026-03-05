@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useRef, useCallback, memo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { Lock, Plus, Pencil, Trash2, Save, X, ArrowLeft, Upload, ImageIcon } from "lucide-react";
+import { Lock, Plus, Pencil, Trash2, Save, X, ArrowLeft, Upload, ImageIcon, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type UnlistedShare = {
@@ -57,6 +57,8 @@ const emptyShare: Omit<UnlistedShare, "id"> = {
   image_url: null,
 };
 
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
 const LogoUpload = memo(({ form, setForm, shareId, password, onUploadComplete }: {
   form: any;
   setForm: (f: any) => void;
@@ -68,6 +70,17 @@ const LogoUpload = memo(({ form, setForm, shareId, password, onUploadComplete }:
   const [uploading, setUploading] = useState(false);
 
   const handleUpload = async (file: File) => {
+    // Client-side validation
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({ title: "Invalid file type", description: "Allowed: PNG, JPG, WebP, SVG, GIF", variant: "destructive" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Maximum size is 2MB", variant: "destructive" });
+      return;
+    }
+
     setUploading(true);
     try {
       const formData = new FormData();
@@ -116,7 +129,7 @@ const LogoUpload = memo(({ form, setForm, shareId, password, onUploadComplete }:
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -154,10 +167,10 @@ const ShareForm = memo(({ form, setForm, onSave, onCancel, title, shareId, passw
     </CardHeader>
     <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <div><Label>Company Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-        <div><Label>Short Code</Label><Input value={form.short_code} onChange={(e) => setForm({ ...form, short_code: e.target.value })} placeholder="e.g. NSE" /></div>
-        <div><Label>Price</Label><Input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="e.g. ₹2,060" /></div>
-        <div><Label>Min Quantity</Label><Input value={form.min_qty} onChange={(e) => setForm({ ...form, min_qty: e.target.value })} placeholder="e.g. 1 Share" /></div>
+        <div><Label>Company Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={200} /></div>
+        <div><Label>Short Code</Label><Input value={form.short_code} onChange={(e) => setForm({ ...form, short_code: e.target.value })} placeholder="e.g. NSE" maxLength={20} /></div>
+        <div><Label>Price</Label><Input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="e.g. ₹2,060" maxLength={50} /></div>
+        <div><Label>Min Quantity</Label><Input value={form.min_qty} onChange={(e) => setForm({ ...form, min_qty: e.target.value })} placeholder="e.g. 1 Share" maxLength={50} /></div>
         <LogoUpload form={form} setForm={setForm} shareId={shareId} password={password} onUploadComplete={onUploadComplete} />
         <div>
           <Label>Tag</Label>
@@ -245,6 +258,54 @@ const AdminPage = () => {
   const [editForm, setEditForm] = useState<Partial<UnlistedShare>>({});
   const [creating, setCreating] = useState(false);
   const [newForm, setNewForm] = useState(emptyShare);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const sessionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Session timeout - auto logout after inactivity
+  const resetSessionTimer = useCallback(() => {
+    if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+    sessionTimerRef.current = setTimeout(() => {
+      setAuthenticated(false);
+      setPassword("");
+      setShares([]);
+      setEditingId(null);
+      setCreating(false);
+      toast({ title: "Session expired", description: "You've been logged out due to inactivity." });
+    }, SESSION_TIMEOUT_MS);
+  }, []);
+
+  useEffect(() => {
+    if (!authenticated) return;
+
+    resetSessionTimer();
+
+    const handleActivity = () => {
+      if (activityTimerRef.current) clearTimeout(activityTimerRef.current);
+      activityTimerRef.current = setTimeout(resetSessionTimer, 1000); // debounce
+    };
+
+    window.addEventListener('mousemove', handleActivity);
+    window.addEventListener('keydown', handleActivity);
+    window.addEventListener('click', handleActivity);
+
+    return () => {
+      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+      if (activityTimerRef.current) clearTimeout(activityTimerRef.current);
+      window.removeEventListener('mousemove', handleActivity);
+      window.removeEventListener('keydown', handleActivity);
+      window.removeEventListener('click', handleActivity);
+    };
+  }, [authenticated, resetSessionTimer]);
+
+  const handleLogout = useCallback(() => {
+    setAuthenticated(false);
+    setPassword("");
+    setShares([]);
+    setEditingId(null);
+    setCreating(false);
+  }, []);
 
   const fetchShares = useCallback(async () => {
     setLoading(true);
@@ -253,7 +314,7 @@ const AdminPage = () => {
         body: { action: "list" },
       });
       if (data?.success) setShares(data.data);
-    } catch (err) {
+    } catch {
       toast({ title: "Failed to load shares", variant: "destructive" });
     }
     setLoading(false);
@@ -264,6 +325,14 @@ const AdminPage = () => {
       toast({ title: "Please enter a password", variant: "destructive" });
       return;
     }
+
+    // Client-side lockout
+    if (lockoutUntil && Date.now() < lockoutUntil) {
+      const remainingSec = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      toast({ title: `Too many attempts`, description: `Try again in ${remainingSec} seconds.`, variant: "destructive" });
+      return;
+    }
+
     setLoginLoading(true);
     try {
       const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
@@ -271,15 +340,25 @@ const AdminPage = () => {
       });
       if (data?.success === true) {
         setAuthenticated(true);
+        setFailedAttempts(0);
+        setLockoutUntil(null);
         fetchShares();
       } else {
-        toast({ title: "Invalid password", variant: "destructive" });
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        if (newAttempts >= 5) {
+          const lockUntil = Date.now() + 15 * 60 * 1000;
+          setLockoutUntil(lockUntil);
+          toast({ title: "Account locked", description: "Too many failed attempts. Try again in 15 minutes.", variant: "destructive" });
+        } else {
+          toast({ title: "Invalid password", description: `${5 - newAttempts} attempts remaining.`, variant: "destructive" });
+        }
       }
     } catch {
       toast({ title: "Login failed. Please try again.", variant: "destructive" });
     }
     setLoginLoading(false);
-  }, [password, fetchShares]);
+  }, [password, fetchShares, failedAttempts, lockoutUntil]);
 
   const handleUpdate = useCallback(async (share: UnlistedShare) => {
     const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
@@ -323,6 +402,8 @@ const AdminPage = () => {
     }
   }, [password, fetchShares]);
 
+  const isLockedOut = lockoutUntil !== null && Date.now() < lockoutUntil;
+
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -342,10 +423,18 @@ const AdminPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
+                autoComplete="current-password"
+                disabled={isLockedOut}
               />
-              <Button className="w-full" type="submit" disabled={loginLoading}>
-                {loginLoading ? "Verifying..." : "Login"}
+              <Button className="w-full" type="submit" disabled={loginLoading || isLockedOut}>
+                {isLockedOut ? "Locked - Try later" : loginLoading ? "Verifying..." : "Login"}
               </Button>
+              {failedAttempts > 0 && !isLockedOut && (
+                <p className="text-xs text-destructive text-center">{5 - failedAttempts} attempts remaining</p>
+              )}
+              {isLockedOut && (
+                <p className="text-xs text-destructive text-center">Too many failed attempts. Please wait 15 minutes.</p>
+              )}
             </form>
           </CardContent>
         </Card>
@@ -364,9 +453,14 @@ const AdminPage = () => {
             <h1 className="font-heading text-xl sm:text-3xl font-bold text-foreground">Manage Unlisted Shares</h1>
             <p className="text-muted-foreground text-xs sm:text-sm">Update prices, add or remove shares</p>
           </div>
-          <Button onClick={() => setCreating(true)} disabled={creating} size="sm" className="self-start sm:self-auto">
-            <Plus className="w-4 h-4 mr-1" /> Add Share
-          </Button>
+          <div className="flex gap-2 self-start sm:self-auto">
+            <Button onClick={() => setCreating(true)} disabled={creating} size="sm">
+              <Plus className="w-4 h-4 mr-1" /> Add Share
+            </Button>
+            <Button onClick={handleLogout} variant="outline" size="sm">
+              <LogOut className="w-4 h-4 mr-1" /> Logout
+            </Button>
+          </div>
         </div>
 
         {creating && (
