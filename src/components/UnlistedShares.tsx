@@ -1,20 +1,20 @@
-import { Phone, TrendingUp, ShieldCheck, Handshake, ArrowRight, Sparkles, Star, ChevronRight, BadgeCheck, Clock } from "lucide-react";
+import { Phone, TrendingUp, TrendingDown, ShieldCheck, Handshake, ArrowRight, Sparkles, Star, ChevronRight, BadgeCheck, Clock, AlertTriangle, Building2, MapPin, Calendar, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, Variants } from "framer-motion";
+import { motion, Variants, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const unlistedStocks = [
-  { name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Most Bought", tagColor: "bg-secondary/10 text-secondary", price: "₹2,060", minQty: "1 Share", color: "from-indigo-600 to-indigo-800" },
-  { name: "Metropolitan Stock Exchange of India Ltd", short: "MSE", tag: "Top Gainer", tagColor: "bg-brand-gold/10 text-brand-gold", price: "₹5.40", minQty: "1 Share", color: "from-blue-600 to-blue-800" },
-  { name: "SBI Funds Management Ltd (SBI AMC)", short: "SBI", tag: "Hot Right Now", tagColor: "bg-destructive/10 text-destructive", price: "₹780", minQty: "1 Share", color: "from-blue-500 to-cyan-600" },
-  { name: "Chennai Super Kings Cricket Ltd (CSK)", short: "CSK", tag: "Hot Right Now", tagColor: "bg-destructive/10 text-destructive", price: "₹265", minQty: "1 Share", color: "from-yellow-500 to-amber-600" },
-  { name: "NCDEX Ltd", short: "NCX", tag: "Exchange", tagColor: "bg-primary/10 text-primary", price: "₹431", minQty: "1 Share", color: "from-emerald-600 to-green-700" },
-  { name: "Apollo Green Energy Ltd", short: "AGE", tag: "Hot Right Now", tagColor: "bg-destructive/10 text-destructive", price: "₹80", minQty: "30 Shares min", color: "from-green-500 to-emerald-600" },
-  { name: "OYO Rooms (Oravel Stays)", short: "OYO", tag: "Popular", tagColor: "bg-secondary/10 text-secondary", price: "₹48", minQty: "1 Share", color: "from-red-500 to-rose-600" },
-  { name: "Orbis Financial Corporation Ltd", short: "OFC", tag: "Financial", tagColor: "bg-primary/10 text-primary", price: "₹415", minQty: "1 Share", color: "from-purple-600 to-violet-700" },
-  { name: "PharmEasy (API Holdings Ltd.)", short: "PE", tag: "HealthTech", tagColor: "bg-secondary/10 text-secondary", price: "₹22", minQty: "1 Share", color: "from-teal-500 to-cyan-600" },
+type StockItem = {
+  name: string; short: string; tag: string; tagColor: string; price: string;
+  buyPrice?: string | null; sellPrice?: string | null; minQty: string; color: string;
+  imageUrl?: string | null; description?: string | null; sector?: string | null;
+  foundedYear?: string | null; headquarters?: string | null;
+};
+
+const unlistedStocks: StockItem[] = [
+  { name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Most Bought", tagColor: "bg-secondary/10 text-secondary", price: "₹2,060", buyPrice: "₹2,100", sellPrice: "₹2,020", minQty: "1 Share", color: "from-indigo-600 to-indigo-800" },
+  { name: "Chennai Super Kings Cricket Ltd (CSK)", short: "CSK", tag: "Hot Right Now", tagColor: "bg-destructive/10 text-destructive", price: "₹265", buyPrice: "₹270", sellPrice: "₹260", minQty: "1 Share", color: "from-yellow-500 to-amber-600" },
 ];
 
 const benefits = [
@@ -30,39 +30,50 @@ const howItWorks = [
   { step: "04", title: "Start Investing", desc: "Get shares transferred to your Demat account." },
 ];
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-};
+const containerVariants: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+const itemVariants: Variants = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } } };
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+// Mini price chart SVG
+const MiniPriceChart = ({ trend = "up" }: { trend?: "up" | "down" | "mixed" }) => {
+  const data: number[] = [];
+  let v = 50;
+  for (let i = 0; i < 30; i++) {
+    const drift = trend === "up" ? 0.3 : trend === "down" ? -0.3 : 0;
+    v += (Math.random() - 0.5 + drift) * 4;
+    v = Math.max(10, Math.min(90, v));
+    data.push(v);
+  }
+  const points = data.map((val, i) => `${(i / 29) * 200},${100 - val}`).join(" ");
+  const color = trend === "down" ? "hsl(0 84% 60%)" : "hsl(145 70% 40%)";
+  return (
+    <svg viewBox="0 0 200 100" className="w-full h-16" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`pg-${trend}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={`0,100 ${points} 200,100`} fill={`url(#pg-${trend})`} />
+      <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
 };
 
 const UnlistedShares = () => {
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  const [stocks, setStocks] = useState(unlistedStocks);
+  const [stocks, setStocks] = useState<StockItem[]>(unlistedStocks);
+  const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
 
   useEffect(() => {
     const fetchShares = async () => {
       try {
-        const { data, error } = await supabase
-          .from('unlisted_shares' as any)
-          .select('*')
-          .eq('is_active', true)
-          .order('display_order', { ascending: true });
-        
+        const { data, error } = await supabase.from('unlisted_shares' as any).select('*').eq('is_active', true).order('display_order', { ascending: true });
         if (!error && data && data.length > 0) {
           setStocks(data.map((s: any) => ({
-            name: s.name,
-            short: s.short_code,
-            tag: s.tag,
-            tagColor: s.tag_color,
-            price: s.price,
-            minQty: s.min_qty,
-            color: s.gradient_color,
-            imageUrl: s.image_url,
+            name: s.name, short: s.short_code, tag: s.tag, tagColor: s.tag_color,
+            price: s.price, buyPrice: s.buy_price, sellPrice: s.sell_price,
+            minQty: s.min_qty, color: s.gradient_color, imageUrl: s.image_url,
+            description: s.company_description, sector: s.sector,
+            foundedYear: s.founded_year, headquarters: s.headquarters,
           })));
         }
       } catch {}
@@ -72,63 +83,25 @@ const UnlistedShares = () => {
 
   return (
     <div>
-      {/* Hero section - Incred Money inspired */}
-      <section className="relative py-20 md:py-28 overflow-hidden" style={{
-        background: "linear-gradient(135deg, hsl(213 80% 12%) 0%, hsl(213 80% 18%) 50%, hsl(145 40% 20%) 100%)"
-      }}>
+      {/* Hero */}
+      <section className="relative py-20 md:py-28 overflow-hidden" style={{ background: "linear-gradient(135deg, hsl(213 80% 12%) 0%, hsl(213 80% 18%) 50%, hsl(145 40% 20%) 100%)" }}>
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-            backgroundSize: '30px 30px',
-          }} />
-          <motion.div
-            className="absolute top-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 8, repeat: Infinity }}
-          />
+          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`, backgroundSize: '30px 30px' }} />
+          <motion.div className="absolute top-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 8, repeat: Infinity }} />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
-          <motion.div
-            className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <Sparkles className="w-4 h-4 text-brand-gold" />
             <span className="text-primary-foreground/90 text-sm font-medium">Pre-IPO & Unlisted Shares</span>
           </motion.div>
-          <motion.h1
-            className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 leading-tight"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            Buy and Sell<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary">
-              Pre-IPO | Unlisted Shares
-            </span>
+          <motion.h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6 leading-tight" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            Buy and Sell<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary">Pre-IPO | Unlisted Shares</span>
           </motion.h1>
-          <motion.p
-            className="text-primary-foreground/70 text-lg md:text-xl max-w-2xl mx-auto mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.p className="text-primary-foreground/70 text-lg md:text-xl max-w-2xl mx-auto mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
             Grab your chance to invest in India's top companies.
           </motion.p>
-          <motion.p
-            className="text-secondary font-semibold text-lg mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            Get started with just 1 share.
-          </motion.p>
-          <motion.div
-            className="flex justify-center gap-6 text-primary-foreground/60 text-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
+          <motion.p className="text-secondary font-semibold text-lg mb-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>Get started with just 1 share.</motion.p>
+          <motion.div className="flex flex-wrap justify-center gap-6 text-primary-foreground/60 text-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
             <div className="flex items-center gap-2"><BadgeCheck className="w-4 h-4 text-secondary" /> SEBI Registered</div>
             <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-brand-gold" /> Instant Transfer</div>
             <div className="flex items-center gap-2"><Star className="w-4 h-4 text-brand-gold" /> 5-Star Rated</div>
@@ -136,68 +109,49 @@ const UnlistedShares = () => {
         </div>
       </section>
 
-      {/* Stock Cards Grid - Incred Money style */}
+      {/* Stock Cards */}
       <section className="py-16 bg-background relative">
         <div className="container mx-auto px-4">
-          <motion.div
-            className="text-center mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Available <span className="text-secondary">Unlisted Shares</span>
-            </h2>
+          <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">Available <span className="text-secondary">Unlisted Shares</span></h2>
             <p className="text-muted-foreground">Contact us for live pricing & availability</p>
           </motion.div>
 
-          <motion.div
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-          >
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
             {stocks.map((stock, index) => (
-              <motion.div
-                key={stock.name}
-                variants={itemVariants}
-                onMouseEnter={() => setHoveredCard(index)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                <Card className={`group cursor-pointer transition-all duration-300 border-border/50 hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/5 ${hoveredCard === index ? "scale-[1.02]" : ""}`}>
+              <motion.div key={stock.name} variants={itemVariants}>
+                <Card className="group cursor-pointer transition-all duration-300 border-border/50 hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/5"
+                  onClick={() => setSelectedStock(stock)}>
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      {(stock as any).imageUrl ? (
-                        <motion.img
-                          src={(stock as any).imageUrl}
-                          alt={stock.short}
-                          className="w-14 h-14 rounded-xl object-contain border border-border bg-white shrink-0 shadow-lg"
-                          whileHover={{ rotate: [0, -5, 5, 0] }}
-                          transition={{ duration: 0.4 }}
-                        />
+                      {stock.imageUrl ? (
+                        <img src={stock.imageUrl} alt={stock.short} className="w-14 h-14 rounded-xl object-contain border border-border bg-white shrink-0 shadow-lg" />
                       ) : (
-                        <motion.div
-                          className={`w-14 h-14 bg-gradient-to-br ${stock.color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}
-                          whileHover={{ rotate: [0, -5, 5, 0] }}
-                          transition={{ duration: 0.4 }}
-                        >
-                          {stock.short}
-                        </motion.div>
+                        <div className={`w-14 h-14 bg-gradient-to-br ${stock.color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}>{stock.short}</div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-heading font-semibold text-foreground text-sm leading-tight group-hover:text-secondary transition-colors line-clamp-2">
-                          {stock.name}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-lg font-bold text-foreground">{stock.price}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${stock.tagColor}`}>
-                            {stock.tag}
-                          </span>
+                        <h4 className="font-heading font-semibold text-foreground text-sm leading-tight group-hover:text-secondary transition-colors line-clamp-2">{stock.name}</h4>
+                        {(stock.buyPrice || stock.sellPrice) ? (
+                          <div className="flex items-center gap-3 mt-2">
+                            {stock.buyPrice && <div className="text-xs"><span className="text-muted-foreground">Buy:</span> <span className="font-bold text-secondary">{stock.buyPrice}</span></div>}
+                            {stock.sellPrice && <div className="text-xs"><span className="text-muted-foreground">Sell:</span> <span className="font-bold text-destructive">{stock.sellPrice}</span></div>}
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-lg font-bold text-foreground">{stock.price}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${stock.tagColor}`}>{stock.tag}</span>
+                          {stock.sector && stock.sector !== "General" && <span className="text-[10px] text-muted-foreground">{stock.sector}</span>}
                         </div>
                         <p className="text-[11px] text-muted-foreground mt-1">Min: {stock.minQty}</p>
                       </div>
                       <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-secondary transition-colors shrink-0 mt-4" />
+                    </div>
+                    {/* Mini chart */}
+                    <div className="mt-3 -mx-1">
+                      <MiniPriceChart trend={index % 3 === 1 ? "down" : index % 3 === 2 ? "mixed" : "up"} />
                     </div>
                   </CardContent>
                 </Card>
@@ -205,34 +159,88 @@ const UnlistedShares = () => {
             ))}
           </motion.div>
 
-          <motion.p
-            className="text-center text-muted-foreground mt-8 text-base"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
+          <motion.p className="text-center text-muted-foreground mt-8 text-base" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             ...and many more! <span className="text-secondary font-semibold">Contact us for pricing & availability.</span>
           </motion.p>
         </div>
       </section>
 
+      {/* Stock Detail Modal */}
+      <AnimatePresence>
+        {selectedStock && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedStock(null)}>
+            <motion.div className="bg-card border border-border rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl" initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} onClick={(e) => e.stopPropagation()}>
+              <div className="p-6">
+                <div className="flex items-start gap-4 mb-5">
+                  {selectedStock.imageUrl ? (
+                    <img src={selectedStock.imageUrl} alt={selectedStock.short} className="w-16 h-16 rounded-xl object-contain border border-border bg-white" />
+                  ) : (
+                    <div className={`w-16 h-16 bg-gradient-to-br ${selectedStock.color} rounded-xl flex items-center justify-center text-sm font-bold text-white`}>{selectedStock.short}</div>
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-heading text-lg font-bold text-foreground">{selectedStock.name}</h3>
+                    <div className="flex gap-2 mt-1">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStock.tagColor}`}>{selectedStock.tag}</span>
+                      {selectedStock.sector && <span className="text-xs text-muted-foreground">{selectedStock.sector}</span>}
+                    </div>
+                  </div>
+                  <button onClick={() => setSelectedStock(null)} className="text-muted-foreground hover:text-foreground text-xl">×</button>
+                </div>
+
+                {/* Pricing */}
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="bg-secondary/5 border border-secondary/20 rounded-xl p-4 text-center">
+                    <div className="text-xs text-muted-foreground mb-1">Buy Rate</div>
+                    <div className="text-xl font-bold text-secondary">{selectedStock.buyPrice || selectedStock.price}</div>
+                  </div>
+                  <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 text-center">
+                    <div className="text-xs text-muted-foreground mb-1">Sell Rate</div>
+                    <div className="text-xl font-bold text-destructive">{selectedStock.sellPrice || selectedStock.price}</div>
+                  </div>
+                </div>
+
+                {/* Price Chart */}
+                <div className="bg-muted/30 rounded-xl p-4 mb-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BarChart3 className="w-4 h-4 text-secondary" />
+                    <span className="text-sm font-semibold text-foreground">Price Trend (Indicative)</span>
+                  </div>
+                  <MiniPriceChart trend="up" />
+                  <p className="text-[10px] text-muted-foreground mt-1">* Chart is indicative only. Contact us for actual pricing history.</p>
+                </div>
+
+                {/* Company Info */}
+                {(selectedStock.description || selectedStock.foundedYear || selectedStock.headquarters) && (
+                  <div className="mb-5">
+                    <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><Building2 className="w-4 h-4 text-secondary" /> Company Information</h4>
+                    {selectedStock.description && <p className="text-sm text-muted-foreground mb-3">{selectedStock.description}</p>}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {selectedStock.foundedYear && <div className="flex items-center gap-1.5 text-muted-foreground"><Calendar className="w-3.5 h-3.5" /> Founded: {selectedStock.foundedYear}</div>}
+                      {selectedStock.headquarters && <div className="flex items-center gap-1.5 text-muted-foreground"><MapPin className="w-3.5 h-3.5" /> {selectedStock.headquarters}</div>}
+                      <div className="flex items-center gap-1.5 text-muted-foreground">Min Qty: {selectedStock.minQty}</div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <Button asChild className="flex-1 bg-secondary hover:bg-secondary/90"><a href="#contact"><Phone className="w-4 h-4 mr-2" /> Contact to Buy</a></Button>
+                  <Button asChild variant="outline" className="flex-1"><a href="tel:+919416400314"><Phone className="w-4 h-4 mr-2" /> Call Now</a></Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Benefits */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <motion.div
-            className="grid md:grid-cols-3 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {benefits.map((b, i) => (
+          <motion.div className="grid md:grid-cols-3 gap-6" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {benefits.map((b) => (
               <motion.div key={b.title} variants={itemVariants}>
                 <Card className="h-full border-border/50 hover:border-secondary/50 transition-all hover:shadow-xl group">
                   <CardContent className="p-8">
-                    <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-secondary/20 transition-colors">
-                      <b.icon className="w-7 h-7 text-secondary" />
-                    </div>
+                    <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-secondary/20 transition-colors"><b.icon className="w-7 h-7 text-secondary" /></div>
                     <h3 className="font-heading text-xl font-semibold text-foreground mb-2">{b.title}</h3>
                     <p className="text-muted-foreground mb-4">{b.desc}</p>
                     <div className="pt-4 border-t border-border/50">
@@ -250,24 +258,11 @@ const UnlistedShares = () => {
       {/* How it works */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
-              How It <span className="text-secondary">Works</span>
-            </h2>
+          <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">How It <span className="text-secondary">Works</span></h2>
             <p className="text-muted-foreground">Simple 4-step process to start investing in unlisted shares</p>
           </motion.div>
-          <motion.div
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {howItWorks.map((step, i) => (
               <motion.div key={step.step} variants={itemVariants} className="relative">
                 <Card className="h-full border-border/50 hover:border-secondary/50 transition-all text-center">
@@ -277,13 +272,38 @@ const UnlistedShares = () => {
                     <p className="text-muted-foreground text-sm">{step.desc}</p>
                   </CardContent>
                 </Card>
-                {i < howItWorks.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-3 z-10">
-                    <ChevronRight className="w-6 h-6 text-secondary/40" />
-                  </div>
-                )}
+                {i < howItWorks.length - 1 && <div className="hidden lg:block absolute top-1/2 -right-3 z-10"><ChevronRight className="w-6 h-6 text-secondary/40" /></div>}
               </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Disclaimer */}
+      <section className="py-8 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <motion.div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 md:p-8" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6 text-destructive" />
+              </div>
+              <div>
+                <h3 className="font-heading text-lg font-bold text-foreground mb-2">Important Disclaimer – Unlisted Shares</h3>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p><strong>Unlisted shares are NOT regulated by SEBI or any recognized stock exchange.</strong> Trading in unlisted securities carries significant risks including but not limited to:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>No regulatory oversight or investor protection from SEBI, NSE, BSE, or any exchange</li>
+                    <li>Limited liquidity – you may not be able to sell when you want</li>
+                    <li>Prices are not standardized and may vary between dealers</li>
+                    <li>Limited or no publicly available financial information</li>
+                    <li>No guarantee of listing or IPO – the company may never go public</li>
+                    <li>Risk of total loss of investment</li>
+                  </ul>
+                  <p className="pt-2"><strong>Parasram India acts only as a facilitator</strong> for unlisted share transactions. We do not guarantee returns, listing timelines, or the accuracy of company information. Investors are advised to perform their own due diligence and consult a qualified financial advisor before investing.</p>
+                  <p className="text-xs text-muted-foreground/70 pt-2">By proceeding, you acknowledge that you understand the risks involved in trading unlisted securities and that such investments are made at your own risk.</p>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -291,43 +311,18 @@ const UnlistedShares = () => {
       {/* CTA */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <motion.div
-            className="bg-hero rounded-3xl p-10 md:p-16 text-center text-primary-foreground relative overflow-hidden"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-          >
-            <motion.div
-              className="absolute inset-0 opacity-10"
-              animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
-              transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
-              style={{
-                backgroundImage: "radial-gradient(circle, hsl(145 70% 40%) 1px, transparent 1px)",
-                backgroundSize: "30px 30px",
-              }}
-            />
+          <motion.div className="bg-hero rounded-3xl p-10 md:p-16 text-center text-primary-foreground relative overflow-hidden" initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
             <div className="relative z-10">
               <h3 className="font-heading text-2xl md:text-3xl font-bold mb-4">Interested in Unlisted Shares?</h3>
-              <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-                Contact us now to explore premium unlisted share opportunities. Our experts will guide you through the process.
-              </p>
+              <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">Contact us now to explore premium unlisted share opportunities.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                  <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold text-lg px-10 py-6 shadow-xl">
-                    <a href="#contact">
-                      Contact Now
-                      <ArrowRight className="ml-2 w-5 h-5" />
-                    </a>
-                  </Button>
-                </motion.div>
+                <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold text-lg px-10 py-6 shadow-xl">
+                  <a href="#contact">Contact Now <ArrowRight className="ml-2 w-5 h-5" /></a>
+                </Button>
               </div>
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-primary-foreground/90">
-                <a href="tel:+919416400314" className="flex items-center gap-2 hover:text-secondary transition-colors text-lg">
-                  <Phone className="w-5 h-5" /> +91 9416400314
-                </a>
-                <a href="tel:+919999790011" className="flex items-center gap-2 hover:text-secondary transition-colors text-lg">
-                  <Phone className="w-5 h-5" /> +91 9999790011
-                </a>
+                <a href="tel:+919416400314" className="flex items-center gap-2 hover:text-secondary transition-colors text-lg"><Phone className="w-5 h-5" /> +91 9416400314</a>
+                <a href="tel:+919999790011" className="flex items-center gap-2 hover:text-secondary transition-colors text-lg"><Phone className="w-5 h-5" /> +91 9999790011</a>
               </div>
             </div>
           </motion.div>
