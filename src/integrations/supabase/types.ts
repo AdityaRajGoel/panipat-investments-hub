@@ -16,45 +16,63 @@ export type Database = {
     Tables: {
       unlisted_shares: {
         Row: {
+          buy_price: string | null
+          company_description: string | null
           created_at: string
           display_order: number
+          founded_year: string | null
           gradient_color: string
+          headquarters: string | null
           id: string
           image_url: string | null
           is_active: boolean
           min_qty: string
           name: string
           price: string
+          sector: string | null
+          sell_price: string | null
           short_code: string
           tag: string
           tag_color: string
           updated_at: string
         }
         Insert: {
+          buy_price?: string | null
+          company_description?: string | null
           created_at?: string
           display_order?: number
+          founded_year?: string | null
           gradient_color?: string
+          headquarters?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           min_qty?: string
           name: string
           price: string
+          sector?: string | null
+          sell_price?: string | null
           short_code: string
           tag?: string
           tag_color?: string
           updated_at?: string
         }
         Update: {
+          buy_price?: string | null
+          company_description?: string | null
           created_at?: string
           display_order?: number
+          founded_year?: string | null
           gradient_color?: string
+          headquarters?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           min_qty?: string
           name?: string
           price?: string
+          sector?: string | null
+          sell_price?: string | null
           short_code?: string
           tag?: string
           tag_color?: string
