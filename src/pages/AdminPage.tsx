@@ -517,7 +517,7 @@ const AnalyticsPanel = ({ password }: { password: string }) => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card><CardContent className="p-3 flex items-center gap-3"><Eye className="w-5 h-5 text-primary" /><div><div className="text-lg font-bold text-foreground">{data.totalPageViews}</div><div className="text-[10px] text-muted-foreground">Page Views</div></div></CardContent></Card>
         <Card><CardContent className="p-3 flex items-center gap-3"><Globe className="w-5 h-5 text-secondary" /><div><div className="text-lg font-bold text-foreground">{data.uniqueSessions}</div><div className="text-[10px] text-muted-foreground">Sessions</div></div></CardContent></Card>
-        <Card><CardContent className="p-3 flex items-center gap-3"><FileText className="w-5 h-5 text-brand-gold" /><div><div className="text-lg font-bold text-foreground">{Object.values(data.formConversions || {}).reduce((a: number, b: any) => a + b, 0)}</div><div className="text-[10px] text-muted-foreground">Form Submissions</div></div></CardContent></Card>
+        <Card><CardContent className="p-3 flex items-center gap-3"><FileText className="w-5 h-5 text-brand-gold" /><div><div className="text-lg font-bold text-foreground">{Object.values(data.formConversions || {}).reduce((a: number, b: any) => a + (Number(b) || 0), 0)}</div><div className="text-[10px] text-muted-foreground">Form Submissions</div></div></CardContent></Card>
         <Card><CardContent className="p-3 flex items-center gap-3"><MousePointer className="w-5 h-5 text-destructive" /><div><div className="text-lg font-bold text-foreground">{data.popularStocks?.length || 0}</div><div className="text-[10px] text-muted-foreground">Stocks Viewed</div></div></CardContent></Card>
       </div>
 
