@@ -1,10 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, TrendingUp, TrendingDown, Building2, BarChart3, Loader2 } from "lucide-react";
+import { Search, X, TrendingUp, TrendingDown, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
 type StockResult = {
@@ -25,6 +27,19 @@ type StockResult = {
   prev_close: number;
 };
 
+type ChartPoint = { t: number; o: number; h: number; l: number; c: number; v: number };
+type TimeRange = "1d" | "5d" | "1mo" | "3mo" | "6mo" | "1y" | "5y";
+
+const TIME_RANGES: { key: TimeRange; label: string }[] = [
+  { key: "1d", label: "1D" },
+  { key: "5d", label: "5D" },
+  { key: "1mo", label: "1M" },
+  { key: "3mo", label: "3M" },
+  { key: "6mo", label: "6M" },
+  { key: "1y", label: "1Y" },
+  { key: "5y", label: "5Y" },
+];
+
 const formatMarketCap = (cr: number) => {
   if (cr >= 100000) return `₹${(cr / 100000).toFixed(1)}L Cr`;
   if (cr >= 1000) return `₹${(cr / 1000).toFixed(0)}K Cr`;
@@ -32,49 +47,78 @@ const formatMarketCap = (cr: number) => {
   return "—";
 };
 
-const generateMiniChart = (up: boolean, points = 30): number[] => {
-  const data: number[] = [];
-  let val = 100;
-  const trend = up ? 0.3 : -0.3;
-  for (let i = 0; i < points; i++) {
-    val += trend + (Math.random() - 0.48) * 2;
-    data.push(val);
-  }
-  return data;
-};
+// Interactive SVG chart with hover tooltip
+const HistoricalChart = ({ data, up, width = 420, height = 140 }: { data: ChartPoint[]; up: boolean; width?: number; height?: number }) => {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
-const MiniChart = ({ up, width = 200, height = 60 }: { up: boolean; width?: number; height?: number }) => {
-  const data = generateMiniChart(up);
-  const min = Math.min(...data);
-  const max = Math.max(...data);
+  const closes = data.map(d => d.c);
+  const min = Math.min(...closes);
+  const max = Math.max(...closes);
   const range = max - min || 1;
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * width},${height - ((v - min) / range) * height}`).join(" ");
+  const padding = { top: 10, bottom: 20, left: 0, right: 0 };
+  const cw = width - padding.left - padding.right;
+  const ch = height - padding.top - padding.bottom;
+
+  const points = closes.map((v, i) => {
+    const x = padding.left + (i / (closes.length - 1)) * cw;
+    const y = padding.top + ch - ((v - min) / range) * ch;
+    return { x, y, val: v, time: data[i].t, volume: data[i].v };
+  });
+
+  const polyline = points.map(p => `${p.x},${p.y}`).join(" ");
+  const polygon = `${padding.left},${padding.top + ch} ${polyline} ${padding.left + cw},${padding.top + ch}`;
+
+  const color = up ? "hsl(var(--secondary))" : "hsl(var(--destructive))";
+  const gradId = `hist-grad-${up ? "up" : "dn"}`;
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const idx = Math.round(((x - padding.left) / cw) * (points.length - 1));
+    setHoverIdx(Math.max(0, Math.min(points.length - 1, idx)));
+  };
+
+  const hovered = hoverIdx !== null ? points[hoverIdx] : null;
 
   return (
-    <svg width={width} height={height} className="overflow-visible">
+    <svg
+      ref={svgRef}
+      width="100%"
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      className="overflow-visible cursor-crosshair"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setHoverIdx(null)}
+    >
       <defs>
-        <linearGradient id={`grad-${up}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={up ? "hsl(var(--secondary))" : "hsl(var(--destructive))"} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={up ? "hsl(var(--secondary))" : "hsl(var(--destructive))"} stopOpacity="0" />
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      <polygon
-        points={`0,${height} ${points} ${width},${height}`}
-        fill={`url(#grad-${up})`}
-      />
-      <polyline
-        points={points}
-        fill="none"
-        stroke={up ? "hsl(var(--secondary))" : "hsl(var(--destructive))"}
-        strokeWidth="2"
-      />
+      <polygon points={polygon} fill={`url(#${gradId})`} />
+      <polyline points={polyline} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
+
+      {hovered && (
+        <>
+          <line x1={hovered.x} y1={padding.top} x2={hovered.x} y2={padding.top + ch} stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="3,3" opacity="0.5" />
+          <circle cx={hovered.x} cy={hovered.y} r="4" fill={color} stroke="hsl(var(--background))" strokeWidth="2" />
+          <rect x={Math.min(hovered.x - 55, width - 115)} y={hovered.y - 42} width="110" height="36" rx="6" fill="hsl(var(--popover))" stroke="hsl(var(--border))" strokeWidth="1" />
+          <text x={Math.min(hovered.x - 50, width - 110)} y={hovered.y - 25} fontSize="11" fontWeight="600" fill="hsl(var(--foreground))" fontFamily="monospace">
+            ₹{hovered.val.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </text>
+          <text x={Math.min(hovered.x - 50, width - 110)} y={hovered.y - 12} fontSize="9" fill="hsl(var(--muted-foreground))">
+            {new Date(hovered.time).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" })}
+          </text>
+        </>
+      )}
     </svg>
   );
 };
 
-type Props = {
-  className?: string;
-};
+type Props = { className?: string };
 
 const GlobalStockSearch = ({ className }: Props) => {
   const [query, setQuery] = useState("");
@@ -82,6 +126,9 @@ const GlobalStockSearch = ({ className }: Props) => {
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<StockResult | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [chartData, setChartData] = useState<ChartPoint[]>([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [chartRange, setChartRange] = useState<TimeRange>("3mo");
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -111,6 +158,37 @@ const GlobalStockSearch = ({ className }: Props) => {
     return () => clearTimeout(timer);
   }, [query, searchStocks]);
 
+  // Fetch chart data when stock or range changes
+  const fetchChart = useCallback(async (symbol: string, range: TimeRange) => {
+    setChartLoading(true);
+    setChartData([]);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-stock-chart", {
+        body: { symbol, range },
+      });
+      if (!error && data?.success && data.dataPoints?.length > 0) {
+        setChartData(data.dataPoints);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setChartLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selected) {
+      fetchChart(selected.symbol, chartRange);
+    }
+  }, [selected, chartRange, fetchChart]);
+
+  // Reset range when selecting new stock
+  const handleSelect = (stock: StockResult) => {
+    setSelected(stock);
+    setChartRange("3mo");
+    setShowDropdown(false);
+  };
+
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
@@ -121,6 +199,11 @@ const GlobalStockSearch = ({ className }: Props) => {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  const chartUp = useMemo(() => {
+    if (chartData.length < 2) return (selected?.change_pct ?? 0) >= 0;
+    return chartData[chartData.length - 1].c >= chartData[0].c;
+  }, [chartData, selected]);
 
   return (
     <>
@@ -156,10 +239,7 @@ const GlobalStockSearch = ({ className }: Props) => {
                 <button
                   key={stock.symbol}
                   className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors text-left border-b border-border/30 last:border-0"
-                  onClick={() => {
-                    setSelected(stock);
-                    setShowDropdown(false);
-                  }}
+                  onClick={() => handleSelect(stock)}
                 >
                   <div>
                     <span className="font-semibold text-sm text-foreground">{stock.symbol}</span>
@@ -209,9 +289,30 @@ const GlobalStockSearch = ({ className }: Props) => {
                   </span>
                 </div>
 
-                {/* Chart */}
-                <Card className="p-4 flex items-center justify-center">
-                  <MiniChart up={selected.change_pct >= 0} width={400} height={100} />
+                {/* Chart with timeframe selector */}
+                <Card className="p-4">
+                  <div className="flex items-center gap-1 mb-3">
+                    {TIME_RANGES.map(({ key, label }) => (
+                      <Button
+                        key={key}
+                        variant={chartRange === key ? "default" : "ghost"}
+                        size="sm"
+                        className="h-7 px-2.5 text-xs"
+                        onClick={() => setChartRange(key)}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+                  </div>
+                  {chartLoading ? (
+                    <Skeleton className="h-[140px] w-full rounded" />
+                  ) : chartData.length > 1 ? (
+                    <HistoricalChart data={chartData} up={chartUp} />
+                  ) : (
+                    <div className="h-[140px] flex items-center justify-center text-sm text-muted-foreground">
+                      No chart data available
+                    </div>
+                  )}
                 </Card>
 
                 {/* Key Metrics */}
