@@ -5,6 +5,7 @@ import ContactForm from "@/components/ContactForm";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import FAQ from "@/components/FAQ";
+import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
@@ -19,6 +20,20 @@ const contactFAQs = [
 const ContactPage = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Contact Parasram India Panipat | Stock Broker Office"
+        description="Contact Parasram India Panipat branch at Shakuntala Complex, Palika Bazaar. Call +91 9416400314. Open Mon-Sat. Free Demat account opening & investment consultation."
+        keywords="contact Parasram India Panipat, stock broker office Panipat, Shakuntala Complex Panipat, financial advisor Panipat contact"
+        jsonLd={{
+          "@type": "LocalBusiness",
+          "name": "Parasram India - Panipat Branch",
+          "telephone": "+919416400314",
+          "email": "parasrampnp@gmail.com",
+          "address": { "@type": "PostalAddress", "streetAddress": "Shakuntala Complex, Palika Bazaar", "addressLocality": "Panipat", "addressRegion": "Haryana", "postalCode": "132103", "addressCountry": "IN" },
+          "openingHours": ["Mo-Fr 09:00-18:00", "Sa 09:00-14:00"],
+          "geo": { "@type": "GeoCoordinates", "latitude": "29.3909", "longitude": "76.9635" },
+        }}
+      />
       <ScrollProgress />
       <Header />
 

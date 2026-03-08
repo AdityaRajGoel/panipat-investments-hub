@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 
 const benefits = [
   { icon: Shield, title: "SEBI Registered", desc: "Trade with a trusted, regulation-compliant broker" },
@@ -78,6 +79,11 @@ const OpenAccountPage = () => {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background">
+        <SEOHead
+          title="Open Free Demat Account in Panipat | Parasram India"
+          description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
+          keywords="open demat account Panipat, free demat account, trading account Panipat, Parasram India account opening"
+        />
         <Header />
         <div className="flex items-center justify-center min-h-[80vh] px-4">
           <motion.div className="text-center max-w-md" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
@@ -102,6 +108,11 @@ const OpenAccountPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Open Free Demat Account in Panipat | Parasram India"
+        description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
+        keywords="open demat account Panipat, free demat account, trading account Panipat, Parasram India account opening"
+      />
       <Header />
 
       <section className="relative py-20 md:py-28 overflow-hidden" style={{ background: `linear-gradient(135deg, hsl(213 80% 12% / 0.95), hsl(213 80% 22% / 0.9), hsl(145 70% 25% / 0.88))` }}>

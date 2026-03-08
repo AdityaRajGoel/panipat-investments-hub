@@ -5,6 +5,7 @@ import ContactForm from "@/components/ContactForm";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import FAQ from "@/components/FAQ";
+import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
 import { Phone } from "lucide-react";
 
@@ -21,6 +22,28 @@ const unlistedFAQs = [
 const UnlistedZonePage = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Buy Unlisted Shares in India | Pre-IPO Shares - Parasram India"
+        description="Buy and sell unlisted shares & pre-IPO stocks in India. NSE unlisted shares, CSK shares, and 50+ companies. SEBI registered broker. Minimum 1 share. Instant Demat transfer."
+        keywords="buy unlisted shares India, pre-IPO shares, unlisted shares dealer Panipat, NSE unlisted shares price, CSK unlisted shares, buy pre-IPO stocks India, unlisted shares broker, unlisted shares Haryana, pre-IPO investment India"
+        jsonLd={{
+          "@type": "Product",
+          "name": "Unlisted & Pre-IPO Shares",
+          "description": "Buy and sell unlisted shares and pre-IPO stocks from India's top companies. SEBI registered facilitator with instant Demat transfer.",
+          "brand": { "@type": "Brand", "name": "Parasram India" },
+          "offers": {
+            "@type": "AggregateOffer",
+            "priceCurrency": "INR",
+            "availability": "https://schema.org/InStock",
+            "offerCount": "50+",
+            "seller": {
+              "@type": "Organization",
+              "name": "Parasram India - Panipat Branch",
+              "telephone": "+919416400314",
+            },
+          },
+        }}
+      />
       <ScrollProgress />
       <Header />
       <UnlistedShares />

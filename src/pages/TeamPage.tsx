@@ -4,8 +4,9 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import CompanyValues from "@/components/CompanyValues";
 import FAQ from "@/components/FAQ";
+import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
-import { Phone, Mail, Award, TrendingUp, Users, Briefcase, Clock, Star, ChevronRight, Linkedin, GraduationCap } from "lucide-react";
+import { Phone, Mail, Award, TrendingUp, Users, Briefcase, Clock, Star, ChevronRight } from "lucide-react";
 
 const teamMembers = [
   {
@@ -68,6 +69,11 @@ const teamFAQs = [
 const TeamPage = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Our Team | Financial Advisors Panipat - Parasram India"
+        description="Meet the experienced financial advisors at Parasram India Panipat. 35+ years of combined expertise in equity, mutual funds, IPOs, and wealth management."
+        keywords="financial advisors Panipat, stock broker team Panipat, investment consultant Panipat, Parasram India team"
+      />
       <ScrollProgress />
       <Header />
 
