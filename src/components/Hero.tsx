@@ -287,10 +287,10 @@ const Hero = () => {
                   size="lg"
                   className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-lg px-10 py-6 shadow-xl shadow-secondary/30 transition-all duration-300"
                 >
-                  <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer">
+                  <Link to="/open-account">
                     Start Investing Today
                     <ArrowRight className="ml-2 w-5 h-5" />
-                  </a>
+                  </Link>
                 </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>

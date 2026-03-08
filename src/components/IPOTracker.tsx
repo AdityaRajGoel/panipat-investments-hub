@@ -186,9 +186,7 @@ const IPOTracker = () => {
             Want to apply for IPOs? Open your Demat account with Parasram India today.
           </p>
           <a
-            href="https://parasramindia.com"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/open-account"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-orange to-brand-gold text-white font-bold text-sm px-6 py-3 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-brand-orange/20"
           >
             <TrendingUp className="w-4 h-4" />
