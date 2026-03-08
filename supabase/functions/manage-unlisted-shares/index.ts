@@ -177,6 +177,29 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
+    // ---- Leads Management ----
+    if (action === 'list_leads') {
+      const { data: leads, error } = await supabase.from('account_leads').select('*').order('created_at', { ascending: false })
+      if (error) { console.error('List leads error:', error); return safeErrorResponse(500, 'Failed to load leads') }
+      return new Response(JSON.stringify({ success: true, leads }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    if (action === 'update_lead') {
+      if (!data.id || typeof data.id !== 'string') return safeErrorResponse(400, 'Invalid lead ID')
+      const status = sanitizeString(data.status, 20)
+      if (!['new', 'contacted', 'converted', 'closed'].includes(status)) return safeErrorResponse(400, 'Invalid status')
+      const { error } = await supabase.from('account_leads').update({ status }).eq('id', data.id)
+      if (error) { console.error('Update lead error:', error); return safeErrorResponse(500, 'Failed to update lead') }
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    if (action === 'delete_lead') {
+      if (!data.id || typeof data.id !== 'string') return safeErrorResponse(400, 'Invalid lead ID')
+      const { error } = await supabase.from('account_leads').delete().eq('id', data.id)
+      if (error) { console.error('Delete lead error:', error); return safeErrorResponse(500, 'Failed to delete lead') }
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
     return safeErrorResponse(400, 'Invalid action')
   } catch (error) {
     console.error('Unhandled error:', error)
