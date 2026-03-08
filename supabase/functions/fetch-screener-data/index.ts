@@ -214,96 +214,102 @@ const NSE_SYMBOLS: { symbol: string; yahoo: string; name: string; sector: string
   { symbol: "LICHSGFIN", yahoo: "LICHSGFIN.NS", name: "LIC Housing Finance", sector: "NBFC" },
 ];
 
-// Batch fetch from Yahoo Finance v8 chart API
-async function fetchQuote(yahooSymbol: string): Promise<{
-  price: number; change: number; changePct: number; marketCap: number;
-  pe: number; high52: number; low52: number; volume: number;
-  dayHigh: number; dayLow: number; openPrice: number; prevClose: number;
-} | null> {
+// Use Yahoo v6 quote API - supports batch and returns marketCap, PE, etc.
+async function fetchBatchQuotes(symbols: string[]): Promise<Map<string, any>> {
+  const results = new Map();
+  // v6 quote supports comma-separated symbols
+  const symbolStr = symbols.join(",");
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=1d&interval=1d&includePrePost=false`;
+    const url = `https://query1.finance.yahoo.com/v6/finance/quote?symbols=${encodeURIComponent(symbolStr)}`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0" },
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
     });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const result = json?.chart?.result?.[0];
-    if (!result) return null;
-
-    const meta = result.meta;
-    const price = meta.regularMarketPrice ?? 0;
-    const prevClose = meta.chartPreviousClose ?? meta.previousClose ?? 0;
-    const change = price - prevClose;
-    const changePct = prevClose > 0 ? (change / prevClose) * 100 : 0;
-
-    const indicators = result.indicators?.quote?.[0];
-    const dayHigh = indicators?.high?.[indicators.high.length - 1] ?? meta.regularMarketDayHigh ?? 0;
-    const dayLow = indicators?.low?.[indicators.low.length - 1] ?? meta.regularMarketDayLow ?? 0;
-    const openPrice = indicators?.open?.[0] ?? 0;
-    const volume = indicators?.volume?.[indicators.volume.length - 1] ?? 0;
-    const high52 = meta.fiftyTwoWeekHigh ?? 0;
-    const low52 = meta.fiftyTwoWeekLow ?? 0;
-
-    return {
-      price, change, changePct, marketCap: 0, pe: 0,
-      high52, low52, volume, dayHigh, dayLow, openPrice, prevClose,
-    };
-  } catch {
-    return null;
+    if (res.ok) {
+      const json = await res.json();
+      const quotes = json?.quoteResponse?.result || [];
+      for (const q of quotes) {
+        results.set(q.symbol, q);
+      }
+      return results;
+    }
+  } catch (e) {
+    console.log("v6 quote failed, trying v8 chart fallback");
   }
+
+  // Fallback: fetch individually via v8 chart API
+  await Promise.all(symbols.map(async (sym) => {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=5d&interval=1d&includePrePost=false`;
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      });
+      if (!res.ok) return;
+      const json = await res.json();
+      const result = json?.chart?.result?.[0];
+      if (!result) return;
+      const meta = result.meta;
+      // Build a compatible object
+      results.set(sym, {
+        symbol: sym,
+        regularMarketPrice: meta.regularMarketPrice ?? 0,
+        regularMarketChange: (meta.regularMarketPrice ?? 0) - (meta.chartPreviousClose ?? meta.previousClose ?? 0),
+        regularMarketChangePercent: meta.chartPreviousClose ? ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100 : 0,
+        regularMarketVolume: result.indicators?.quote?.[0]?.volume?.slice(-1)?.[0] ?? 0,
+        regularMarketDayHigh: result.indicators?.quote?.[0]?.high?.slice(-1)?.[0] ?? 0,
+        regularMarketDayLow: result.indicators?.quote?.[0]?.low?.slice(-1)?.[0] ?? 0,
+        regularMarketOpen: result.indicators?.quote?.[0]?.open?.slice(-1)?.[0] ?? 0,
+        regularMarketPreviousClose: meta.chartPreviousClose ?? meta.previousClose ?? 0,
+        fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh ?? 0,
+        fiftyTwoWeekLow: meta.fiftyTwoWeekLow ?? 0,
+        marketCap: 0,
+        trailingPE: 0,
+      });
+    } catch {}
+  }));
+  return results;
 }
 
-// Fetch summary data for market cap and PE from Yahoo's quote summary
-async function fetchSummary(yahooSymbol: string): Promise<{ marketCap: number; pe: number } | null> {
-  try {
-    const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${yahooSymbol}?modules=defaultKeyStatistics,price`;
-    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const price = json?.quoteSummary?.result?.[0]?.price;
-    const stats = json?.quoteSummary?.result?.[0]?.defaultKeyStatistics;
-    return {
-      marketCap: price?.marketCap?.raw ?? 0,
-      pe: stats?.trailingPE?.raw ?? price?.trailingPE?.raw ?? 0,
-    };
-  } catch {
-    return null;
-  }
-}
+function buildStockRow(stock: typeof NSE_SYMBOLS[0], q: any) {
+  const price = q.regularMarketPrice ?? 0;
+  const change = q.regularMarketChange ?? 0;
+  const changePct = q.regularMarketChangePercent ?? 0;
+  const marketCapRaw = q.marketCap ?? 0;
+  // Convert market cap to Crores (1 Cr = 10M = 10,000,000)
+  const marketCapCr = marketCapRaw > 0 ? Math.round(marketCapRaw / 10000000) : 0;
 
-async function fetchStockData(stock: typeof NSE_SYMBOLS[0]) {
-  const [quote, summary] = await Promise.all([
-    fetchQuote(stock.yahoo),
-    fetchSummary(stock.yahoo),
-  ]);
-  if (!quote) return null;
   return {
     symbol: stock.symbol,
     name: stock.name,
     sector: stock.sector,
-    price: quote.price,
-    change: quote.change,
-    change_pct: quote.changePct,
-    market_cap: summary?.marketCap ? Math.round(summary.marketCap / 10000000) : 0, // in Cr
-    pe: summary?.pe ?? 0,
-    high_52: quote.high52,
-    low_52: quote.low52,
-    volume: quote.volume,
-    day_high: quote.dayHigh,
-    day_low: quote.dayLow,
-    open_price: quote.openPrice,
-    prev_close: quote.prevClose,
+    price,
+    change,
+    change_pct: changePct,
+    market_cap: marketCapCr,
+    pe: q.trailingPE ?? q.forwardPE ?? 0,
+    high_52: q.fiftyTwoWeekHigh ?? 0,
+    low_52: q.fiftyTwoWeekLow ?? 0,
+    volume: q.regularMarketVolume ?? 0,
+    day_high: q.regularMarketDayHigh ?? 0,
+    day_low: q.regularMarketDayLow ?? 0,
+    open_price: q.regularMarketOpen ?? 0,
+    prev_close: q.regularMarketPreviousClose ?? 0,
     updated_at: new Date().toISOString(),
   };
 }
 
-// Process in batches with delay to avoid rate limiting
-async function processBatch(stocks: typeof NSE_SYMBOLS, batchSize = 5, delayMs = 300) {
+// Process in batches - v6 supports up to ~20 symbols per request
+async function processBatch(stocks: typeof NSE_SYMBOLS, batchSize = 15, delayMs = 400) {
   const results: any[] = [];
   for (let i = 0; i < stocks.length; i += batchSize) {
     const batch = stocks.slice(i, i + batchSize);
-    const batchResults = await Promise.all(batch.map(fetchStockData));
-    results.push(...batchResults.filter(Boolean));
+    const yahooSymbols = batch.map(s => s.yahoo);
+    const quoteMap = await fetchBatchQuotes(yahooSymbols);
+    
+    for (const stock of batch) {
+      const q = quoteMap.get(stock.yahoo);
+      if (q) results.push(buildStockRow(stock, q));
+    }
+    
     if (i + batchSize < stocks.length) {
       await new Promise(r => setTimeout(r, delayMs));
     }
