@@ -1,4 +1,4 @@
-import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp } from "lucide-react";
+import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo.png";
 
@@ -40,6 +40,7 @@ const Footer = () => {
                 { href: "tel:+919416400314", icon: Phone, label: "Phone" },
                 { href: "mailto:parasrampnp@gmail.com", icon: Mail, label: "Email" },
                 { href: "https://www.facebook.com/share/18B5W5rZaT/", icon: Facebook, label: "Facebook" },
+                { href: "https://x.com/ParasramPanipat", icon: Twitter, label: "X" },
               ].map((item, i) => (
                 <motion.a
                   key={item.label}
