@@ -132,6 +132,7 @@ const StockScreenerPage = () => {
           </div>
         )}
 
+        {error && (
           <Card className="p-4 mb-4 border-destructive/50 bg-destructive/5">
             <p className="text-sm text-destructive">⚠️ {error}. Showing cached data if available.</p>
           </Card>
