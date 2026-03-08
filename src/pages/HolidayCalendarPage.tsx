@@ -5,7 +5,8 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Building2 } from "lucide-react";
+import { CalendarDays, Building2, Clock, AlertCircle, PartyPopper } from "lucide-react";
+import { useMemo } from "react";
 
 type Holiday = {
   date: string;
@@ -38,10 +39,33 @@ const HOLIDAYS_2026: Holiday[] = [
 
 const getMonth = (dateStr: string) => dateStr.split(" ")[0];
 
+const parseHolidayDate = (dateStr: string): Date => {
+  const [mon, day] = dateStr.split(" ");
+  const monthMap: Record<string, number> = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+  return new Date(2026, monthMap[mon] ?? 0, parseInt(day));
+};
+
 const HolidayCalendarPage = () => {
   const months = [...new Set(HOLIDAYS_2026.map(h => getMonth(h.date)))];
   const now = new Date();
   const currentMonthAbbr = now.toLocaleString("en", { month: "short" });
+
+  const nextHoliday = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return HOLIDAYS_2026.find(h => parseHolidayDate(h.date) >= today);
+  }, []);
+
+  const daysUntilNext = useMemo(() => {
+    if (!nextHoliday) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = parseHolidayDate(nextHoliday.date);
+    return Math.ceil((target.getTime() - today.getTime()) / 86400000);
+  }, [nextHoliday]);
+
+  const pastCount = HOLIDAYS_2026.filter(h => parseHolidayDate(h.date) < new Date()).length;
+  const upcomingCount = HOLIDAYS_2026.length - pastCount;
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,45 +80,100 @@ const HolidayCalendarPage = () => {
           <p className="text-muted-foreground">NSE, BSE & MCX trading holidays — plan your trades in advance</p>
         </motion.div>
 
-        <div className="flex items-center gap-3 mb-6 text-sm">
+        {/* Next holiday banner */}
+        {nextHoliday && daysUntilNext !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card className="mb-6 p-4 border-secondary/30 bg-secondary/5">
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
+                  {daysUntilNext === 0 ? <PartyPopper className="w-5 h-5 text-secondary" /> : <Clock className="w-5 h-5 text-secondary" />}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {daysUntilNext === 0 ? "Today is a market holiday!" : `Next holiday in ${daysUntilNext} day${daysUntilNext > 1 ? "s" : ""}`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {nextHoliday.name} — {nextHoliday.date}, {nextHoliday.day}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Stats bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="flex items-center gap-3 mb-6 text-sm flex-wrap"
+        >
           <Badge className="bg-primary text-primary-foreground">NSE</Badge>
           <Badge className="bg-secondary text-secondary-foreground">BSE</Badge>
           <Badge variant="outline" className="border-brand-gold text-brand-gold">MCX</Badge>
-          <span className="text-muted-foreground ml-2">Total: {HOLIDAYS_2026.length} holidays</span>
-        </div>
+          <span className="text-muted-foreground">Total: {HOLIDAYS_2026.length}</span>
+          <span className="text-muted-foreground">•</span>
+          <span className="text-muted-foreground">{pastCount} past</span>
+          <span className="text-secondary font-semibold">{upcomingCount} upcoming</span>
+        </motion.div>
 
         <div className="space-y-8">
-          {months.map(month => {
+          {months.map((month, mIdx) => {
             const holidays = HOLIDAYS_2026.filter(h => getMonth(h.date) === month);
             const isCurrent = month === currentMonthAbbr;
             return (
-              <motion.div key={month} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <motion.div
+                key={month}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: mIdx * 0.03 }}
+              >
                 <div className="flex items-center gap-2 mb-3">
                   <h2 className="text-lg font-heading font-semibold text-foreground">{month} 2026</h2>
                   {isCurrent && <Badge className="bg-secondary/20 text-secondary text-xs">Current Month</Badge>}
+                  <span className="text-xs text-muted-foreground ml-auto">{holidays.length} holiday{holidays.length > 1 ? "s" : ""}</span>
                 </div>
                 <div className="grid gap-2">
                   {holidays.map((h, i) => {
-                    const isPast = false; // simplified
+                    const holidayDate = parseHolidayDate(h.date);
+                    const isPast = holidayDate < new Date();
+                    const isToday = daysUntilNext === 0 && nextHoliday?.name === h.name;
                     return (
-                      <Card key={i} className={`flex items-center justify-between px-4 py-3 transition-colors hover:bg-muted/50 ${isPast ? "opacity-50" : ""}`}>
-                        <div className="flex items-center gap-4">
-                          <div className="text-center min-w-[50px]">
-                            <div className="text-lg font-bold text-foreground">{h.date.split(" ")[1]}</div>
-                            <div className="text-xs text-muted-foreground">{h.day}</div>
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.04 }}
+                      >
+                        <Card className={`flex items-center justify-between px-4 py-3 transition-all hover:bg-muted/50 hover:shadow-sm ${isPast ? "opacity-40" : ""} ${isToday ? "ring-1 ring-secondary bg-secondary/5" : ""}`}>
+                          <div className="flex items-center gap-4">
+                            <div className="text-center min-w-[50px]">
+                              <div className={`text-lg font-bold ${isToday ? "text-secondary" : "text-foreground"}`}>{h.date.split(" ")[1]}</div>
+                              <div className="text-xs text-muted-foreground">{h.day}</div>
+                            </div>
+                            <div>
+                              <div className="font-medium text-foreground flex items-center gap-2">
+                                {h.name}
+                                {isToday && <span className="text-[10px] bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded-full font-bold">TODAY</span>}
+                                {isPast && <span className="text-[10px] text-muted-foreground">(Past)</span>}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-medium text-foreground">{h.name}</div>
+                          <div className="flex items-center gap-1.5">
+                            {h.exchanges.map(ex => (
+                              <Badge key={ex} variant={ex === "MCX" ? "outline" : "default"} className={`text-[10px] px-1.5 ${ex === "NSE" ? "bg-primary text-primary-foreground" : ex === "BSE" ? "bg-secondary text-secondary-foreground" : "border-brand-gold text-brand-gold"}`}>
+                                {ex}
+                              </Badge>
+                            ))}
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          {h.exchanges.map(ex => (
-                            <Badge key={ex} variant={ex === "MCX" ? "outline" : "default"} className={`text-[10px] px-1.5 ${ex === "NSE" ? "bg-primary text-primary-foreground" : ex === "BSE" ? "bg-secondary text-secondary-foreground" : "border-brand-gold text-brand-gold"}`}>
-                              {ex}
-                            </Badge>
-                          ))}
-                        </div>
-                      </Card>
+                        </Card>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -104,8 +183,11 @@ const HolidayCalendarPage = () => {
         </div>
 
         <Card className="mt-8 p-4 bg-muted/50 flex items-start gap-3">
-          <Building2 className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
-          <p className="text-sm text-muted-foreground">Holiday dates are subject to change by exchange authorities. Special trading sessions (e.g., Muhurat Trading on Diwali) are not listed. Always verify with official NSE/BSE circulars.</p>
+          <AlertCircle className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-foreground mb-1">Disclaimer</p>
+            <p className="text-sm text-muted-foreground">Holiday dates are subject to change by exchange authorities. Special trading sessions (e.g., Muhurat Trading on Diwali) are not listed. Weekends (Saturday & Sunday) are regular non-trading days and are not included. Always verify with official NSE/BSE circulars before planning trades.</p>
+          </div>
         </Card>
       </main>
       <Footer />
