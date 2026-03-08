@@ -274,11 +274,12 @@ const MarketOverview = () => {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <motion.span className="inline-block text-secondary font-semibold text-sm uppercase tracking-wider mb-3">
+          <motion.span className="inline-flex items-center gap-1.5 bg-brand-orange/10 text-brand-orange font-semibold text-sm uppercase tracking-wider px-3 py-1.5 rounded-full mb-3">
+            <BarChart3 className="w-3.5 h-3.5" />
             Market Pulse
           </motion.span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">Today's Market Overview</h2>
-          <motion.div className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full" initial={{ width: 0 }} whileInView={{ width: 80 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.6 }} />
+          <motion.div className="w-20 h-1 bg-gradient-to-r from-brand-orange to-brand-gold mx-auto rounded-full" initial={{ width: 0 }} whileInView={{ width: 80 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.6 }} />
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm">
             Real-time market data across equities, derivatives, mutual funds & commodities
           </p>
