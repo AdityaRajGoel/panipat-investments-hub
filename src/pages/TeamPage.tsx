@@ -5,57 +5,73 @@ import ScrollProgress from "@/components/ScrollProgress";
 import CompanyValues from "@/components/CompanyValues";
 import FAQ from "@/components/FAQ";
 import SEOHead from "@/components/SEOHead";
-import { motion } from "framer-motion";
-import { Phone, Mail, Award, TrendingUp, Users, Briefcase, Clock, Star, ChevronRight } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import {
+  Phone, Mail, Award, TrendingUp, Users, Briefcase, Clock, Star,
+  ChevronRight, Shield, Target, Handshake, GraduationCap, MessageCircle,
+  MapPin, Calendar
+} from "lucide-react";
+import { useRef, useState } from "react";
 
 const teamMembers = [
   {
     name: "Anil Kumar Goel",
     role: "Principal Financial Consultant",
     description: "35+ years experience in financial services and long-term investment guidance. Expert in equity portfolio management and wealth planning for HNIs.",
+    longBio: "Anil Kumar Goel has been the cornerstone of Parasram India's Panipat branch since the late 1980s. With deep expertise in equity markets and a disciplined approach to wealth creation, he has guided hundreds of families through market cycles — from the Harshad Mehta era to modern algorithmic trading.",
     phone: "+91 9416400314",
     email: "anil@sphpnp.com",
     icon: Award,
     accent: "from-secondary to-brand-green",
     statValue: "35+",
     statLabel: "Years",
-    specialties: ["Equity Advisory", "Wealth Planning", "HNI Services"],
+    specialties: ["Equity Advisory", "Wealth Planning", "HNI Services", "Portfolio Review"],
+    achievements: ["Managed 500+ client portfolios", "SEBI-registered advisor since 1989"],
   },
   {
     name: "Ajay Gupta",
     role: "Senior Financial Advisor",
     description: "30+ years experience in client advisory and financial product services. Specializes in mutual funds, SIPs, and retirement planning for families.",
+    longBio: "Ajay Gupta brings three decades of experience in making financial products accessible to everyday investors. His strength lies in simplifying complex investment choices and creating goal-based financial plans that families can rely on for generations.",
     phone: "+91 9416400277",
     email: "ajay@sphpnp.com",
     icon: Users,
     accent: "from-brand-gold to-secondary",
     statValue: "30+",
     statLabel: "Years",
-    specialties: ["Mutual Funds", "SIP Planning", "Retirement Advisory"],
+    specialties: ["Mutual Funds", "SIP Planning", "Retirement Advisory", "Tax Saving"],
+    achievements: ["₹100Cr+ AUM in mutual funds", "Top advisor for SIP enrollments"],
   },
   {
     name: "Aditya Raj Goel",
     role: "Operations & Processing Executive",
-    description: "Assists investors with account opening, KYC processing, and service queries. Also handles online services, website, and social media presence.",
+    description: "Assists investors with account opening, KYC processing, and service queries. Handles online services, website, and social media presence.",
+    longBio: "Aditya Raj Goel represents the next generation of financial services. He bridges traditional client servicing with modern digital tools — ensuring smooth onboarding, paperless KYC, and an active online presence that keeps clients informed and engaged.",
     phone: "+91 8295565443",
     email: "parasrampnp@gmail.com",
     icon: TrendingUp,
     accent: "from-secondary to-brand-gold",
     statValue: "KYC",
     statLabel: "Expert",
-    specialties: ["Account Opening", "KYC Processing", "Digital Services"],
+    specialties: ["Account Opening", "KYC Processing", "Digital Services", "Social Media"],
+    achievements: ["Streamlined paperless onboarding", "Manages all digital platforms"],
   },
   {
     name: "Rajat Gupta",
     role: "Client Relationship Manager",
     description: "Manages documentation, transaction execution, and coordination with service platforms and AMCs. Your go-to person for smooth operations.",
+    longBio: "Rajat Gupta ensures that every transaction runs seamlessly from initiation to completion. His meticulous approach to documentation and strong relationships with AMCs and service platforms mean clients never have to worry about the operational side of investing.",
     phone: "+91 9999790011",
     email: "rajat@sphpnp.com",
     icon: Briefcase,
     accent: "from-brand-gold to-brand-green",
     statValue: "CRM",
     statLabel: "Lead",
-    specialties: ["Client Relations", "Transaction Mgmt", "AMC Coordination"],
+    specialties: ["Client Relations", "Transaction Mgmt", "AMC Coordination", "Documentation"],
+    achievements: ["Zero-error transaction record", "Fastest turnaround times in region"],
   },
 ];
 
@@ -64,9 +80,149 @@ const teamFAQs = [
   { q: "Do your advisors provide personalized recommendations?", a: "Absolutely. Our advisors take the time to understand your financial situation, risk appetite, and goals before making any recommendations. All advice is SEBI-compliant." },
   { q: "How do I schedule a consultation?", a: "You can call any team member directly using the numbers listed above, or visit our branch during office hours. For first-time consultations, we recommend calling ahead." },
   { q: "Is there a minimum investment amount to get started?", a: "No. We welcome investors of all sizes. Whether you want to start a ₹500 monthly SIP or invest ₹50 lakhs in equities, our team is here to help." },
+  { q: "What are your office hours?", a: "Our branch operates Monday to Saturday, 9:30 AM to 5:30 PM IST. We are closed on Sundays and stock exchange holidays." },
 ];
 
+const branchStats = [
+  { label: "Years of Service", value: "35+", icon: Calendar },
+  { label: "Active Clients", value: "2,000+", icon: Users },
+  { label: "AUM Managed", value: "₹250Cr+", icon: TrendingUp },
+  { label: "SEBI Registered", value: "Since 1989", icon: Shield },
+];
+
+const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; index: number }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <motion.div
+      className="group bg-card rounded-2xl border border-border/50 hover:border-secondary/30 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ delay: index * 0.12, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -6 }}
+    >
+      {/* Top gradient bar */}
+      <div className={`h-1.5 bg-gradient-to-r ${member.accent}`} />
+
+      {/* Hover overlay */}
+      <motion.div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+      <div className="relative z-10 p-6 sm:p-8">
+        {/* Header row */}
+        <div className="flex items-start gap-4 mb-5">
+          <motion.div
+            className={`w-16 h-16 bg-gradient-to-br ${member.accent} rounded-2xl flex items-center justify-center text-white shadow-lg flex-shrink-0`}
+            whileHover={{ rotate: [0, -8, 8, 0], scale: 1.1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <member.icon className="w-7 h-7" />
+          </motion.div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-secondary transition-colors">
+              {member.name}
+            </h3>
+            <p className="text-secondary font-semibold text-sm">{member.role}</p>
+          </div>
+          <div className="bg-muted rounded-xl px-3 py-2 text-center flex-shrink-0">
+            <div className="text-lg font-bold text-secondary leading-tight">{member.statValue}</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{member.statLabel}</div>
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+          {member.description}
+        </p>
+
+        {/* Expandable long bio */}
+        <motion.div
+          initial={false}
+          animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden"
+        >
+          <p className="text-muted-foreground text-sm leading-relaxed mb-4 border-l-2 border-secondary/30 pl-3 italic">
+            {member.longBio}
+          </p>
+          {/* Achievements */}
+          <div className="mb-4">
+            {member.achievements.map((a, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs text-foreground mb-1.5">
+                <Star className="w-3 h-3 text-brand-gold flex-shrink-0" />
+                <span>{a}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-secondary font-semibold hover:underline mb-4 flex items-center gap-1"
+        >
+          {expanded ? "Show less" : "Read full bio"}
+          <motion.span animate={{ rotate: expanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
+            <ChevronRight className="w-3 h-3" />
+          </motion.span>
+        </button>
+
+        {/* Specialties */}
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {member.specialties.map((s) => (
+            <span
+              key={s}
+              className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20"
+            >
+              {s}
+            </span>
+          ))}
+        </div>
+
+        {/* Contact */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <a
+            href={`tel:${member.phone}`}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors bg-muted/50 hover:bg-secondary/10 rounded-lg px-3 py-2"
+          >
+            <Phone className="w-4 h-4" />
+            {member.phone}
+          </a>
+          <a
+            href={`mailto:${member.email}`}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors bg-muted/50 hover:bg-secondary/10 rounded-lg px-3 py-2"
+          >
+            <Mail className="w-4 h-4" />
+            {member.email}
+          </a>
+          <a
+            href={`https://wa.me/${member.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${member.name.split(' ')[0]}, I'd like to schedule a consultation.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm text-white bg-green-600 hover:bg-green-700 rounded-lg px-3 py-2 transition-colors"
+          >
+            <MessageCircle className="w-4 h-4" />
+            WhatsApp
+          </a>
+        </div>
+      </div>
+
+      {/* Corner accent */}
+      <motion.div
+        className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-secondary/8 to-transparent rounded-tl-3xl"
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.5 + index * 0.1 }}
+      />
+    </motion.div>
+  );
+};
+
 const TeamPage = () => {
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -77,7 +233,8 @@ const TeamPage = () => {
       <ScrollProgress />
       <Header />
 
-      <section className="py-24 bg-background relative overflow-hidden">
+      {/* Hero Section */}
+      <motion.section ref={heroRef} style={{ opacity: heroOpacity }} className="py-20 md:py-28 bg-background relative overflow-hidden">
         {/* Ambient background */}
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
@@ -93,7 +250,7 @@ const TeamPage = () => {
           <div
             className="absolute inset-0 opacity-[0.02]"
             style={{
-              backgroundImage: `linear-gradient(hsl(213 80% 25%) 1px, transparent 1px), linear-gradient(90deg, hsl(213 80% 25%) 1px, transparent 1px)`,
+              backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
               backgroundSize: '60px 60px',
             }}
           />
@@ -101,7 +258,7 @@ const TeamPage = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-6"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -123,11 +280,10 @@ const TeamPage = () => {
               animate={{ width: 80 }}
               transition={{ delay: 0.4, duration: 0.6 }}
             />
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-4">
-              Experienced professionals dedicated to helping you achieve your financial goals
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
+              Experienced professionals dedicated to helping you achieve your financial goals with integrity and expertise
             </p>
 
-            {/* Legacy tagline */}
             <motion.div
               className="inline-flex items-center gap-2 bg-card border border-border/50 rounded-full px-6 py-3 shadow-md"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -136,113 +292,112 @@ const TeamPage = () => {
             >
               <Clock className="w-4 h-4 text-brand-gold" />
               <span className="text-sm text-foreground font-medium">
-                Serving investors and families across generations with disciplined financial guidance since the late 1980s.
+                Serving investors across generations since the late 1980s
               </span>
             </motion.div>
           </motion.div>
+        </div>
+      </motion.section>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {teamMembers.map((member, index) => (
+      {/* Branch Stats */}
+      <section className="py-6 border-y border-border/50 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {branchStats.map((stat, i) => (
               <motion.div
-                key={member.name}
-                className="group bg-card rounded-2xl border border-border/50 hover:border-secondary/50 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.15, duration: 0.6 }}
-                whileHover={{ y: -8 }}
+                key={stat.label}
+                className="flex items-center gap-3 justify-center py-3"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
               >
-                {/* Top gradient bar */}
-                <div className={`h-1.5 bg-gradient-to-r ${member.accent}`} />
-
-                {/* Gradient overlay */}
-                <motion.div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                <div className="relative z-10 p-8">
-                  <div className="flex items-start gap-4 mb-4">
-                    <motion.div
-                      className="w-16 h-16 bg-hero rounded-2xl flex items-center justify-center text-primary-foreground shadow-lg flex-shrink-0"
-                      whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <member.icon className="w-8 h-8" />
-                    </motion.div>
-                    <div className="flex-1">
-                      <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-secondary transition-colors">
-                        {member.name}
-                      </h3>
-                      <p className="text-secondary font-semibold text-sm">{member.role}</p>
-                    </div>
-                    {/* Stat badge */}
-                    <div className="bg-muted rounded-xl px-3 py-2 text-center flex-shrink-0">
-                      <div className="text-lg font-bold text-secondary">{member.statValue}</div>
-                      <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{member.statLabel}</div>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4 pl-0 md:pl-20">
-                    {member.description}
-                  </p>
-
-                  {/* Specialties tags */}
-                  <div className="flex flex-wrap gap-2 mb-5 pl-0 md:pl-20">
-                    {member.specialties.map((s) => (
-                      <span
-                        key={s}
-                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Contact links */}
-                  <div className="flex flex-col sm:flex-row gap-3 pl-0 md:pl-20">
-                    <a
-                      href={`tel:${member.phone}`}
-                      className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors bg-muted/50 hover:bg-secondary/10 rounded-lg px-3 py-2"
-                    >
-                      <Phone className="w-4 h-4" />
-                      {member.phone}
-                    </a>
-                    <a
-                      href={`mailto:${member.email}`}
-                      className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors bg-muted/50 hover:bg-secondary/10 rounded-lg px-3 py-2"
-                    >
-                      <Mail className="w-4 h-4" />
-                      {member.email}
-                    </a>
-                  </div>
+                <stat.icon className="w-5 h-5 text-secondary" />
+                <div>
+                  <div className="text-lg font-bold text-foreground">{stat.value}</div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{stat.label}</div>
                 </div>
-
-                {/* Corner accent */}
-                <motion.div
-                  className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-secondary/10 to-transparent rounded-tl-3xl"
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                />
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Bottom CTA */}
-          <motion.div
-            className="mt-16 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+      {/* Team Grid */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {teamMembers.map((member, index) => (
+              <TeamMemberCard key={member.name} member={member} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section className="py-16 bg-muted/30 border-y border-border/50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <motion.h2
+            className="font-heading text-2xl md:text-3xl font-bold text-foreground text-center mb-10"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
           >
-            <motion.a
-              href="/contact"
-              className="inline-flex items-center gap-2 bg-hero text-primary-foreground font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-              whileHover={{ scale: 1.05, gap: "12px" }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Star className="w-5 h-5 text-brand-gold" />
-              Get in Touch with Our Experts
-              <ChevronRight className="w-5 h-5" />
-            </motion.a>
+            Why Families Trust <span className="text-secondary">Our Team</span>
+          </motion.h2>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {[
+              { icon: Shield, title: "SEBI Registered", desc: "Fully compliant with all regulatory requirements. Your investments are in safe hands." },
+              { icon: Target, title: "Goal-Based Advice", desc: "We don't sell products — we craft personalized plans aligned with your life goals." },
+              { icon: Handshake, title: "Relationship First", desc: "We build long-term relationships, not transactions. Many clients have been with us for 20+ years." },
+              { icon: GraduationCap, title: "Investor Education", desc: "We believe informed investors make better decisions. Free workshops and guidance included." },
+              { icon: MapPin, title: "Local Presence", desc: "Walk into our Panipat branch anytime. Face-to-face advice you can trust." },
+              { icon: TrendingUp, title: "Proven Track Record", desc: "Consistent wealth creation across market cycles for over three decades." },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <Card className="p-5 h-full hover:shadow-md transition-shadow border-border/50 hover:border-secondary/30">
+                  <item.icon className="w-6 h-6 text-secondary mb-3" />
+                  <h3 className="font-heading font-bold text-foreground text-sm mb-1.5">{item.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-3">
+              Ready to Start Your Investment Journey?
+            </h2>
+            <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+              Schedule a free consultation with any of our advisors. No commitments, no minimum investment.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold shadow-lg">
+                <Link to="/contact">
+                  <Star className="w-5 h-5 mr-2 text-brand-gold" />
+                  Book Free Consultation
+                  <ChevronRight className="w-5 h-5 ml-1" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/open-account">Open Demat Account</Link>
+              </Button>
+            </div>
           </motion.div>
         </div>
       </section>

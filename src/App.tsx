@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { usePageTracking } from "@/hooks/usePageTracking";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const PageTracker = () => { usePageTracking(); return null; };
 
@@ -27,90 +27,81 @@ const Week52TrackerPage = lazy(() => import("./pages/Week52TrackerPage"));
 const FnODashboardPage = lazy(() => import("./pages/FnODashboardPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+// --- Professional branded loading screen ---
+const candleVariants = {
+  animate: (i: number) => ({
+    scaleY: [0.3, 1, 0.5, 0.8, 0.3],
+    transition: {
+      duration: 1.4,
+      repeat: Infinity,
+      delay: i * 0.12,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
+  }),
+};
+
 const PageFallback = () => (
-  <div className="min-h-screen bg-background">
-    {/* Animated header skeleton */}
-    <div className="h-16 bg-card shadow-sm">
-      <div className="container mx-auto px-4 h-full flex items-center justify-between">
-        <motion.div
-          className="h-10 w-32 bg-muted rounded-lg"
-          animate={{ opacity: [0.4, 0.7, 0.4] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        />
-        <div className="hidden md:flex items-center gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <motion.div
-              key={i}
-              className="h-4 w-16 bg-muted rounded"
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+  <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
+    {/* Subtle grid background */}
+    <div
+      className="absolute inset-0 opacity-[0.02]"
+      style={{
+        backgroundImage: "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
+        backgroundSize: "50px 50px",
+      }}
+    />
 
-    {/* Hero skeleton */}
-    <div className="container mx-auto px-4 py-12">
+    {/* Ambient glow */}
+    <motion.div
+      className="absolute w-64 h-64 bg-secondary/10 rounded-full blur-3xl"
+      animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.3, 0.15] }}
+      transition={{ duration: 3, repeat: Infinity }}
+    />
+
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4 }}
+      className="relative z-10 flex flex-col items-center"
+    >
+      {/* Stock chart candlestick animation */}
+      <div className="flex items-end gap-1.5 h-16 mb-6">
+        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+          <motion.div
+            key={i}
+            className={`w-2 rounded-sm origin-bottom ${i % 2 === 0 ? "bg-secondary" : "bg-destructive/60"}`}
+            style={{ height: "100%" }}
+            custom={i}
+            variants={candleVariants}
+            animate="animate"
+          />
+        ))}
+      </div>
+
+      {/* Brand text */}
       <motion.div
-        className="space-y-4 max-w-2xl"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
+        className="text-center"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
       >
-        <motion.div
-          className="h-10 w-3/4 bg-muted rounded-lg"
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        />
-        <motion.div
-          className="h-5 w-1/2 bg-muted rounded"
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 1.5, repeat: Infinity, delay: 0.15 }}
-        />
+        <h2 className="font-heading text-lg font-bold text-foreground tracking-wide">
+          Parasram India
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">Loading market data...</p>
       </motion.div>
 
-      {/* Content cards skeleton */}
-      <div className="grid md:grid-cols-3 gap-4 mt-8">
-        {[1, 2, 3].map((i) => (
-          <motion.div
-            key={i}
-            className="h-44 bg-muted rounded-xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: [0.3, 0.5, 0.3], y: 0 }}
-            transition={{
-              opacity: { duration: 1.5, repeat: Infinity, delay: i * 0.2 },
-              y: { duration: 0.4, delay: i * 0.1 },
-            }}
-          />
-        ))}
+      {/* Progress line */}
+      <div className="w-48 h-0.5 bg-muted rounded-full mt-5 overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-secondary to-brand-gold rounded-full"
+          initial={{ x: "-100%" }}
+          animate={{ x: "100%" }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+          style={{ width: "40%" }}
+        />
       </div>
-
-      {/* Chart skeleton */}
-      <motion.div
-        className="h-72 bg-muted rounded-xl mt-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: [0.2, 0.4, 0.2], y: 0 }}
-        transition={{
-          opacity: { duration: 2, repeat: Infinity },
-          y: { duration: 0.5, delay: 0.4 },
-        }}
-      />
-    </div>
-
-    {/* Centered loading indicator */}
-    <div className="flex justify-center py-4">
-      <motion.div className="flex items-center gap-1.5">
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={i}
-            className="w-2 h-2 rounded-full bg-secondary"
-            animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
-          />
-        ))}
-      </motion.div>
-    </div>
+    </motion.div>
   </div>
 );
 
