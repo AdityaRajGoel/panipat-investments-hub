@@ -59,6 +59,9 @@ type LiveMarketContextType = {
   sectors: SectorData[];
   vix: LiveStock | null;
   marketOverview: MarketOverviewData | null;
+  marketOpen: boolean;
+  marketStatusText: string;
+  lastTradingDate: string | null;
   fetchedAt: string | null;
   loading: boolean;
   refresh: () => void;
@@ -72,6 +75,9 @@ const LiveMarketContext = createContext<LiveMarketContextType>({
   sectors: [],
   vix: null,
   marketOverview: null,
+  marketOpen: false,
+  marketStatusText: "Market Closed",
+  lastTradingDate: null,
   fetchedAt: null,
   loading: true,
   refresh: () => {},
@@ -146,6 +152,9 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
   const [sectors, setSectors] = useState<SectorData[]>(fallbackSectors);
   const [vix, setVix] = useState<LiveStock | null>(null);
   const [marketOverview, setMarketOverview] = useState<MarketOverviewData | null>(null);
+  const [marketOpen, setMarketOpen] = useState(false);
+  const [marketStatusText, setMarketStatusText] = useState("Market Closed");
+  const [lastTradingDate, setLastTradingDate] = useState<string | null>(null);
   const [fetchedAt, setFetchedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -161,6 +170,9 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
         if (data.vix) setVix(data.vix);
         if (data.marketOverview) setMarketOverview(data.marketOverview);
         if (data.fetchedAt) setFetchedAt(data.fetchedAt);
+        if (typeof data.marketOpen === 'boolean') setMarketOpen(data.marketOpen);
+        if (data.marketStatusText) setMarketStatusText(data.marketStatusText);
+        if (data.lastTradingDate) setLastTradingDate(data.lastTradingDate);
       }
     } catch (e) {
       console.log('Using fallback market data');
@@ -171,13 +183,13 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchData();
-    // Refresh every 60 seconds for live feel
-    const interval = setInterval(fetchData, 60 * 1000);
+    // Refresh every 60s when market is open, every 5min when closed
+    const interval = setInterval(fetchData, marketOpen ? 60 * 1000 : 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [fetchData, marketOpen]);
 
   return (
-    <LiveMarketContext.Provider value={{ indices, stocks, commodities, globalMarkets, sectors, vix, marketOverview, fetchedAt, loading, refresh: fetchData }}>
+    <LiveMarketContext.Provider value={{ indices, stocks, commodities, globalMarkets, sectors, vix, marketOverview, marketOpen, marketStatusText, lastTradingDate, fetchedAt, loading, refresh: fetchData }}>
       {children}
     </LiveMarketContext.Provider>
   );

@@ -121,7 +121,7 @@ const timeLabels: Record<string, string[]> = {
 };
 
 const LiveChart = () => {
-  const { indices, fetchedAt } = useLiveMarket();
+  const { indices, fetchedAt, marketOpen, marketStatusText, lastTradingDate } = useLiveMarket();
   const [activeIndexKey, setActiveIndexKey] = useState("NIFTY");
   const [activeTimeframe, setActiveTimeframe] = useState("1D");
 
@@ -143,6 +143,12 @@ const LiveChart = () => {
     return generateVolumeData(points, seed);
   }, [activeIndexKey, activeTimeframe, idxPosition]);
 
+  const formatTradingDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  };
+
   return (
     <section className="py-16 bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -156,15 +162,29 @@ const LiveChart = () => {
           </div>
           <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground">Market Watch</h2>
           <div className="ml-auto flex items-center gap-3">
-            {fetchedAt && (
+            {/* Market status badge */}
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+              marketOpen 
+                ? "bg-secondary/10 text-secondary border border-secondary/20" 
+                : "bg-destructive/10 text-destructive border border-destructive/20"
+            }`}>
+              {marketOpen ? (
+                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+              ) : (
+                <span className="w-2 h-2 rounded-full bg-destructive/60" />
+              )}
+              {marketStatusText}
+            </div>
+            {!marketOpen && lastTradingDate && (
+              <span className="text-[10px] text-muted-foreground hidden sm:block">
+                Closing prices as of {formatTradingDate(lastTradingDate)}
+              </span>
+            )}
+            {marketOpen && fetchedAt && (
               <span className="text-[10px] text-muted-foreground hidden sm:block">
                 Updated: {new Date(fetchedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
               </span>
             )}
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span className="text-xs text-muted-foreground font-medium">Live • 1min</span>
-            </div>
           </div>
         </motion.div>
 

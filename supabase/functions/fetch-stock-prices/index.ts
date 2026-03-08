@@ -147,12 +147,60 @@ function formatVolume(vol?: number): string {
   return vol.toString();
 }
 
+function getIndianMarketStatus(): { isOpen: boolean; lastTradingDate: string; statusText: string } {
+  // IST = UTC + 5:30
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const istNow = new Date(now.getTime() + istOffset + now.getTimezoneOffset() * 60000);
+  
+  const day = istNow.getDay(); // 0=Sun, 6=Sat
+  const hours = istNow.getHours();
+  const minutes = istNow.getMinutes();
+  const timeInMinutes = hours * 60 + minutes;
+  
+  // Market hours: 9:15 AM (555 min) to 3:30 PM (930 min), Mon-Fri
+  const marketOpen = 9 * 60 + 15;  // 555
+  const marketClose = 15 * 60 + 30; // 930
+  
+  const isWeekday = day >= 1 && day <= 5;
+  const isDuringHours = timeInMinutes >= marketOpen && timeInMinutes <= marketClose;
+  const isOpen = isWeekday && isDuringHours;
+  
+  // Calculate last trading date
+  const istDate = new Date(istNow);
+  if (!isWeekday || (isWeekday && timeInMinutes < marketOpen)) {
+    // Go back to last weekday
+    let d = new Date(istDate);
+    if (timeInMinutes < marketOpen && isWeekday) {
+      d.setDate(d.getDate() - 1);
+    }
+    while (d.getDay() === 0 || d.getDay() === 6) {
+      d.setDate(d.getDate() - 1);
+    }
+    istDate.setFullYear(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  
+  const lastTradingDate = `${istDate.getFullYear()}-${String(istDate.getMonth() + 1).padStart(2, '0')}-${String(istDate.getDate()).padStart(2, '0')}`;
+  
+  let statusText = "Market Closed";
+  if (isOpen) {
+    statusText = "Market Open";
+  } else if (isWeekday && timeInMinutes > marketClose) {
+    statusText = "Market Closed";
+  } else if (isWeekday && timeInMinutes < marketOpen) {
+    statusText = "Pre-Market";
+  }
+  
+  return { isOpen, lastTradingDate, statusText };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const marketStatus = getIndianMarketStatus();
     const [indexResults, stockResults, marketResults, commodityResults, globalResults, sectorResults] = await Promise.all([
       Promise.all(INDEX_SYMBOLS.map(async (idx) => {
         const q = await fetchYahooQuote(idx.symbol);
@@ -263,6 +311,9 @@ Deno.serve(async (req) => {
           declines,
           unchanged: Math.max(0, validMarket.length - advances - declines),
         },
+        marketOpen: marketStatus.isOpen,
+        marketStatusText: marketStatus.statusText,
+        lastTradingDate: marketStatus.lastTradingDate,
         fetchedAt: new Date().toISOString(),
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
