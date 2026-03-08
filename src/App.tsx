@@ -13,7 +13,7 @@ import ContactPage from "./pages/ContactPage";
 import AdminPage from "./pages/AdminPage";
 import OpenAccountPage from "./pages/OpenAccountPage";
 import StockScreenerPage from "./pages/StockScreenerPage";
-import MarketHeatmapPage from "./pages/MarketHeatmapPage";
+
 import HolidayCalendarPage from "./pages/HolidayCalendarPage";
 import Week52TrackerPage from "./pages/Week52TrackerPage";
 import NotFound from "./pages/NotFound";
