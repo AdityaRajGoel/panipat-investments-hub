@@ -125,7 +125,13 @@ const StockScreenerPage = () => {
           </div>
         </Card>
 
-        {error && (
+        {/* Heatmap */}
+        {!loading && filtered.length > 0 && (
+          <div className="mb-6">
+            <StockHeatmap stocks={filtered} maxItems={60} />
+          </div>
+        )}
+
           <Card className="p-4 mb-4 border-destructive/50 bg-destructive/5">
             <p className="text-sm text-destructive">⚠️ {error}. Showing cached data if available.</p>
           </Card>
