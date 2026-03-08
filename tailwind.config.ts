@@ -56,6 +56,10 @@ export default {
           green: "hsl(var(--brand-green))",
           lightBlue: "hsl(var(--brand-light-blue))",
           gold: "hsl(var(--brand-gold))",
+          orange: "hsl(var(--brand-orange))",
+          warm: "hsl(var(--brand-warm))",
+          copper: "hsl(var(--brand-copper))",
+          charcoal: "hsl(var(--brand-charcoal))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
