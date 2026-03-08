@@ -11,6 +11,7 @@ import UnlistedZonePage from "./pages/UnlistedZonePage";
 import TeamPage from "./pages/TeamPage";
 import ContactPage from "./pages/ContactPage";
 import AdminPage from "./pages/AdminPage";
+import OpenAccountPage from "./pages/OpenAccountPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
