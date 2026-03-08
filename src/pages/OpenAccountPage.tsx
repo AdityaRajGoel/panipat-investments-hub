@@ -79,6 +79,11 @@ const OpenAccountPage = () => {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background">
+        <SEOHead
+          title="Open Free Demat Account in Panipat | Parasram India"
+          description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
+          keywords="open demat account Panipat, free demat account, trading account Panipat, Parasram India account opening"
+        />
         <Header />
         <div className="flex items-center justify-center min-h-[80vh] px-4">
           <motion.div className="text-center max-w-md" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
