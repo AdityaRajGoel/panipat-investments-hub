@@ -10,7 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 // Fear & Greed Gauge
 const FearGreedGauge = () => {
   const value = 62; // 0-100
-  const angle = (value / 100) * 180 - 90;
+  // Needle angle: value 0 = left (π rad), value 100 = right (0 rad)
+  const angleRad = Math.PI - (value / 100) * Math.PI;
   const label = value > 75 ? "Extreme Greed" : value > 55 ? "Greed" : value > 45 ? "Neutral" : value > 25 ? "Fear" : "Extreme Fear";
   const color = value > 55 ? "hsl(var(--secondary))" : value > 45 ? "hsl(var(--brand-gold))" : "hsl(var(--destructive))";
 
@@ -39,8 +40,8 @@ const FearGreedGauge = () => {
             <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gauge-grad)" strokeWidth="14" strokeLinecap="round" strokeDasharray="251" strokeDashoffset={251 - (value / 100) * 251} />
             <line
               x1="100" y1="100"
-              x2={100 + 60 * Math.cos((angle * Math.PI) / 180)}
-              y2={100 + 60 * Math.sin((angle * Math.PI) / 180)}
+              x2={100 + 60 * Math.cos(angleRad)}
+              y2={100 - 60 * Math.sin(angleRad)}
               stroke={color} strokeWidth="3" strokeLinecap="round"
             />
             <circle cx="100" cy="100" r="5" fill={color} />
