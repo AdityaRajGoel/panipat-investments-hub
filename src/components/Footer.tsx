@@ -71,7 +71,6 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               {[
                 { label: "Stock Screener", href: "/screener", internal: true },
-                { label: "Market Heatmap", href: "/heatmap", internal: true },
                 { label: "52-Week Tracker", href: "/52-week-tracker", internal: true },
                 { label: "Holiday Calendar", href: "/holidays", internal: true },
                 { label: "About Company", href: "https://parasramindia.com/about-parasram" },
