@@ -98,7 +98,8 @@ const MarketNews = () => {
 
   useEffect(() => {
     fetchNews();
-    const interval = setInterval(fetchNews, 15 * 60 * 1000);
+    // Refresh news every 5 minutes
+    const interval = setInterval(fetchNews, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
