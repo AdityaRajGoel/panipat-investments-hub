@@ -1,7 +1,7 @@
 import { ArrowRight, TrendingUp, TrendingDown, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, Variants, Easing } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import heroBg from "@/assets/hero-bg.jpg";
 
