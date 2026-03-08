@@ -383,39 +383,39 @@ const Hero = () => {
               })}
             </motion.div>
 
-            {/* Floating info cards */}
+            {/* Floating info cards — live data */}
             <FloatingCard delay={1.0} className="top-4 left-0 min-w-[160px]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-secondary/20 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-secondary" />
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${niftyData?.up !== false ? "bg-secondary/20" : "bg-destructive/20"}`}>
+                  {niftyData?.up !== false ? <TrendingUp className="w-5 h-5 text-secondary" /> : <TrendingDown className="w-5 h-5 text-destructive" />}
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">NIFTY 50</div>
-                  <div className="font-bold text-foreground text-sm">+0.85%</div>
+                  <div className={`font-bold text-sm ${niftyData?.up !== false ? "text-secondary" : "text-destructive"}`}>{niftyData?.change || "+0.85%"}</div>
                 </div>
               </div>
             </FloatingCard>
 
             <FloatingCard delay={1.2} className="top-4 right-0 min-w-[160px]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-brand-gold/20 rounded-lg flex items-center justify-center">
-                  <Award className="w-5 h-5 text-brand-gold" />
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${sensexData?.up !== false ? "bg-secondary/20" : "bg-destructive/20"}`}>
+                  {sensexData?.up !== false ? <TrendingUp className="w-5 h-5 text-secondary" /> : <TrendingDown className="w-5 h-5 text-destructive" />}
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Trust Score</div>
-                  <div className="font-bold text-foreground text-sm">98.5%</div>
+                  <div className="text-xs text-muted-foreground">SENSEX</div>
+                  <div className={`font-bold text-sm ${sensexData?.up !== false ? "text-secondary" : "text-destructive"}`}>{sensexData?.change || "+0.72%"}</div>
                 </div>
               </div>
             </FloatingCard>
 
             <FloatingCard delay={1.4} className="bottom-4 left-0 min-w-[170px]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 text-primary" />
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${goldData?.up !== false ? "bg-brand-gold/20" : "bg-destructive/20"}`}>
+                  {goldData?.up !== false ? <TrendingUp className="w-5 h-5 text-brand-gold" /> : <TrendingDown className="w-5 h-5 text-destructive" />}
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Active Clients</div>
-                  <div className="font-bold text-foreground text-sm">10 Lakh+</div>
+                  <div className="text-xs text-muted-foreground">GOLD</div>
+                  <div className={`font-bold text-sm ${goldData?.up !== false ? "text-brand-gold" : "text-destructive"}`}>{goldData?.price || "$2,345.60"}</div>
                 </div>
               </div>
             </FloatingCard>
