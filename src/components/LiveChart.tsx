@@ -2,14 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useMemo, useCallback } from "react";
 import { TrendingUp, TrendingDown, BarChart3, Activity, ArrowUpRight, ArrowDownRight, Clock, Layers } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
-const indices = [
-  { name: "NIFTY 50", symbol: "NIFTY" },
-  { name: "SENSEX", symbol: "SENSEX" },
-  { name: "BANK NIFTY", symbol: "BANKNIFTY" },
-  { name: "NIFTY IT", symbol: "NIFTYIT" },
-  { name: "NIFTY FIN", symbol: "NIFTYFIN" },
-];
+import { useLiveMarket } from "@/hooks/useLiveMarket";
 
 const generateChartData = (trend: "up" | "down" | "mixed", points = 60, seed = 0) => {
   const data: number[] = [];
@@ -34,22 +27,11 @@ const generateVolumeData = (points: number, seed: number) => {
   return data;
 };
 
-type IndexInfo = { trend: "up" | "down" | "mixed"; change: Record<string, string>; price: string; up: Record<string, boolean>; open: string; high: string; low: string; prevClose: string; pe: string; marketCap: string; w52High: string; w52Low: string };
-
-const indexMeta: Record<string, IndexInfo> = {
-  NIFTY: { trend: "up", price: "22,147.00", change: { "1D": "+0.85%", "1W": "+2.14%", "1M": "+4.52%", "3M": "+8.31%", "1Y": "+18.65%" }, up: { "1D": true, "1W": true, "1M": true, "3M": true, "1Y": true }, open: "21,960.50", high: "22,189.30", low: "21,912.45", prevClose: "21,960.15", pe: "21.8", marketCap: "₹243L Cr", w52High: "22,526.60", w52Low: "18,837.85" },
-  SENSEX: { trend: "up", price: "72,831.94", change: { "1D": "+0.72%", "1W": "+1.89%", "1M": "+3.76%", "3M": "+7.12%", "1Y": "+16.42%" }, up: { "1D": true, "1W": true, "1M": true, "3M": true, "1Y": true }, open: "72,280.60", high: "72,950.40", low: "72,180.20", prevClose: "72,310.80", pe: "23.2", marketCap: "₹385L Cr", w52High: "73,427.59", w52Low: "62,293.74" },
-  BANKNIFTY: { trend: "down", price: "46,893.65", change: { "1D": "-0.32%", "1W": "-1.45%", "1M": "+1.22%", "3M": "+3.85%", "1Y": "+10.20%" }, up: { "1D": false, "1W": false, "1M": true, "3M": true, "1Y": true }, open: "47,120.30", high: "47,245.80", low: "46,780.15", prevClose: "47,044.05", pe: "18.4", marketCap: "₹98L Cr", w52High: "48,636.35", w52Low: "42,105.20" },
-  NIFTYIT: { trend: "mixed", price: "34,521.20", change: { "1D": "+0.41%", "1W": "-0.78%", "1M": "+2.35%", "3M": "-1.52%", "1Y": "+12.80%" }, up: { "1D": true, "1W": false, "1M": true, "3M": false, "1Y": true }, open: "34,380.00", high: "34,650.80", low: "34,280.10", prevClose: "34,380.20", pe: "28.6", marketCap: "₹45L Cr", w52High: "37,880.25", w52Low: "29,480.60" },
-  NIFTYFIN: { trend: "up", price: "21,456.80", change: { "1D": "+0.62%", "1W": "+1.34%", "1M": "+2.88%", "3M": "+5.42%", "1Y": "+14.30%" }, up: { "1D": true, "1W": true, "1M": true, "3M": true, "1Y": true }, open: "21,320.40", high: "21,510.60", low: "21,280.15", prevClose: "21,324.50", pe: "19.2", marketCap: "₹72L Cr", w52High: "22,134.80", w52Low: "17,680.40" },
-};
-
 const timeframePoints: Record<string, number> = { "1D": 60, "1W": 90, "1M": 120, "3M": 180, "1Y": 250 };
 const timeframeSeed: Record<string, number> = { "1D": 1, "1W": 2, "1M": 3, "3M": 4, "1Y": 5 };
 
 const InteractiveChart = ({ data, volumeData, up, large = false }: { data: number[]; volumeData?: number[]; up: boolean; large?: boolean }) => {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
-
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
@@ -94,27 +76,18 @@ const InteractiveChart = ({ data, volumeData, up, large = false }: { data: numbe
             <stop offset="100%" stopColor={color} stopOpacity="0.02" />
           </linearGradient>
         </defs>
-        {/* Grid lines for large */}
         {large && [0, 1, 2, 3].map(i => (
           <line key={i} x1={0} y1={(h / 3) * i} x2={w} y2={(h / 3) * i} stroke="hsl(var(--border))" strokeWidth="0.5" strokeDasharray="4 4" opacity="0.3" />
         ))}
         <polygon points={areaPoints} fill={`url(#${gradientId})`} />
         <polyline points={points} fill="none" stroke={color} strokeWidth={large ? "2" : "1.5"} strokeLinecap="round" strokeLinejoin="round" />
-        {/* Volume bars for large chart */}
         {large && volumeData && volumeData.map((v, i) => {
           const barW = w / volumeData.length;
           const barH = (v / 100) * volH;
           return (
-            <rect
-              key={i}
-              x={i * barW}
-              y={h + volH - barH}
-              width={barW * 0.7}
-              height={barH}
+            <rect key={i} x={i * barW} y={h + volH - barH} width={barW * 0.7} height={barH}
               fill={data[i] >= (data[i - 1] || data[i]) ? "hsl(145, 70%, 40%)" : "hsl(0, 84%, 60%)"}
-              opacity={hoverIdx === i ? 0.8 : 0.25}
-              rx="1"
-            />
+              opacity={hoverIdx === i ? 0.8 : 0.25} rx="1" />
           );
         })}
         {large && hoverIdx !== null && coords[hoverIdx] && (
@@ -148,29 +121,30 @@ const timeLabels: Record<string, string[]> = {
 };
 
 const LiveChart = () => {
-  const [activeIndex, setActiveIndex] = useState("NIFTY");
+  const { indices, fetchedAt } = useLiveMarket();
+  const [activeIndexKey, setActiveIndexKey] = useState("NIFTY");
   const [activeTimeframe, setActiveTimeframe] = useState("1D");
 
-  const meta = indexMeta[activeIndex];
-  const currentChange = meta.change[activeTimeframe] || meta.change["1D"];
-  const currentUp = meta.up[activeTimeframe] ?? meta.up["1D"];
+  const activeIndex = indices.find(i => i.key === activeIndexKey) || indices[0];
+  const currentUp = activeIndex?.up ?? true;
+
+  const idxPosition = indices.findIndex(i => i.key === activeIndexKey);
 
   const chartData = useMemo(() => {
     const trend = currentUp ? "up" : "down";
     const points = timeframePoints[activeTimeframe] || 60;
-    const seed = timeframeSeed[activeTimeframe] + indices.findIndex(i => i.symbol === activeIndex);
+    const seed = timeframeSeed[activeTimeframe] + idxPosition;
     return generateChartData(trend, points, seed);
-  }, [activeIndex, activeTimeframe, currentUp]);
+  }, [activeIndexKey, activeTimeframe, currentUp, idxPosition]);
 
   const volumeData = useMemo(() => {
     const points = timeframePoints[activeTimeframe] || 60;
-    const seed = timeframeSeed[activeTimeframe] + indices.findIndex(i => i.symbol === activeIndex) + 10;
+    const seed = timeframeSeed[activeTimeframe] + idxPosition + 10;
     return generateVolumeData(points, seed);
-  }, [activeIndex, activeTimeframe]);
+  }, [activeIndexKey, activeTimeframe, idxPosition]);
 
   return (
     <section className="py-16 bg-background relative overflow-hidden">
-      {/* Warm subtle glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-brand-orange/3 to-transparent rounded-full blur-3xl" />
         <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
@@ -181,30 +155,35 @@ const LiveChart = () => {
             <BarChart3 className="w-4 h-4 text-brand-orange" />
           </div>
           <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground">Market Watch</h2>
-          <div className="ml-auto flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse" />
-            <span className="text-xs text-muted-foreground font-medium">Live</span>
+          <div className="ml-auto flex items-center gap-3">
+            {fetchedAt && (
+              <span className="text-[10px] text-muted-foreground hidden sm:block">
+                Updated: {new Date(fetchedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse" />
+              <span className="text-xs text-muted-foreground font-medium">Live</span>
+            </div>
           </div>
         </motion.div>
 
         <div className="grid lg:grid-cols-[280px_1fr] gap-6">
           <motion.div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             {indices.map((idx) => {
-              const m = indexMeta[idx.symbol];
-              const idxUp = m.up["1D"];
-              const isActive = activeIndex === idx.symbol;
+              const isActive = activeIndexKey === idx.key;
               return (
-                <motion.button key={idx.symbol} onClick={() => setActiveIndex(idx.symbol)}
+                <motion.button key={idx.key} onClick={() => setActiveIndexKey(idx.key)}
                   className={`flex items-center gap-3 p-3 rounded-xl border transition-all min-w-[200px] lg:min-w-0 text-left ${isActive ? "bg-card border-brand-orange/40 shadow-lg shadow-brand-orange/10" : "bg-card/50 border-border/30 hover:border-border"}`}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idxUp ? "bg-secondary/10" : "bg-destructive/10"}`}>
-                    {idxUp ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idx.up ? "bg-secondary/10" : "bg-destructive/10"}`}>
+                    {idx.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-muted-foreground font-medium">{idx.name}</div>
-                    <div className="text-sm font-bold text-foreground">₹{m.price}</div>
+                    <div className="text-sm font-bold text-foreground">₹{idx.price}</div>
                   </div>
-                  <div className={`text-xs font-bold px-2 py-1 rounded-full ${idxUp ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>{m.change["1D"]}</div>
+                  <div className={`text-xs font-bold px-2 py-1 rounded-full ${idx.up ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>{idx.change}</div>
                 </motion.button>
               );
             })}
@@ -215,11 +194,11 @@ const LiveChart = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-heading text-lg font-bold text-foreground">{indices.find(i => i.symbol === activeIndex)?.name}</h3>
+                    <h3 className="font-heading text-lg font-bold text-foreground">{activeIndex?.name}</h3>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-2xl font-bold text-foreground">₹{meta.price}</span>
+                      <span className="text-2xl font-bold text-foreground">₹{activeIndex?.price}</span>
                       <span className={`text-sm font-bold px-2.5 py-1 rounded-full ${currentUp ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>
-                        {currentUp ? <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> : <TrendingDown className="w-3.5 h-3.5 inline mr-1" />}{currentChange}
+                        {currentUp ? <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> : <TrendingDown className="w-3.5 h-3.5 inline mr-1" />}{activeIndex?.change}
                       </span>
                     </div>
                   </div>
@@ -230,7 +209,7 @@ const LiveChart = () => {
                     ))}
                   </div>
                 </div>
-                <motion.div key={`${activeIndex}-${activeTimeframe}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                <motion.div key={`${activeIndexKey}-${activeTimeframe}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
                   <InteractiveChart data={chartData} volumeData={volumeData} up={currentUp} large />
                 </motion.div>
                 <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
@@ -257,13 +236,13 @@ const LiveChart = () => {
               </CardContent>
             </Card>
 
-            {/* OHLC + Key Data Strip — MoneyControl / Motilal Oswal style */}
+            {/* OHLC Data from live feed */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: "Open", value: `₹${meta.open}`, icon: Activity },
-                { label: "High", value: `₹${meta.high}`, icon: ArrowUpRight, color: "text-secondary" },
-                { label: "Low", value: `₹${meta.low}`, icon: ArrowDownRight, color: "text-destructive" },
-                { label: "Prev Close", value: `₹${meta.prevClose}`, icon: Layers },
+                { label: "Open", value: activeIndex?.open ? `₹${activeIndex.open}` : "-", icon: Activity },
+                { label: "High", value: activeIndex?.high ? `₹${activeIndex.high}` : "-", icon: ArrowUpRight, color: "text-secondary" },
+                { label: "Low", value: activeIndex?.low ? `₹${activeIndex.low}` : "-", icon: ArrowDownRight, color: "text-destructive" },
+                { label: "Prev Close", value: activeIndex?.prevClose ? `₹${activeIndex.prevClose}` : "-", icon: Layers },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
@@ -277,19 +256,12 @@ const LiveChart = () => {
                 );
               })}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {[
-                { label: "P/E Ratio", value: meta.pe },
-                { label: "Market Cap", value: meta.marketCap },
-                { label: "52W High", value: `₹${meta.w52High}` },
-                { label: "52W Low", value: `₹${meta.w52Low}` },
-              ].map((item) => (
-                <motion.div key={item.label} className="bg-muted/30 border border-border/30 rounded-xl p-3" whileHover={{ y: -2 }}>
-                  <span className="text-[10px] text-muted-foreground font-medium block mb-1">{item.label}</span>
-                  <span className="text-sm font-bold text-foreground">{item.value}</span>
-                </motion.div>
-              ))}
-            </div>
+            {activeIndex?.volume && (
+              <div className="bg-muted/30 border border-border/30 rounded-xl p-3 text-center">
+                <span className="text-[10px] text-muted-foreground font-medium">Volume: </span>
+                <span className="text-sm font-bold text-foreground">{activeIndex.volume}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

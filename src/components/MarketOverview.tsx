@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
+import { useLiveMarket } from "@/hooks/useLiveMarket";
 
 type Stock = { name: string; price: string; change: string; up: boolean; volume?: string; high?: string; low?: string };
 
@@ -250,8 +251,27 @@ const MarketOverview = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("gainers");
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [chartData] = useState(() => new Map<string, number[]>());
+  const { marketOverview: liveData, fetchedAt } = useLiveMarket();
 
-  const activeConfig = tabConfig.find(t => t.key === activeTab)!;
+  // Merge live data with fallbacks
+  const dynamicTabConfig = useMemo(() => {
+    const cfg: { key: TabKey; label: string; icon: any; data: Stock[] }[] = [
+      { key: "gainers", label: "Top Gainers", icon: TrendingUp, data: liveData?.gainers?.length ? liveData.gainers as Stock[] : fallbackTopGainers },
+      { key: "losers", label: "Top Losers", icon: TrendingDown, data: liveData?.losers?.length ? liveData.losers as Stock[] : fallbackTopLosers },
+      { key: "active", label: "Most Active", icon: Activity, data: liveData?.mostActive?.length ? liveData.mostActive as Stock[] : mostActive },
+      { key: "fno", label: "F&O", icon: Layers, data: fnoData },
+      { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
+      { key: "commodities", label: "Commodities", icon: Gem, data: commoditiesData },
+    ];
+    return cfg;
+  }, [liveData]);
+
+  const activeConfig = dynamicTabConfig.find(t => t.key === activeTab)!;
+
+  const liveAdvances = liveData?.advances ?? 1456;
+  const liveDeclines = liveData?.declines ?? 892;
+  const liveUnchanged = liveData?.unchanged ?? 186;
+  const totalStocks = liveAdvances + liveDeclines + liveUnchanged;
 
   const getChartData = useCallback((stock: Stock) => {
     if (!chartData.has(stock.name)) {
@@ -301,7 +321,7 @@ const MarketOverview = () => {
         {/* Tabbed Section */}
         <Card className="overflow-hidden border-border/50 shadow-xl">
           <div className="bg-muted/50 px-2 sm:px-4 py-2.5 border-b border-border/50 flex items-center gap-1 overflow-x-auto scrollbar-hide">
-            {tabConfig.map((tab) => {
+            {dynamicTabConfig.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button key={tab.key} onClick={() => setActiveTab(tab.key)}
@@ -341,7 +361,7 @@ const MarketOverview = () => {
             <div className="flex items-center justify-between px-4 py-3 border-t border-border/30 bg-muted/20">
               <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                 <Clock className="w-3 h-3" />
-                <span>Last updated: {new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+                <span>Last updated: {fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
               </div>
               <div className="flex items-center gap-1 text-[10px] text-secondary font-medium cursor-pointer hover:underline">
                 <span>View All</span>
@@ -358,15 +378,15 @@ const MarketOverview = () => {
             <span className="text-[10px] text-muted-foreground">NSE</span>
           </div>
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-xs font-bold text-secondary">1,456 Advances</span>
+            <span className="text-xs font-bold text-secondary">{liveAdvances.toLocaleString()} Advances</span>
             <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden flex">
-              <div className="bg-secondary/80 rounded-l-full transition-all" style={{ width: "62%" }} />
-              <div className="bg-muted-foreground/30" style={{ width: "8%" }} />
-              <div className="bg-destructive/80 rounded-r-full transition-all" style={{ width: "30%" }} />
+              <div className="bg-secondary/80 rounded-l-full transition-all" style={{ width: `${totalStocks ? (liveAdvances / totalStocks * 100) : 62}%` }} />
+              <div className="bg-muted-foreground/30" style={{ width: `${totalStocks ? (liveUnchanged / totalStocks * 100) : 8}%` }} />
+              <div className="bg-destructive/80 rounded-r-full transition-all" style={{ width: `${totalStocks ? (liveDeclines / totalStocks * 100) : 30}%` }} />
             </div>
-            <span className="text-xs font-bold text-destructive">892 Declines</span>
+            <span className="text-xs font-bold text-destructive">{liveDeclines.toLocaleString()} Declines</span>
           </div>
-          <div className="text-center text-[10px] text-muted-foreground">186 Unchanged</div>
+          <div className="text-center text-[10px] text-muted-foreground">{liveUnchanged} Unchanged</div>
         </motion.div>
       </div>
 
