@@ -104,10 +104,28 @@ const InteractiveChart = ({ data, up, large = false }: { data: number[]; up: boo
   );
 };
 
+const timeLabels: Record<string, string[]> = {
+  "1D": ["09:15", "10:30", "11:45", "13:00", "14:15", "15:30"],
+  "1W": ["Mon", "Tue", "Wed", "Thu", "Fri", ""],
+  "1M": ["Week 1", "Week 2", "Week 3", "Week 4", "", ""],
+  "3M": ["Jan", "Feb", "Mar", "", "", ""],
+  "1Y": ["Mar", "May", "Jul", "Sep", "Nov", "Jan"],
+};
+
 const LiveChart = () => {
   const [activeIndex, setActiveIndex] = useState("NIFTY");
   const [activeTimeframe, setActiveTimeframe] = useState("1D");
-  const active = chartDataMap[activeIndex];
+
+  const meta = indexMeta[activeIndex];
+  const currentChange = meta.change[activeTimeframe] || meta.change["1D"];
+  const currentUp = meta.up[activeTimeframe] ?? meta.up["1D"];
+
+  const chartData = useMemo(() => {
+    const trend = currentUp ? "up" : "down";
+    const points = timeframePoints[activeTimeframe] || 60;
+    const seed = timeframeSeed[activeTimeframe] + indices.findIndex(i => i.symbol === activeIndex);
+    return generateChartData(trend, points, seed);
+  }, [activeIndex, activeTimeframe, currentUp]);
 
   return (
     <section className="py-16 bg-background relative overflow-hidden">
@@ -127,20 +145,21 @@ const LiveChart = () => {
         <div className="grid lg:grid-cols-[280px_1fr] gap-6">
           <motion.div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             {indices.map((idx) => {
-              const d = chartDataMap[idx.symbol];
+              const m = indexMeta[idx.symbol];
+              const idxUp = m.up["1D"];
               const isActive = activeIndex === idx.symbol;
               return (
                 <motion.button key={idx.symbol} onClick={() => setActiveIndex(idx.symbol)}
                   className={`flex items-center gap-3 p-3 rounded-xl border transition-all min-w-[200px] lg:min-w-0 text-left ${isActive ? "bg-card border-secondary/50 shadow-lg shadow-secondary/10" : "bg-card/50 border-border/30 hover:border-border"}`}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${d.up ? "bg-secondary/10" : "bg-destructive/10"}`}>
-                    {d.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idxUp ? "bg-secondary/10" : "bg-destructive/10"}`}>
+                    {idxUp ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-muted-foreground font-medium">{idx.name}</div>
-                    <div className="text-sm font-bold text-foreground">₹{d.price}</div>
+                    <div className="text-sm font-bold text-foreground">₹{m.price}</div>
                   </div>
-                  <div className={`text-xs font-bold px-2 py-1 rounded-full ${d.up ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>{d.change}</div>
+                  <div className={`text-xs font-bold px-2 py-1 rounded-full ${idxUp ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>{m.change["1D"]}</div>
                 </motion.button>
               );
             })}
@@ -152,9 +171,9 @@ const LiveChart = () => {
                 <div>
                   <h3 className="font-heading text-lg font-bold text-foreground">{indices.find(i => i.symbol === activeIndex)?.name}</h3>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-2xl font-bold text-foreground">₹{active.price}</span>
-                    <span className={`text-sm font-bold px-2.5 py-1 rounded-full ${active.up ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>
-                      {active.up ? <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> : <TrendingDown className="w-3.5 h-3.5 inline mr-1" />}{active.change}
+                    <span className="text-2xl font-bold text-foreground">₹{meta.price}</span>
+                    <span className={`text-sm font-bold px-2.5 py-1 rounded-full ${currentUp ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>
+                      {currentUp ? <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> : <TrendingDown className="w-3.5 h-3.5 inline mr-1" />}{currentChange}
                     </span>
                   </div>
                 </div>
@@ -166,10 +185,12 @@ const LiveChart = () => {
                 </div>
               </div>
               <motion.div key={`${activeIndex}-${activeTimeframe}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                <InteractiveChart data={active.data} up={active.up} large />
+                <InteractiveChart data={chartData} up={currentUp} large />
               </motion.div>
               <div className="flex justify-between mt-3 text-[10px] text-muted-foreground">
-                <span>09:15</span><span>10:30</span><span>11:45</span><span>13:00</span><span>14:15</span><span>15:30</span>
+                {(timeLabels[activeTimeframe] || timeLabels["1D"]).map((label, i) => (
+                  <span key={i}>{label}</span>
+                ))}
               </div>
             </CardContent>
           </Card>
