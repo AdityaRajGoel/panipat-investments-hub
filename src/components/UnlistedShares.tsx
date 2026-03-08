@@ -66,17 +66,38 @@ const UnlistedShares = () => {
   useEffect(() => {
     const fetchShares = async () => {
       try {
-        const { data, error } = await supabase.from('unlisted_shares' as any).select('*').eq('is_active', true).order('display_order', { ascending: true });
-        if (!error && data && data.length > 0) {
-          setStocks(data.map((s: any) => ({
-            name: s.name, short: s.short_code, tag: s.tag, tagColor: s.tag_color,
-            price: s.price, buyPrice: s.buy_price, sellPrice: s.sell_price,
-            minQty: s.min_qty, color: s.gradient_color, imageUrl: s.image_url,
-            description: s.company_description, sector: s.sector,
-            foundedYear: s.founded_year, headquarters: s.headquarters,
+        const { data, error } = await supabase
+          .from('unlisted_shares')
+          .select('*')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true });
+        
+        if (error) {
+          console.error('Error fetching unlisted shares:', error);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          setStocks(data.map((s) => ({
+            name: s.name,
+            short: s.short_code,
+            tag: s.tag,
+            tagColor: s.tag_color,
+            price: s.price,
+            buyPrice: s.buy_price,
+            sellPrice: s.sell_price,
+            minQty: s.min_qty,
+            color: s.gradient_color,
+            imageUrl: s.image_url,
+            description: s.company_description,
+            sector: s.sector,
+            foundedYear: s.founded_year,
+            headquarters: s.headquarters,
           })));
         }
-      } catch {}
+      } catch (err) {
+        console.error('Failed to fetch unlisted shares:', err);
+      }
     };
     fetchShares();
   }, []);
