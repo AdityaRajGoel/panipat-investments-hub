@@ -2,54 +2,67 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
+import CompanyValues from "@/components/CompanyValues";
+import FAQ from "@/components/FAQ";
 import { motion } from "framer-motion";
-import { Phone, Mail, Award, TrendingUp, Users, Briefcase, Clock, Star, ChevronRight } from "lucide-react";
+import { Phone, Mail, Award, TrendingUp, Users, Briefcase, Clock, Star, ChevronRight, Linkedin, GraduationCap } from "lucide-react";
 
 const teamMembers = [
   {
     name: "Anil Kumar Goel",
     role: "Principal Financial Consultant",
-    description: "35+ years experience in financial services and long-term investment guidance.",
+    description: "35+ years experience in financial services and long-term investment guidance. Expert in equity portfolio management and wealth planning for HNIs.",
     phone: "+91 9416400314",
     email: "anil@sphpnp.com",
     icon: Award,
     accent: "from-secondary to-brand-green",
     statValue: "35+",
     statLabel: "Years",
+    specialties: ["Equity Advisory", "Wealth Planning", "HNI Services"],
   },
   {
     name: "Ajay Gupta",
     role: "Senior Financial Advisor",
-    description: "30+ years experience in client advisory and financial product services.",
+    description: "30+ years experience in client advisory and financial product services. Specializes in mutual funds, SIPs, and retirement planning for families.",
     phone: "+91 9416400277",
     email: "ajay@sphpnp.com",
     icon: Users,
     accent: "from-brand-gold to-secondary",
     statValue: "30+",
     statLabel: "Years",
+    specialties: ["Mutual Funds", "SIP Planning", "Retirement Advisory"],
   },
   {
     name: "Aditya Raj Goel",
     role: "Operations & Processing Executive",
-    description: "Assists investors with account opening, KYC processing, and service queries. Also handles Online services, Website and Social Media.",
+    description: "Assists investors with account opening, KYC processing, and service queries. Also handles online services, website, and social media presence.",
     phone: "+91 8295565443",
     email: "parasrampnp@gmail.com",
     icon: TrendingUp,
     accent: "from-secondary to-brand-gold",
     statValue: "KYC",
     statLabel: "Expert",
+    specialties: ["Account Opening", "KYC Processing", "Digital Services"],
   },
   {
     name: "Rajat Gupta",
     role: "Client Relationship Manager",
-    description: "Manages documentation, transaction execution, and coordination with service platforms and AMCs.",
+    description: "Manages documentation, transaction execution, and coordination with service platforms and AMCs. Your go-to person for smooth operations.",
     phone: "+91 9999790011",
     email: "rajat@sphpnp.com",
     icon: Briefcase,
     accent: "from-brand-gold to-brand-green",
     statValue: "CRM",
     statLabel: "Lead",
+    specialties: ["Client Relations", "Transaction Mgmt", "AMC Coordination"],
   },
+];
+
+const teamFAQs = [
+  { q: "Can I request a specific advisor?", a: "Yes, you can request to work with any of our team members. While all our advisors are well-equipped, we're happy to match you with someone whose expertise aligns with your goals." },
+  { q: "Do your advisors provide personalized recommendations?", a: "Absolutely. Our advisors take the time to understand your financial situation, risk appetite, and goals before making any recommendations. All advice is SEBI-compliant." },
+  { q: "How do I schedule a consultation?", a: "You can call any team member directly using the numbers listed above, or visit our branch during office hours. For first-time consultations, we recommend calling ahead." },
+  { q: "Is there a minimum investment amount to get started?", a: "No. We welcome investors of all sizes. Whether you want to start a ₹500 monthly SIP or invest ₹50 lakhs in equities, our team is here to help." },
 ];
 
 const TeamPage = () => {
@@ -71,7 +84,6 @@ const TeamPage = () => {
             animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.35, 0.15] }}
             transition={{ duration: 12, repeat: Infinity }}
           />
-          {/* Grid pattern */}
           <div
             className="absolute inset-0 opacity-[0.02]"
             style={{
@@ -154,7 +166,7 @@ const TeamPage = () => {
                       </h3>
                       <p className="text-secondary font-semibold text-sm">{member.role}</p>
                     </div>
-                    {/* Stat badge — Groww-style */}
+                    {/* Stat badge */}
                     <div className="bg-muted rounded-xl px-3 py-2 text-center flex-shrink-0">
                       <div className="text-lg font-bold text-secondary">{member.statValue}</div>
                       <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{member.statLabel}</div>
@@ -162,9 +174,21 @@ const TeamPage = () => {
                   </div>
 
                   {/* Description */}
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-5 pl-0 md:pl-20">
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4 pl-0 md:pl-20">
                     {member.description}
                   </p>
+
+                  {/* Specialties tags */}
+                  <div className="flex flex-wrap gap-2 mb-5 pl-0 md:pl-20">
+                    {member.specialties.map((s) => (
+                      <span
+                        key={s}
+                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
 
                   {/* Contact links */}
                   <div className="flex flex-col sm:flex-row gap-3 pl-0 md:pl-20">
@@ -196,7 +220,7 @@ const TeamPage = () => {
             ))}
           </div>
 
-          {/* Bottom CTA strip */}
+          {/* Bottom CTA */}
           <motion.div
             className="mt-16 text-center"
             initial={{ opacity: 0, y: 20 }}
@@ -217,6 +241,12 @@ const TeamPage = () => {
         </div>
       </section>
 
+      <CompanyValues />
+      <FAQ
+        title="Working With Our Team"
+        subtitle="Questions about consultations and getting started"
+        items={teamFAQs}
+      />
       <Footer />
       <WhatsAppButton />
     </div>
