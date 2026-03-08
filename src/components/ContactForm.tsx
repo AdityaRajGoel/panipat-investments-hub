@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Send, Loader2, CheckCircle2, User, Phone, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +16,11 @@ const ContactForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const formRenderTime = useRef(Date.now());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    // Clear error on change
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -42,6 +42,11 @@ const ContactForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check honeypot
+    const honeypot = (e.target as HTMLFormElement).querySelector<HTMLInputElement>('[name="_website"]');
+    if (honeypot && honeypot.value) return;
+
     if (!validate()) return;
 
     setLoading(true);
@@ -53,6 +58,8 @@ const ContactForm = () => {
           email: form.email.trim().slice(0, 255) || undefined,
           message: form.message.trim().slice(0, 1000) || undefined,
           city: "Contact Page Inquiry",
+          _website: "", // honeypot should be empty
+          _ts: formRenderTime.current, // timestamp for CSRF
         },
       });
       if (error) throw error;
@@ -98,6 +105,11 @@ const ContactForm = () => {
     >
       <h3 className="font-heading text-xl font-bold text-foreground mb-1">Send Us a Message</h3>
       <p className="text-muted-foreground text-sm mb-4">Fill out the form and we'll get back to you within a business day.</p>
+
+      {/* Honeypot field — hidden from humans, visible to bots */}
+      <div className="absolute opacity-0 -z-10" style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true">
+        <Input name="_website" tabIndex={-1} autoComplete="off" />
+      </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
