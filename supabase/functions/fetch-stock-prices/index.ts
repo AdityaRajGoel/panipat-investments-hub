@@ -355,30 +355,45 @@ Deno.serve(async (req) => {
     // Extract VIX from commodities
     const vixResult = commodityResults.find(c => c?.name === "INDIA VIX");
 
+    const responseData = {
+      success: true,
+      indices: indexResults.filter(Boolean),
+      data: stockResults.filter(Boolean),
+      commodities: commodityResults.filter(Boolean),
+      globalMarkets: globalResults.filter(Boolean),
+      sectors: sectorResults.filter(Boolean),
+      vix: vixResult || null,
+      marketOverview: {
+        gainers,
+        losers,
+        mostActive,
+        advances,
+        declines,
+        unchanged: Math.max(0, validMarket.length - advances - declines),
+      },
+      marketOpen: marketStatus.isOpen,
+      marketStatusText: marketStatus.statusText,
+      lastTradingDate: marketStatus.lastTradingDate,
+      nextMarketOpen: marketStatus.nextMarketOpenISO,
+      marketClose: marketStatus.marketCloseISO,
+      fetchedAt: new Date().toISOString(),
+    };
+
+    // Cache the result
+    if (sb) {
+      try {
+        await sb.from("market_cache").upsert({
+          id: CACHE_KEY,
+          data: responseData,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (e) {
+        console.error("Cache write failed:", e);
+      }
+    }
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        indices: indexResults.filter(Boolean),
-        data: stockResults.filter(Boolean),
-        commodities: commodityResults.filter(Boolean),
-        globalMarkets: globalResults.filter(Boolean),
-        sectors: sectorResults.filter(Boolean),
-        vix: vixResult || null,
-        marketOverview: {
-          gainers,
-          losers,
-          mostActive,
-          advances,
-          declines,
-          unchanged: Math.max(0, validMarket.length - advances - declines),
-        },
-        marketOpen: marketStatus.isOpen,
-        marketStatusText: marketStatus.statusText,
-        lastTradingDate: marketStatus.lastTradingDate,
-        nextMarketOpen: marketStatus.nextMarketOpenISO,
-        marketClose: marketStatus.marketCloseISO,
-        fetchedAt: new Date().toISOString(),
-      }),
+      JSON.stringify(responseData),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
