@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,6 +14,7 @@ const Header = () => {
     { href: "/services", label: "Services" },
     { href: "/unlisted-zone", label: "Unlisted Zone", highlight: true },
     { href: "/screener", label: "Screener" },
+    { href: "/fno", label: "F&O" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
@@ -80,7 +82,8 @@ const Header = () => {
             ))}
           </nav>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button 
               asChild
               className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold hidden sm:inline-flex"
