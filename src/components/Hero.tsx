@@ -196,7 +196,7 @@ const Hero = () => {
 
             {/* Live Index Cards — Groww/Moneycontrol style */}
             <motion.div className="flex flex-wrap gap-3 mb-8" variants={itemVariants}>
-              {indices.map((idx, i) => (
+              {heroIndices.map((idx, i) => (
                 <motion.div
                   key={idx.name}
                   className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-md min-w-[160px]"
