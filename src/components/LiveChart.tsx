@@ -10,24 +10,32 @@ const indices = [
   { name: "NIFTY IT", symbol: "NIFTYIT" },
 ];
 
-const generateChartData = (trend: "up" | "down" | "mixed", points = 60) => {
+const generateChartData = (trend: "up" | "down" | "mixed", points = 60, seed = 0) => {
   const data: number[] = [];
-  let value = 100 + Math.random() * 20;
+  // Use seed to produce different but deterministic-feeling data per timeframe
+  let value = 100 + ((seed * 7 + 13) % 20);
+  const volatility = points > 100 ? 1.5 : points > 30 ? 2 : 2.5;
   for (let i = 0; i < points; i++) {
-    const drift = trend === "up" ? 0.15 : trend === "down" ? -0.15 : 0;
-    value += (Math.random() - 0.5 + drift) * 2;
-    value = Math.max(80, Math.min(130, value));
+    const drift = trend === "up" ? 0.12 : trend === "down" ? -0.12 : 0;
+    const pseudo = Math.sin(seed * 1000 + i * 3.7) * 0.5 + Math.cos(seed * 500 + i * 2.3) * 0.5;
+    value += (pseudo + drift) * volatility;
+    value = Math.max(75, Math.min(135, value));
     data.push(value);
   }
   return data;
 };
 
-const chartDataMap: Record<string, { data: number[]; change: string; price: string; up: boolean }> = {
-  NIFTY: { data: generateChartData("up"), change: "+0.85%", price: "22,147.00", up: true },
-  SENSEX: { data: generateChartData("up"), change: "+0.72%", price: "72,831.94", up: true },
-  BANKNIFTY: { data: generateChartData("down"), change: "-0.32%", price: "46,893.65", up: false },
-  NIFTYIT: { data: generateChartData("mixed"), change: "+0.41%", price: "34,521.20", up: true },
+type IndexInfo = { trend: "up" | "down" | "mixed"; change: Record<string, string>; price: string; up: Record<string, boolean> };
+
+const indexMeta: Record<string, IndexInfo> = {
+  NIFTY: { trend: "up", price: "22,147.00", change: { "1D": "+0.85%", "1W": "+2.14%", "1M": "+4.52%", "3M": "+8.31%", "1Y": "+18.65%" }, up: { "1D": true, "1W": true, "1M": true, "3M": true, "1Y": true } },
+  SENSEX: { trend: "up", price: "72,831.94", change: { "1D": "+0.72%", "1W": "+1.89%", "1M": "+3.76%", "3M": "+7.12%", "1Y": "+16.42%" }, up: { "1D": true, "1W": true, "1M": true, "3M": true, "1Y": true } },
+  BANKNIFTY: { trend: "down", price: "46,893.65", change: { "1D": "-0.32%", "1W": "-1.45%", "1M": "+1.22%", "3M": "+3.85%", "1Y": "+10.20%" }, up: { "1D": false, "1W": false, "1M": true, "3M": true, "1Y": true } },
+  NIFTYIT: { trend: "mixed", price: "34,521.20", change: { "1D": "+0.41%", "1W": "-0.78%", "1M": "+2.35%", "3M": "-1.52%", "1Y": "+12.80%" }, up: { "1D": true, "1W": false, "1M": true, "3M": false, "1Y": true } },
 };
+
+const timeframePoints: Record<string, number> = { "1D": 60, "1W": 90, "1M": 120, "3M": 180, "1Y": 250 };
+const timeframeSeed: Record<string, number> = { "1D": 1, "1W": 2, "1M": 3, "3M": 4, "1Y": 5 };
 
 const InteractiveChart = ({ data, up, large = false }: { data: number[]; up: boolean; large?: boolean }) => {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
