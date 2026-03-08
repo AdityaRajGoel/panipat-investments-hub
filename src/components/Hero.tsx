@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { motion, Variants, Easing } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
+import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 
 type IndexData = { name: string; price: string; change: string; up: boolean };
