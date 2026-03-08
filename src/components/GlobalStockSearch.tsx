@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, TrendingUp, TrendingDown, Loader2 } from "lucide-react";
+import { Search, X, TrendingUp, TrendingDown, Loader2, CandlestickChart, LineChart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ type StockResult = {
 
 type ChartPoint = { t: number; o: number; h: number; l: number; c: number; v: number };
 type TimeRange = "1d" | "5d" | "1mo" | "3mo" | "6mo" | "1y" | "5y";
+type ChartMode = "candle" | "line";
 
 const TIME_RANGES: { key: TimeRange; label: string }[] = [
   { key: "1d", label: "1D" },
@@ -47,40 +48,38 @@ const formatMarketCap = (cr: number) => {
   return "—";
 };
 
-// Interactive SVG chart with hover tooltip
-const HistoricalChart = ({ data, up, width = 420, height = 140 }: { data: ChartPoint[]; up: boolean; width?: number; height?: number }) => {
+// Candlestick + Volume chart
+const CandlestickSVGChart = ({ data, width = 420, height = 180 }: { data: ChartPoint[]; width?: number; height?: number }) => {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const closes = data.map(d => d.c);
-  const min = Math.min(...closes);
-  const max = Math.max(...closes);
-  const range = max - min || 1;
-  const padding = { top: 10, bottom: 20, left: 0, right: 0 };
-  const cw = width - padding.left - padding.right;
-  const ch = height - padding.top - padding.bottom;
+  const chartH = height * 0.72;
+  const volH = height * 0.2;
+  const gap = height * 0.08;
+  const pad = { left: 0, right: 0 };
+  const cw = width - pad.left - pad.right;
 
-  const points = closes.map((v, i) => {
-    const x = padding.left + (i / (closes.length - 1)) * cw;
-    const y = padding.top + ch - ((v - min) / range) * ch;
-    return { x, y, val: v, time: data[i].t, volume: data[i].v };
-  });
+  const allPrices = data.flatMap(d => [d.h, d.l]);
+  const pMin = Math.min(...allPrices);
+  const pMax = Math.max(...allPrices);
+  const pRange = pMax - pMin || 1;
+  const maxVol = Math.max(...data.map(d => d.v)) || 1;
 
-  const polyline = points.map(p => `${p.x},${p.y}`).join(" ");
-  const polygon = `${padding.left},${padding.top + ch} ${polyline} ${padding.left + cw},${padding.top + ch}`;
+  const candleW = Math.max(1, (cw / data.length) * 0.65);
+  const wickW = Math.max(0.5, candleW * 0.15);
 
-  const color = up ? "hsl(var(--secondary))" : "hsl(var(--destructive))";
-  const gradId = `hist-grad-${up ? "up" : "dn"}`;
+  const toY = (price: number) => 4 + chartH - ((price - pMin) / pRange) * (chartH - 8);
+  const toVolY = (vol: number) => chartH + gap + volH - (vol / maxVol) * volH;
 
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const idx = Math.round(((x - padding.left) / cw) * (points.length - 1));
-    setHoverIdx(Math.max(0, Math.min(points.length - 1, idx)));
+    const idx = Math.round((x / cw) * (data.length - 1));
+    setHoverIdx(Math.max(0, Math.min(data.length - 1, idx)));
   };
 
-  const hovered = hoverIdx !== null ? points[hoverIdx] : null;
+  const hovered = hoverIdx !== null ? data[hoverIdx] : null;
 
   return (
     <svg
@@ -92,24 +91,120 @@ const HistoricalChart = ({ data, up, width = 420, height = 140 }: { data: ChartP
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setHoverIdx(null)}
     >
+      {/* Grid lines */}
+      {[0, 0.25, 0.5, 0.75, 1].map(pct => (
+        <line key={pct} x1={0} x2={width} y1={toY(pMin + pRange * pct)} y2={toY(pMin + pRange * pct)}
+          stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.5" />
+      ))}
+
+      {/* Candles */}
+      {data.map((d, i) => {
+        const x = pad.left + (i / (data.length - 1)) * cw;
+        const up = d.c >= d.o;
+        const color = up ? "hsl(var(--secondary))" : "hsl(var(--destructive))";
+        const bodyTop = toY(Math.max(d.o, d.c));
+        const bodyBot = toY(Math.min(d.o, d.c));
+        const bodyH = Math.max(1, bodyBot - bodyTop);
+
+        return (
+          <g key={i}>
+            {/* Wick */}
+            <line x1={x} x2={x} y1={toY(d.h)} y2={toY(d.l)} stroke={color} strokeWidth={wickW} />
+            {/* Body */}
+            <rect x={x - candleW / 2} y={bodyTop} width={candleW} height={bodyH} fill={up ? color : color} rx="0.5" />
+            {/* Volume bar */}
+            <rect x={x - candleW / 2} y={toVolY(d.v)} width={candleW} height={chartH + gap + volH - toVolY(d.v)}
+              fill={color} opacity="0.3" rx="0.5" />
+          </g>
+        );
+      })}
+
+      {/* Hover tooltip */}
+      {hovered && hoverIdx !== null && (
+        <>
+          {(() => {
+            const x = pad.left + (hoverIdx / (data.length - 1)) * cw;
+            return (
+              <>
+                <line x1={x} y1={0} x2={x} y2={height} stroke="hsl(var(--muted-foreground))" strokeWidth="0.5" strokeDasharray="3,3" opacity="0.6" />
+                <rect x={Math.min(x + 8, width - 130)} y={4} width="122" height="72" rx="6"
+                  fill="hsl(var(--popover))" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.95" />
+                <text x={Math.min(x + 14, width - 124)} y={18} fontSize="9" fill="hsl(var(--muted-foreground))">
+                  {new Date(hovered.t).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" })}
+                </text>
+                {[
+                  { label: "O", val: hovered.o },
+                  { label: "H", val: hovered.h },
+                  { label: "L", val: hovered.l },
+                  { label: "C", val: hovered.c },
+                ].map((item, idx) => (
+                  <text key={item.label} x={Math.min(x + 14, width - 124)} y={32 + idx * 11} fontSize="10" fontFamily="monospace"
+                    fill={item.label === "C" ? (hovered.c >= hovered.o ? "hsl(var(--secondary))" : "hsl(var(--destructive))") : "hsl(var(--foreground))"}>
+                    {item.label}: ₹{item.val.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </text>
+                ))}
+              </>
+            );
+          })()}
+        </>
+      )}
+    </svg>
+  );
+};
+
+// Line chart with area fill
+const LineAreaChart = ({ data, up, width = 420, height = 180 }: { data: ChartPoint[]; up: boolean; width?: number; height?: number }) => {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const closes = data.map(d => d.c);
+  const min = Math.min(...closes);
+  const max = Math.max(...closes);
+  const range = max - min || 1;
+  const pad = { top: 10, bottom: 20 };
+  const ch = height - pad.top - pad.bottom;
+
+  const points = closes.map((v, i) => ({
+    x: (i / (closes.length - 1)) * width,
+    y: pad.top + ch - ((v - min) / range) * ch,
+    val: v, time: data[i].t,
+  }));
+
+  const polyline = points.map(p => `${p.x},${p.y}`).join(" ");
+  const polygon = `0,${pad.top + ch} ${polyline} ${width},${pad.top + ch}`;
+  const color = up ? "hsl(var(--secondary))" : "hsl(var(--destructive))";
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const idx = Math.round((x / width) * (points.length - 1));
+    setHoverIdx(Math.max(0, Math.min(points.length - 1, idx)));
+  };
+
+  const hovered = hoverIdx !== null ? points[hoverIdx] : null;
+
+  return (
+    <svg ref={svgRef} width="100%" height={height} viewBox={`0 0 ${width} ${height}`}
+      className="overflow-visible cursor-crosshair" onMouseMove={handleMouseMove} onMouseLeave={() => setHoverIdx(null)}>
       <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="line-grad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.25" />
           <stop offset="100%" stopColor={color} stopOpacity="0.02" />
         </linearGradient>
       </defs>
-      <polygon points={polygon} fill={`url(#${gradId})`} />
+      <polygon points={polygon} fill="url(#line-grad)" />
       <polyline points={polyline} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
-
       {hovered && (
         <>
-          <line x1={hovered.x} y1={padding.top} x2={hovered.x} y2={padding.top + ch} stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="3,3" opacity="0.5" />
+          <line x1={hovered.x} y1={pad.top} x2={hovered.x} y2={pad.top + ch} stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="3,3" opacity="0.5" />
           <circle cx={hovered.x} cy={hovered.y} r="4" fill={color} stroke="hsl(var(--background))" strokeWidth="2" />
-          <rect x={Math.min(hovered.x - 55, width - 115)} y={hovered.y - 42} width="110" height="36" rx="6" fill="hsl(var(--popover))" stroke="hsl(var(--border))" strokeWidth="1" />
-          <text x={Math.min(hovered.x - 50, width - 110)} y={hovered.y - 25} fontSize="11" fontWeight="600" fill="hsl(var(--foreground))" fontFamily="monospace">
+          <rect x={Math.min(hovered.x - 55, width - 115)} y={Math.max(hovered.y - 42, 0)} width="110" height="36" rx="6"
+            fill="hsl(var(--popover))" stroke="hsl(var(--border))" strokeWidth="1" />
+          <text x={Math.min(hovered.x - 50, width - 110)} y={Math.max(hovered.y - 25, 13)} fontSize="11" fontWeight="600" fill="hsl(var(--foreground))" fontFamily="monospace">
             ₹{hovered.val.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </text>
-          <text x={Math.min(hovered.x - 50, width - 110)} y={hovered.y - 12} fontSize="9" fill="hsl(var(--muted-foreground))">
+          <text x={Math.min(hovered.x - 50, width - 110)} y={Math.max(hovered.y - 12, 26)} fontSize="9" fill="hsl(var(--muted-foreground))">
             {new Date(hovered.time).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" })}
           </text>
         </>
@@ -129,6 +224,7 @@ const GlobalStockSearch = ({ className }: Props) => {
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [chartLoading, setChartLoading] = useState(false);
   const [chartRange, setChartRange] = useState<TimeRange>("3mo");
+  const [chartMode, setChartMode] = useState<ChartMode>("candle");
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -158,7 +254,6 @@ const GlobalStockSearch = ({ className }: Props) => {
     return () => clearTimeout(timer);
   }, [query, searchStocks]);
 
-  // Fetch chart data when stock or range changes
   const fetchChart = useCallback(async (symbol: string, range: TimeRange) => {
     setChartLoading(true);
     setChartData([]);
@@ -169,20 +264,15 @@ const GlobalStockSearch = ({ className }: Props) => {
       if (!error && data?.success && data.dataPoints?.length > 0) {
         setChartData(data.dataPoints);
       }
-    } catch {
-      // silently fail
-    } finally {
+    } catch {} finally {
       setChartLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (selected) {
-      fetchChart(selected.symbol, chartRange);
-    }
+    if (selected) fetchChart(selected.symbol, chartRange);
   }, [selected, chartRange, fetchChart]);
 
-  // Reset range when selecting new stock
   const handleSelect = (stock: StockResult) => {
     setSelected(stock);
     setChartRange("3mo");
@@ -289,27 +379,44 @@ const GlobalStockSearch = ({ className }: Props) => {
                   </span>
                 </div>
 
-                {/* Chart with timeframe selector */}
+                {/* Chart */}
                 <Card className="p-4">
-                  <div className="flex items-center gap-1 mb-3">
-                    {TIME_RANGES.map(({ key, label }) => (
-                      <Button
-                        key={key}
-                        variant={chartRange === key ? "default" : "ghost"}
-                        size="sm"
-                        className="h-7 px-2.5 text-xs"
-                        onClick={() => setChartRange(key)}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-1">
+                      {TIME_RANGES.map(({ key, label }) => (
+                        <Button key={key} variant={chartRange === key ? "default" : "ghost"} size="sm"
+                          className="h-7 px-2.5 text-xs" onClick={() => setChartRange(key)}>
+                          {label}
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-0.5 border border-border rounded-md p-0.5">
+                      <button
+                        className={`p-1 rounded ${chartMode === "candle" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                        onClick={() => setChartMode("candle")}
+                        title="Candlestick"
                       >
-                        {label}
-                      </Button>
-                    ))}
+                        <CandlestickChart className="w-4 h-4" />
+                      </button>
+                      <button
+                        className={`p-1 rounded ${chartMode === "line" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                        onClick={() => setChartMode("line")}
+                        title="Line"
+                      >
+                        <LineChart className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   {chartLoading ? (
-                    <Skeleton className="h-[140px] w-full rounded" />
+                    <Skeleton className="h-[180px] w-full rounded" />
                   ) : chartData.length > 1 ? (
-                    <HistoricalChart data={chartData} up={chartUp} />
+                    chartMode === "candle" ? (
+                      <CandlestickSVGChart data={chartData} />
+                    ) : (
+                      <LineAreaChart data={chartData} up={chartUp} />
+                    )
                   ) : (
-                    <div className="h-[140px] flex items-center justify-center text-sm text-muted-foreground">
+                    <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">
                       No chart data available
                     </div>
                   )}
@@ -343,14 +450,10 @@ const GlobalStockSearch = ({ className }: Props) => {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>₹{selected.low_52.toLocaleString("en-IN")}</span>
                       <div className="flex-1 h-2 bg-muted rounded-full relative">
-                        <div
-                          className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive to-secondary rounded-full"
-                          style={{ width: `${Math.min(100, Math.max(0, ((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100))}%` }}
-                        />
-                        <div
-                          className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-foreground rounded-full border-2 border-background"
-                          style={{ left: `${Math.min(100, Math.max(0, ((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100))}%` }}
-                        />
+                        <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive to-secondary rounded-full"
+                          style={{ width: `${Math.min(100, Math.max(0, ((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100))}%` }} />
+                        <div className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-foreground rounded-full border-2 border-background"
+                          style={{ left: `${Math.min(100, Math.max(0, ((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100))}%` }} />
                       </div>
                       <span>₹{selected.high_52.toLocaleString("en-IN")}</span>
                     </div>

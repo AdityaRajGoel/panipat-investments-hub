@@ -15,6 +15,7 @@ import OpenAccountPage from "./pages/OpenAccountPage";
 import StockScreenerPage from "./pages/StockScreenerPage";
 import HolidayCalendarPage from "./pages/HolidayCalendarPage";
 import Week52TrackerPage from "./pages/Week52TrackerPage";
+import FnODashboardPage from "./pages/FnODashboardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/open-account" element={<OpenAccountPage />} />
             <Route path="/screener" element={<StockScreenerPage />} />
+            <Route path="/fno" element={<FnODashboardPage />} />
             
             <Route path="/holidays" element={<HolidayCalendarPage />} />
             <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
