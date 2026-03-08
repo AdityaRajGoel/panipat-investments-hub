@@ -37,14 +37,40 @@ interface OptionRow {
   putVolume: number;
 }
 
+// Get Yahoo Finance crumb + cookies for authenticated API access
+async function getYahooCrumb(): Promise<{ crumb: string; cookie: string }> {
+  // Step 1: Get initial cookies
+  const initRes = await fetch("https://fc.yahoo.com", {
+    redirect: "manual",
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+  });
+  const setCookies = initRes.headers.getSetCookie?.() || [];
+  const cookieStr = setCookies.map(c => c.split(";")[0]).join("; ");
+
+  // Step 2: Get crumb
+  const crumbRes = await fetch("https://query2.finance.yahoo.com/v1/test/getcrumb", {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Cookie": cookieStr,
+    },
+  });
+  const crumb = await crumbRes.text();
+  if (!crumb || crumb.includes("<!DOCTYPE")) throw new Error("Failed to get Yahoo crumb");
+  return { crumb, cookie: cookieStr };
+}
+
 async function fetchOptionsChain(symbol: string, expiry?: number) {
   const yahooSymbol = SYMBOL_MAP[symbol] || "^NSEI";
-  let url = `https://query1.finance.yahoo.com/v7/finance/options/${yahooSymbol}`;
-  if (expiry) url += `?date=${expiry}`;
+  
+  const { crumb, cookie } = await getYahooCrumb();
+  
+  let url = `https://query2.finance.yahoo.com/v7/finance/options/${yahooSymbol}?crumb=${encodeURIComponent(crumb)}`;
+  if (expiry) url += `&date=${expiry}`;
 
   const res = await fetch(url, {
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Cookie": cookie,
     },
   });
 
@@ -70,11 +96,7 @@ function mergeChain(calls: YahooOption[], puts: YahooOption[]): OptionRow[] {
       callLTP: c.lastPrice || 0,
       callIV: (c.impliedVolatility || 0) * 100,
       callVolume: c.volume || 0,
-      putOI: 0,
-      putChange: 0,
-      putLTP: 0,
-      putIV: 0,
-      putVolume: 0,
+      putOI: 0, putChange: 0, putLTP: 0, putIV: 0, putVolume: 0,
     });
   }
 
@@ -89,11 +111,7 @@ function mergeChain(calls: YahooOption[], puts: YahooOption[]): OptionRow[] {
     } else {
       strikeMap.set(p.strike, {
         strike: p.strike,
-        callOI: 0,
-        callChange: 0,
-        callLTP: 0,
-        callIV: 0,
-        callVolume: 0,
+        callOI: 0, callChange: 0, callLTP: 0, callIV: 0, callVolume: 0,
         putOI: p.openInterest || 0,
         putChange: p.change || 0,
         putLTP: p.lastPrice || 0,
@@ -141,48 +159,33 @@ serve(async (req) => {
     const spot = result.quote?.regularMarketPrice || 0;
     const calls: YahooOption[] = result.options?.[0]?.calls || [];
     const puts: YahooOption[] = result.options?.[0]?.puts || [];
-
-    // Available expiries as unix timestamps
     const expirationDates: number[] = result.expirationDates || [];
 
-    // Convert expiry timestamps to readable dates
     const expiries = expirationDates.map((ts: number) => ({
       timestamp: ts,
       label: new Date(ts * 1000).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
+        day: "2-digit", month: "short", year: "numeric",
       }),
     }));
 
     const chain = mergeChain(calls, puts);
 
-    // Filter to strikes near the money (±15 strikes around ATM)
-    const atmIndex = chain.findIndex(
-      (r) => r.strike >= spot
-    );
+    const atmIndex = chain.findIndex((r) => r.strike >= spot);
     const startIdx = Math.max(0, atmIndex - 15);
     const endIdx = Math.min(chain.length, atmIndex + 16);
     const filteredChain = chain.slice(startIdx, endIdx);
 
     const maxPain = calculateMaxPain(filteredChain);
-
     const totalCallOI = filteredChain.reduce((s, r) => s + r.callOI, 0);
     const totalPutOI = filteredChain.reduce((s, r) => s + r.putOI, 0);
     const pcr = totalCallOI > 0 ? totalPutOI / totalCallOI : 0;
 
     return new Response(
       JSON.stringify({
-        success: true,
-        symbol,
-        spot,
-        chain: filteredChain,
-        expiries,
+        success: true, symbol, spot,
+        chain: filteredChain, expiries,
         currentExpiry: expirationDates[0] || null,
-        maxPain,
-        pcr,
-        totalCallOI,
-        totalPutOI,
+        maxPain, pcr, totalCallOI, totalPutOI,
         fetchedAt: new Date().toISOString(),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -194,10 +197,7 @@ serve(async (req) => {
         success: false,
         error: error.message || "Failed to fetch F&O data",
       }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

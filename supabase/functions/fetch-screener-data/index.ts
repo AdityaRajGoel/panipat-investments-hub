@@ -48,53 +48,57 @@ const NSE_SYMBOLS: { symbol: string; yahoo: string; name: string; sector: string
   // Energy
   { symbol: "RELIANCE", yahoo: "RELIANCE.NS", name: "Reliance Industries", sector: "Energy" },
   { symbol: "ONGC", yahoo: "ONGC.NS", name: "Oil & Natural Gas Corp", sector: "Energy" },
-  { symbol: "NTPC", yahoo: "NTPC.NS", name: "NTPC Ltd", sector: "Energy" },
+  { symbol: "IOC", yahoo: "IOC.NS", name: "Indian Oil Corp", sector: "Energy" },
+  { symbol: "BPCL", yahoo: "BPCL.NS", name: "Bharat Petroleum", sector: "Energy" },
+  { symbol: "GAIL", yahoo: "GAIL.NS", name: "GAIL India", sector: "Energy" },
+  { symbol: "NTPC", yahoo: "NTPC.NS", name: "NTPC", sector: "Energy" },
   { symbol: "POWERGRID", yahoo: "POWERGRID.NS", name: "Power Grid Corp", sector: "Energy" },
   { symbol: "ADANIGREEN", yahoo: "ADANIGREEN.NS", name: "Adani Green Energy", sector: "Energy" },
   { symbol: "TATAPOWER", yahoo: "TATAPOWER.NS", name: "Tata Power", sector: "Energy" },
-  { symbol: "IOC", yahoo: "IOC.NS", name: "Indian Oil Corporation", sector: "Energy" },
-  { symbol: "BPCL", yahoo: "BPCL.NS", name: "Bharat Petroleum", sector: "Energy" },
-  { symbol: "GAIL", yahoo: "GAIL.NS", name: "GAIL India", sector: "Energy" },
-  { symbol: "COALINDIA", yahoo: "COALINDIA.NS", name: "Coal India", sector: "Energy" },
-  { symbol: "ADANIENSOL", yahoo: "ADANIENSOL.NS", name: "Adani Energy Solutions", sector: "Energy" },
+  { symbol: "ADANIPOWER", yahoo: "ADANIPOWER.NS", name: "Adani Power", sector: "Energy" },
   { symbol: "NHPC", yahoo: "NHPC.NS", name: "NHPC", sector: "Energy" },
-  { symbol: "SJVN", yahoo: "SJVN.NS", name: "SJVN", sector: "Energy" },
+  { symbol: "COALINDIA", yahoo: "COALINDIA.NS", name: "Coal India", sector: "Energy" },
+  { symbol: "PETRONET", yahoo: "PETRONET.NS", name: "Petronet LNG", sector: "Energy" },
 
-  // Auto
+  // Automobiles
   { symbol: "MARUTI", yahoo: "MARUTI.NS", name: "Maruti Suzuki", sector: "Auto" },
   { symbol: "TATAMOTORS", yahoo: "TATAMOTORS.NS", name: "Tata Motors", sector: "Auto" },
   { symbol: "M&M", yahoo: "M%26M.NS", name: "Mahindra & Mahindra", sector: "Auto" },
   { symbol: "BAJAJ-AUTO", yahoo: "BAJAJ-AUTO.NS", name: "Bajaj Auto", sector: "Auto" },
-  { symbol: "EICHERMOT", yahoo: "EICHERMOT.NS", name: "Eicher Motors", sector: "Auto" },
   { symbol: "HEROMOTOCO", yahoo: "HEROMOTOCO.NS", name: "Hero MotoCorp", sector: "Auto" },
+  { symbol: "EICHERMOT", yahoo: "EICHERMOT.NS", name: "Eicher Motors", sector: "Auto" },
   { symbol: "ASHOKLEY", yahoo: "ASHOKLEY.NS", name: "Ashok Leyland", sector: "Auto" },
   { symbol: "TVSMOTOR", yahoo: "TVSMOTOR.NS", name: "TVS Motor", sector: "Auto" },
-  { symbol: "MOTHERSON", yahoo: "MOTHERSON.NS", name: "Samvardhana Motherson", sector: "Auto" },
+  { symbol: "BALKRISIND", yahoo: "BALKRISIND.NS", name: "Balkrishna Industries", sector: "Auto" },
+  { symbol: "MOTHERSON", yahoo: "MOTHERSON.NS", name: "Motherson Sumi", sector: "Auto" },
 
-  // Pharma
+  // Pharma & Healthcare
   { symbol: "SUNPHARMA", yahoo: "SUNPHARMA.NS", name: "Sun Pharma", sector: "Pharma" },
-  { symbol: "DRREDDY", yahoo: "DRREDDY.NS", name: "Dr Reddy's Labs", sector: "Pharma" },
+  { symbol: "DRREDDY", yahoo: "DRREDDY.NS", name: "Dr. Reddy's Labs", sector: "Pharma" },
   { symbol: "CIPLA", yahoo: "CIPLA.NS", name: "Cipla", sector: "Pharma" },
   { symbol: "DIVISLAB", yahoo: "DIVISLAB.NS", name: "Divi's Laboratories", sector: "Pharma" },
   { symbol: "APOLLOHOSP", yahoo: "APOLLOHOSP.NS", name: "Apollo Hospitals", sector: "Pharma" },
-  { symbol: "LUPIN", yahoo: "LUPIN.NS", name: "Lupin", sector: "Pharma" },
   { symbol: "TORNTPHARM", yahoo: "TORNTPHARM.NS", name: "Torrent Pharma", sector: "Pharma" },
-  { symbol: "ZYDUSLIFE", yahoo: "ZYDUSLIFE.NS", name: "Zydus Lifesciences", sector: "Pharma" },
+  { symbol: "LUPIN", yahoo: "LUPIN.NS", name: "Lupin", sector: "Pharma" },
+  { symbol: "AUROPHARMA", yahoo: "AUROPHARMA.NS", name: "Aurobindo Pharma", sector: "Pharma" },
   { symbol: "BIOCON", yahoo: "BIOCON.NS", name: "Biocon", sector: "Pharma" },
   { symbol: "MAXHEALTH", yahoo: "MAXHEALTH.NS", name: "Max Healthcare", sector: "Pharma" },
+  { symbol: "ZYDUSLIFE", yahoo: "ZYDUSLIFE.NS", name: "Zydus Lifesciences", sector: "Pharma" },
+  { symbol: "ALKEM", yahoo: "ALKEM.NS", name: "Alkem Laboratories", sector: "Pharma" },
 
   // FMCG
   { symbol: "HINDUNILVR", yahoo: "HINDUNILVR.NS", name: "Hindustan Unilever", sector: "FMCG" },
-  { symbol: "ITC", yahoo: "ITC.NS", name: "ITC Ltd", sector: "FMCG" },
+  { symbol: "ITC", yahoo: "ITC.NS", name: "ITC", sector: "FMCG" },
   { symbol: "NESTLEIND", yahoo: "NESTLEIND.NS", name: "Nestle India", sector: "FMCG" },
   { symbol: "BRITANNIA", yahoo: "BRITANNIA.NS", name: "Britannia Industries", sector: "FMCG" },
-  { symbol: "GODREJCP", yahoo: "GODREJCP.NS", name: "Godrej Consumer Products", sector: "FMCG" },
   { symbol: "DABUR", yahoo: "DABUR.NS", name: "Dabur India", sector: "FMCG" },
   { symbol: "MARICO", yahoo: "MARICO.NS", name: "Marico", sector: "FMCG" },
-  { symbol: "COLPAL", yahoo: "COLPAL.NS", name: "Colgate-Palmolive India", sector: "FMCG" },
+  { symbol: "GODREJCP", yahoo: "GODREJCP.NS", name: "Godrej Consumer Products", sector: "FMCG" },
+  { symbol: "COLPAL", yahoo: "COLPAL.NS", name: "Colgate-Palmolive", sector: "FMCG" },
   { symbol: "TATACONSUM", yahoo: "TATACONSUM.NS", name: "Tata Consumer Products", sector: "FMCG" },
+  { symbol: "PGHH", yahoo: "PGHH.NS", name: "Procter & Gamble Hygiene", sector: "FMCG" },
+  { symbol: "UBL", yahoo: "UBL.NS", name: "United Breweries", sector: "FMCG" },
   { symbol: "VBL", yahoo: "VBL.NS", name: "Varun Beverages", sector: "FMCG" },
-  { symbol: "UNITDSPR", yahoo: "UNITDSPR.NS", name: "United Spirits", sector: "FMCG" },
 
   // Metals & Mining
   { symbol: "TATASTEEL", yahoo: "TATASTEEL.NS", name: "Tata Steel", sector: "Metals" },
@@ -103,126 +107,135 @@ const NSE_SYMBOLS: { symbol: string; yahoo: string; name: string; sector: string
   { symbol: "VEDL", yahoo: "VEDL.NS", name: "Vedanta", sector: "Metals" },
   { symbol: "NMDC", yahoo: "NMDC.NS", name: "NMDC", sector: "Metals" },
   { symbol: "SAIL", yahoo: "SAIL.NS", name: "Steel Authority of India", sector: "Metals" },
-  { symbol: "NATIONALUM", yahoo: "NATIONALUM.NS", name: "National Aluminium", sector: "Metals" },
   { symbol: "JINDALSTEL", yahoo: "JINDALSTEL.NS", name: "Jindal Steel & Power", sector: "Metals" },
+  { symbol: "NATIONALUM", yahoo: "NATIONALUM.NS", name: "National Aluminium", sector: "Metals" },
 
-  // Telecom
+  // Infra & Construction
+  { symbol: "LT", yahoo: "LT.NS", name: "Larsen & Toubro", sector: "Infra" },
+  { symbol: "ADANIENT", yahoo: "ADANIENT.NS", name: "Adani Enterprises", sector: "Infra" },
+  { symbol: "ADANIPORTS", yahoo: "ADANIPORTS.NS", name: "Adani Ports", sector: "Infra" },
+  { symbol: "ULTRACEMCO", yahoo: "ULTRACEMCO.NS", name: "UltraTech Cement", sector: "Infra" },
+  { symbol: "GRASIM", yahoo: "GRASIM.NS", name: "Grasim Industries", sector: "Infra" },
+  { symbol: "SHREECEM", yahoo: "SHREECEM.NS", name: "Shree Cement", sector: "Infra" },
+  { symbol: "AMBUJACEM", yahoo: "AMBUJACEM.NS", name: "Ambuja Cements", sector: "Infra" },
+  { symbol: "ACC", yahoo: "ACC.NS", name: "ACC Cement", sector: "Infra" },
+  { symbol: "DLF", yahoo: "DLF.NS", name: "DLF", sector: "Infra" },
+  { symbol: "GODREJPROP", yahoo: "GODREJPROP.NS", name: "Godrej Properties", sector: "Infra" },
+  { symbol: "OBEROIRLTY", yahoo: "OBEROIRLTY.NS", name: "Oberoi Realty", sector: "Infra" },
+  { symbol: "IRCTC", yahoo: "IRCTC.NS", name: "IRCTC", sector: "Infra" },
+
+  // Telecom & Media
   { symbol: "BHARTIARTL", yahoo: "BHARTIARTL.NS", name: "Bharti Airtel", sector: "Telecom" },
-  { symbol: "JIOFIN", yahoo: "JIOFIN.NS", name: "Jio Financial Services", sector: "Telecom" },
   { symbol: "IDEA", yahoo: "IDEA.NS", name: "Vodafone Idea", sector: "Telecom" },
-  { symbol: "INDUSTOWER", yahoo: "INDUSTOWER.NS", name: "Indus Towers", sector: "Telecom" },
-
-  // Infrastructure & Construction
-  { symbol: "LT", yahoo: "LT.NS", name: "Larsen & Toubro", sector: "Infrastructure" },
-  { symbol: "ADANIENT", yahoo: "ADANIENT.NS", name: "Adani Enterprises", sector: "Infrastructure" },
-  { symbol: "ADANIPORTS", yahoo: "ADANIPORTS.NS", name: "Adani Ports", sector: "Infrastructure" },
-  { symbol: "ULTRACEMCO", yahoo: "ULTRACEMCO.NS", name: "UltraTech Cement", sector: "Infrastructure" },
-  { symbol: "GRASIM", yahoo: "GRASIM.NS", name: "Grasim Industries", sector: "Infrastructure" },
-  { symbol: "SHREECEM", yahoo: "SHREECEM.NS", name: "Shree Cement", sector: "Infrastructure" },
-  { symbol: "ACC", yahoo: "ACC.NS", name: "ACC Ltd", sector: "Infrastructure" },
-  { symbol: "AMBUJACEM", yahoo: "AMBUJACEM.NS", name: "Ambuja Cements", sector: "Infrastructure" },
-  { symbol: "DLF", yahoo: "DLF.NS", name: "DLF Ltd", sector: "Infrastructure" },
-  { symbol: "GODREJPROP", yahoo: "GODREJPROP.NS", name: "Godrej Properties", sector: "Infrastructure" },
-  { symbol: "OBEROIRLTY", yahoo: "OBEROIRLTY.NS", name: "Oberoi Realty", sector: "Infrastructure" },
-  { symbol: "IRCTC", yahoo: "IRCTC.NS", name: "IRCTC", sector: "Infrastructure" },
-
-  // Consumer & Retail
-  { symbol: "TITAN", yahoo: "TITAN.NS", name: "Titan Company", sector: "Consumer" },
-  { symbol: "ASIANPAINT", yahoo: "ASIANPAINT.NS", name: "Asian Paints", sector: "Consumer" },
-  { symbol: "PIDILITIND", yahoo: "PIDILITIND.NS", name: "Pidilite Industries", sector: "Consumer" },
-  { symbol: "BERGEPAINT", yahoo: "BERGEPAINT.NS", name: "Berger Paints", sector: "Consumer" },
-  { symbol: "PAGEIND", yahoo: "PAGEIND.NS", name: "Page Industries", sector: "Consumer" },
-  { symbol: "HAVELLS", yahoo: "HAVELLS.NS", name: "Havells India", sector: "Consumer" },
-  { symbol: "VOLTAS", yahoo: "VOLTAS.NS", name: "Voltas", sector: "Consumer" },
-  { symbol: "WHIRLPOOL", yahoo: "WHIRLPOOL.NS", name: "Whirlpool India", sector: "Consumer" },
-  { symbol: "TRENT", yahoo: "TRENT.NS", name: "Trent Ltd", sector: "Consumer" },
-  { symbol: "DMART", yahoo: "DMART.NS", name: "Avenue Supermarts (DMart)", sector: "Consumer" },
-  { symbol: "NYKAA", yahoo: "NYKAA.NS", name: "FSN E-Commerce (Nykaa)", sector: "Consumer" },
-  { symbol: "ZOMATO", yahoo: "ZOMATO.NS", name: "Zomato", sector: "Consumer" },
+  { symbol: "ZEEL", yahoo: "ZEEL.NS", name: "Zee Entertainment", sector: "Telecom" },
+  { symbol: "DELHIVERY", yahoo: "DELHIVERY.NS", name: "Delhivery", sector: "Telecom" },
 
   // Insurance
   { symbol: "SBILIFE", yahoo: "SBILIFE.NS", name: "SBI Life Insurance", sector: "Insurance" },
   { symbol: "HDFCLIFE", yahoo: "HDFCLIFE.NS", name: "HDFC Life Insurance", sector: "Insurance" },
   { symbol: "ICICIPRULI", yahoo: "ICICIPRULI.NS", name: "ICICI Prudential Life", sector: "Insurance" },
-  { symbol: "ICICIGI", yahoo: "ICICIGI.NS", name: "ICICI Lombard", sector: "Insurance" },
+  { symbol: "ICICIGI", yahoo: "ICICIGI.NS", name: "ICICI Lombard GIC", sector: "Insurance" },
   { symbol: "NIACL", yahoo: "NIACL.NS", name: "New India Assurance", sector: "Insurance" },
   { symbol: "STARHEALTH", yahoo: "STARHEALTH.NS", name: "Star Health Insurance", sector: "Insurance" },
 
   // Chemicals
+  { symbol: "PIDILITIND", yahoo: "PIDILITIND.NS", name: "Pidilite Industries", sector: "Chemicals" },
   { symbol: "SOLARINDS", yahoo: "SOLARINDS.NS", name: "Solar Industries", sector: "Chemicals" },
   { symbol: "SRF", yahoo: "SRF.NS", name: "SRF Ltd", sector: "Chemicals" },
-  { symbol: "PIIND", yahoo: "PIIND.NS", name: "PI Industries", sector: "Chemicals" },
+  { symbol: "UPL", yahoo: "UPL.NS", name: "UPL", sector: "Chemicals" },
   { symbol: "ATUL", yahoo: "ATUL.NS", name: "Atul Ltd", sector: "Chemicals" },
   { symbol: "DEEPAKNTR", yahoo: "DEEPAKNTR.NS", name: "Deepak Nitrite", sector: "Chemicals" },
-  { symbol: "UPL", yahoo: "UPL.NS", name: "UPL Ltd", sector: "Chemicals" },
 
-  // Defence & Aerospace
+  // Consumer Durables
+  { symbol: "TITAN", yahoo: "TITAN.NS", name: "Titan Company", sector: "Consumer" },
+  { symbol: "HAVELLS", yahoo: "HAVELLS.NS", name: "Havells India", sector: "Consumer" },
+  { symbol: "VOLTAS", yahoo: "VOLTAS.NS", name: "Voltas", sector: "Consumer" },
+  { symbol: "WHIRLPOOL", yahoo: "WHIRLPOOL.NS", name: "Whirlpool of India", sector: "Consumer" },
+  { symbol: "CROMPTON", yahoo: "CROMPTON.NS", name: "Crompton Greaves", sector: "Consumer" },
+  { symbol: "PAGEIND", yahoo: "PAGEIND.NS", name: "Page Industries", sector: "Consumer" },
+  { symbol: "TRENT", yahoo: "TRENT.NS", name: "Trent", sector: "Consumer" },
+  { symbol: "DMART", yahoo: "DMART.NS", name: "Avenue Supermarts", sector: "Consumer" },
+
+  // Defence & PSU
   { symbol: "HAL", yahoo: "HAL.NS", name: "Hindustan Aeronautics", sector: "Defence" },
   { symbol: "BEL", yahoo: "BEL.NS", name: "Bharat Electronics", sector: "Defence" },
-  { symbol: "BDL", yahoo: "BDL.NS", name: "Bharat Dynamics", sector: "Defence" },
-  { symbol: "MAZAGON", yahoo: "MAZAGON.NS", name: "Mazagon Dock", sector: "Defence" },
+  { symbol: "BHEL", yahoo: "BHEL.NS", name: "Bharat Heavy Electricals", sector: "Defence" },
+  { symbol: "IRFC", yahoo: "IRFC.NS", name: "Indian Railway Finance", sector: "Defence" },
+  { symbol: "RECLTD", yahoo: "RECLTD.NS", name: "REC Ltd", sector: "Defence" },
+  { symbol: "PFC", yahoo: "PFC.NS", name: "Power Finance Corp", sector: "Defence" },
+  { symbol: "CONCOR", yahoo: "CONCOR.NS", name: "Container Corp", sector: "Defence" },
 
-  // IT Services / Digital
-  { symbol: "OFSS", yahoo: "OFSS.NS", name: "Oracle Financial Services", sector: "IT" },
-  { symbol: "TATAELXSI", yahoo: "TATAELXSI.NS", name: "Tata Elxsi", sector: "IT" },
-  { symbol: "ROUTE", yahoo: "ROUTE.NS", name: "Route Mobile", sector: "IT" },
+  // Tech / New Age
+  { symbol: "ZOMATO", yahoo: "ZOMATO.NS", name: "Zomato", sector: "Tech" },
+  { symbol: "PAYTM", yahoo: "PAYTM.NS", name: "One97 Communications", sector: "Tech" },
+  { symbol: "NYKAA", yahoo: "NYKAA.NS", name: "FSN E-Commerce", sector: "Tech" },
+  { symbol: "POLICYBZR", yahoo: "POLICYBZR.NS", name: "PB Fintech", sector: "Tech" },
+  { symbol: "INDIGRID", yahoo: "INDIGRID.NS", name: "India Grid Trust", sector: "Tech" },
 
-  // Diversified / Conglomerate
-  { symbol: "SIEMENS", yahoo: "SIEMENS.NS", name: "Siemens", sector: "Conglomerate" },
-  { symbol: "ABB", yahoo: "ABB.NS", name: "ABB India", sector: "Conglomerate" },
-  { symbol: "HONAUT", yahoo: "HONAUT.NS", name: "Honeywell Automation", sector: "Conglomerate" },
-  { symbol: "CUMMINSIND", yahoo: "CUMMINSIND.NS", name: "Cummins India", sector: "Conglomerate" },
-
-  // Misc
-  { symbol: "PAYTM", yahoo: "PAYTM.NS", name: "One97 Communications (Paytm)", sector: "Fintech" },
-  { symbol: "POLICYBZR", yahoo: "POLICYBZR.NS", name: "PB Fintech (PolicyBazaar)", sector: "Fintech" },
-  { symbol: "DELHIVERY", yahoo: "DELHIVERY.NS", name: "Delhivery", sector: "Logistics" },
-  { symbol: "INDIGO", yahoo: "INDIGO.NS", name: "InterGlobe Aviation (IndiGo)", sector: "Aviation" },
-  { symbol: "TATACOMM", yahoo: "TATACOMM.NS", name: "Tata Communications", sector: "Telecom" },
-  { symbol: "HINDPETRO", yahoo: "HINDPETRO.NS", name: "Hindustan Petroleum", sector: "Energy" },
-  { symbol: "PETRONET", yahoo: "PETRONET.NS", name: "Petronet LNG", sector: "Energy" },
-  { symbol: "IEX", yahoo: "IEX.NS", name: "Indian Energy Exchange", sector: "Energy" },
-  { symbol: "RECLTD", yahoo: "RECLTD.NS", name: "REC Ltd", sector: "Energy" },
-  { symbol: "PFC", yahoo: "PFC.NS", name: "Power Finance Corp", sector: "NBFC" },
-  { symbol: "MANAPPURAM", yahoo: "MANAPPURAM.NS", name: "Manappuram Finance", sector: "NBFC" },
-  { symbol: "CANFINHOME", yahoo: "CANFINHOME.NS", name: "Can Fin Homes", sector: "NBFC" },
+  // Diversified / Others
+  { symbol: "ASIANPAINT", yahoo: "ASIANPAINT.NS", name: "Asian Paints", sector: "Diversified" },
+  { symbol: "BERGEPAINT", yahoo: "BERGEPAINT.NS", name: "Berger Paints", sector: "Diversified" },
+  { symbol: "SIEMENS", yahoo: "SIEMENS.NS", name: "Siemens India", sector: "Diversified" },
+  { symbol: "ABB", yahoo: "ABB.NS", name: "ABB India", sector: "Diversified" },
+  { symbol: "CUMMINSIND", yahoo: "CUMMINSIND.NS", name: "Cummins India", sector: "Diversified" },
+  { symbol: "CGPOWER", yahoo: "CGPOWER.NS", name: "CG Power", sector: "Diversified" },
+  { symbol: "HINDPETRO", yahoo: "HINDPETRO.NS", name: "Hindustan Petroleum", sector: "Diversified" },
+  { symbol: "INDIGO", yahoo: "INDIGO.NS", name: "InterGlobe Aviation", sector: "Diversified" },
+  { symbol: "SBICARD", yahoo: "SBICARD.NS", name: "SBI Cards", sector: "Diversified" },
+  { symbol: "MCDOWELL", yahoo: "MCDOWELL-N.NS", name: "United Spirits", sector: "Diversified" },
+  { symbol: "TATACOMM", yahoo: "TATACOMM.NS", name: "Tata Communications", sector: "Diversified" },
+  { symbol: "TATAELXSI", yahoo: "TATAELXSI.NS", name: "Tata Elxsi", sector: "Diversified" },
+  { symbol: "POLYCAB", yahoo: "POLYCAB.NS", name: "Polycab India", sector: "Diversified" },
+  { symbol: "KAYNES", yahoo: "KAYNES.NS", name: "Kaynes Technology", sector: "Diversified" },
+  { symbol: "DIXON", yahoo: "DIXON.NS", name: "Dixon Technologies", sector: "Diversified" },
+  { symbol: "LTFOODS", yahoo: "LTFOODS.NS", name: "LT Foods", sector: "Diversified" },
+  { symbol: "JUBLFOOD", yahoo: "JUBLFOOD.NS", name: "Jubilant FoodWorks", sector: "Diversified" },
   { symbol: "LICI", yahoo: "LICI.NS", name: "Life Insurance Corp", sector: "Insurance" },
-  { symbol: "SBICARD", yahoo: "SBICARD.NS", name: "SBI Cards", sector: "NBFC" },
-  { symbol: "CENTRALBK", yahoo: "CENTRALBK.NS", name: "Central Bank of India", sector: "Banking" },
-  { symbol: "INDIANB", yahoo: "INDIANB.NS", name: "Indian Bank", sector: "Banking" },
-  { symbol: "SYNGENE", yahoo: "SYNGENE.NS", name: "Syngene International", sector: "Pharma" },
-  { symbol: "LAURUSLABS", yahoo: "LAURUSLABS.NS", name: "Laurus Labs", sector: "Pharma" },
-  { symbol: "AUROPHARMA", yahoo: "AUROPHARMA.NS", name: "Aurobindo Pharma", sector: "Pharma" },
-  { symbol: "ALKEM", yahoo: "ALKEM.NS", name: "Alkem Laboratories", sector: "Pharma" },
-  { symbol: "IPCALAB", yahoo: "IPCALAB.NS", name: "IPCA Laboratories", sector: "Pharma" },
-  { symbol: "BALKRISIND", yahoo: "BALKRISIND.NS", name: "Balkrishna Industries", sector: "Auto" },
-  { symbol: "MRF", yahoo: "MRF.NS", name: "MRF", sector: "Auto" },
-  { symbol: "APOLLOTYRE", yahoo: "APOLLOTYRE.NS", name: "Apollo Tyres", sector: "Auto" },
+  { symbol: "JIOFIN", yahoo: "JIOFIN.NS", name: "Jio Financial Services", sector: "NBFC" },
+  { symbol: "LODHA", yahoo: "LODHA.NS", name: "Macrotech Developers", sector: "Infra" },
+  { symbol: "MANKIND", yahoo: "MANKIND.NS", name: "Mankind Pharma", sector: "Pharma" },
   { symbol: "JSWENERGY", yahoo: "JSWENERGY.NS", name: "JSW Energy", sector: "Energy" },
-  { symbol: "TORNTPOWER", yahoo: "TORNTPOWER.NS", name: "Torrent Power", sector: "Energy" },
-  { symbol: "IIFL", yahoo: "IIFL.NS", name: "IIFL Finance", sector: "NBFC" },
-  { symbol: "HDFCAMC", yahoo: "HDFCAMC.NS", name: "HDFC AMC", sector: "NBFC" },
-  { symbol: "NAUKRI", yahoo: "NAUKRI.NS", name: "Info Edge (Naukri)", sector: "IT" },
-  { symbol: "DIXON", yahoo: "DIXON.NS", name: "Dixon Technologies", sector: "Consumer" },
-  { symbol: "POLYCAB", yahoo: "POLYCAB.NS", name: "Polycab India", sector: "Consumer" },
-  { symbol: "CROMPTON", yahoo: "CROMPTON.NS", name: "Crompton Greaves", sector: "Consumer" },
-  { symbol: "CONCOR", yahoo: "CONCOR.NS", name: "Container Corp of India", sector: "Logistics" },
-  { symbol: "LODHA", yahoo: "LODHA.NS", name: "Macrotech Developers (Lodha)", sector: "Infrastructure" },
-  { symbol: "PRESTIGE", yahoo: "PRESTIGE.NS", name: "Prestige Estates", sector: "Infrastructure" },
-  { symbol: "PHOENIXLTD", yahoo: "PHOENIXLTD.NS", name: "Phoenix Mills", sector: "Infrastructure" },
-  { symbol: "ABCAPITAL", yahoo: "ABCAPITAL.NS", name: "Aditya Birla Capital", sector: "NBFC" },
-  { symbol: "LICHSGFIN", yahoo: "LICHSGFIN.NS", name: "LIC Housing Finance", sector: "NBFC" },
+  { symbol: "CAMS", yahoo: "CAMS.NS", name: "Computer Age Mgmt", sector: "Diversified" },
+  { symbol: "CDSL", yahoo: "CDSL.NS", name: "Central Depository Services", sector: "Diversified" },
+  { symbol: "BSE", yahoo: "BSE.NS", name: "BSE Ltd", sector: "Diversified" },
+  { symbol: "SONACOMS", yahoo: "SONACOMS.NS", name: "Sona BLW Precision", sector: "Auto" },
+  { symbol: "APLAPOLLO", yahoo: "APLAPOLLO.NS", name: "APL Apollo Tubes", sector: "Metals" },
+  { symbol: "SUPREMEIND", yahoo: "SUPREMEIND.NS", name: "Supreme Industries", sector: "Diversified" },
+  { symbol: "HONAUT", yahoo: "HONAUT.NS", name: "Honeywell Automation", sector: "Diversified" },
+  { symbol: "OFSS", yahoo: "OFSS.NS", name: "Oracle Financial Services", sector: "IT" },
 ];
 
-// Use Yahoo v6 quote API - supports batch and returns marketCap, PE, etc.
-async function fetchBatchQuotes(symbols: string[]): Promise<Map<string, any>> {
+// Get Yahoo Finance crumb + cookies for authenticated API access
+async function getYahooCrumb(): Promise<{ crumb: string; cookie: string }> {
+  const initRes = await fetch("https://fc.yahoo.com", {
+    redirect: "manual",
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+  });
+  const setCookies = initRes.headers.getSetCookie?.() || [];
+  const cookieStr = setCookies.map(c => c.split(";")[0]).join("; ");
+
+  const crumbRes = await fetch("https://query2.finance.yahoo.com/v1/test/getcrumb", {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Cookie": cookieStr,
+    },
+  });
+  const crumb = await crumbRes.text();
+  if (!crumb || crumb.includes("<!DOCTYPE")) throw new Error("Failed to get Yahoo crumb");
+  return { crumb, cookie: cookieStr };
+}
+
+// Use Yahoo v7 quote API with crumb authentication
+async function fetchBatchQuotes(symbols: string[], crumb: string, cookie: string): Promise<Map<string, any>> {
   const results = new Map();
-  // v6 quote supports comma-separated symbols
   const symbolStr = symbols.join(",");
   try {
-    const url = `https://query1.finance.yahoo.com/v6/finance/quote?symbols=${encodeURIComponent(symbolStr)}`;
+    const url = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbolStr)}&crumb=${encodeURIComponent(crumb)}`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Cookie": cookie,
+      },
     });
     if (res.ok) {
       const json = await res.json();
@@ -232,23 +245,26 @@ async function fetchBatchQuotes(symbols: string[]): Promise<Map<string, any>> {
       }
       return results;
     }
+    console.log(`v7 quote returned ${res.status}, trying v8 fallback`);
   } catch (e) {
-    console.log("v6 quote failed, trying v8 chart fallback");
+    console.log("v7 quote failed, trying v8 chart fallback");
   }
 
   // Fallback: fetch individually via v8 chart API
   await Promise.all(symbols.map(async (sym) => {
     try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=5d&interval=1d&includePrePost=false`;
+      const url = `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?range=5d&interval=1d&includePrePost=false&crumb=${encodeURIComponent(crumb)}`;
       const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          "Cookie": cookie,
+        },
       });
       if (!res.ok) return;
       const json = await res.json();
       const result = json?.chart?.result?.[0];
       if (!result) return;
       const meta = result.meta;
-      // Build a compatible object
       results.set(sym, {
         symbol: sym,
         regularMarketPrice: meta.regularMarketPrice ?? 0,
@@ -274,7 +290,6 @@ function buildStockRow(stock: typeof NSE_SYMBOLS[0], q: any) {
   const change = q.regularMarketChange ?? 0;
   const changePct = q.regularMarketChangePercent ?? 0;
   const marketCapRaw = q.marketCap ?? 0;
-  // Convert market cap to Crores (1 Cr = 10M = 10,000,000)
   const marketCapCr = marketCapRaw > 0 ? Math.round(marketCapRaw / 10000000) : 0;
 
   return {
@@ -297,19 +312,18 @@ function buildStockRow(stock: typeof NSE_SYMBOLS[0], q: any) {
   };
 }
 
-// Process in batches - v6 supports up to ~20 symbols per request
-async function processBatch(stocks: typeof NSE_SYMBOLS, batchSize = 15, delayMs = 400) {
+async function processBatch(stocks: typeof NSE_SYMBOLS, crumb: string, cookie: string, batchSize = 15, delayMs = 400) {
   const results: any[] = [];
   for (let i = 0; i < stocks.length; i += batchSize) {
     const batch = stocks.slice(i, i + batchSize);
     const yahooSymbols = batch.map(s => s.yahoo);
-    const quoteMap = await fetchBatchQuotes(yahooSymbols);
-    
+    const quoteMap = await fetchBatchQuotes(yahooSymbols, crumb, cookie);
+
     for (const stock of batch) {
       const q = quoteMap.get(stock.yahoo);
       if (q) results.push(buildStockRow(stock, q));
     }
-    
+
     if (i + batchSize < stocks.length) {
       await new Promise(r => setTimeout(r, delayMs));
     }
@@ -327,7 +341,6 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const sb = createClient(supabaseUrl, supabaseKey);
 
-    // Check if cache is fresh (< 5 min)
     const { data: existing } = await sb
       .from("screener_stocks")
       .select("updated_at")
@@ -337,17 +350,16 @@ Deno.serve(async (req) => {
     const lastUpdate = existing?.[0]?.updated_at;
     const isFresh = lastUpdate && (Date.now() - new Date(lastUpdate).getTime()) < 5 * 60 * 1000;
 
-    // If requesting refresh or cache is stale, fetch new data
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const forceRefresh = body.refresh === true;
 
     if (!isFresh || forceRefresh) {
       console.log(`Fetching ${NSE_SYMBOLS.length} stocks from Yahoo Finance...`);
-      const stockData = await processBatch(NSE_SYMBOLS, 5, 500);
+      const { crumb, cookie } = await getYahooCrumb();
+      const stockData = await processBatch(NSE_SYMBOLS, crumb, cookie, 5, 500);
       console.log(`Got data for ${stockData.length} stocks`);
 
       if (stockData.length > 0) {
-        // Upsert in batches of 50
         for (let i = 0; i < stockData.length; i += 50) {
           const batch = stockData.slice(i, i + 50);
           const { error } = await sb
@@ -358,7 +370,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Return cached data
     const { data: stocks, error } = await sb
       .from("screener_stocks")
       .select("*")
