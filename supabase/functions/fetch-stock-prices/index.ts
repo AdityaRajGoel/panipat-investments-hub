@@ -226,6 +226,11 @@ function getIndianMarketStatus(): { isOpen: boolean; lastTradingDate: string; st
   return { isOpen, lastTradingDate, statusText, nextMarketOpenISO, marketCloseISO };
 }
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const CACHE_KEY = "stock_prices";
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes when market open, check below
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -233,6 +238,30 @@ Deno.serve(async (req) => {
 
   try {
     const marketStatus = getIndianMarketStatus();
+
+    // Try to return cached data first
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    let sb: any = null;
+    if (supabaseUrl && serviceKey) {
+      sb = createClient(supabaseUrl, serviceKey);
+      const { data: cached } = await sb
+        .from("market_cache")
+        .select("data, updated_at")
+        .eq("id", CACHE_KEY)
+        .single();
+
+      if (cached) {
+        const age = Date.now() - new Date(cached.updated_at).getTime();
+        const ttl = marketStatus.isOpen ? CACHE_TTL_MS : 10 * 60 * 1000; // 10 min when closed
+        if (age < ttl) {
+          return new Response(
+            JSON.stringify({ ...cached.data, cached: true }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+    }
     const [indexResults, stockResults, marketResults, commodityResults, globalResults, sectorResults] = await Promise.all([
       Promise.all(INDEX_SYMBOLS.map(async (idx) => {
         const q = await fetchYahooQuote(idx.symbol);
@@ -326,30 +355,45 @@ Deno.serve(async (req) => {
     // Extract VIX from commodities
     const vixResult = commodityResults.find(c => c?.name === "INDIA VIX");
 
+    const responseData = {
+      success: true,
+      indices: indexResults.filter(Boolean),
+      data: stockResults.filter(Boolean),
+      commodities: commodityResults.filter(Boolean),
+      globalMarkets: globalResults.filter(Boolean),
+      sectors: sectorResults.filter(Boolean),
+      vix: vixResult || null,
+      marketOverview: {
+        gainers,
+        losers,
+        mostActive,
+        advances,
+        declines,
+        unchanged: Math.max(0, validMarket.length - advances - declines),
+      },
+      marketOpen: marketStatus.isOpen,
+      marketStatusText: marketStatus.statusText,
+      lastTradingDate: marketStatus.lastTradingDate,
+      nextMarketOpen: marketStatus.nextMarketOpenISO,
+      marketClose: marketStatus.marketCloseISO,
+      fetchedAt: new Date().toISOString(),
+    };
+
+    // Cache the result
+    if (sb) {
+      try {
+        await sb.from("market_cache").upsert({
+          id: CACHE_KEY,
+          data: responseData,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (e) {
+        console.error("Cache write failed:", e);
+      }
+    }
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        indices: indexResults.filter(Boolean),
-        data: stockResults.filter(Boolean),
-        commodities: commodityResults.filter(Boolean),
-        globalMarkets: globalResults.filter(Boolean),
-        sectors: sectorResults.filter(Boolean),
-        vix: vixResult || null,
-        marketOverview: {
-          gainers,
-          losers,
-          mostActive,
-          advances,
-          declines,
-          unchanged: Math.max(0, validMarket.length - advances - declines),
-        },
-        marketOpen: marketStatus.isOpen,
-        marketStatusText: marketStatus.statusText,
-        lastTradingDate: marketStatus.lastTradingDate,
-        nextMarketOpen: marketStatus.nextMarketOpenISO,
-        marketClose: marketStatus.marketCloseISO,
-        fetchedAt: new Date().toISOString(),
-      }),
+      JSON.stringify(responseData),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

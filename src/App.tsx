@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePageTracking } from "@/hooks/usePageTracking";
+
+const PageTracker = () => { usePageTracking(); return null; };
 
 // Eagerly load the home page for fastest FCP
 import Index from "./pages/Index";
@@ -48,6 +51,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <PageTracker />
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />

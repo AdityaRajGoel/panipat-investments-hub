@@ -7,12 +7,19 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Lock, Plus, Pencil, Trash2, Save, X, ArrowLeft, Upload, ImageIcon, LogOut,
-  Users, Phone, Mail, MapPin, Clock, Eye, CheckCircle2, Search, Filter
+  Users, Phone, Mail, MapPin, Clock, Eye, CheckCircle2, Search, Filter,
+  Download, BarChart3, TrendingUp, Globe, MousePointer, FileText
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, PieChart, Pie, Cell
+} from "recharts";
 
 // ---- Types ----
 type UnlistedShare = {
@@ -68,7 +75,9 @@ const statusColors: Record<string, string> = {
   closed: "bg-muted text-muted-foreground",
 };
 
-// ---- Unlisted Shares Components (same as before) ----
+const CHART_COLORS = ["hsl(var(--secondary))", "hsl(var(--primary))", "hsl(var(--brand-gold))", "hsl(var(--destructive))"];
+
+// ---- Unlisted Shares Components ----
 const LogoUpload = memo(({ form, setForm, shareId, password }: {
   form: any; setForm: (f: any) => void; shareId?: string; password: string;
 }) => {
@@ -188,12 +197,13 @@ const ShareListItem = memo(({ share, onEdit, onDelete }: { share: UnlistedShare;
   </Card>
 ));
 
-// ---- Leads Management Component ----
+// ---- Leads Management with Bulk Actions & CSV Export ----
 const LeadsPanel = ({ password }: { password: string }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -223,6 +233,20 @@ const LeadsPanel = ({ password }: { password: string }) => {
     }
   };
 
+  const bulkUpdateStatus = async (status: string) => {
+    if (selectedIds.size === 0) return;
+    let successCount = 0;
+    for (const id of selectedIds) {
+      const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
+        body: { action: "update_lead", password, data: { id, status } },
+      });
+      if (data?.success) successCount++;
+    }
+    toast({ title: `Updated ${successCount} of ${selectedIds.size} leads to "${status}"` });
+    setSelectedIds(new Set());
+    fetchLeads();
+  };
+
   const deleteLead = async (id: string) => {
     if (!confirm("Delete this lead?")) return;
     const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
@@ -231,11 +255,45 @@ const LeadsPanel = ({ password }: { password: string }) => {
     if (data?.success) {
       toast({ title: "Lead deleted" });
       setLeads(prev => prev.filter(l => l.id !== id));
+      setSelectedIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+    }
+  };
+
+  const exportCSV = () => {
+    const headers = ["Name", "Phone", "Email", "City", "Message", "Status", "Created At"];
+    const rows = filtered.map(l => [
+      l.name, l.phone, l.email || "", l.city || "", (l.message || "").replace(/,/g, ";"),
+      l.status, new Date(l.created_at).toLocaleString("en-IN"),
+    ]);
+    const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${v}"`).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: `Exported ${filtered.length} leads` });
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map(l => l.id)));
     }
   };
 
   const filtered = leads.filter(l => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       l.phone.includes(searchQuery) ||
       (l.email && l.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -244,6 +302,21 @@ const LeadsPanel = ({ password }: { password: string }) => {
     return matchesSearch && matchesStatus;
   });
 
+  // Lead trend data for chart
+  const leadsByDay = leads.reduce<Record<string, number>>((acc, l) => {
+    const day = l.created_at.slice(0, 10);
+    acc[day] = (acc[day] || 0) + 1;
+    return acc;
+  }, {});
+  const trendData = Object.entries(leadsByDay)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .slice(-30)
+    .map(([date, count]) => ({ date: date.slice(5), count }));
+
+  const statusCounts = LEAD_STATUS_OPTIONS.map(s => ({
+    name: s, value: leads.filter(l => l.status === s).length,
+  }));
+
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.status === "new").length,
@@ -251,7 +324,7 @@ const LeadsPanel = ({ password }: { password: string }) => {
     converted: leads.filter(l => l.status === "converted").length,
   };
 
-  if (loading) return <p className="text-muted-foreground text-center py-12">Loading leads...</p>;
+  if (loading) return <div className="space-y-3 py-8">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}</div>;
 
   return (
     <div className="space-y-4">
@@ -275,33 +348,83 @@ const LeadsPanel = ({ password }: { password: string }) => {
         ))}
       </div>
 
-      {/* Search + Filter */}
+      {/* Lead Trend Chart + Status Pie */}
+      {trendData.length > 1 && (
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="p-3 pb-0"><CardTitle className="text-sm flex items-center gap-2"><TrendingUp className="w-4 h-4 text-secondary" /> Lead Trend (30 days)</CardTitle></CardHeader>
+            <CardContent className="p-3 pt-2">
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                  <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" allowDecimals={false} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                  <Bar dataKey="count" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="p-3 pb-0"><CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="w-4 h-4 text-primary" /> Status Distribution</CardTitle></CardHeader>
+            <CardContent className="p-3 pt-2 flex items-center justify-center">
+              <ResponsiveContainer width="100%" height={160}>
+                <PieChart>
+                  <Pie data={statusCounts.filter(s => s.value > 0)} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
+                    {statusCounts.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Search + Filter + Actions */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search by name, phone, email, city..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Filter className="w-4 h-4 text-muted-foreground" />
-          <select
-            className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
+          <select className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
             <option value="all">All Status</option>
-            {LEAD_STATUS_OPTIONS.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+            {LEAD_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
+          <Button variant="outline" size="sm" onClick={exportCSV}><Download className="w-4 h-4 mr-1" /> CSV</Button>
         </div>
       </div>
 
+      {/* Bulk Actions */}
+      {selectedIds.size > 0 && (
+        <Card className="p-3 border-secondary/30 bg-secondary/5">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-sm font-medium text-foreground">{selectedIds.size} selected</span>
+            {LEAD_STATUS_OPTIONS.map(s => (
+              <Button key={s} size="sm" variant="outline" onClick={() => bulkUpdateStatus(s)} className="text-xs capitalize h-7">{s}</Button>
+            ))}
+            <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())} className="text-xs h-7">Clear</Button>
+          </div>
+        </Card>
+      )}
+
       {/* Leads List */}
       <div className="space-y-2">
+        {filtered.length > 0 && (
+          <div className="flex items-center gap-2 px-1">
+            <Checkbox checked={selectedIds.size === filtered.length && filtered.length > 0} onCheckedChange={toggleSelectAll} />
+            <span className="text-xs text-muted-foreground">Select all ({filtered.length})</span>
+          </div>
+        )}
         {filtered.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">No leads found.</p>
         ) : filtered.map(lead => (
-          <Card key={lead.id}>
+          <Card key={lead.id} className={selectedIds.has(lead.id) ? "ring-1 ring-secondary" : ""}>
             <CardContent className="p-3 sm:p-4">
               <div className="flex items-start gap-3">
+                <Checkbox checked={selectedIds.has(lead.id)} onCheckedChange={() => toggleSelect(lead.id)} className="mt-1" />
                 <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center shrink-0">
                   <Users className="w-5 h-5 text-brand-orange" />
                 </div>
@@ -352,6 +475,123 @@ const LeadsPanel = ({ password }: { password: string }) => {
           </Card>
         ))}
       </div>
+    </div>
+  );
+};
+
+// ---- Analytics Panel ----
+const AnalyticsPanel = ({ password }: { password: string }) => {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState("30d");
+
+  const fetchAnalytics = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: res, error } = await supabase.functions.invoke("fetch-analytics", {
+        body: { password, period },
+      });
+      if (!error && res?.success) setData(res);
+      else toast({ title: "Failed to load analytics", variant: "destructive" });
+    } catch {
+      toast({ title: "Analytics unavailable", variant: "destructive" });
+    }
+    setLoading(false);
+  }, [password, period]);
+
+  useEffect(() => { fetchAnalytics(); }, [fetchAnalytics]);
+
+  if (loading) return <div className="space-y-3 py-8">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full" />)}</div>;
+  if (!data) return <p className="text-muted-foreground text-center py-8">No analytics data available yet.</p>;
+
+  return (
+    <div className="space-y-4">
+      {/* Period selector */}
+      <div className="flex items-center gap-2">
+        {["7d", "30d", "90d"].map(p => (
+          <Button key={p} size="sm" variant={period === p ? "default" : "outline"} onClick={() => setPeriod(p)} className="text-xs h-7">{p === "7d" ? "7 Days" : p === "30d" ? "30 Days" : "90 Days"}</Button>
+        ))}
+      </div>
+
+      {/* Overview cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card><CardContent className="p-3 flex items-center gap-3"><Eye className="w-5 h-5 text-primary" /><div><div className="text-lg font-bold text-foreground">{data.totalPageViews}</div><div className="text-[10px] text-muted-foreground">Page Views</div></div></CardContent></Card>
+        <Card><CardContent className="p-3 flex items-center gap-3"><Globe className="w-5 h-5 text-secondary" /><div><div className="text-lg font-bold text-foreground">{data.uniqueSessions}</div><div className="text-[10px] text-muted-foreground">Sessions</div></div></CardContent></Card>
+        <Card><CardContent className="p-3 flex items-center gap-3"><FileText className="w-5 h-5 text-brand-gold" /><div><div className="text-lg font-bold text-foreground">{String((Object.values(data.formConversions || {}) as number[]).reduce((a, b) => a + b, 0))}</div><div className="text-[10px] text-muted-foreground">Form Submissions</div></div></CardContent></Card>
+        <Card><CardContent className="p-3 flex items-center gap-3"><MousePointer className="w-5 h-5 text-destructive" /><div><div className="text-lg font-bold text-foreground">{data.popularStocks?.length || 0}</div><div className="text-[10px] text-muted-foreground">Stocks Viewed</div></div></CardContent></Card>
+      </div>
+
+      {/* Daily Views Chart */}
+      {data.dailyViews?.length > 1 && (
+        <Card>
+          <CardHeader className="p-3 pb-0"><CardTitle className="text-sm flex items-center gap-2"><TrendingUp className="w-4 h-4 text-secondary" /> Daily Page Views</CardTitle></CardHeader>
+          <CardContent className="p-3 pt-2">
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={data.dailyViews}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} className="fill-muted-foreground" tickFormatter={(v: string) => v.slice(5)} />
+                <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                <Line type="monotone" dataKey="views" stroke="hsl(var(--secondary))" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* Top Pages */}
+        <Card>
+          <CardHeader className="p-3 pb-0"><CardTitle className="text-sm">Top Pages</CardTitle></CardHeader>
+          <CardContent className="p-3 pt-2">
+            {data.topPages?.length > 0 ? (
+              <div className="space-y-1.5">
+                {data.topPages.map((p: any) => (
+                  <div key={p.path} className="flex items-center justify-between text-xs">
+                    <span className="font-mono text-muted-foreground truncate max-w-[200px]">{p.path}</span>
+                    <span className="font-bold text-foreground">{p.views}</span>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-xs text-muted-foreground">No data yet</p>}
+          </CardContent>
+        </Card>
+
+        {/* Popular Stocks */}
+        <Card>
+          <CardHeader className="p-3 pb-0"><CardTitle className="text-sm">Popular Stocks Viewed</CardTitle></CardHeader>
+          <CardContent className="p-3 pt-2">
+            {data.popularStocks?.length > 0 ? (
+              <div className="space-y-1.5">
+                {data.popularStocks.slice(0, 10).map((s: any) => (
+                  <div key={s.symbol} className="flex items-center justify-between text-xs">
+                    <span className="font-mono font-semibold text-foreground">{s.symbol}</span>
+                    <span className="text-muted-foreground">{s.views} views</span>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-xs text-muted-foreground">No stock views tracked yet</p>}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Lead Trend */}
+      {data.leadTrend?.length > 1 && (
+        <Card>
+          <CardHeader className="p-3 pb-0"><CardTitle className="text-sm flex items-center gap-2"><Users className="w-4 h-4 text-brand-orange" /> Lead Acquisition Trend</CardTitle></CardHeader>
+          <CardContent className="p-3 pt-2">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={data.leadTrend}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} className="fill-muted-foreground" tickFormatter={(v: string) => v.slice(5)} />
+                <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                <Bar dataKey="total" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
@@ -473,12 +713,12 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-5xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div>
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"><ArrowLeft className="w-4 h-4" /> Back to site</Link>
             <h1 className="font-heading text-xl sm:text-3xl font-bold text-foreground">Admin Panel</h1>
-            <p className="text-muted-foreground text-xs sm:text-sm">Manage unlisted shares and account leads</p>
+            <p className="text-muted-foreground text-xs sm:text-sm">Manage shares, leads & view analytics</p>
           </div>
           <Button onClick={handleLogout} variant="outline" size="sm"><LogOut className="w-4 h-4 mr-1" /> Logout</Button>
         </div>
@@ -487,6 +727,7 @@ const AdminPage = () => {
           <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="shares" className="flex-1 sm:flex-none">Unlisted Shares</TabsTrigger>
             <TabsTrigger value="leads" className="flex-1 sm:flex-none">Account Leads</TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-1 sm:flex-none">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="shares">
@@ -495,7 +736,7 @@ const AdminPage = () => {
             </div>
             {creating && <ShareForm form={newForm} setForm={setNewForm} onSave={handleCreate} onCancel={() => { setCreating(false); setNewForm(emptyShare); }} title="Add New Share" password={password} />}
             {loading ? (
-              <p className="text-muted-foreground text-center py-12">Loading...</p>
+              <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
             ) : (
               <div className="space-y-2 sm:space-y-3">
                 {shares.map((share) =>
@@ -513,6 +754,10 @@ const AdminPage = () => {
 
           <TabsContent value="leads">
             <LeadsPanel password={password} />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsPanel password={password} />
           </TabsContent>
         </Tabs>
       </div>
