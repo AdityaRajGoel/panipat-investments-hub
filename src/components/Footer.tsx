@@ -1,5 +1,6 @@
 import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -81,14 +82,23 @@ const Footer = () => {
                   whileHover={{ x: 5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
-                  >
-                    {link.label}
-                  </a>
+                  {(link as any).internal ? (
+                    <Link
+                      to={link.href}
+                      className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </motion.li>
               ))}
             </ul>
