@@ -1,8 +1,8 @@
 import { ArrowRight, TrendingUp, TrendingDown, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, Variants, Easing } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { useLiveMarket } from "@/hooks/useLiveMarket";
 import heroBg from "@/assets/hero-bg.jpg";
 
 type IndexData = { name: string; price: string; change: string; up: boolean };
@@ -64,27 +64,15 @@ const StatCounter = ({ target, label, suffix = "", delay = 0 }: { target: number
 };
 
 const Hero = () => {
-  const [indices, setIndices] = useState<IndexData[]>([
-    { name: "NIFTY 50", price: "22,147.00", change: "+0.85%", up: true },
-    { name: "SENSEX", price: "72,831.94", change: "+0.72%", up: true },
-    { name: "BANK NIFTY", price: "46,893.65", change: "-0.32%", up: false },
-  ]);
+  const { indices: liveIndices } = useLiveMarket();
 
-  useEffect(() => {
-    const fetchIndices = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('fetch-stock-prices');
-        if (!error && data?.success && data.data?.length > 0) {
-          const indexNames = ["NIFTY 50", "SENSEX", "BANK NIFTY"];
-          const filtered = data.data.filter((s: IndexData) => indexNames.includes(s.name));
-          if (filtered.length > 0) setIndices(filtered);
-        }
-      } catch {}
-    };
-    fetchIndices();
-    const interval = setInterval(fetchIndices, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // Use live data for hero index cards
+  const heroIndices = liveIndices.filter(idx => ["NIFTY", "SENSEX", "BANKNIFTY"].includes(idx.key)).map(idx => ({
+    name: idx.name,
+    price: idx.price,
+    change: idx.change,
+    up: idx.up,
+  }));
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
