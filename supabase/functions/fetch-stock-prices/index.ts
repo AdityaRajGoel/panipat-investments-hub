@@ -346,6 +346,8 @@ Deno.serve(async (req) => {
         marketOpen: marketStatus.isOpen,
         marketStatusText: marketStatus.statusText,
         lastTradingDate: marketStatus.lastTradingDate,
+        nextMarketOpen: marketStatus.nextMarketOpenISO,
+        marketClose: marketStatus.marketCloseISO,
         fetchedAt: new Date().toISOString(),
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
