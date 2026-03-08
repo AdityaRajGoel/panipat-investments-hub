@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useScreenerStocks, type ScreenerStock } from "@/hooks/useScreenerStocks";
 import StockHeatmap from "@/components/StockHeatmap";
+import GlobalStockSearch from "@/components/GlobalStockSearch";
 
 const formatMarketCap = (cr: number) => {
   if (cr >= 100000) return `₹${(cr / 100000).toFixed(1)}L Cr`;
@@ -86,6 +87,9 @@ const StockScreenerPage = () => {
             </Button>
           </div>
         </motion.div>
+
+        {/* Global Stock Search */}
+        <GlobalStockSearch className="mb-6" />
 
         {/* Filters */}
         <Card className="p-4 mb-6">
