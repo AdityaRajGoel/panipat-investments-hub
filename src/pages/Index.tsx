@@ -1,18 +1,28 @@
 import Header from "@/components/Header";
 import StockTicker from "@/components/StockTicker";
 import Hero from "@/components/Hero";
-import LiveChart from "@/components/LiveChart";
-import MarketDashboard from "@/components/MarketDashboard";
-import TrustBadges from "@/components/TrustBadges";
-import MarketOverview from "@/components/MarketOverview";
-import MarketNews from "@/components/MarketNews";
-import ClientMarquee from "@/components/ClientMarquee";
-import AnnouncementBar from "@/components/AnnouncementBar";
-import IPOTracker from "@/components/IPOTracker";
-import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import SEOHead from "@/components/SEOHead";
+import AnnouncementBar from "@/components/AnnouncementBar";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import { lazy, Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load below-fold heavy components
+const LiveChart = lazy(() => import("@/components/LiveChart"));
+const MarketDashboard = lazy(() => import("@/components/MarketDashboard"));
+const TrustBadges = lazy(() => import("@/components/TrustBadges"));
+const MarketOverview = lazy(() => import("@/components/MarketOverview"));
+const IPOTracker = lazy(() => import("@/components/IPOTracker"));
+const ClientMarquee = lazy(() => import("@/components/ClientMarquee"));
+const MarketNews = lazy(() => import("@/components/MarketNews"));
+const Footer = lazy(() => import("@/components/Footer"));
+
+const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
+  <div className={`container mx-auto px-4 py-8`}>
+    <Skeleton className={`${height} w-full rounded-xl`} />
+  </div>
+);
 
 const Index = () => {
   return (
@@ -27,14 +37,30 @@ const Index = () => {
       <AnnouncementBar />
       <StockTicker />
       <Hero />
-      <LiveChart />
-      <MarketDashboard />
-      <TrustBadges />
-      <MarketOverview />
-      <IPOTracker />
-      <ClientMarquee />
-      <MarketNews />
-      <Footer />
+      <Suspense fallback={<SectionSkeleton height="h-96" />}>
+        <LiveChart />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-80" />}>
+        <MarketDashboard />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-32" />}>
+        <TrustBadges />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-96" />}>
+        <MarketOverview />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-64" />}>
+        <IPOTracker />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-24" />}>
+        <ClientMarquee />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-64" />}>
+        <MarketNews />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-48" />}>
+        <Footer />
+      </Suspense>
       <WhatsAppButton />
     </div>
   );
