@@ -147,31 +147,28 @@ function formatVolume(vol?: number): string {
   return vol.toString();
 }
 
-function getIndianMarketStatus(): { isOpen: boolean; lastTradingDate: string; statusText: string } {
-  // IST = UTC + 5:30
+function getIndianMarketStatus(): { isOpen: boolean; lastTradingDate: string; statusText: string; nextMarketOpenISO: string | null; marketCloseISO: string | null } {
   const now = new Date();
   const istOffset = 5.5 * 60 * 60 * 1000;
   const istNow = new Date(now.getTime() + istOffset + now.getTimezoneOffset() * 60000);
   
-  const day = istNow.getDay(); // 0=Sun, 6=Sat
+  const day = istNow.getDay();
   const hours = istNow.getHours();
   const minutes = istNow.getMinutes();
   const timeInMinutes = hours * 60 + minutes;
   
-  // Market hours: 9:15 AM (555 min) to 3:30 PM (930 min), Mon-Fri
-  const marketOpen = 9 * 60 + 15;  // 555
-  const marketClose = 15 * 60 + 30; // 930
+  const marketOpenMin = 9 * 60 + 15;
+  const marketCloseMin = 15 * 60 + 30;
   
   const isWeekday = day >= 1 && day <= 5;
-  const isDuringHours = timeInMinutes >= marketOpen && timeInMinutes <= marketClose;
+  const isDuringHours = timeInMinutes >= marketOpenMin && timeInMinutes <= marketCloseMin;
   const isOpen = isWeekday && isDuringHours;
   
   // Calculate last trading date
   const istDate = new Date(istNow);
-  if (!isWeekday || (isWeekday && timeInMinutes < marketOpen)) {
-    // Go back to last weekday
+  if (!isWeekday || (isWeekday && timeInMinutes < marketOpenMin)) {
     let d = new Date(istDate);
-    if (timeInMinutes < marketOpen && isWeekday) {
+    if (timeInMinutes < marketOpenMin && isWeekday) {
       d.setDate(d.getDate() - 1);
     }
     while (d.getDay() === 0 || d.getDay() === 6) {
@@ -185,13 +182,48 @@ function getIndianMarketStatus(): { isOpen: boolean; lastTradingDate: string; st
   let statusText = "Market Closed";
   if (isOpen) {
     statusText = "Market Open";
-  } else if (isWeekday && timeInMinutes > marketClose) {
-    statusText = "Market Closed";
-  } else if (isWeekday && timeInMinutes < marketOpen) {
+  } else if (isWeekday && timeInMinutes > marketCloseMin) {
+    statusText = "After Hours";
+  } else if (isWeekday && timeInMinutes < marketOpenMin) {
     statusText = "Pre-Market";
   }
   
-  return { isOpen, lastTradingDate, statusText };
+  // Calculate next market open in UTC ISO
+  let nextMarketOpenISO: string | null = null;
+  let marketCloseISO: string | null = null;
+  
+  if (isOpen) {
+    // Market closes today at 15:30 IST → convert to UTC
+    const closeUTC = new Date(istNow);
+    closeUTC.setHours(15, 30, 0, 0);
+    // Convert IST back to UTC: subtract 5:30
+    const closeUTCTime = new Date(closeUTC.getTime() - istOffset + now.getTimezoneOffset() * 60000);
+    // Actually just compute from `now` directly
+    const remainingMin = marketCloseMin - timeInMinutes;
+    marketCloseISO = new Date(now.getTime() + remainingMin * 60000).toISOString();
+  }
+  
+  if (!isOpen) {
+    // Find next weekday
+    let nextDay = new Date(istNow);
+    if (isWeekday && timeInMinutes > marketCloseMin) {
+      nextDay.setDate(nextDay.getDate() + 1);
+    } else if (isWeekday && timeInMinutes < marketOpenMin) {
+      // Same day, just wait
+    } else {
+      nextDay.setDate(nextDay.getDate() + 1);
+    }
+    while (nextDay.getDay() === 0 || nextDay.getDay() === 6) {
+      nextDay.setDate(nextDay.getDate() + 1);
+    }
+    // Set to 9:15 AM IST
+    nextDay.setHours(9, 15, 0, 0);
+    // Convert IST to UTC offset from now
+    const diffMs = nextDay.getTime() - istNow.getTime();
+    nextMarketOpenISO = new Date(now.getTime() + diffMs).toISOString();
+  }
+  
+  return { isOpen, lastTradingDate, statusText, nextMarketOpenISO, marketCloseISO };
 }
 
 Deno.serve(async (req) => {
