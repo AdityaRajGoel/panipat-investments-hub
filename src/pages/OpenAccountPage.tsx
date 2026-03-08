@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -26,6 +26,7 @@ const OpenAccountPage = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", city: "", message: "" });
+  const formRenderTime = useRef(Date.now());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -33,6 +34,11 @@ const OpenAccountPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot check
+    const honeypot = (e.target as HTMLFormElement).querySelector<HTMLInputElement>('[name="_website"]');
+    if (honeypot && honeypot.value) return;
+
     const trimmed = {
       name: form.name.trim(),
       phone: form.phone.trim(),
@@ -57,7 +63,11 @@ const OpenAccountPage = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('submit-lead', {
-        body: trimmed,
+        body: {
+          ...trimmed,
+          _website: "", // honeypot
+          _ts: formRenderTime.current, // timestamp CSRF
+        },
       });
 
       if (error) throw error;
@@ -154,6 +164,10 @@ const OpenAccountPage = () => {
               <p className="text-sm text-muted-foreground mb-8">Our team will get in touch with you to complete the account opening process.</p>
 
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Honeypot — hidden from humans */}
+                <div className="absolute opacity-0 -z-10" style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true">
+                  <Input name="_website" tabIndex={-1} autoComplete="off" />
+                </div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">Full Name *</label>

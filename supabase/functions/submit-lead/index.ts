@@ -5,8 +5,8 @@ const corsHeaders = {
 
 // Simple in-memory rate limiter
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 5; // max submissions
-const RATE_WINDOW = 10 * 60 * 1000; // 10 minutes
+const RATE_LIMIT = 5;
+const RATE_WINDOW = 10 * 60 * 1000;
 
 function getRateLimitKey(req: Request): string {
   return req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown';
@@ -33,7 +33,6 @@ function sanitize(val: unknown, maxLen = 500): string {
 }
 
 function isValidPhone(phone: string): boolean {
-  // Indian phone: 10 digits, optionally prefixed with +91 or 91
   return /^(\+?91)?[6-9]\d{9}$/.test(phone.replace(/[\s-]/g, ''));
 }
 
@@ -41,27 +40,65 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 255;
 }
 
+const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: { ...corsHeaders, ...securityHeaders } });
   }
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
-      status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      status: 405, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
     });
   }
+
+  const responseHeaders = { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' };
 
   try {
     const ip = getRateLimitKey(req);
     if (!checkRateLimit(ip)) {
       return new Response(
         JSON.stringify({ success: false, error: 'Too many submissions. Please try again later.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 429, headers: responseHeaders }
       );
     }
 
     const body = await req.json();
+
+    // Honeypot check — if the hidden field has a value, it's a bot
+    if (body._website && typeof body._website === 'string' && body._website.trim().length > 0) {
+      // Silently accept but don't process (bots think it worked)
+      return new Response(
+        JSON.stringify({ success: true, message: 'Lead saved successfully' }),
+        { headers: responseHeaders }
+      );
+    }
+
+    // Timestamp-based CSRF check — form must be submitted within 5 seconds to 30 minutes of render
+    const formTimestamp = body._ts;
+    if (formTimestamp && typeof formTimestamp === 'number') {
+      const elapsed = Date.now() - formTimestamp;
+      if (elapsed < 3000) {
+        // Submitted too fast (< 3 seconds) — likely a bot
+        return new Response(
+          JSON.stringify({ success: true, message: 'Lead saved successfully' }),
+          { headers: responseHeaders }
+        );
+      }
+      if (elapsed > 30 * 60 * 1000) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Form expired. Please refresh and try again.' }),
+          { status: 400, headers: responseHeaders }
+        );
+      }
+    }
+
     const name = sanitize(body.name, 100);
     const phone = sanitize(body.phone, 20);
     const email = body.email ? sanitize(body.email, 255) : null;
@@ -71,25 +108,25 @@ Deno.serve(async (req) => {
     if (!name || name.length < 2) {
       return new Response(
         JSON.stringify({ success: false, error: 'Valid name is required (min 2 characters)' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: responseHeaders }
       );
     }
 
     if (!phone || !isValidPhone(phone)) {
       return new Response(
         JSON.stringify({ success: false, error: 'Valid Indian phone number is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: responseHeaders }
       );
     }
 
     if (email && !isValidEmail(email)) {
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid email address' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: responseHeaders }
       );
     }
 
-    // Save to database using service role (bypasses RLS)
+    // Save to database
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -108,24 +145,19 @@ Deno.serve(async (req) => {
       console.error('DB insert failed:', await dbRes.text());
     }
 
-    // WhatsApp notification (sanitized values used in URL encoding)
     const whatsappNumber = '919416400314';
     const waMessage = `🆕 New Lead!\n👤 ${name}\n📱 ${phone}${email ? `\n📧 ${email}` : ''}${city ? `\n📍 ${city}` : ''}${message ? `\n💬 ${message}` : ''}`;
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        whatsappUrl,
-        message: 'Lead saved successfully',
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: true, whatsappUrl, message: 'Lead saved successfully' }),
+      { headers: responseHeaders }
     );
   } catch (error) {
     console.error('Error processing lead:', error);
     return new Response(
       JSON.stringify({ success: false, error: 'Failed to process request' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
