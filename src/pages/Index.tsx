@@ -8,6 +8,7 @@ import MarketOverview from "@/components/MarketOverview";
 import MarketNews from "@/components/MarketNews";
 import ClientMarquee from "@/components/ClientMarquee";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import IPOTracker from "@/components/IPOTracker";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -24,6 +25,7 @@ const Index = () => {
       <MarketDashboard />
       <TrustBadges />
       <MarketOverview />
+      <IPOTracker />
       <ClientMarquee />
       <MarketNews />
       <Footer />
