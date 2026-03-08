@@ -64,7 +64,7 @@ const StatCounter = ({ target, label, suffix = "", delay = 0 }: { target: number
 };
 
 const Hero = () => {
-  const { indices: liveIndices } = useLiveMarket();
+  const { indices: liveIndices, commodities, marketOverview, loading } = useLiveMarket();
 
   // Use live data for hero index cards
   const heroIndices = liveIndices.filter(idx => ["NIFTY", "SENSEX", "BANKNIFTY"].includes(idx.key)).map(idx => ({
@@ -73,6 +73,29 @@ const Hero = () => {
     change: idx.change,
     up: idx.up,
   }));
+
+  // Dynamic NIFTY data for floating card
+  const niftyData = liveIndices.find(idx => idx.key === "NIFTY");
+  const sensexData = liveIndices.find(idx => idx.key === "SENSEX");
+  const goldData = commodities.find(c => c.name === "GOLD");
+
+  // Dynamic tips based on live market conditions
+  const dynamicTips = useMemo(() => {
+    const baseTips = [
+      "💡 Diversify your portfolio across sectors",
+      "🛡️ Never invest money you can't afford to lose",
+      "🔍 Research before you invest",
+    ];
+    if (niftyData?.up) baseTips.unshift(`📈 NIFTY 50 is up ${niftyData.change} — markets looking bullish today`);
+    else if (niftyData) baseTips.unshift(`📉 NIFTY 50 is down ${niftyData.change} — consider buying the dip wisely`);
+    if (goldData?.up) baseTips.push(`✨ Gold is up ${goldData.change} — a safe haven in volatile markets`);
+    if (marketOverview) {
+      const { advances = 0, declines = 0 } = marketOverview;
+      if (advances > declines) baseTips.push(`🟢 ${advances} advances vs ${declines} declines — broad market strength`);
+      else if (declines > advances) baseTips.push(`🔴 ${declines} declines vs ${advances} advances — stay cautious`);
+    }
+    return baseTips;
+  }, [niftyData, goldData, marketOverview]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -93,17 +116,11 @@ const Hero = () => {
     { icon: Star, label: "5-Star Rated" },
   ];
 
-  const tips = [
-    "💡 Diversify your portfolio across sectors",
-    "📈 SIP builds wealth over time",
-    "🛡️ Never invest money you can't afford to lose",
-    "🔍 Research before you invest",
-  ];
   const [tipIndex, setTipIndex] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setTipIndex(i => (i + 1) % tips.length), 3500);
+    const t = setInterval(() => setTipIndex(i => (i + 1) % dynamicTips.length), 3500);
     return () => clearInterval(t);
-  }, []);
+  }, [dynamicTips.length]);
 
   return (
     <section
