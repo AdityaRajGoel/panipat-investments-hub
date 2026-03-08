@@ -200,6 +200,7 @@ const StockRow = ({ stock, index, onChartClick }: { stock: Stock; index: number;
     className="flex items-center justify-between py-3 px-3 sm:px-4 rounded-xl hover:bg-muted/50 transition-all duration-200 cursor-pointer group border-b border-border/30 last:border-0"
     initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }}
     whileHover={{ x: 4 }}
+    onClick={() => onChartClick(stock)}
   >
     <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 ${stock.up ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>
