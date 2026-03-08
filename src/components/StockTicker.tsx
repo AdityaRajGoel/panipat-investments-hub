@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLiveMarket, LiveStock } from "@/hooks/useLiveMarket";
 
@@ -10,6 +10,36 @@ interface TickerRowProps {
   textClass?: string;
   duration?: number;
 }
+
+const PriceCell = ({ item, textClass = "text-primary-foreground" }: { item: LiveStock; textClass?: string }) => {
+  const [flash, setFlash] = useState<"up" | "down" | null>(null);
+  const prevPrice = useRef(item.price);
+
+  useEffect(() => {
+    if (prevPrice.current !== item.price) {
+      const prevNum = parseFloat(prevPrice.current.replace(/[,₹]/g, ''));
+      const newNum = parseFloat(item.price.replace(/[,₹]/g, ''));
+      if (!isNaN(prevNum) && !isNaN(newNum) && prevNum !== newNum) {
+        setFlash(newNum > prevNum ? "up" : "down");
+        const timer = setTimeout(() => setFlash(null), 1200);
+        prevPrice.current = item.price;
+        return () => clearTimeout(timer);
+      }
+      prevPrice.current = item.price;
+    }
+  }, [item.price]);
+
+  return (
+    <span
+      className={`opacity-80 transition-all duration-300 ${
+        flash === "up" ? "!text-green-400 font-bold" :
+        flash === "down" ? "!text-red-400 font-bold" : ""
+      }`}
+    >
+      {item.price}
+    </span>
+  );
+};
 
 const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", textClass = "text-primary-foreground", duration = 40 }: TickerRowProps) => {
   const [selectedItem, setSelectedItem] = useState<LiveStock | null>(null);
@@ -33,7 +63,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
           >
             <span className="font-semibold tracking-wide">{item.name}</span>
             {item.unit ? <span className="opacity-70 text-xs">{item.unit}</span> : null}
-            <span className="opacity-80">{item.price}</span>
+            <PriceCell item={item} textClass={textClass} />
             <span className={`flex items-center gap-0.5 font-medium ${item.up ? "text-secondary" : "text-destructive"}`}>
               {item.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
               {item.change}
@@ -78,14 +108,35 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
 };
 
 const StockTicker = () => {
-  const { stocks, commodities } = useLiveMarket();
+  const { stocks, commodities, fetchedAt } = useLiveMarket();
+  const [countdown, setCountdown] = useState(60);
 
-  // Combine index data with stocks for first row
+  // Countdown timer to next refresh
+  useEffect(() => {
+    if (!fetchedAt) return;
+    const fetchTime = new Date(fetchedAt).getTime();
+    
+    const timer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - fetchTime) / 1000);
+      const remaining = Math.max(0, 60 - elapsed);
+      setCountdown(remaining);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [fetchedAt]);
+
   return (
-    <div className="border-b border-brand-orange/20 bg-brand-charcoal">
+    <div className="border-b border-brand-orange/20 bg-brand-charcoal relative">
       <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={80} />
       <div className="h-px bg-brand-orange/15" />
       <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
+      {/* Live indicator */}
+      <div className="absolute top-1 right-2 flex items-center gap-1.5 z-20">
+        <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+        <span className="text-[9px] text-primary-foreground/50 font-medium">
+          {countdown > 0 ? `${countdown}s` : "Updating..."}
+        </span>
+      </div>
     </div>
   );
 };

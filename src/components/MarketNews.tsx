@@ -98,7 +98,8 @@ const MarketNews = () => {
 
   useEffect(() => {
     fetchNews();
-    const interval = setInterval(fetchNews, 15 * 60 * 1000);
+    // Refresh news every 5 minutes
+    const interval = setInterval(fetchNews, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -207,7 +208,7 @@ const MarketNews = () => {
           transition={{ delay: 0.5 }}
         >
           <Newspaper className="w-3 h-3 inline mr-1" />
-          News updated every 15 minutes • Sources: ET, Moneycontrol, Reuters, Bloomberg
+          News auto-refreshes every 5 minutes • Sources: ET, Moneycontrol, Reuters, Bloomberg
         </motion.p>
       </div>
     </section>

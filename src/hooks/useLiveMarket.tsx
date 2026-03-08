@@ -171,7 +171,8 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 3 * 60 * 1000);
+    // Refresh every 60 seconds for live feel
+    const interval = setInterval(fetchData, 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchData]);
 

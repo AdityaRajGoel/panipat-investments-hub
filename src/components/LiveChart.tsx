@@ -158,12 +158,12 @@ const LiveChart = () => {
           <div className="ml-auto flex items-center gap-3">
             {fetchedAt && (
               <span className="text-[10px] text-muted-foreground hidden sm:block">
-                Updated: {new Date(fetchedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                Updated: {new Date(fetchedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
               </span>
             )}
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse" />
-              <span className="text-xs text-muted-foreground font-medium">Live</span>
+              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+              <span className="text-xs text-muted-foreground font-medium">Live • 1min</span>
             </div>
           </div>
         </motion.div>
