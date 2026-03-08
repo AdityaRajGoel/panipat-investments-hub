@@ -74,19 +74,17 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* Contact form + existing contact info */}
+      {/* Contact form section */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
-            <div className="lg:col-span-2">
-              <ContactForm />
-            </div>
-            <div className="lg:col-span-3">
-              <Contact />
-            </div>
+          <div className="max-w-2xl mx-auto">
+            <ContactForm />
           </div>
         </div>
       </section>
+
+      {/* Full contact info section */}
+      <Contact />
 
       <FAQ
         title="Contact & Visiting"
