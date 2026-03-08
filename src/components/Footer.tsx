@@ -1,5 +1,6 @@
 import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -69,24 +70,35 @@ const Footer = () => {
             <h4 className="font-heading font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               {[
+                { label: "Stock Screener", href: "/screener", internal: true },
+                { label: "Market Heatmap", href: "/heatmap", internal: true },
+                { label: "52-Week Tracker", href: "/52-week-tracker", internal: true },
+                { label: "Holiday Calendar", href: "/holidays", internal: true },
                 { label: "About Company", href: "https://parasramindia.com/about-parasram" },
-                { label: "Our Services", href: "https://parasramindia.com/services" },
                 { label: "Research", href: "https://parasramindia.com/research" },
-                { label: "Contact Us", href: "https://parasramindia.com/contact-us" },
               ].map((link, i) => (
                 <motion.li
                   key={link.label}
                   whileHover={{ x: 5 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
-                  >
-                    {link.label}
-                  </a>
+                  {(link as any).internal ? (
+                    <Link
+                      to={link.href}
+                      className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </motion.li>
               ))}
             </ul>
