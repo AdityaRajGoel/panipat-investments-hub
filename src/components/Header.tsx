@@ -20,7 +20,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="w-full sticky top-0 z-50">
+    <header className="w-full sticky top-0 z-50" role="banner">
       {/* Top bar - hidden on mobile */}
       <div className="bg-hero text-primary-foreground py-1.5 hidden sm:block">
         <div className="container mx-auto px-4 flex justify-between items-center text-xs">
@@ -61,7 +61,7 @@ const Header = () => {
             <img src={logo} alt="Parasram - Science of Investment" className="h-10 md:h-20 w-auto" />
           </Link>
           
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -114,7 +114,7 @@ const Header = () => {
               transition={{ duration: 0.3 }}
               className="md:hidden overflow-hidden border-t border-border"
             >
-              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
+              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3" aria-label="Mobile navigation">
                 {navLinks.map((link, i) => (
                   <motion.div
                     key={link.href}
