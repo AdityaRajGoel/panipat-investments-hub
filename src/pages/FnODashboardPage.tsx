@@ -2,90 +2,106 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { TrendingUp, TrendingDown, Activity, Target, BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingUp, TrendingDown, Activity, Target, BarChart3, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-// Demo F&O data - in production this would come from a live API
-type OptionData = {
+type OptionRow = {
   strike: number;
   callOI: number;
   callChange: number;
   callLTP: number;
   callIV: number;
+  callVolume: number;
   putOI: number;
   putChange: number;
   putLTP: number;
   putIV: number;
+  putVolume: number;
 };
 
-const NIFTY_SPOT = 22147;
-
-const generateOptionsChain = (spot: number): OptionData[] => {
-  const strikes: OptionData[] = [];
-  const baseStrike = Math.round(spot / 50) * 50;
-  for (let i = -12; i <= 12; i++) {
-    const strike = baseStrike + i * 50;
-    const dist = Math.abs(strike - spot);
-    const callOI = Math.round((15000 - dist * 8 + Math.random() * 5000) * 100) / 100;
-    const putOI = Math.round((12000 - dist * 6 + Math.random() * 5000) * 100) / 100;
-    const callIV = 12 + dist * 0.02 + Math.random() * 3;
-    const putIV = 11 + dist * 0.02 + Math.random() * 3;
-    const intrinsicCall = Math.max(0, spot - strike);
-    const intrinsicPut = Math.max(0, strike - spot);
-    const timeValue = 50 + Math.random() * 80;
-    strikes.push({
-      strike,
-      callOI: Math.max(500, callOI),
-      callChange: (Math.random() - 0.4) * 3000,
-      callLTP: intrinsicCall + timeValue * (1 - dist / 1500),
-      callIV,
-      putOI: Math.max(500, putOI),
-      putChange: (Math.random() - 0.4) * 3000,
-      putLTP: intrinsicPut + timeValue * (1 - dist / 1500),
-      putIV,
-    });
-  }
-  return strikes;
+type ExpiryOption = {
+  timestamp: number;
+  label: string;
 };
 
-const EXPIRIES = ["27 Mar 2026", "03 Apr 2026", "10 Apr 2026", "24 Apr 2026", "29 May 2026"];
-
-// Max Pain calculation
-const calculateMaxPain = (chain: OptionData[]): number => {
-  let minPain = Infinity;
-  let maxPainStrike = chain[0]?.strike ?? 0;
-
-  for (const row of chain) {
-    let totalPain = 0;
-    for (const other of chain) {
-      if (row.strike < other.strike) totalPain += other.putOI * (other.strike - row.strike);
-      if (row.strike > other.strike) totalPain += other.callOI * (row.strike - other.strike);
-    }
-    if (totalPain < minPain) {
-      minPain = totalPain;
-      maxPainStrike = row.strike;
-    }
-  }
-  return maxPainStrike;
+type FnOData = {
+  symbol: string;
+  spot: number;
+  chain: OptionRow[];
+  expiries: ExpiryOption[];
+  currentExpiry: number | null;
+  maxPain: number;
+  pcr: number;
+  totalCallOI: number;
+  totalPutOI: number;
+  fetchedAt: string;
 };
 
 const FnODashboardPage = () => {
   const [symbol, setSymbol] = useState("NIFTY");
-  const [expiry, setExpiry] = useState(EXPIRIES[0]);
-  const chain = useMemo(() => generateOptionsChain(NIFTY_SPOT), []);
-  const maxPain = useMemo(() => calculateMaxPain(chain), [chain]);
+  const [expiry, setExpiry] = useState<string>("");
+  const [data, setData] = useState<FnOData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const totalCallOI = chain.reduce((s, r) => s + r.callOI, 0);
-  const totalPutOI = chain.reduce((s, r) => s + r.putOI, 0);
-  const pcr = totalPutOI / totalCallOI;
-  const maxCallOI = Math.max(...chain.map(r => r.callOI));
-  const maxPutOI = Math.max(...chain.map(r => r.putOI));
+  const fetchData = useCallback(async (sym: string, exp?: number) => {
+    try {
+      setError(null);
+      const body: Record<string, unknown> = { symbol: sym };
+      if (exp) body.expiry = exp;
+
+      const { data: res, error: fnError } = await supabase.functions.invoke("fetch-fno-data", { body });
+
+      if (fnError) throw new Error(fnError.message);
+      if (!res?.success) throw new Error(res?.error || "Failed to fetch data");
+
+      setData(res as FnOData);
+      // Set first expiry if not set
+      if (!exp && res.expiries?.length > 0) {
+        setExpiry(String(res.expiries[0].timestamp));
+      }
+    } catch (e: any) {
+      console.error("F&O fetch error:", e);
+      setError(e.message || "Failed to load F&O data");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchData(symbol);
+  }, [symbol, fetchData]);
+
+  const handleExpiryChange = (val: string) => {
+    setExpiry(val);
+    setRefreshing(true);
+    fetchData(symbol, Number(val));
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData(symbol, expiry ? Number(expiry) : undefined);
+  };
+
+  const chain = data?.chain || [];
+  const spot = data?.spot || 0;
+  const maxPain = data?.maxPain || 0;
+  const pcr = data?.pcr || 0;
+  const totalCallOI = data?.totalCallOI || 0;
+  const totalPutOI = data?.totalPutOI || 0;
+  const maxCallOI = chain.length > 0 ? Math.max(...chain.map(r => r.callOI)) : 1;
+  const maxPutOI = chain.length > 0 ? Math.max(...chain.map(r => r.putOI)) : 1;
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,12 +110,12 @@ const FnODashboardPage = () => {
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">F&O Dashboard</h1>
-          <p className="text-muted-foreground">Options chain, Put-Call Ratio & Max Pain analysis</p>
+          <p className="text-muted-foreground">Live options chain, Put-Call Ratio & Max Pain analysis</p>
         </motion.div>
 
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <Select value={symbol} onValueChange={setSymbol}>
+          <Select value={symbol} onValueChange={(v) => { setSymbol(v); setExpiry(""); }}>
             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="NIFTY">NIFTY 50</SelectItem>
@@ -107,41 +123,79 @@ const FnODashboardPage = () => {
               <SelectItem value="FINNIFTY">FIN NIFTY</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={expiry} onValueChange={setExpiry}>
-            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {EXPIRIES.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Badge variant="outline" className="text-sm py-1.5 px-3">
-            Spot: <span className="font-mono font-bold ml-1">₹{NIFTY_SPOT.toLocaleString("en-IN")}</span>
-          </Badge>
+
+          {data?.expiries && data.expiries.length > 0 && (
+            <Select value={expiry} onValueChange={handleExpiryChange}>
+              <SelectTrigger className="w-44"><SelectValue placeholder="Select expiry" /></SelectTrigger>
+              <SelectContent>
+                {data.expiries.map(e => (
+                  <SelectItem key={e.timestamp} value={String(e.timestamp)}>{e.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {spot > 0 && (
+            <Badge variant="outline" className="text-sm py-1.5 px-3">
+              Spot: <span className="font-mono font-bold ml-1">₹{spot.toLocaleString("en-IN")}</span>
+            </Badge>
+          )}
+
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={`w-4 h-4 mr-1 ${refreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+
+          {data?.fetchedAt && (
+            <span className="text-xs text-muted-foreground ml-auto">
+              Updated: {new Date(data.fetchedAt).toLocaleTimeString("en-IN")}
+            </span>
+          )}
         </div>
+
+        {error && (
+          <Card className="p-4 mb-6 border-destructive/50 bg-destructive/5">
+            <p className="text-sm text-destructive">{error}</p>
+            <p className="text-xs text-muted-foreground mt-1">Showing last available data or retry.</p>
+          </Card>
+        )}
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <Card className="p-4 text-center">
-            <Activity className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Put-Call Ratio</p>
-            <p className={`text-2xl font-bold font-mono ${pcr > 1 ? "text-secondary" : "text-destructive"}`}>{pcr.toFixed(2)}</p>
-            <p className="text-[10px] text-muted-foreground">{pcr > 1.2 ? "Bullish" : pcr > 0.8 ? "Neutral" : "Bearish"}</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <Target className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Max Pain</p>
-            <p className="text-2xl font-bold font-mono text-foreground">₹{maxPain.toLocaleString("en-IN")}</p>
-            <p className="text-[10px] text-muted-foreground">{maxPain > NIFTY_SPOT ? "Above Spot" : "Below Spot"}</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <TrendingUp className="w-5 h-5 mx-auto mb-1 text-secondary" />
-            <p className="text-xs text-muted-foreground">Total Call OI</p>
-            <p className="text-xl font-bold font-mono text-foreground">{(totalCallOI / 1000).toFixed(0)}K</p>
-          </Card>
-          <Card className="p-4 text-center">
-            <TrendingDown className="w-5 h-5 mx-auto mb-1 text-destructive" />
-            <p className="text-xs text-muted-foreground">Total Put OI</p>
-            <p className="text-xl font-bold font-mono text-foreground">{(totalPutOI / 1000).toFixed(0)}K</p>
-          </Card>
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="p-4 text-center">
+                <Skeleton className="h-5 w-5 mx-auto mb-2" />
+                <Skeleton className="h-3 w-20 mx-auto mb-2" />
+                <Skeleton className="h-7 w-16 mx-auto" />
+              </Card>
+            ))
+          ) : (
+            <>
+              <Card className="p-4 text-center">
+                <Activity className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">Put-Call Ratio</p>
+                <p className={`text-2xl font-bold font-mono ${pcr > 1 ? "text-secondary" : "text-destructive"}`}>{pcr.toFixed(2)}</p>
+                <p className="text-[10px] text-muted-foreground">{pcr > 1.2 ? "Bullish" : pcr > 0.8 ? "Neutral" : "Bearish"}</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <Target className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">Max Pain</p>
+                <p className="text-2xl font-bold font-mono text-foreground">₹{maxPain.toLocaleString("en-IN")}</p>
+                <p className="text-[10px] text-muted-foreground">{maxPain > spot ? "Above Spot" : "Below Spot"}</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <TrendingUp className="w-5 h-5 mx-auto mb-1 text-secondary" />
+                <p className="text-xs text-muted-foreground">Total Call OI</p>
+                <p className="text-xl font-bold font-mono text-foreground">{totalCallOI > 1000000 ? `${(totalCallOI / 1000000).toFixed(1)}M` : `${(totalCallOI / 1000).toFixed(0)}K`}</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <TrendingDown className="w-5 h-5 mx-auto mb-1 text-destructive" />
+                <p className="text-xs text-muted-foreground">Total Put OI</p>
+                <p className="text-xl font-bold font-mono text-foreground">{totalPutOI > 1000000 ? `${(totalPutOI / 1000000).toFixed(1)}M` : `${(totalPutOI / 1000).toFixed(0)}K`}</p>
+              </Card>
+            </>
+          )}
         </div>
 
         <Tabs defaultValue="chain" className="w-full">
@@ -152,118 +206,136 @@ const FnODashboardPage = () => {
 
           <TabsContent value="chain">
             <Card className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th colSpan={4} className="text-center px-2 py-2 font-semibold text-secondary border-r border-border">CALLS</th>
-                    <th className="px-3 py-2 font-semibold text-foreground">STRIKE</th>
-                    <th colSpan={4} className="text-center px-2 py-2 font-semibold text-destructive border-l border-border">PUTS</th>
-                  </tr>
-                  <tr className="border-b border-border bg-muted/30 text-muted-foreground">
-                    <th className="px-2 py-1.5 text-right">OI</th>
-                    <th className="px-2 py-1.5 text-right">Chg</th>
-                    <th className="px-2 py-1.5 text-right">LTP</th>
-                    <th className="px-2 py-1.5 text-right border-r border-border">IV%</th>
-                    <th className="px-3 py-1.5 text-center"></th>
-                    <th className="px-2 py-1.5 text-left border-l border-border">OI</th>
-                    <th className="px-2 py-1.5 text-left">Chg</th>
-                    <th className="px-2 py-1.5 text-left">LTP</th>
-                    <th className="px-2 py-1.5 text-left">IV%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chain.map((row, i) => {
-                    const isATM = Math.abs(row.strike - NIFTY_SPOT) < 25;
-                    const isITMCall = row.strike < NIFTY_SPOT;
-                    const isITMPut = row.strike > NIFTY_SPOT;
-                    return (
-                      <motion.tr
-                        key={row.strike}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: i * 0.01 }}
-                        className={`border-b border-border/30 transition-colors hover:bg-muted/20 ${isATM ? "bg-brand-gold/10 font-semibold" : ""}`}
-                      >
-                        <td className={`px-2 py-2 text-right font-mono ${isITMCall ? "bg-secondary/5" : ""}`}>
-                          {(row.callOI / 1000).toFixed(1)}K
-                          <div className="h-1 bg-muted rounded-full mt-0.5"><div className="h-full bg-secondary/40 rounded-full" style={{ width: `${(row.callOI / maxCallOI) * 100}%` }} /></div>
-                        </td>
-                        <td className={`px-2 py-2 text-right font-mono ${row.callChange >= 0 ? "text-secondary" : "text-destructive"}`}>
-                          {row.callChange >= 0 ? "+" : ""}{(row.callChange / 1000).toFixed(1)}K
-                        </td>
-                        <td className={`px-2 py-2 text-right font-mono ${isITMCall ? "bg-secondary/5" : ""}`}>
-                          {row.callLTP > 0 ? row.callLTP.toFixed(1) : "—"}
-                        </td>
-                        <td className="px-2 py-2 text-right font-mono text-muted-foreground border-r border-border">
-                          {row.callIV.toFixed(1)}
-                        </td>
-                        <td className={`px-3 py-2 text-center font-bold font-mono ${isATM ? "text-brand-gold" : "text-foreground"}`}>
-                          {row.strike.toLocaleString("en-IN")}
-                          {isATM && <span className="block text-[9px] text-brand-gold">ATM</span>}
-                        </td>
-                        <td className={`px-2 py-2 text-left font-mono border-l border-border ${isITMPut ? "bg-destructive/5" : ""}`}>
-                          {(row.putOI / 1000).toFixed(1)}K
-                          <div className="h-1 bg-muted rounded-full mt-0.5"><div className="h-full bg-destructive/40 rounded-full" style={{ width: `${(row.putOI / maxPutOI) * 100}%` }} /></div>
-                        </td>
-                        <td className={`px-2 py-2 text-left font-mono ${row.putChange >= 0 ? "text-secondary" : "text-destructive"}`}>
-                          {row.putChange >= 0 ? "+" : ""}{(row.putChange / 1000).toFixed(1)}K
-                        </td>
-                        <td className={`px-2 py-2 text-left font-mono ${isITMPut ? "bg-destructive/5" : ""}`}>
-                          {row.putLTP > 0 ? row.putLTP.toFixed(1) : "—"}
-                        </td>
-                        <td className="px-2 py-2 text-left font-mono text-muted-foreground">
-                          {row.putIV.toFixed(1)}
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              {loading ? (
+                <div className="p-4 space-y-2">
+                  {Array.from({ length: 10 }).map((_, i) => (
+                    <Skeleton key={i} className="h-8 w-full" />
+                  ))}
+                </div>
+              ) : chain.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <p>No options data available for this symbol/expiry.</p>
+                </div>
+              ) : (
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/50">
+                      <th colSpan={4} className="text-center px-2 py-2 font-semibold text-secondary border-r border-border">CALLS</th>
+                      <th className="px-3 py-2 font-semibold text-foreground">STRIKE</th>
+                      <th colSpan={4} className="text-center px-2 py-2 font-semibold text-destructive border-l border-border">PUTS</th>
+                    </tr>
+                    <tr className="border-b border-border bg-muted/30 text-muted-foreground">
+                      <th className="px-2 py-1.5 text-right">OI</th>
+                      <th className="px-2 py-1.5 text-right">Chg</th>
+                      <th className="px-2 py-1.5 text-right">LTP</th>
+                      <th className="px-2 py-1.5 text-right border-r border-border">IV%</th>
+                      <th className="px-3 py-1.5 text-center"></th>
+                      <th className="px-2 py-1.5 text-left border-l border-border">OI</th>
+                      <th className="px-2 py-1.5 text-left">Chg</th>
+                      <th className="px-2 py-1.5 text-left">LTP</th>
+                      <th className="px-2 py-1.5 text-left">IV%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {chain.map((row, i) => {
+                      const isATM = Math.abs(row.strike - spot) <= (symbol === "BANKNIFTY" ? 50 : 25);
+                      const isITMCall = row.strike < spot;
+                      const isITMPut = row.strike > spot;
+                      return (
+                        <motion.tr
+                          key={row.strike}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: i * 0.01 }}
+                          className={`border-b border-border/30 transition-colors hover:bg-muted/20 ${isATM ? "bg-brand-gold/10 font-semibold" : ""}`}
+                        >
+                          <td className={`px-2 py-2 text-right font-mono ${isITMCall ? "bg-secondary/5" : ""}`}>
+                            {row.callOI > 0 ? (row.callOI > 100000 ? `${(row.callOI / 100000).toFixed(1)}L` : `${(row.callOI / 1000).toFixed(1)}K`) : "—"}
+                            {row.callOI > 0 && <div className="h-1 bg-muted rounded-full mt-0.5"><div className="h-full bg-secondary/40 rounded-full" style={{ width: `${(row.callOI / maxCallOI) * 100}%` }} /></div>}
+                          </td>
+                          <td className={`px-2 py-2 text-right font-mono ${row.callChange >= 0 ? "text-secondary" : "text-destructive"}`}>
+                            {row.callChange !== 0 ? `${row.callChange >= 0 ? "+" : ""}${row.callChange.toFixed(1)}` : "—"}
+                          </td>
+                          <td className={`px-2 py-2 text-right font-mono ${isITMCall ? "bg-secondary/5" : ""}`}>
+                            {row.callLTP > 0 ? row.callLTP.toFixed(2) : "—"}
+                          </td>
+                          <td className="px-2 py-2 text-right font-mono text-muted-foreground border-r border-border">
+                            {row.callIV > 0 ? row.callIV.toFixed(1) : "—"}
+                          </td>
+                          <td className={`px-3 py-2 text-center font-bold font-mono ${isATM ? "text-brand-gold" : "text-foreground"}`}>
+                            {row.strike.toLocaleString("en-IN")}
+                            {isATM && <span className="block text-[9px] text-brand-gold">ATM</span>}
+                          </td>
+                          <td className={`px-2 py-2 text-left font-mono border-l border-border ${isITMPut ? "bg-destructive/5" : ""}`}>
+                            {row.putOI > 0 ? (row.putOI > 100000 ? `${(row.putOI / 100000).toFixed(1)}L` : `${(row.putOI / 1000).toFixed(1)}K`) : "—"}
+                            {row.putOI > 0 && <div className="h-1 bg-muted rounded-full mt-0.5"><div className="h-full bg-destructive/40 rounded-full" style={{ width: `${(row.putOI / maxPutOI) * 100}%` }} /></div>}
+                          </td>
+                          <td className={`px-2 py-2 text-left font-mono ${row.putChange >= 0 ? "text-secondary" : "text-destructive"}`}>
+                            {row.putChange !== 0 ? `${row.putChange >= 0 ? "+" : ""}${row.putChange.toFixed(1)}` : "—"}
+                          </td>
+                          <td className={`px-2 py-2 text-left font-mono ${isITMPut ? "bg-destructive/5" : ""}`}>
+                            {row.putLTP > 0 ? row.putLTP.toFixed(2) : "—"}
+                          </td>
+                          <td className="px-2 py-2 text-left font-mono text-muted-foreground">
+                            {row.putIV > 0 ? row.putIV.toFixed(1) : "—"}
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </Card>
           </TabsContent>
 
           <TabsContent value="oi">
             <div className="grid md:grid-cols-2 gap-4">
-              {/* OI Bar Chart - Calls */}
               <Card className="p-4">
                 <h3 className="text-sm font-semibold mb-3 text-foreground flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-secondary" /> Call OI by Strike
                 </h3>
-                <div className="space-y-1.5">
-                  {chain.filter((_, i) => i % 2 === 0).map(row => (
-                    <div key={row.strike} className="flex items-center gap-2 text-xs">
-                      <span className="w-12 text-right font-mono text-muted-foreground">{row.strike}</span>
-                      <div className="flex-1 h-4 bg-muted rounded-sm relative">
-                        <div className="absolute left-0 top-0 h-full bg-secondary/50 rounded-sm" style={{ width: `${(row.callOI / maxCallOI) * 100}%` }} />
+                {loading ? (
+                  <div className="space-y-2">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}</div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {chain.filter((_, i) => i % 2 === 0).map(row => (
+                      <div key={row.strike} className="flex items-center gap-2 text-xs">
+                        <span className="w-14 text-right font-mono text-muted-foreground">{row.strike.toLocaleString("en-IN")}</span>
+                        <div className="flex-1 h-4 bg-muted rounded-sm relative">
+                          <div className="absolute left-0 top-0 h-full bg-secondary/50 rounded-sm" style={{ width: `${(row.callOI / maxCallOI) * 100}%` }} />
+                        </div>
+                        <span className="w-14 text-right font-mono">{row.callOI > 100000 ? `${(row.callOI / 100000).toFixed(1)}L` : `${(row.callOI / 1000).toFixed(0)}K`}</span>
                       </div>
-                      <span className="w-12 text-right font-mono">{(row.callOI / 1000).toFixed(0)}K</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </Card>
-              {/* OI Bar Chart - Puts */}
               <Card className="p-4">
                 <h3 className="text-sm font-semibold mb-3 text-foreground flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-destructive" /> Put OI by Strike
                 </h3>
-                <div className="space-y-1.5">
-                  {chain.filter((_, i) => i % 2 === 0).map(row => (
-                    <div key={row.strike} className="flex items-center gap-2 text-xs">
-                      <span className="w-12 text-right font-mono text-muted-foreground">{row.strike}</span>
-                      <div className="flex-1 h-4 bg-muted rounded-sm relative">
-                        <div className="absolute left-0 top-0 h-full bg-destructive/50 rounded-sm" style={{ width: `${(row.putOI / maxPutOI) * 100}%` }} />
+                {loading ? (
+                  <div className="space-y-2">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}</div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {chain.filter((_, i) => i % 2 === 0).map(row => (
+                      <div key={row.strike} className="flex items-center gap-2 text-xs">
+                        <span className="w-14 text-right font-mono text-muted-foreground">{row.strike.toLocaleString("en-IN")}</span>
+                        <div className="flex-1 h-4 bg-muted rounded-sm relative">
+                          <div className="absolute left-0 top-0 h-full bg-destructive/50 rounded-sm" style={{ width: `${(row.putOI / maxPutOI) * 100}%` }} />
+                        </div>
+                        <span className="w-14 text-right font-mono">{row.putOI > 100000 ? `${(row.putOI / 100000).toFixed(1)}L` : `${(row.putOI / 1000).toFixed(0)}K`}</span>
                       </div>
-                      <span className="w-12 text-right font-mono">{(row.putOI / 1000).toFixed(0)}K</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </Card>
             </div>
           </TabsContent>
         </Tabs>
 
         <p className="text-xs text-muted-foreground mt-6 text-center">
-          Data shown is for demonstration purposes. Options data requires a live market feed for real-time values.
+          Live options data sourced from Yahoo Finance. Values update on refresh.
         </p>
       </main>
       <Footer />
