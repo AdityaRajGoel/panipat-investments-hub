@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { TrendingUp, TrendingDown, BarChart3, Activity, ArrowUpRight, ArrowDownRight, Clock, Layers } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
@@ -120,10 +120,31 @@ const timeLabels: Record<string, string[]> = {
   "1Y": ["Mar", "May", "Jul", "Sep", "Nov", "Jan"],
 };
 
+const useCountdown = (targetISO: string | null) => {
+  const [remaining, setRemaining] = useState("");
+  useEffect(() => {
+    if (!targetISO) { setRemaining(""); return; }
+    const update = () => {
+      const diff = new Date(targetISO).getTime() - Date.now();
+      if (diff <= 0) { setRemaining(""); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setRemaining(h > 0 ? `${h}h ${m}m ${s}s` : m > 0 ? `${m}m ${s}s` : `${s}s`);
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [targetISO]);
+  return remaining;
+};
+
 const LiveChart = () => {
-  const { indices, fetchedAt, marketOpen, marketStatusText, lastTradingDate } = useLiveMarket();
+  const { indices, fetchedAt, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose } = useLiveMarket();
   const [activeIndexKey, setActiveIndexKey] = useState("NIFTY");
   const [activeTimeframe, setActiveTimeframe] = useState("1D");
+  const nextOpenCountdown = useCountdown(nextMarketOpen);
+  const closeCountdown = useCountdown(marketClose);
 
   const activeIndex = indices.find(i => i.key === activeIndexKey) || indices[0];
   const currentUp = activeIndex?.up ?? true;
@@ -149,6 +170,20 @@ const LiveChart = () => {
     return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
   };
 
+  const statusColor = marketOpen 
+    ? "bg-secondary/10 text-secondary border-secondary/20"
+    : marketStatusText === "Pre-Market"
+      ? "bg-brand-orange/10 text-brand-orange border-brand-orange/20"
+      : marketStatusText === "After Hours"
+        ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+        : "bg-destructive/10 text-destructive border-destructive/20";
+
+  const dotColor = marketOpen 
+    ? "bg-secondary animate-pulse"
+    : marketStatusText === "Pre-Market" ? "bg-brand-orange animate-pulse"
+    : marketStatusText === "After Hours" ? "bg-purple-400 animate-pulse"
+    : "bg-destructive/60";
+
   return (
     <section className="py-16 bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -156,28 +191,33 @@ const LiveChart = () => {
         <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
       </div>
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div className="flex items-center gap-2 mb-6" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+        <motion.div className="flex items-center flex-wrap gap-2 mb-6" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <div className="w-8 h-8 rounded-lg bg-brand-orange/10 flex items-center justify-center">
             <BarChart3 className="w-4 h-4 text-brand-orange" />
           </div>
           <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground">Market Watch</h2>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
             {/* Market status badge */}
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-              marketOpen 
-                ? "bg-secondary/10 text-secondary border border-secondary/20" 
-                : "bg-destructive/10 text-destructive border border-destructive/20"
-            }`}>
-              {marketOpen ? (
-                <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              ) : (
-                <span className="w-2 h-2 rounded-full bg-destructive/60" />
-              )}
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColor}`}>
+              <span className={`w-2 h-2 rounded-full ${dotColor}`} />
               {marketStatusText}
             </div>
+            {/* Countdown to open/close */}
+            {!marketOpen && nextOpenCountdown && (
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                <Clock className="w-3 h-3" />
+                Opens in {nextOpenCountdown}
+              </div>
+            )}
+            {marketOpen && closeCountdown && (
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                <Clock className="w-3 h-3" />
+                Closes in {closeCountdown}
+              </div>
+            )}
             {!marketOpen && lastTradingDate && (
               <span className="text-[10px] text-muted-foreground hidden sm:block">
-                Closing prices as of {formatTradingDate(lastTradingDate)}
+                Closing prices: {formatTradingDate(lastTradingDate)}
               </span>
             )}
             {marketOpen && fetchedAt && (

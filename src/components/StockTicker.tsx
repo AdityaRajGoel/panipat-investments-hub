@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, X, Radio } from "lucide-react";
+import { TrendingUp, TrendingDown, X, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLiveMarket, LiveStock } from "@/hooks/useLiveMarket";
@@ -113,9 +113,42 @@ const formatTradingDate = (dateStr: string) => {
   return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 };
 
+const useCountdown = (targetISO: string | null) => {
+  const [remaining, setRemaining] = useState("");
+
+  useEffect(() => {
+    if (!targetISO) { setRemaining(""); return; }
+    
+    const update = () => {
+      const diff = new Date(targetISO).getTime() - Date.now();
+      if (diff <= 0) { setRemaining(""); return; }
+      
+      const hours = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      
+      if (hours > 0) {
+        setRemaining(`${hours}h ${mins}m ${secs}s`);
+      } else if (mins > 0) {
+        setRemaining(`${mins}m ${secs}s`);
+      } else {
+        setRemaining(`${secs}s`);
+      }
+    };
+
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [targetISO]);
+
+  return remaining;
+};
+
 const StockTicker = () => {
-  const { stocks, commodities, fetchedAt, marketOpen, marketStatusText, lastTradingDate } = useLiveMarket();
+  const { stocks, commodities, fetchedAt, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose } = useLiveMarket();
   const [countdown, setCountdown] = useState(60);
+  const nextOpenCountdown = useCountdown(nextMarketOpen);
+  const closeCountdown = useCountdown(marketClose);
 
   useEffect(() => {
     if (!fetchedAt) return;
@@ -137,30 +170,55 @@ const StockTicker = () => {
       <div className="h-px bg-brand-orange/15" />
       <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
       
-      {/* Market status indicator */}
+      {/* Market status bar */}
       <div className="absolute top-1 right-2 flex items-center gap-2 z-20">
+        {/* Status badge */}
         <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${
           marketOpen 
             ? "bg-secondary/20 border border-secondary/30" 
-            : "bg-destructive/15 border border-destructive/20"
+            : marketStatusText === "Pre-Market"
+              ? "bg-brand-orange/20 border border-brand-orange/30"
+              : marketStatusText === "After Hours"
+                ? "bg-purple-500/20 border border-purple-500/30"
+                : "bg-destructive/15 border border-destructive/20"
         }`}>
-          {marketOpen ? (
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-          ) : (
-            <Radio className="w-3 h-3 text-destructive/70" />
-          )}
-          <span className={`text-[9px] font-semibold ${marketOpen ? "text-secondary" : "text-destructive/80"}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${
+            marketOpen ? "bg-secondary animate-pulse" 
+            : marketStatusText === "Pre-Market" ? "bg-brand-orange animate-pulse"
+            : marketStatusText === "After Hours" ? "bg-purple-400 animate-pulse"
+            : "bg-destructive/60"
+          }`} />
+          <span className={`text-[9px] font-semibold ${
+            marketOpen ? "text-secondary" 
+            : marketStatusText === "Pre-Market" ? "text-brand-orange"
+            : marketStatusText === "After Hours" ? "text-purple-300"
+            : "text-destructive/80"
+          }`}>
             {marketStatusText}
           </span>
         </div>
-        {!marketOpen && lastTradingDate && (
+
+        {/* Countdown / date info */}
+        {marketOpen && closeCountdown && (
+          <span className="text-[8px] text-primary-foreground/50 font-medium flex items-center gap-1">
+            <Clock className="w-2.5 h-2.5" />
+            Closes in {closeCountdown}
+          </span>
+        )}
+        {!marketOpen && nextOpenCountdown && (
+          <span className="text-[8px] text-primary-foreground/50 font-medium flex items-center gap-1">
+            <Clock className="w-2.5 h-2.5" />
+            Opens in {nextOpenCountdown}
+          </span>
+        )}
+        {!marketOpen && lastTradingDate && !nextOpenCountdown && (
           <span className="text-[8px] text-primary-foreground/40 font-medium">
             Closing: {formatTradingDate(lastTradingDate)}
           </span>
         )}
         {marketOpen && (
-          <span className="text-[9px] text-primary-foreground/50 font-medium">
-            {countdown > 0 ? `${countdown}s` : "Updating..."}
+          <span className="text-[9px] text-primary-foreground/40 font-medium">
+            {countdown > 0 ? `↻ ${countdown}s` : "Updating..."}
           </span>
         )}
       </div>
