@@ -1,4 +1,4 @@
-import { Phone, Mail, ExternalLink, Instagram, Menu, X, Facebook } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,7 +41,10 @@ const Header = () => {
             <a href="https://www.facebook.com/share/18B5W5rZaT/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Facebook className="w-3.5 h-3.5" />
             </a>
-          </div>
+            <a href="https://x.com/ParasramPanipat" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
+              <Twitter className="w-3.5 h-3.5" />
+            </a>
+           </div>
           <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
             <span>Visit Main Website</span>
             <ExternalLink className="w-4 h-4" />
@@ -93,7 +96,7 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <XIcon className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
