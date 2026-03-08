@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, X } from "lucide-react";
+import { TrendingUp, TrendingDown, X, Radio } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLiveMarket, LiveStock } from "@/hooks/useLiveMarket";
@@ -11,7 +11,7 @@ interface TickerRowProps {
   duration?: number;
 }
 
-const PriceCell = ({ item, textClass = "text-primary-foreground" }: { item: LiveStock; textClass?: string }) => {
+const PriceCell = ({ item }: { item: LiveStock }) => {
   const [flash, setFlash] = useState<"up" | "down" | null>(null);
   const prevPrice = useRef(item.price);
 
@@ -32,8 +32,8 @@ const PriceCell = ({ item, textClass = "text-primary-foreground" }: { item: Live
   return (
     <span
       className={`opacity-80 transition-all duration-300 ${
-        flash === "up" ? "!text-green-400 font-bold" :
-        flash === "down" ? "!text-red-400 font-bold" : ""
+        flash === "up" ? "!text-secondary font-bold" :
+        flash === "down" ? "!text-destructive font-bold" : ""
       }`}
     >
       {item.price}
@@ -63,7 +63,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
           >
             <span className="font-semibold tracking-wide">{item.name}</span>
             {item.unit ? <span className="opacity-70 text-xs">{item.unit}</span> : null}
-            <PriceCell item={item} textClass={textClass} />
+            <PriceCell item={item} />
             <span className={`flex items-center gap-0.5 font-medium ${item.up ? "text-secondary" : "text-destructive"}`}>
               {item.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
               {item.change}
@@ -107,35 +107,62 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
   );
 };
 
+const formatTradingDate = (dateStr: string) => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+};
+
 const StockTicker = () => {
-  const { stocks, commodities, fetchedAt } = useLiveMarket();
+  const { stocks, commodities, fetchedAt, marketOpen, marketStatusText, lastTradingDate } = useLiveMarket();
   const [countdown, setCountdown] = useState(60);
 
-  // Countdown timer to next refresh
   useEffect(() => {
     if (!fetchedAt) return;
     const fetchTime = new Date(fetchedAt).getTime();
+    const interval = marketOpen ? 60 : 300;
     
     const timer = setInterval(() => {
       const elapsed = Math.floor((Date.now() - fetchTime) / 1000);
-      const remaining = Math.max(0, 60 - elapsed);
+      const remaining = Math.max(0, interval - elapsed);
       setCountdown(remaining);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [fetchedAt]);
+  }, [fetchedAt, marketOpen]);
 
   return (
     <div className="border-b border-brand-orange/20 bg-brand-charcoal relative">
       <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={80} />
       <div className="h-px bg-brand-orange/15" />
       <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
-      {/* Live indicator */}
-      <div className="absolute top-1 right-2 flex items-center gap-1.5 z-20">
-        <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-        <span className="text-[9px] text-primary-foreground/50 font-medium">
-          {countdown > 0 ? `${countdown}s` : "Updating..."}
-        </span>
+      
+      {/* Market status indicator */}
+      <div className="absolute top-1 right-2 flex items-center gap-2 z-20">
+        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${
+          marketOpen 
+            ? "bg-secondary/20 border border-secondary/30" 
+            : "bg-destructive/15 border border-destructive/20"
+        }`}>
+          {marketOpen ? (
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+          ) : (
+            <Radio className="w-3 h-3 text-destructive/70" />
+          )}
+          <span className={`text-[9px] font-semibold ${marketOpen ? "text-secondary" : "text-destructive/80"}`}>
+            {marketStatusText}
+          </span>
+        </div>
+        {!marketOpen && lastTradingDate && (
+          <span className="text-[8px] text-primary-foreground/40 font-medium">
+            Closing: {formatTradingDate(lastTradingDate)}
+          </span>
+        )}
+        {marketOpen && (
+          <span className="text-[9px] text-primary-foreground/50 font-medium">
+            {countdown > 0 ? `${countdown}s` : "Updating..."}
+          </span>
+        )}
       </div>
     </div>
   );
