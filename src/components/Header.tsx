@@ -82,9 +82,9 @@ const Header = () => {
               asChild
               className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold hidden sm:inline-flex"
             >
-              <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer">
+              <Link to="/open-account">
                 Open Account
-              </a>
+              </Link>
             </Button>
             
             {/* Mobile hamburger */}
@@ -133,9 +133,9 @@ const Header = () => {
                   asChild
                   className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold mt-2 w-full"
                 >
-                  <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer">
+                  <Link to="/open-account" onClick={() => setMobileMenuOpen(false)}>
                     Open Account
-                  </a>
+                  </Link>
                 </Button>
               </nav>
             </motion.div>
