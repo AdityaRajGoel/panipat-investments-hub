@@ -70,7 +70,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-foreground", textC
   };
 
   return (
-    <div className={`${bgClass} ${textClass} py-2.5 overflow-hidden whitespace-nowrap relative`}>
+    <div className={`${bgClass} ${textClass} py-2.5 overflow-hidden whitespace-nowrap relative border-b border-brand-orange/10`}>
       <div
         className="inline-flex gap-10"
         style={{
@@ -163,10 +163,10 @@ const StockTicker = () => {
   }, []);
 
   return (
-    <div className="border-b border-border/20">
-      <TickerRow items={stocks} direction="left" bgClass="bg-foreground" textClass="text-primary-foreground" duration={80} />
-      <div className="h-px bg-primary/20" />
-      <TickerRow items={commodities} direction="right" bgClass="bg-foreground/90" textClass="text-primary-foreground" duration={80} />
+    <div className="border-b border-brand-orange/20 bg-brand-charcoal">
+      <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={80} />
+      <div className="h-px bg-brand-orange/15" />
+      <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
     </div>
   );
 };
