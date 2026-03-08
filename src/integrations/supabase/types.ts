@@ -47,6 +47,66 @@ export type Database = {
         }
         Relationships: []
       }
+      screener_stocks: {
+        Row: {
+          change: number | null
+          change_pct: number | null
+          day_high: number | null
+          day_low: number | null
+          high_52: number | null
+          id: string
+          low_52: number | null
+          market_cap: number | null
+          name: string
+          open_price: number | null
+          pe: number | null
+          prev_close: number | null
+          price: number | null
+          sector: string | null
+          symbol: string
+          updated_at: string
+          volume: number | null
+        }
+        Insert: {
+          change?: number | null
+          change_pct?: number | null
+          day_high?: number | null
+          day_low?: number | null
+          high_52?: number | null
+          id?: string
+          low_52?: number | null
+          market_cap?: number | null
+          name: string
+          open_price?: number | null
+          pe?: number | null
+          prev_close?: number | null
+          price?: number | null
+          sector?: string | null
+          symbol: string
+          updated_at?: string
+          volume?: number | null
+        }
+        Update: {
+          change?: number | null
+          change_pct?: number | null
+          day_high?: number | null
+          day_low?: number | null
+          high_52?: number | null
+          id?: string
+          low_52?: number | null
+          market_cap?: number | null
+          name?: string
+          open_price?: number | null
+          pe?: number | null
+          prev_close?: number | null
+          price?: number | null
+          sector?: string | null
+          symbol?: string
+          updated_at?: string
+          volume?: number | null
+        }
+        Relationships: []
+      }
       unlisted_shares: {
         Row: {
           buy_price: string | null
