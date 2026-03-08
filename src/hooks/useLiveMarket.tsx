@@ -62,6 +62,8 @@ type LiveMarketContextType = {
   marketOpen: boolean;
   marketStatusText: string;
   lastTradingDate: string | null;
+  nextMarketOpen: string | null;
+  marketClose: string | null;
   fetchedAt: string | null;
   loading: boolean;
   refresh: () => void;
@@ -78,6 +80,8 @@ const LiveMarketContext = createContext<LiveMarketContextType>({
   marketOpen: false,
   marketStatusText: "Market Closed",
   lastTradingDate: null,
+  nextMarketOpen: null,
+  marketClose: null,
   fetchedAt: null,
   loading: true,
   refresh: () => {},
@@ -155,6 +159,8 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
   const [marketOpen, setMarketOpen] = useState(false);
   const [marketStatusText, setMarketStatusText] = useState("Market Closed");
   const [lastTradingDate, setLastTradingDate] = useState<string | null>(null);
+  const [nextMarketOpen, setNextMarketOpen] = useState<string | null>(null);
+  const [marketClose, setMarketClose] = useState<string | null>(null);
   const [fetchedAt, setFetchedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -173,6 +179,8 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
         if (typeof data.marketOpen === 'boolean') setMarketOpen(data.marketOpen);
         if (data.marketStatusText) setMarketStatusText(data.marketStatusText);
         if (data.lastTradingDate) setLastTradingDate(data.lastTradingDate);
+        setNextMarketOpen(data.nextMarketOpen || null);
+        setMarketClose(data.marketClose || null);
       }
     } catch (e) {
       console.log('Using fallback market data');
@@ -183,13 +191,12 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     fetchData();
-    // Refresh every 60s when market is open, every 5min when closed
     const interval = setInterval(fetchData, marketOpen ? 60 * 1000 : 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchData, marketOpen]);
 
   return (
-    <LiveMarketContext.Provider value={{ indices, stocks, commodities, globalMarkets, sectors, vix, marketOverview, marketOpen, marketStatusText, lastTradingDate, fetchedAt, loading, refresh: fetchData }}>
+    <LiveMarketContext.Provider value={{ indices, stocks, commodities, globalMarkets, sectors, vix, marketOverview, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose, fetchedAt, loading, refresh: fetchData }}>
       {children}
     </LiveMarketContext.Provider>
   );
