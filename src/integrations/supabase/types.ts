@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_leads: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          message: string | null
+          name: string
+          phone: string
+          status: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string | null
+          name: string
+          phone: string
+          status?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string
+          status?: string
+        }
+        Relationships: []
+      }
       unlisted_shares: {
         Row: {
           buy_price: string | null

@@ -2,13 +2,14 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  User, Mail, Phone, FileText, ArrowRight, CheckCircle2,
+  User, Mail, Phone, ArrowRight, CheckCircle2,
   Shield, Award, TrendingUp, MapPin, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -16,16 +17,14 @@ const benefits = [
   { icon: Shield, title: "SEBI Registered", desc: "Trade with a trusted, regulation-compliant broker" },
   { icon: TrendingUp, title: "Multi-Exchange Access", desc: "NSE, BSE, MCX — all platforms under one roof" },
   { icon: Award, title: "50+ Years Legacy", desc: "Decades of expertise in Indian capital markets" },
-  { icon: FileText, title: "Zero Account Opening Fee", desc: "Open your Demat account absolutely free" },
+  { icon: MapPin, title: "Zero Account Opening Fee", desc: "Open your Demat account absolutely free" },
 ];
 
 const OpenAccountPage = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({
-    name: "", email: "", phone: "", city: "", message: "",
-  });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", city: "", message: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -33,16 +32,47 @@ const OpenAccountPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.phone) {
+    const trimmed = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim(),
+      city: form.city.trim(),
+      message: form.message.trim(),
+    };
+
+    if (!trimmed.name || !trimmed.phone) {
       toast({ title: "Please fill required fields", description: "Name and phone number are mandatory.", variant: "destructive" });
       return;
     }
+    if (trimmed.name.length > 100 || trimmed.phone.length > 20) {
+      toast({ title: "Invalid input", description: "Please check your name and phone number.", variant: "destructive" });
+      return;
+    }
+    if (trimmed.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed.email)) {
+      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
+      return;
+    }
+
     setLoading(true);
-    // Simulate submission
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false);
-    setSubmitted(true);
-    toast({ title: "Request Submitted! ✅", description: "Our team will contact you shortly to open your account." });
+    try {
+      const { data, error } = await supabase.functions.invoke('submit-lead', {
+        body: trimmed,
+      });
+
+      if (error) throw error;
+
+      setSubmitted(true);
+      toast({ title: "Request Submitted! ✅", description: "Our team will contact you shortly." });
+
+      // Open WhatsApp notification in new tab for the business
+      if (data?.whatsappUrl) {
+        window.open(data.whatsappUrl, '_blank');
+      }
+    } catch {
+      toast({ title: "Submission failed", description: "Please try again or call us directly.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -50,37 +80,18 @@ const OpenAccountPage = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center min-h-[80vh] px-4">
-          <motion.div
-            className="text-center max-w-md"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.div
-              className="w-20 h-20 mx-auto mb-6 bg-secondary/10 rounded-full flex items-center justify-center"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-            >
+          <motion.div className="text-center max-w-md" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+            <motion.div className="w-20 h-20 mx-auto mb-6 bg-secondary/10 rounded-full flex items-center justify-center" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: "spring" }}>
               <CheckCircle2 className="w-10 h-10 text-secondary" />
             </motion.div>
             <h2 className="font-heading text-3xl font-bold text-foreground mb-3">Thank You!</h2>
-            <p className="text-muted-foreground mb-2">
-              Your account opening request has been submitted successfully.
-            </p>
-            <p className="text-sm text-muted-foreground mb-8">
-              Our team will call you within 24 hours to complete the process. You can also visit our branch at <b>Shakuntala Complex, Palika Bazaar, Panipat</b>.
-            </p>
+            <p className="text-muted-foreground mb-2">Your account opening request has been submitted successfully.</p>
+            <p className="text-sm text-muted-foreground mb-8">Our team will call you within 24 hours. You can also visit our branch at <b>Shakuntala Complex, Palika Bazaar, Panipat</b>.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild className="bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold">
-                <a href="tel:+919416400314">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call Now
-                </a>
+                <a href="tel:+919416400314"><Phone className="w-4 h-4 mr-2" />Call Now</a>
               </Button>
-              <Button asChild variant="outline">
-                <Link to="/">Back to Home</Link>
-              </Button>
+              <Button asChild variant="outline"><Link to="/">Back to Home</Link></Button>
             </div>
           </motion.div>
         </div>
@@ -93,88 +104,43 @@ const OpenAccountPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero */}
-      <section
-        className="relative py-20 md:py-28 overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, hsl(213 80% 12% / 0.95) 0%, hsl(213 80% 22% / 0.9) 50%, hsl(145 70% 25% / 0.88) 100%)`,
-        }}
-      >
+      <section className="relative py-20 md:py-28 overflow-hidden" style={{ background: `linear-gradient(135deg, hsl(213 80% 12% / 0.95), hsl(213 80% 22% / 0.9), hsl(145 70% 25% / 0.88))` }}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-10 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-brand-gold/15 rounded-full blur-3xl" />
         </div>
         <div className="container mx-auto px-4 relative z-10 text-center">
-          <motion.span
-            className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <TrendingUp className="w-3.5 h-3.5 text-secondary" />
-            Free Demat Account
+          <motion.span className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <TrendingUp className="w-3.5 h-3.5 text-secondary" /> Free Demat Account
           </motion.span>
-          <motion.h1
-            className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+          <motion.h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             Open Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-brand-gold">Demat Account</span>
           </motion.h1>
-          <motion.p
-            className="text-lg text-primary-foreground/80 max-w-xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.p className="text-lg text-primary-foreground/80 max-w-xl mx-auto" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             Start your investment journey with Parasram India — Panipat's most trusted stockbroker since 1970.
           </motion.p>
         </div>
       </section>
 
-      {/* Benefits */}
       <section className="py-12 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {benefits.map((b, i) => (
-              <motion.div
-                key={b.title}
-                className="flex items-start gap-3 bg-card border border-border/50 rounded-xl p-4"
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <div className="w-10 h-10 rounded-lg bg-brand-orange/10 flex items-center justify-center shrink-0">
-                  <b.icon className="w-5 h-5 text-brand-orange" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-foreground">{b.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">{b.desc}</p>
-                </div>
+              <motion.div key={b.title} className="flex items-start gap-3 bg-card border border-border/50 rounded-xl p-4" initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}>
+                <div className="w-10 h-10 rounded-lg bg-brand-orange/10 flex items-center justify-center shrink-0"><b.icon className="w-5 h-5 text-brand-orange" /></div>
+                <div><h3 className="text-sm font-bold text-foreground">{b.title}</h3><p className="text-xs text-muted-foreground mt-0.5">{b.desc}</p></div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Form + Contact */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-5 gap-10">
-            {/* Form */}
-            <motion.div
-              className="lg:col-span-3"
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
-                Fill Your Details
-              </h2>
-              <p className="text-sm text-muted-foreground mb-8">
-                Our team will get in touch with you to complete the account opening process.
-              </p>
+            <motion.div className="lg:col-span-3" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">Fill Your Details</h2>
+              <p className="text-sm text-muted-foreground mb-8">Our team will get in touch with you to complete the account opening process.</p>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -182,14 +148,14 @@ const OpenAccountPage = () => {
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">Full Name *</label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="name" value={form.name} onChange={handleChange} placeholder="Enter your name" className="pl-10" required />
+                      <Input name="name" value={form.name} onChange={handleChange} placeholder="Enter your name" className="pl-10" required maxLength={100} />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">Phone Number *</label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 XXXXX XXXXX" className="pl-10" required />
+                      <Input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 XXXXX XXXXX" className="pl-10" required maxLength={20} />
                     </div>
                   </div>
                 </div>
@@ -198,55 +164,38 @@ const OpenAccountPage = () => {
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">Email</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="email" value={form.email} onChange={handleChange} placeholder="your@email.com" className="pl-10" type="email" />
+                      <Input name="email" value={form.email} onChange={handleChange} placeholder="your@email.com" className="pl-10" type="email" maxLength={255} />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">City</label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="city" value={form.city} onChange={handleChange} placeholder="Panipat" className="pl-10" />
+                      <Input name="city" value={form.city} onChange={handleChange} placeholder="Panipat" className="pl-10" maxLength={100} />
                     </div>
                   </div>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-foreground mb-1.5 block">Message (Optional)</label>
-                  <Textarea name="message" value={form.message} onChange={handleChange} placeholder="Any specific requirements or questions..." rows={4} />
+                  <Textarea name="message" value={form.message} onChange={handleChange} placeholder="Any specific requirements or questions..." rows={4} maxLength={1000} />
                 </div>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto bg-gradient-to-r from-brand-orange to-brand-gold text-white font-bold text-base px-10 py-6 shadow-lg shadow-brand-orange/20 hover:opacity-90 transition-opacity"
-                >
+                <Button type="submit" disabled={loading} className="w-full sm:w-auto bg-gradient-to-r from-brand-orange to-brand-gold text-white font-bold text-base px-10 py-6 shadow-lg shadow-brand-orange/20 hover:opacity-90 transition-opacity">
                   {loading ? "Submitting..." : "Submit Request"}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </form>
             </motion.div>
 
-            {/* Contact Info */}
-            <motion.div
-              className="lg:col-span-2"
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
+            <motion.div className="lg:col-span-2" initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <div className="bg-gradient-to-br from-brand-charcoal to-brand-navy rounded-2xl p-6 text-primary-foreground sticky top-24">
                 <h3 className="font-heading text-xl font-bold mb-6">Visit Our Branch</h3>
                 <div className="space-y-5">
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <MapPin className="w-4 h-4 text-secondary" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">Address</div>
-                      <div className="text-xs text-primary-foreground/70 mt-0.5">Shakuntala Complex, Palika Bazaar, Panipat - 132103</div>
-                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0"><MapPin className="w-4 h-4 text-secondary" /></div>
+                    <div><div className="text-sm font-semibold">Address</div><div className="text-xs text-primary-foreground/70 mt-0.5">Shakuntala Complex, Palika Bazaar, Panipat - 132103</div></div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <Phone className="w-4 h-4 text-brand-gold" />
-                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0"><Phone className="w-4 h-4 text-brand-gold" /></div>
                     <div>
                       <div className="text-sm font-semibold">Phone</div>
                       <div className="text-xs text-primary-foreground/70 mt-0.5 space-y-0.5">
@@ -257,34 +206,17 @@ const OpenAccountPage = () => {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <Mail className="w-4 h-4 text-brand-orange" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">Email</div>
-                      <a href="mailto:parasrampnp@gmail.com" className="text-xs text-primary-foreground/70 hover:text-secondary transition-colors">parasrampnp@gmail.com</a>
-                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0"><Mail className="w-4 h-4 text-brand-orange" /></div>
+                    <div><div className="text-sm font-semibold">Email</div><a href="mailto:parasrampnp@gmail.com" className="text-xs text-primary-foreground/70 hover:text-secondary transition-colors">parasrampnp@gmail.com</a></div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <Clock className="w-4 h-4 text-secondary" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">Office Hours</div>
-                      <div className="text-xs text-primary-foreground/70 mt-0.5">Mon–Sat: 9:00 AM – 6:00 PM</div>
-                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0"><Clock className="w-4 h-4 text-secondary" /></div>
+                    <div><div className="text-sm font-semibold">Office Hours</div><div className="text-xs text-primary-foreground/70 mt-0.5">Mon–Sat: 9:00 AM – 6:00 PM</div></div>
                   </div>
                 </div>
-
                 <div className="mt-6 pt-5 border-t border-white/10">
-                  <a
-                    href="https://maps.app.goo.gl/g9hDv9cKfdz28Hhx6"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-primary-foreground text-xs font-bold px-4 py-2.5 rounded-lg transition-colors"
-                  >
-                    <MapPin className="w-3.5 h-3.5" />
-                    Open in Google Maps
+                  <a href="https://maps.app.goo.gl/g9hDv9cKfdz28Hhx6" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-primary-foreground text-xs font-bold px-4 py-2.5 rounded-lg transition-colors">
+                    <MapPin className="w-3.5 h-3.5" /> Open in Google Maps
                   </a>
                 </div>
               </div>
