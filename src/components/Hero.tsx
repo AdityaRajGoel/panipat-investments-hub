@@ -276,7 +276,7 @@ const Hero = () => {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.4 }}
               >
-                {tips[tipIndex]}
+                {dynamicTips[tipIndex % dynamicTips.length]}
               </motion.span>
             </motion.div>
 
