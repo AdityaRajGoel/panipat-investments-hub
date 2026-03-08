@@ -7,29 +7,27 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Lock, Plus, Pencil, Trash2, Save, X, ArrowLeft, Upload, ImageIcon, LogOut } from "lucide-react";
+import {
+  Lock, Plus, Pencil, Trash2, Save, X, ArrowLeft, Upload, ImageIcon, LogOut,
+  Users, Phone, Mail, MapPin, Clock, Eye, CheckCircle2, Search, Filter
+} from "lucide-react";
 import { Link } from "react-router-dom";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
+// ---- Types ----
 type UnlistedShare = {
-  id: string;
-  name: string;
-  short_code: string;
-  tag: string;
-  tag_color: string;
-  price: string;
-  buy_price: string | null;
-  sell_price: string | null;
-  min_qty: string;
-  gradient_color: string;
-  display_order: number;
-  is_active: boolean;
-  image_url: string | null;
-  company_description: string | null;
-  sector: string | null;
-  founded_year: string | null;
-  headquarters: string | null;
+  id: string; name: string; short_code: string; tag: string; tag_color: string;
+  price: string; buy_price: string | null; sell_price: string | null; min_qty: string;
+  gradient_color: string; display_order: number; is_active: boolean; image_url: string | null;
+  company_description: string | null; sector: string | null; founded_year: string | null; headquarters: string | null;
 };
 
+type Lead = {
+  id: string; name: string; phone: string; email: string | null; city: string | null;
+  message: string | null; status: string; created_at: string;
+};
+
+// ---- Constants ----
 const TAG_PRESETS = [
   { label: "Most Bought", value: "Most Bought", color: "bg-secondary/10 text-secondary" },
   { label: "Top Gainer", value: "Top Gainer", color: "bg-brand-gold/10 text-brand-gold" },
@@ -62,34 +60,39 @@ const emptyShare: Omit<UnlistedShare, "id"> = {
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
+const LEAD_STATUS_OPTIONS = ["new", "contacted", "converted", "closed"];
+const statusColors: Record<string, string> = {
+  new: "bg-brand-orange/10 text-brand-orange",
+  contacted: "bg-primary/10 text-primary",
+  converted: "bg-secondary/10 text-secondary",
+  closed: "bg-muted text-muted-foreground",
+};
+
+// ---- Unlisted Shares Components (same as before) ----
 const LogoUpload = memo(({ form, setForm, shareId, password }: {
   form: any; setForm: (f: any) => void; shareId?: string; password: string;
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-
   const handleUpload = async (file: File) => {
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml', 'image/gif'];
     if (!allowedTypes.includes(file.type)) { toast({ title: "Invalid file type", variant: "destructive" }); return; }
     if (file.size > 2 * 1024 * 1024) { toast({ title: "File too large (max 2MB)", variant: "destructive" }); return; }
-
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append("password", password);
       formData.append("file", file);
       if (shareId) formData.append("share_id", shareId);
-
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-unlisted-shares`, {
         method: "POST", headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` }, body: formData,
       });
       const result = await response.json();
       if (result.success && result.url) { toast({ title: "Logo uploaded" }); setForm({ ...form, image_url: result.url }); }
       else toast({ title: "Upload failed", description: result.error, variant: "destructive" });
-    } catch (err: any) { toast({ title: "Upload error", variant: "destructive" }); }
+    } catch { toast({ title: "Upload error", variant: "destructive" }); }
     setUploading(false);
   };
-
   return (
     <div>
       <Label>Logo / Image</Label>
@@ -97,19 +100,12 @@ const LogoUpload = memo(({ form, setForm, shareId, password }: {
         {form.image_url ? (
           <img src={form.image_url} alt="Logo" className="w-14 h-14 rounded-xl object-contain border border-border bg-white" />
         ) : (
-          <div className="w-14 h-14 rounded-xl border border-dashed border-border flex items-center justify-center bg-muted/30">
-            <ImageIcon className="w-6 h-6 text-muted-foreground" />
-          </div>
+          <div className="w-14 h-14 rounded-xl border border-dashed border-border flex items-center justify-center bg-muted/30"><ImageIcon className="w-6 h-6 text-muted-foreground" /></div>
         )}
         <div className="flex flex-col gap-1">
-          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" className="hidden"
-            onChange={(e) => { const file = e.target.files?.[0]; if (file) handleUpload(file); }} />
-          <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => fileRef.current?.click()}>
-            <Upload className="w-4 h-4 mr-1" />{uploading ? "Uploading..." : "Upload Logo"}
-          </Button>
-          {form.image_url && (
-            <Button type="button" variant="ghost" size="sm" className="text-destructive text-xs h-7" onClick={() => setForm({ ...form, image_url: null })}>Remove</Button>
-          )}
+          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleUpload(file); }} />
+          <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => fileRef.current?.click()}><Upload className="w-4 h-4 mr-1" />{uploading ? "Uploading..." : "Upload Logo"}</Button>
+          {form.image_url && <Button type="button" variant="ghost" size="sm" className="text-destructive text-xs h-7" onClick={() => setForm({ ...form, image_url: null })}>Remove</Button>}
         </div>
       </div>
     </div>
@@ -121,9 +117,7 @@ const ShareForm = memo(({ form, setForm, onSave, onCancel, title, shareId, passw
   title: string; shareId?: string; password: string;
 }) => (
   <Card className="border-secondary/30 mb-4">
-    <CardHeader className="p-4 sm:p-6">
-      <CardTitle className="text-base sm:text-lg">{title}</CardTitle>
-    </CardHeader>
+    <CardHeader className="p-4 sm:p-6"><CardTitle className="text-base sm:text-lg">{title}</CardTitle></CardHeader>
     <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div><Label>Company Name *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={200} /></div>
@@ -139,12 +133,9 @@ const ShareForm = memo(({ form, setForm, onSave, onCancel, title, shareId, passw
         </div>
         <div><Label>Founded Year</Label><Input value={form.founded_year || ""} onChange={(e) => setForm({ ...form, founded_year: e.target.value || null })} placeholder="e.g. 1992" maxLength={10} /></div>
         <div className="sm:col-span-2"><Label>Headquarters</Label><Input value={form.headquarters || ""} onChange={(e) => setForm({ ...form, headquarters: e.target.value || null })} placeholder="e.g. Mumbai, Maharashtra" maxLength={200} /></div>
-        <div className="sm:col-span-2"><Label>Company Description</Label>
-          <Textarea value={form.company_description || ""} onChange={(e) => setForm({ ...form, company_description: e.target.value || null })} placeholder="Brief description of the company..." maxLength={2000} rows={3} />
-        </div>
+        <div className="sm:col-span-2"><Label>Company Description</Label><Textarea value={form.company_description || ""} onChange={(e) => setForm({ ...form, company_description: e.target.value || null })} placeholder="Brief description..." maxLength={2000} rows={3} /></div>
         <LogoUpload form={form} setForm={setForm} shareId={shareId} password={password} />
-        <div>
-          <Label>Tag</Label>
+        <div><Label>Tag</Label>
           <div className="flex flex-wrap gap-1.5 mt-1">
             {TAG_PRESETS.map((t) => (
               <button key={t.value} type="button" onClick={() => setForm({ ...form, tag: t.value, tag_color: t.color })}
@@ -152,8 +143,7 @@ const ShareForm = memo(({ form, setForm, onSave, onCancel, title, shareId, passw
             ))}
           </div>
         </div>
-        <div>
-          <Label>Color (fallback)</Label>
+        <div><Label>Color (fallback)</Label>
           <div className="flex flex-wrap gap-1.5 mt-1">
             {GRADIENT_PRESETS.map((g) => (
               <button key={g.value} type="button" onClick={() => setForm({ ...form, gradient_color: g.value })}
@@ -162,10 +152,7 @@ const ShareForm = memo(({ form, setForm, onSave, onCancel, title, shareId, passw
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Label>Active</Label>
-        <Switch checked={form.is_active} onCheckedChange={(c) => setForm({ ...form, is_active: c })} />
-      </div>
+      <div className="flex items-center gap-2"><Label>Active</Label><Switch checked={form.is_active} onCheckedChange={(c) => setForm({ ...form, is_active: c })} /></div>
       <div className="flex gap-2">
         <Button onClick={onSave} size="sm"><Save className="w-4 h-4 mr-1" /> Save</Button>
         <Button variant="outline" onClick={onCancel} size="sm"><X className="w-4 h-4 mr-1" /> Cancel</Button>
@@ -201,6 +188,175 @@ const ShareListItem = memo(({ share, onEdit, onDelete }: { share: UnlistedShare;
   </Card>
 ));
 
+// ---- Leads Management Component ----
+const LeadsPanel = ({ password }: { password: string }) => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const fetchLeads = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("manage-unlisted-shares", {
+        body: { action: "list_leads", password },
+      });
+      if (!error && data?.success) setLeads(data.leads || []);
+      else toast({ title: "Failed to load leads", variant: "destructive" });
+    } catch {
+      toast({ title: "Failed to load leads", variant: "destructive" });
+    }
+    setLoading(false);
+  }, [password]);
+
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  const updateLeadStatus = async (id: string, status: string) => {
+    const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
+      body: { action: "update_lead", password, data: { id, status } },
+    });
+    if (data?.success) {
+      toast({ title: "Status updated" });
+      setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
+    } else {
+      toast({ title: "Update failed", variant: "destructive" });
+    }
+  };
+
+  const deleteLead = async (id: string) => {
+    if (!confirm("Delete this lead?")) return;
+    const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
+      body: { action: "delete_lead", password, data: { id } },
+    });
+    if (data?.success) {
+      toast({ title: "Lead deleted" });
+      setLeads(prev => prev.filter(l => l.id !== id));
+    }
+  };
+
+  const filtered = leads.filter(l => {
+    const matchesSearch = !searchQuery || 
+      l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.phone.includes(searchQuery) ||
+      (l.email && l.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (l.city && l.city.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesStatus = statusFilter === "all" || l.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const stats = {
+    total: leads.length,
+    new: leads.filter(l => l.status === "new").length,
+    contacted: leads.filter(l => l.status === "contacted").length,
+    converted: leads.filter(l => l.status === "converted").length,
+  };
+
+  if (loading) return <p className="text-muted-foreground text-center py-12">Loading leads...</p>;
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Total Leads", value: stats.total, icon: Users, color: "text-foreground" },
+          { label: "New", value: stats.new, icon: Eye, color: "text-brand-orange" },
+          { label: "Contacted", value: stats.contacted, icon: Phone, color: "text-primary" },
+          { label: "Converted", value: stats.converted, icon: CheckCircle2, color: "text-secondary" },
+        ].map(s => (
+          <Card key={s.label}>
+            <CardContent className="p-3 flex items-center gap-3">
+              <s.icon className={`w-5 h-5 ${s.color}`} />
+              <div>
+                <div className="text-lg font-bold text-foreground">{s.value}</div>
+                <div className="text-[10px] text-muted-foreground">{s.label}</div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Search + Filter */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="Search by name, phone, email, city..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <select
+            className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Status</option>
+            {LEAD_STATUS_OPTIONS.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Leads List */}
+      <div className="space-y-2">
+        {filtered.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">No leads found.</p>
+        ) : filtered.map(lead => (
+          <Card key={lead.id}>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center shrink-0">
+                  <Users className="w-5 h-5 text-brand-orange" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-semibold text-sm text-foreground">{lead.name}</h4>
+                    <select
+                      value={lead.status}
+                      onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border-0 cursor-pointer ${statusColors[lead.status] || "bg-muted text-muted-foreground"}`}
+                    >
+                      {LEAD_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-xs text-muted-foreground">
+                    <a href={`tel:${lead.phone}`} className="flex items-center gap-1 hover:text-secondary transition-colors">
+                      <Phone className="w-3 h-3" />{lead.phone}
+                    </a>
+                    {lead.email && (
+                      <a href={`mailto:${lead.email}`} className="flex items-center gap-1 hover:text-secondary transition-colors">
+                        <Mail className="w-3 h-3" />{lead.email}
+                      </a>
+                    )}
+                    {lead.city && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{lead.city}</span>}
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {new Date(lead.created_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                  {lead.message && <p className="text-xs text-muted-foreground mt-2 bg-muted/50 rounded-lg p-2">{lead.message}</p>}
+                </div>
+                <div className="flex gap-1.5 shrink-0">
+                  <a
+                    href={`https://wa.me/91${lead.phone.replace(/\D/g, '').replace(/^91/, '')}?text=${encodeURIComponent(`Hi ${lead.name}, this is Parasram India, Panipat. Thank you for your interest in opening a Demat account with us!`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0 text-secondary" title="WhatsApp">
+                      <Phone className="w-3.5 h-3.5" />
+                    </Button>
+                  </a>
+                  <Button size="sm" variant="outline" className="text-destructive h-8 w-8 p-0" onClick={() => deleteLead(lead.id)} title="Delete">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ---- Main Admin Page ----
 const AdminPage = () => {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
@@ -298,7 +454,7 @@ const AdminPage = () => {
           <CardHeader className="text-center">
             <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4"><Lock className="w-8 h-8 text-secondary" /></div>
             <CardTitle className="font-heading text-2xl">Admin Panel</CardTitle>
-            <p className="text-muted-foreground text-sm">Enter admin password to manage unlisted shares</p>
+            <p className="text-muted-foreground text-sm">Enter admin password to manage your site</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
@@ -321,32 +477,44 @@ const AdminPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div>
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"><ArrowLeft className="w-4 h-4" /> Back to site</Link>
-            <h1 className="font-heading text-xl sm:text-3xl font-bold text-foreground">Manage Unlisted Shares</h1>
-            <p className="text-muted-foreground text-xs sm:text-sm">Update prices, company info, add or remove shares</p>
+            <h1 className="font-heading text-xl sm:text-3xl font-bold text-foreground">Admin Panel</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm">Manage unlisted shares and account leads</p>
           </div>
-          <div className="flex gap-2 self-start sm:self-auto">
-            <Button onClick={() => setCreating(true)} disabled={creating} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Share</Button>
-            <Button onClick={handleLogout} variant="outline" size="sm"><LogOut className="w-4 h-4 mr-1" /> Logout</Button>
-          </div>
+          <Button onClick={handleLogout} variant="outline" size="sm"><LogOut className="w-4 h-4 mr-1" /> Logout</Button>
         </div>
 
-        {creating && <ShareForm form={newForm} setForm={setNewForm} onSave={handleCreate} onCancel={() => { setCreating(false); setNewForm(emptyShare); }} title="Add New Share" password={password} />}
+        <Tabs defaultValue="shares" className="space-y-4">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="shares" className="flex-1 sm:flex-none">Unlisted Shares</TabsTrigger>
+            <TabsTrigger value="leads" className="flex-1 sm:flex-none">Account Leads</TabsTrigger>
+          </TabsList>
 
-        {loading ? (
-          <p className="text-muted-foreground text-center py-12">Loading...</p>
-        ) : (
-          <div className="space-y-2 sm:space-y-3">
-            {shares.map((share) =>
-              editingId === share.id ? (
-                <ShareForm key={share.id} form={{ ...share, ...editForm }} setForm={(f: any) => setEditForm(f)} onSave={() => handleUpdate(share)}
-                  onCancel={() => setEditingId(null)} title={`Edit: ${share.name}`} shareId={share.id} password={password} />
-              ) : (
-                <ShareListItem key={share.id} share={share} onEdit={() => { setEditingId(share.id); setEditForm(share); }} onDelete={() => handleDelete(share.id)} />
-              )
+          <TabsContent value="shares">
+            <div className="flex justify-end mb-4">
+              <Button onClick={() => setCreating(true)} disabled={creating} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Share</Button>
+            </div>
+            {creating && <ShareForm form={newForm} setForm={setNewForm} onSave={handleCreate} onCancel={() => { setCreating(false); setNewForm(emptyShare); }} title="Add New Share" password={password} />}
+            {loading ? (
+              <p className="text-muted-foreground text-center py-12">Loading...</p>
+            ) : (
+              <div className="space-y-2 sm:space-y-3">
+                {shares.map((share) =>
+                  editingId === share.id ? (
+                    <ShareForm key={share.id} form={{ ...share, ...editForm }} setForm={(f: any) => setEditForm(f)} onSave={() => handleUpdate(share)}
+                      onCancel={() => setEditingId(null)} title={`Edit: ${share.name}`} shareId={share.id} password={password} />
+                  ) : (
+                    <ShareListItem key={share.id} share={share} onEdit={() => { setEditingId(share.id); setEditForm(share); }} onDelete={() => handleDelete(share.id)} />
+                  )
+                )}
+                {shares.length === 0 && <p className="text-muted-foreground text-center py-8">No shares yet. Click "Add Share" to get started.</p>}
+              </div>
             )}
-            {shares.length === 0 && <p className="text-muted-foreground text-center py-8">No shares yet. Click "Add Share" to get started.</p>}
-          </div>
-        )}
+          </TabsContent>
+
+          <TabsContent value="leads">
+            <LeadsPanel password={password} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

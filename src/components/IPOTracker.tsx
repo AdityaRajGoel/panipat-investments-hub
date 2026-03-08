@@ -1,10 +1,12 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Calendar, Clock, TrendingUp, ArrowUpRight, ArrowDownRight,
-  ChevronRight, Rocket, CheckCircle2, Timer, Star, IndianRupee
+  Calendar, TrendingUp, ArrowUpRight, ArrowDownRight,
+  ChevronRight, Rocket, CheckCircle2, Timer, Star, IndianRupee,
+  RefreshCw, Loader2
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 type IPO = {
   name: string;
@@ -19,20 +21,6 @@ type IPO = {
   rating?: number;
   type: "Mainboard" | "SME";
 };
-
-const ipoData: IPO[] = [
-  // Upcoming
-  { name: "Hexaware Technologies", price: "₹674-₹708", date: "Mar 12-14, 2026", size: "₹8,750 Cr", status: "upcoming", gmp: "+₹85", gmpUp: true, rating: 4, type: "Mainboard" },
-  { name: "LG Electronics India", price: "₹1,485-₹1,560", date: "Mar 15-17, 2026", size: "₹15,000 Cr", status: "upcoming", gmp: "+₹120", gmpUp: true, rating: 5, type: "Mainboard" },
-  { name: "Ather Energy", price: "₹304-₹321", date: "Mar 18-20, 2026", size: "₹3,100 Cr", status: "upcoming", gmp: "+₹45", gmpUp: true, rating: 3, type: "Mainboard" },
-  // Open
-  { name: "Vikran Engineering", price: "₹145-₹153", date: "Mar 8-11, 2026", size: "₹520 Cr", status: "open", gmp: "+₹22", gmpUp: true, rating: 3, type: "SME" },
-  { name: "Sai Silks Kalamandir", price: "₹210-₹222", date: "Mar 7-10, 2026", size: "₹1,200 Cr", status: "open", gmp: "-₹8", gmpUp: false, rating: 2, type: "Mainboard" },
-  // Listed
-  { name: "Bajaj Housing Finance", price: "₹66-₹70", date: "Listed Feb 28", size: "₹6,560 Cr", status: "listed", listingGain: "+42.5%", listingUp: true, rating: 5, type: "Mainboard" },
-  { name: "NTPC Green Energy", price: "₹102-₹108", date: "Listed Mar 1", size: "₹10,000 Cr", status: "listed", listingGain: "+8.2%", listingUp: true, rating: 4, type: "Mainboard" },
-  { name: "Afcons Infrastructure", price: "₹440-₹463", date: "Listed Mar 3", size: "₹5,430 Cr", status: "listed", listingGain: "-5.1%", listingUp: false, rating: 3, type: "Mainboard" },
-];
 
 type TabKey = "upcoming" | "open" | "listed";
 
@@ -83,7 +71,7 @@ const IPOCard = ({ ipo, index }: { ipo: IPO; index: number }) => (
         <div className="text-xs font-bold text-foreground">{ipo.size}</div>
       </div>
       <div>
-        {ipo.status === "listed" ? (
+        {ipo.status === "listed" && ipo.listingGain ? (
           <>
             <div className="text-[10px] text-muted-foreground mb-0.5">Listing Gain</div>
             <div className={`text-xs font-bold flex items-center gap-0.5 ${ipo.listingUp ? "text-secondary" : "text-destructive"}`}>
@@ -106,9 +94,7 @@ const IPOCard = ({ ipo, index }: { ipo: IPO; index: number }) => (
     {ipo.status === "open" && (
       <motion.div className="mt-3 pt-3 border-t border-border/30">
         <a
-          href="https://parasramindia.com"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/open-account"
           className="inline-flex items-center gap-1.5 bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground text-[11px] font-bold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
         >
           <IndianRupee className="w-3 h-3" />
@@ -122,7 +108,37 @@ const IPOCard = ({ ipo, index }: { ipo: IPO; index: number }) => (
 
 const IPOTracker = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("upcoming");
-  const filtered = ipoData.filter(i => i.status === activeTab);
+  const [ipos, setIpos] = useState<IPO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<string>("");
+  const [fetchedAt, setFetchedAt] = useState<string>("");
+
+  const fetchIPOs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-ipos');
+      if (!error && data?.success && data.ipos?.length > 0) {
+        setIpos(data.ipos);
+        setSource(data.source || "");
+        setFetchedAt(data.fetchedAt || "");
+      }
+    } catch {
+      console.log('Using empty IPO data');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchIPOs();
+  }, [fetchIPOs]);
+
+  const filtered = ipos.filter(i => i.status === activeTab);
+  const tabCounts = {
+    upcoming: ipos.filter(i => i.status === "upcoming").length,
+    open: ipos.filter(i => i.status === "open").length,
+    listed: ipos.filter(i => i.status === "listed").length,
+  };
 
   return (
     <section className="py-16 bg-muted/20 relative overflow-hidden">
@@ -138,16 +154,25 @@ const IPOTracker = () => {
           </motion.span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-2">IPO Tracker</h2>
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-            Track upcoming, open, and recently listed IPOs with GMP updates and expert ratings
+            Track upcoming, open, and recently listed IPOs with GMP updates
           </p>
           <motion.div className="w-20 h-1 bg-gradient-to-r from-brand-orange to-brand-gold mx-auto rounded-full mt-3" initial={{ width: 0 }} whileInView={{ width: 80 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.6 }} />
+          {fetchedAt && (
+            <div className="flex items-center justify-center gap-2 mt-3 text-[10px] text-muted-foreground">
+              <span>Last updated: {new Date(fetchedAt).toLocaleString("en-IN", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}</span>
+              <span>•</span>
+              <span className="capitalize">{source} data</span>
+              <button onClick={fetchIPOs} className="ml-1 p-0.5 rounded hover:bg-muted transition-colors" title="Refresh">
+                <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
+              </button>
+            </div>
+          )}
         </motion.div>
 
         {/* Tabs */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {tabs.map(tab => {
             const Icon = tab.icon;
-            const count = ipoData.filter(i => i.status === tab.key).length;
             return (
               <button
                 key={tab.key}
@@ -161,7 +186,7 @@ const IPOTracker = () => {
                 <Icon className="w-3.5 h-3.5" />
                 {tab.label}
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${activeTab === tab.key ? "bg-white/20" : "bg-muted"}`}>
-                  {count}
+                  {tabCounts[tab.key]}
                 </span>
               </button>
             );
@@ -169,19 +194,33 @@ const IPOTracker = () => {
         </div>
 
         {/* IPO Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((ipo, i) => (
-            <IPOCard key={ipo.name} ipo={ipo} index={i} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-6 h-6 animate-spin text-brand-orange" />
+            <span className="ml-2 text-sm text-muted-foreground">Loading IPO data...</span>
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {filtered.length > 0 ? filtered.map((ipo, i) => (
+                <IPOCard key={ipo.name} ipo={ipo} index={i} />
+              )) : (
+                <div className="col-span-full text-center py-12 text-muted-foreground">
+                  <p className="text-sm">No {activeTab} IPOs at the moment.</p>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        )}
 
         {/* CTA */}
-        <motion.div
-          className="mt-8 text-center"
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
+        <motion.div className="mt-8 text-center" initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <p className="text-sm text-muted-foreground mb-3">
             Want to apply for IPOs? Open your Demat account with Parasram India today.
           </p>
