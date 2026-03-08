@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useScreenerStocks, type ScreenerStock } from "@/hooks/useScreenerStocks";
+import StockHeatmap from "@/components/StockHeatmap";
 
 const formatMarketCap = (cr: number) => {
   if (cr >= 100000) return `₹${(cr / 100000).toFixed(1)}L Cr`;
