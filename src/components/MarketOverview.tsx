@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
+import { useLiveMarket } from "@/hooks/useLiveMarket";
 
 type Stock = { name: string; price: string; change: string; up: boolean; volume?: string; high?: string; low?: string };
 
@@ -250,8 +251,27 @@ const MarketOverview = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("gainers");
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [chartData] = useState(() => new Map<string, number[]>());
+  const { marketOverview: liveData, fetchedAt } = useLiveMarket();
 
-  const activeConfig = tabConfig.find(t => t.key === activeTab)!;
+  // Merge live data with fallbacks
+  const dynamicTabConfig = useMemo(() => {
+    const cfg: { key: TabKey; label: string; icon: any; data: Stock[] }[] = [
+      { key: "gainers", label: "Top Gainers", icon: TrendingUp, data: liveData?.gainers?.length ? liveData.gainers as Stock[] : fallbackTopGainers },
+      { key: "losers", label: "Top Losers", icon: TrendingDown, data: liveData?.losers?.length ? liveData.losers as Stock[] : fallbackTopLosers },
+      { key: "active", label: "Most Active", icon: Activity, data: liveData?.mostActive?.length ? liveData.mostActive as Stock[] : mostActive },
+      { key: "fno", label: "F&O", icon: Layers, data: fnoData },
+      { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
+      { key: "commodities", label: "Commodities", icon: Gem, data: commoditiesData },
+    ];
+    return cfg;
+  }, [liveData]);
+
+  const activeConfig = dynamicTabConfig.find(t => t.key === activeTab)!;
+
+  const liveAdvances = liveData?.advances ?? 1456;
+  const liveDeclines = liveData?.declines ?? 892;
+  const liveUnchanged = liveData?.unchanged ?? 186;
+  const totalStocks = liveAdvances + liveDeclines + liveUnchanged;
 
   const getChartData = useCallback((stock: Stock) => {
     if (!chartData.has(stock.name)) {
