@@ -3,7 +3,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// Index symbols
 const INDEX_SYMBOLS = [
   { symbol: "^NSEI", name: "NIFTY 50", key: "NIFTY" },
   { symbol: "^BSESN", name: "SENSEX", key: "SENSEX" },
@@ -12,7 +11,6 @@ const INDEX_SYMBOLS = [
   { symbol: "^CNXFIN", name: "NIFTY FIN", key: "NIFTYFIN" },
 ];
 
-// Ticker stocks
 const STOCK_SYMBOLS = [
   { symbol: "RELIANCE.NS", name: "RELIANCE" },
   { symbol: "TCS.NS", name: "TCS" },
@@ -31,7 +29,6 @@ const STOCK_SYMBOLS = [
   { symbol: "LT.NS", name: "L&T" },
 ];
 
-// Top gainers/losers candidates (wider set)
 const MARKET_SYMBOLS = [
   { symbol: "TATAPOWER.NS", name: "TATA POWER" },
   { symbol: "ADANIGREEN.NS", name: "ADANI GREEN" },
@@ -67,6 +64,28 @@ const COMMODITY_SYMBOLS = [
   { symbol: "EURINR=X", name: "EUR/INR", unit: "" },
   { symbol: "GBPINR=X", name: "GBP/INR", unit: "" },
   { symbol: "^INDIAVIX", name: "INDIA VIX", unit: "" },
+];
+
+// Global market indices
+const GLOBAL_SYMBOLS = [
+  { symbol: "^GSPC", name: "S&P 500" },
+  { symbol: "^IXIC", name: "NASDAQ" },
+  { symbol: "^DJI", name: "DOW JONES" },
+  { symbol: "^HSI", name: "HANG SENG" },
+  { symbol: "^N225", name: "NIKKEI 225" },
+  { symbol: "^FTSE", name: "FTSE 100" },
+];
+
+// Sector index symbols for live sector data
+const SECTOR_SYMBOLS = [
+  { symbol: "^CNXIT", name: "IT", weight: 18 },
+  { symbol: "^NSEBANK", name: "Banks", weight: 25 },
+  { symbol: "^CNXPHARMA", name: "Pharma", weight: 10 },
+  { symbol: "^CNXAUTO", name: "Auto", weight: 12 },
+  { symbol: "^CNXENERGY", name: "Energy", weight: 15 },
+  { symbol: "^CNXFMCG", name: "FMCG", weight: 8 },
+  { symbol: "^CNXREALTY", name: "Realty", weight: 5 },
+  { symbol: "^CNXMETAL", name: "Metal", weight: 7 },
 ];
 
 interface QuoteResult {
@@ -134,9 +153,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Fetch all in parallel
-    const [indexResults, stockResults, marketResults, commodityResults] = await Promise.all([
-      // Indices
+    const [indexResults, stockResults, marketResults, commodityResults, globalResults, sectorResults] = await Promise.all([
       Promise.all(INDEX_SYMBOLS.map(async (idx) => {
         const q = await fetchYahooQuote(idx.symbol);
         if (!q) return null;
@@ -154,7 +171,6 @@ Deno.serve(async (req) => {
           volume: formatVolume(q.volume),
         };
       })),
-      // Ticker stocks
       Promise.all(STOCK_SYMBOLS.map(async (stock) => {
         const q = await fetchYahooQuote(stock.symbol);
         if (!q) return null;
@@ -165,7 +181,6 @@ Deno.serve(async (req) => {
           up: q.changePercent >= 0,
         };
       })),
-      // Market overview stocks (gainers/losers)
       Promise.all(MARKET_SYMBOLS.map(async (stock) => {
         const q = await fetchYahooQuote(stock.symbol);
         if (!q) return null;
@@ -180,7 +195,6 @@ Deno.serve(async (req) => {
           low: q.low ? `₹${formatPrice(q.low)}` : undefined,
         };
       })),
-      // Commodities
       Promise.all(COMMODITY_SYMBOLS.map(async (item) => {
         const q = await fetchYahooQuote(item.symbol);
         if (!q) return null;
@@ -192,12 +206,35 @@ Deno.serve(async (req) => {
           unit: item.unit,
         };
       })),
+      // Global markets
+      Promise.all(GLOBAL_SYMBOLS.map(async (g) => {
+        const q = await fetchYahooQuote(g.symbol);
+        if (!q) return null;
+        return {
+          name: g.name,
+          price: formatPrice(q.price, false),
+          change: `${q.changePercent >= 0 ? '+' : ''}${q.changePercent.toFixed(2)}%`,
+          up: q.changePercent >= 0,
+        };
+      })),
+      // Sector performance
+      Promise.all(SECTOR_SYMBOLS.map(async (s) => {
+        const q = await fetchYahooQuote(s.symbol);
+        if (!q) return null;
+        return {
+          name: s.name,
+          change: `${q.changePercent >= 0 ? '+' : ''}${q.changePercent.toFixed(2)}%`,
+          changePercent: q.changePercent,
+          up: q.changePercent >= 0,
+          weight: s.weight,
+        };
+      })),
     ]);
 
     const validMarket = marketResults.filter(Boolean) as any[];
-    const gainers = validMarket.filter(s => s.up).sort((a, b) => b.changePercent - a.changePercent).slice(0, 7);
-    const losers = validMarket.filter(s => !s.up).sort((a, b) => a.changePercent - b.changePercent).slice(0, 7);
-    const mostActive = [...validMarket].sort((a, b) => {
+    const gainers = validMarket.filter(s => s.up).sort((a: any, b: any) => b.changePercent - a.changePercent).slice(0, 7);
+    const losers = validMarket.filter(s => !s.up).sort((a: any, b: any) => a.changePercent - b.changePercent).slice(0, 7);
+    const mostActive = [...validMarket].sort((a: any, b: any) => {
       const volA = parseFloat(a.volume?.replace(/[CLK]/g, '') || '0');
       const volB = parseFloat(b.volume?.replace(/[CLK]/g, '') || '0');
       return volB - volA;
@@ -206,12 +243,18 @@ Deno.serve(async (req) => {
     const advances = validMarket.filter(s => s.up).length;
     const declines = validMarket.filter(s => !s.up).length;
 
+    // Extract VIX from commodities
+    const vixResult = commodityResults.find(c => c?.name === "INDIA VIX");
+
     return new Response(
       JSON.stringify({
         success: true,
         indices: indexResults.filter(Boolean),
         data: stockResults.filter(Boolean),
         commodities: commodityResults.filter(Boolean),
+        globalMarkets: globalResults.filter(Boolean),
+        sectors: sectorResults.filter(Boolean),
+        vix: vixResult || null,
         marketOverview: {
           gainers,
           losers,
