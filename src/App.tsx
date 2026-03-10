@@ -7,7 +7,8 @@ import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { motion } from "framer-motion";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const PageTracker = () => { usePageTracking(); return null; };
 
@@ -115,6 +116,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <Analytics />
+        <SpeedInsights />
         <BrowserRouter>
           <PageTracker />
           <Suspense fallback={<PageFallback />}>
