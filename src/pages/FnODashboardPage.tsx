@@ -175,7 +175,7 @@ const FnODashboardPage = () => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    fetchData(symbol, expiry ? Number(expiry) : undefined);
+    fetchData(symbol, expiry || undefined);
   };
 
   const chain = data?.chain || [];
