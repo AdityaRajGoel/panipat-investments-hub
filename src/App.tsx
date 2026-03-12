@@ -121,25 +121,29 @@ const App = () => (
         <Analytics />
         <SpeedInsights />
         <BrowserRouter>
-          <PageTracker />
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/unlisted-zone" element={<UnlistedZonePage />} />
-              <Route path="/team" element={<TeamPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/open-account" element={<OpenAccountPage />} />
-              <Route path="/screener" element={<StockScreenerPage />} />
-              <Route path="/fno" element={<FnODashboardPage />} />
-              <Route path="/holidays" element={<HolidayCalendarPage />} />
-              <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <AuthProvider>
+            <PageTracker />
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/unlisted-zone" element={<UnlistedZonePage />} />
+                <Route path="/team" element={<TeamPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/open-account" element={<OpenAccountPage />} />
+                <Route path="/screener" element={<StockScreenerPage />} />
+                <Route path="/fno" element={<FnODashboardPage />} />
+                <Route path="/holidays" element={<HolidayCalendarPage />} />
+                <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </AuthProvider>
         </BrowserRouter>
       </LiveMarketProvider>
     </TooltipProvider>
