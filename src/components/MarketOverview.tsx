@@ -254,7 +254,21 @@ const MarketOverview = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("gainers");
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [chartData] = useState(() => new Map<string, number[]>());
-  const { marketOverview: liveData, fetchedAt } = useLiveMarket();
+  const { marketOverview: liveData, commodities: liveCommodities, fetchedAt } = useLiveMarket();
+
+  // Convert live commodities to Stock format
+  const liveCommodityStocks: Stock[] = useMemo(() => {
+    if (!liveCommodities?.length) return fallbackCommodities;
+    return liveCommodities
+      .filter(c => c.name !== "INDIA VIX")
+      .map(c => ({
+        name: c.name,
+        price: c.unit ? `$${c.price}/${c.unit.replace("USD/", "")}` : `₹${c.price}`,
+        change: c.change,
+        up: c.up,
+        volume: "-",
+      }));
+  }, [liveCommodities]);
 
   // Merge live data with fallbacks
   const dynamicTabConfig = useMemo(() => {
@@ -264,10 +278,10 @@ const MarketOverview = () => {
       { key: "active", label: "Most Active", icon: Activity, data: liveData?.mostActive?.length ? liveData.mostActive as Stock[] : mostActive },
       { key: "fno", label: "F&O", icon: Layers, data: fnoData },
       { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
-      { key: "commodities", label: "Commodities", icon: Gem, data: commoditiesData },
+      { key: "commodities", label: "Commodities", icon: Gem, data: liveCommodityStocks },
     ];
     return cfg;
-  }, [liveData]);
+  }, [liveData, liveCommodityStocks]);
 
   const activeConfig = dynamicTabConfig.find(t => t.key === activeTab)!;
 
