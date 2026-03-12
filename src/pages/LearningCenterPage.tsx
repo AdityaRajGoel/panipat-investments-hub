@@ -152,11 +152,20 @@ const LIVE_CHANNELS = [
 ];
 
 const LearningCenterPage = () => {
+  const location = useLocation();
   const [articles, setArticles] = useState<Article[]>(REAL_ARTICLES);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<"articles" | "news" | "live">("articles");
+
+  // Map hash to section
+  const hashToSection = (hash: string): "articles" | "news" | "live" => {
+    if (hash === "#news") return "news";
+    if (hash === "#live-tv") return "live";
+    return "articles";
+  };
+
+  const [activeSection, setActiveSection] = useState<"articles" | "news" | "live">(hashToSection(location.hash));
   const [indianNews, setIndianNews] = useState<NewsItem[]>([]);
   const [worldNews, setWorldNews] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(false);
