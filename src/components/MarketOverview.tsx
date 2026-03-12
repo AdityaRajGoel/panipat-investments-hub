@@ -246,7 +246,7 @@ const tabConfig: { key: TabKey; label: string; icon: any; data: Stock[] }[] = [
   { key: "active", label: "Most Active", icon: Activity, data: mostActive },
   { key: "fno", label: "F&O", icon: Layers, data: fnoData },
   { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
-  { key: "commodities", label: "Commodities", icon: Gem, data: commoditiesData },
+  { key: "commodities", label: "Commodities", icon: Gem, data: fallbackCommodities },
 ];
 
 const MarketOverview = () => {
