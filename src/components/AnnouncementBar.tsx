@@ -18,7 +18,7 @@ const AnnouncementBar = () => {
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         >
           {[...announcements, ...announcements].map((item, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm">
+            <div key={i} className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
               <item.icon className="w-3.5 h-3.5 text-brand-gold" />
               <span className="text-foreground font-medium">{item.text}</span>
               <span className="text-muted-foreground/30 mx-4">•</span>
