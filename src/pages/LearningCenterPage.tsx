@@ -136,8 +136,18 @@ const NEWS_CATEGORY_COLORS: Record<string, string> = {
 };
 
 const LIVE_CHANNELS = [
-  { name: "Zee Business", channelId: "UCkXopQ3ubd-rnXnStZqCl2w", description: "India's leading Hindi business news channel covering markets, economy, and corporate news" },
-  { name: "CNBC Awaaz", channelId: "UCN-GCUOe2P9OhR6ynblmGsQ", description: "Hindi business news with live market analysis, stock recommendations, and expert opinions" },
+  {
+    name: "Zee Business",
+    handle: "ZeeBusiness",
+    channelId: "UCkXopQ3ubd-rnXnStZqCl2w",
+    description: "India's leading Hindi business news channel covering markets, economy, and corporate news"
+  },
+  {
+    name: "CNBC Awaaz",
+    handle: "CNBCAwaaz",
+    channelId: "UCQIycDaLsBpMKjOCeaKUYVg",
+    description: "Hindi business news with live market analysis, stock recommendations, and expert opinions"
+  },
 ];
 
 const LearningCenterPage = () => {
