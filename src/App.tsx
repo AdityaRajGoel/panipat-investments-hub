@@ -11,7 +11,10 @@ import { motion } from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
+import useScrollToHash from "@/hooks/useScrollToHash";
+
 const PageTracker = () => { usePageTracking(); return null; };
+const ScrollToHash = () => { useScrollToHash(); return null; };
 
 // Eagerly load the home page for fastest FCP
 import Index from "./pages/Index";
@@ -127,6 +130,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <PageTracker />
+            <ScrollToHash />
             <Suspense fallback={<PageFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />

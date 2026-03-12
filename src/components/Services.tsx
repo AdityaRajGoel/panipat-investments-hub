@@ -7,6 +7,7 @@ const services = [
   {
     icon: TrendingUp,
     title: "Equity Trading",
+    id: "equity-trading",
     description: "Trade in NSE & BSE with our advanced trading platforms and expert guidance.",
     stat: "50+ Years",
     statLabel: "Market Expertise",
@@ -14,6 +15,7 @@ const services = [
   {
     icon: BarChart3,
     title: "Derivatives",
+    id: "derivatives",
     description: "Futures & Options trading with comprehensive research and market analysis.",
     stat: "Real-Time",
     statLabel: "Market Data",
@@ -21,6 +23,7 @@ const services = [
   {
     icon: Globe,
     title: "Currency Trading",
+    id: "currency-trading",
     description: "Trade in currency derivatives with competitive pricing and real-time quotes.",
     stat: "24/5",
     statLabel: "Market Access",
@@ -28,6 +31,7 @@ const services = [
   {
     icon: Wallet,
     title: "Mutual Funds",
+    id: "mutual-funds",
     description: "Invest in top-performing mutual funds with expert portfolio management.",
     stat: "500+",
     statLabel: "Fund Options",
@@ -35,6 +39,7 @@ const services = [
   {
     icon: FileText,
     title: "IPO Services",
+    id: "ipo-services",
     description: "Get early access to IPOs and expert recommendations for your investments.",
     stat: "Priority",
     statLabel: "Allotment Access",
@@ -42,6 +47,7 @@ const services = [
   {
     icon: Smartphone,
     title: "Mobile Trading",
+    id: "mobile-trading",
     description: "Trade on-the-go with our powerful Parasram Trade mobile app.",
     stat: "100K+",
     statLabel: "App Downloads",
@@ -158,6 +164,7 @@ const Services = () => {
           {services.map((service, index) => (
             <motion.div
               key={service.title}
+              id={service.id}
               variants={cardVariants}
               whileHover={{ y: -10, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}

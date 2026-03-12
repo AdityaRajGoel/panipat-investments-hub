@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -151,11 +152,20 @@ const LIVE_CHANNELS = [
 ];
 
 const LearningCenterPage = () => {
+  const location = useLocation();
   const [articles, setArticles] = useState<Article[]>(REAL_ARTICLES);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<"articles" | "news" | "live">("articles");
+
+  // Map hash to section
+  const hashToSection = (hash: string): "articles" | "news" | "live" => {
+    if (hash === "#news") return "news";
+    if (hash === "#live-tv") return "live";
+    return "articles";
+  };
+
+  const [activeSection, setActiveSection] = useState<"articles" | "news" | "live">(hashToSection(location.hash));
   const [indianNews, setIndianNews] = useState<NewsItem[]>([]);
   const [worldNews, setWorldNews] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(false);
@@ -164,6 +174,12 @@ const LearningCenterPage = () => {
   const [liveEmbeds, setLiveEmbeds] = useState<Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>>({});
   const [iframeErrors, setIframeErrors] = useState<Record<string, boolean>>({});
   const healthCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Respond to hash changes
+  useEffect(() => {
+    const section = hashToSection(location.hash);
+    setActiveSection(section);
+  }, [location.hash]);
 
   useEffect(() => {
     const load = async () => {
