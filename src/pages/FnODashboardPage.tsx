@@ -138,7 +138,7 @@ const FnODashboardPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async (sym: string, exp?: number) => {
+  const fetchData = useCallback(async (sym: string, exp?: string) => {
     try {
       setError(null);
       const body: Record<string, unknown> = { symbol: sym };
@@ -170,7 +170,7 @@ const FnODashboardPage = () => {
   const handleExpiryChange = (val: string) => {
     setExpiry(val);
     setRefreshing(true);
-    fetchData(symbol, Number(val));
+    fetchData(symbol, val);
   };
 
   const handleRefresh = () => {
