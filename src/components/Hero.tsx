@@ -182,45 +182,44 @@ const Hero = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 py-24 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
 
             {/* Trust badges row */}
-            <motion.div className="flex flex-wrap gap-3 mb-6" variants={itemVariants}>
+            <motion.div className="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6" variants={itemVariants}>
               {trustBadges.map(({ icon: Icon, label }, i) => (
                 <motion.div
                   key={label}
-                  className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 backdrop-blur-md"
+                  className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-2.5 py-1 md:px-3 md:py-1.5 backdrop-blur-md"
                   whileHover={{ scale: 1.08, backgroundColor: "rgba(255,255,255,0.15)" }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.1 }}
                 >
-                  <Icon className="w-3.5 h-3.5 text-secondary" />
-                  <span className="text-primary-foreground text-xs font-semibold">{label}</span>
+                  <Icon className="w-3 h-3 md:w-3.5 md:h-3.5 text-secondary" />
+                  <span className="text-primary-foreground text-[11px] md:text-xs font-semibold">{label}</span>
                 </motion.div>
               ))}
             </motion.div>
 
-            {/* Live Index Cards — Groww/Moneycontrol style */}
-            <motion.div className="flex flex-wrap gap-3 mb-8" variants={itemVariants}>
+            {/* Live Index Cards */}
+            <motion.div className="grid grid-cols-3 gap-2 md:flex md:flex-wrap md:gap-3 mb-6 md:mb-8" variants={itemVariants}>
               {heroIndices.map((idx, i) => (
                 <motion.div
                   key={idx.name}
-                  className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-md min-w-[160px]"
+                  className="flex items-center gap-2 md:gap-3 bg-white/10 border border-white/20 rounded-xl px-2.5 py-2 md:px-4 md:py-3 backdrop-blur-md"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
-                  whileHover={{ scale: 1.04, backgroundColor: "rgba(255,255,255,0.15)" }}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idx.up ? "bg-secondary/20" : "bg-destructive/20"}`}>
-                    {idx.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
+                  <div className={`w-6 h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center shrink-0 ${idx.up ? "bg-secondary/20" : "bg-destructive/20"}`}>
+                    {idx.up ? <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-secondary" /> : <TrendingDown className="w-3 h-3 md:w-4 md:h-4 text-destructive" />}
                   </div>
-                  <div>
-                    <div className="text-[10px] text-primary-foreground/60 font-semibold uppercase tracking-wide">{idx.name}</div>
-                    <div className="text-sm font-bold text-primary-foreground">{idx.price}</div>
-                    <div className={`text-xs font-bold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] md:text-[10px] text-primary-foreground/60 font-semibold uppercase tracking-wide truncate">{idx.name}</div>
+                    <div className="text-xs md:text-sm font-bold text-primary-foreground truncate">{idx.price}</div>
+                    <div className={`text-[10px] md:text-xs font-bold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
                   </div>
                 </motion.div>
               ))}
