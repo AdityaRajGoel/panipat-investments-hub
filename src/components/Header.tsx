@@ -115,9 +115,34 @@ const Header = () => {
                 Web Trade
               </a>
             </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5 font-semibold">
+                    <User className="w-4 h-4" />
+                    <span className="max-w-[100px] truncate">{user.user_metadata?.full_name || "Account"}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem className="text-xs text-muted-foreground">{user.email}</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer">
+                    <LogOut className="w-4 h-4 mr-2" /> Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                asChild
+                size="sm"
+                className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+              >
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            )}
             <Button 
               asChild
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold hidden sm:inline-flex"
+              className="bg-brand-gold hover:bg-brand-gold/90 text-primary-foreground font-semibold hidden sm:inline-flex"
             >
               <Link to="/open-account">
                 Open Account
