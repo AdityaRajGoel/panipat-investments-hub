@@ -164,7 +164,7 @@ const Header = () => {
               transition={{ duration: 0.3 }}
               className="md:hidden overflow-hidden border-t border-border"
             >
-              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3" aria-label="Mobile navigation">
+               <nav className="container mx-auto px-4 py-4 flex flex-col gap-3" aria-label="Mobile navigation">
                 {navLinks.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -185,10 +185,31 @@ const Header = () => {
                     </Link>
                   </motion.div>
                 ))}
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Tools</p>
+                {toolLinks.map((link, i) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (navLinks.length + i) * 0.05 }}
+                  >
+                    <Link
+                      to={link.href}
+                      className={`block text-sm py-1.5 border-b border-border/20 transition-colors ${
+                        location.pathname === link.href
+                          ? "text-secondary"
+                          : "text-foreground hover:text-secondary"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                ))}
                 <Button 
                   asChild
                   variant="outline"
-                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold w-full"
+                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold w-full mt-2"
                 >
                   <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
                     <LogIn className="w-4 h-4 mr-1" />
