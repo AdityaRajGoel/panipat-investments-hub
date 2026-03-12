@@ -465,15 +465,27 @@ const LearningCenterPage = () => {
                   return (
                     <Card key={channel.name} className="overflow-hidden">
                       <div className="aspect-video bg-muted relative">
-                        <iframe
-                          src={embedSrc}
-                          title={`${channel.name} Live`}
-                          className="w-full h-full absolute inset-0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allowFullScreen
-                          loading="lazy"
-                        />
+                        {iframeErrors[channel.channelId] ? (
+                          <div className="w-full h-full absolute inset-0 flex flex-col items-center justify-center bg-muted gap-3">
+                            <AlertTriangle className="w-8 h-8 text-brand-orange" />
+                            <p className="text-sm text-muted-foreground font-medium">Stream unavailable — auto-retrying...</p>
+                            <a href={watchUrl} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
+                              <ExternalLink className="w-3 h-3" /> Watch on YouTube instead
+                            </a>
+                          </div>
+                        ) : (
+                          <iframe
+                            src={embedSrc}
+                            title={`${channel.name} Live`}
+                            className="w-full h-full absolute inset-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                            loading="lazy"
+                            onError={() => handleIframeError(channel.channelId)}
+                          />
+                        )}
                       </div>
                       <div className="p-4">
                         <div className="flex items-center gap-2 mb-1">
