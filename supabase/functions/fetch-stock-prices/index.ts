@@ -306,17 +306,34 @@ Deno.serve(async (req) => {
           low: q.low ? `₹${formatPrice(q.low)}` : undefined,
         };
       })),
-      Promise.all(COMMODITY_SYMBOLS.map(async (item) => {
-        const q = await fetchYahooQuote(item.symbol);
-        if (!q) return null;
-        return {
-          name: item.name,
-          price: formatPrice(q.price, item.unit !== "" && !item.name.includes("INR")),
-          change: `${q.changePercent >= 0 ? '+' : ''}${q.changePercent.toFixed(2)}%`,
-          up: q.changePercent >= 0,
-          unit: item.unit,
-        };
-      })),
+      // First fetch USD/INR rate for commodity conversion
+      (async () => {
+        const usdInrQuote = await fetchYahooQuote("USDINR=X");
+        const usdInrRate = usdInrQuote?.price || 83.5; // fallback rate
+
+        const results = await Promise.all(COMMODITY_SYMBOLS.map(async (item) => {
+          const q = await fetchYahooQuote(item.symbol);
+          if (!q) return null;
+
+          let displayPrice = q.price;
+          if (item.convert && item.factor) {
+            // Convert: USD price × factor × USD/INR rate = INR price
+            displayPrice = q.price * item.factor * usdInrRate;
+          }
+
+          const isCurrency = item.name.includes("INR");
+          const isVix = item.name === "INDIA VIX";
+
+          return {
+            name: item.name,
+            price: (isCurrency || isVix) ? formatPrice(displayPrice, false) : `₹${formatPrice(displayPrice)}`,
+            change: `${q.changePercent >= 0 ? '+' : ''}${q.changePercent.toFixed(2)}%`,
+            up: q.changePercent >= 0,
+            unit: item.unit,
+          };
+        }));
+        return results;
+      })(),
       // Global markets
       Promise.all(GLOBAL_SYMBOLS.map(async (g) => {
         const q = await fetchYahooQuote(g.symbol);
