@@ -6,21 +6,53 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYMBOL_MAP: Record<string, string> = {
-  NIFTY: "^NSEI",
-  BANKNIFTY: "^NSEBANK",
-  FINNIFTY: "NIFTY_FIN_SERVICE.NS",
+const NSE_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Accept": "application/json, text/plain, */*",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Accept-Encoding": "gzip, deflate, br",
+  "Referer": "https://www.nseindia.com/option-chain",
+  "Connection": "keep-alive",
 };
 
-interface YahooOption {
-  strike: number;
-  lastPrice: number;
-  change: number;
-  percentChange: number;
-  volume: number;
-  openInterest: number;
-  impliedVolatility: number;
-  inTheMoney: boolean;
+// Step 1: Get NSE session cookies by hitting the main page
+async function getNSECookies(): Promise<string> {
+  const res = await fetch("https://www.nseindia.com/option-chain", {
+    headers: NSE_HEADERS,
+    redirect: "follow",
+  });
+  
+  const setCookies = res.headers.getSetCookie?.() || [];
+  const cookies = setCookies.map(c => c.split(";")[0]).join("; ");
+  
+  // Also consume the body to properly close the connection
+  await res.text();
+  
+  if (!cookies) {
+    throw new Error("Failed to get NSE session cookies");
+  }
+  return cookies;
+}
+
+// Step 2: Fetch option chain from NSE API
+async function fetchNSEOptionChain(symbol: string, cookies: string) {
+  const endpoint = symbol === "NIFTY" || symbol === "BANKNIFTY" || symbol === "FINNIFTY" || symbol === "MIDCPNIFTY"
+    ? `https://www.nseindia.com/api/option-chain-indices?symbol=${symbol}`
+    : `https://www.nseindia.com/api/option-chain-equities?symbol=${symbol}`;
+  
+  const res = await fetch(endpoint, {
+    headers: {
+      ...NSE_HEADERS,
+      "Cookie": cookies,
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`NSE API returned ${res.status}: ${text.substring(0, 200)}`);
+  }
+
+  return await res.json();
 }
 
 interface OptionRow {
@@ -37,91 +69,89 @@ interface OptionRow {
   putVolume: number;
 }
 
-// Get Yahoo Finance crumb + cookies for authenticated API access
-async function getYahooCrumb(): Promise<{ crumb: string; cookie: string }> {
-  // Step 1: Get initial cookies
-  const initRes = await fetch("https://fc.yahoo.com", {
-    redirect: "manual",
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-  });
-  const setCookies = initRes.headers.getSetCookie?.() || [];
-  const cookieStr = setCookies.map(c => c.split(";")[0]).join("; ");
-
-  // Step 2: Get crumb
-  const crumbRes = await fetch("https://query2.finance.yahoo.com/v1/test/getcrumb", {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      "Cookie": cookieStr,
-    },
-  });
-  const crumb = await crumbRes.text();
-  if (!crumb || crumb.includes("<!DOCTYPE")) throw new Error("Failed to get Yahoo crumb");
-  return { crumb, cookie: cookieStr };
-}
-
-async function fetchOptionsChain(symbol: string, expiry?: number) {
-  const yahooSymbol = SYMBOL_MAP[symbol] || "^NSEI";
+function processNSEData(nseData: any, selectedExpiry?: string) {
+  const records = nseData?.records;
+  const filtered = nseData?.filtered;
   
-  const { crumb, cookie } = await getYahooCrumb();
-  
-  let url = `https://query2.finance.yahoo.com/v7/finance/options/${yahooSymbol}?crumb=${encodeURIComponent(crumb)}`;
-  if (expiry) url += `&date=${expiry}`;
-
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      "Cookie": cookie,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Yahoo Finance returned ${res.status}`);
+  if (!records?.data?.length) {
+    throw new Error("No options data available from NSE");
   }
 
-  const json = await res.json();
-  const result = json?.optionChain?.result?.[0];
-  if (!result) throw new Error("No options data returned");
+  // Get spot price from underlying value
+  const spot = records.underlyingValue || filtered?.data?.[0]?.PE?.underlyingValue || filtered?.data?.[0]?.CE?.underlyingValue || 0;
+  
+  // Get all available expiry dates
+  const expiryDates: string[] = records.expiryDates || [];
+  const expiries = expiryDates.map((d: string) => ({
+    timestamp: d, // NSE uses date strings like "27-Mar-2025"
+    label: d,
+  }));
 
-  return result;
-}
-
-function mergeChain(calls: YahooOption[], puts: YahooOption[]): OptionRow[] {
+  // Use selected expiry or first available
+  const activeExpiry = selectedExpiry || expiryDates[0];
+  
+  // Filter data for the selected expiry
+  const dataForExpiry = records.data.filter((row: any) => row.expiryDate === activeExpiry);
+  
+  // Build option chain
   const strikeMap = new Map<number, OptionRow>();
-
-  for (const c of calls) {
-    strikeMap.set(c.strike, {
-      strike: c.strike,
-      callOI: c.openInterest || 0,
-      callChange: c.change || 0,
-      callLTP: c.lastPrice || 0,
-      callIV: (c.impliedVolatility || 0) * 100,
-      callVolume: c.volume || 0,
-      putOI: 0, putChange: 0, putLTP: 0, putIV: 0, putVolume: 0,
-    });
-  }
-
-  for (const p of puts) {
-    const existing = strikeMap.get(p.strike);
-    if (existing) {
-      existing.putOI = p.openInterest || 0;
-      existing.putChange = p.change || 0;
-      existing.putLTP = p.lastPrice || 0;
-      existing.putIV = (p.impliedVolatility || 0) * 100;
-      existing.putVolume = p.volume || 0;
-    } else {
-      strikeMap.set(p.strike, {
-        strike: p.strike,
+  
+  for (const row of dataForExpiry) {
+    const strike = row.strikePrice;
+    
+    if (!strikeMap.has(strike)) {
+      strikeMap.set(strike, {
+        strike,
         callOI: 0, callChange: 0, callLTP: 0, callIV: 0, callVolume: 0,
-        putOI: p.openInterest || 0,
-        putChange: p.change || 0,
-        putLTP: p.lastPrice || 0,
-        putIV: (p.impliedVolatility || 0) * 100,
-        putVolume: p.volume || 0,
+        putOI: 0, putChange: 0, putLTP: 0, putIV: 0, putVolume: 0,
       });
+    }
+    
+    const entry = strikeMap.get(strike)!;
+    
+    if (row.CE) {
+      entry.callOI = row.CE.openInterest || 0;
+      entry.callChange = row.CE.changeinOpenInterest || 0;
+      entry.callLTP = row.CE.lastPrice || 0;
+      entry.callIV = row.CE.impliedVolatility || 0;
+      entry.callVolume = row.CE.totalTradedVolume || 0;
+    }
+    
+    if (row.PE) {
+      entry.putOI = row.PE.openInterest || 0;
+      entry.putChange = row.PE.changeinOpenInterest || 0;
+      entry.putLTP = row.PE.lastPrice || 0;
+      entry.putIV = row.PE.impliedVolatility || 0;
+      entry.putVolume = row.PE.totalTradedVolume || 0;
     }
   }
 
-  return Array.from(strikeMap.values()).sort((a, b) => a.strike - b.strike);
+  const chain = Array.from(strikeMap.values()).sort((a, b) => a.strike - b.strike);
+  
+  // Filter to ±15 strikes around ATM
+  const atmIndex = chain.findIndex(r => r.strike >= spot);
+  const startIdx = Math.max(0, atmIndex - 15);
+  const endIdx = Math.min(chain.length, atmIndex + 16);
+  const filteredChain = chain.slice(startIdx, endIdx);
+
+  // Calculate max pain
+  const maxPain = calculateMaxPain(filteredChain);
+  
+  // Calculate totals from filtered data
+  const totalCallOI = filteredChain.reduce((s, r) => s + r.callOI, 0);
+  const totalPutOI = filteredChain.reduce((s, r) => s + r.putOI, 0);
+  const pcr = totalCallOI > 0 ? totalPutOI / totalCallOI : 0;
+
+  return {
+    spot,
+    chain: filteredChain,
+    expiries,
+    currentExpiry: activeExpiry,
+    maxPain,
+    pcr,
+    totalCallOI,
+    totalPutOI,
+  };
 }
 
 function calculateMaxPain(chain: OptionRow[]): number {
@@ -152,40 +182,22 @@ serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const symbol = (body.symbol || "NIFTY").toUpperCase();
-    const expiryTimestamp = body.expiry || undefined;
+    const selectedExpiry = body.expiry || undefined;
 
-    const result = await fetchOptionsChain(symbol, expiryTimestamp);
-
-    const spot = result.quote?.regularMarketPrice || 0;
-    const calls: YahooOption[] = result.options?.[0]?.calls || [];
-    const puts: YahooOption[] = result.options?.[0]?.puts || [];
-    const expirationDates: number[] = result.expirationDates || [];
-
-    const expiries = expirationDates.map((ts: number) => ({
-      timestamp: ts,
-      label: new Date(ts * 1000).toLocaleDateString("en-IN", {
-        day: "2-digit", month: "short", year: "numeric",
-      }),
-    }));
-
-    const chain = mergeChain(calls, puts);
-
-    const atmIndex = chain.findIndex((r) => r.strike >= spot);
-    const startIdx = Math.max(0, atmIndex - 15);
-    const endIdx = Math.min(chain.length, atmIndex + 16);
-    const filteredChain = chain.slice(startIdx, endIdx);
-
-    const maxPain = calculateMaxPain(filteredChain);
-    const totalCallOI = filteredChain.reduce((s, r) => s + r.callOI, 0);
-    const totalPutOI = filteredChain.reduce((s, r) => s + r.putOI, 0);
-    const pcr = totalCallOI > 0 ? totalPutOI / totalCallOI : 0;
+    // Get NSE session cookies first
+    const cookies = await getNSECookies();
+    
+    // Fetch option chain data
+    const nseData = await fetchNSEOptionChain(symbol, cookies);
+    
+    // Process and format the data
+    const processed = processNSEData(nseData, selectedExpiry);
 
     return new Response(
       JSON.stringify({
-        success: true, symbol, spot,
-        chain: filteredChain, expiries,
-        currentExpiry: expirationDates[0] || null,
-        maxPain, pcr, totalCallOI, totalPutOI,
+        success: true,
+        symbol,
+        ...processed,
         fetchedAt: new Date().toISOString(),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

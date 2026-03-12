@@ -27,7 +27,7 @@ type OptionRow = {
 };
 
 type ExpiryOption = {
-  timestamp: number;
+  timestamp: string;
   label: string;
 };
 
@@ -36,7 +36,7 @@ type FnOData = {
   spot: number;
   chain: OptionRow[];
   expiries: ExpiryOption[];
-  currentExpiry: number | null;
+  currentExpiry: string | null;
   maxPain: number;
   pcr: number;
   totalCallOI: number;
@@ -138,7 +138,7 @@ const FnODashboardPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async (sym: string, exp?: number) => {
+  const fetchData = useCallback(async (sym: string, exp?: string) => {
     try {
       setError(null);
       const body: Record<string, unknown> = { symbol: sym };
@@ -170,12 +170,12 @@ const FnODashboardPage = () => {
   const handleExpiryChange = (val: string) => {
     setExpiry(val);
     setRefreshing(true);
-    fetchData(symbol, Number(val));
+    fetchData(symbol, val);
   };
 
   const handleRefresh = () => {
     setRefreshing(true);
-    fetchData(symbol, expiry ? Number(expiry) : undefined);
+    fetchData(symbol, expiry || undefined);
   };
 
   const chain = data?.chain || [];
