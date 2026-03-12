@@ -4,6 +4,7 @@ import { motion, Variants, Easing } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 import heroBg from "@/assets/hero-bg.jpg";
 
 type IndexData = { name: string; price: string; change: string; up: boolean };
@@ -56,15 +57,16 @@ const StatCounter = ({ target, label, suffix = "", delay = 0 }: { target: number
       transition={{ delay, duration: 0.6 }}
       onAnimationComplete={start}
     >
-      <div className="text-3xl md:text-4xl font-bold text-primary-foreground">
+      <div className="text-2xl md:text-4xl font-bold text-primary-foreground">
         {count.toLocaleString('en-IN')}{suffix}
       </div>
-      <div className="text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">{label}</div>
+      <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">{label}</div>
     </motion.div>
   );
 };
 
 const Hero = () => {
+  const isMobile = useIsMobile();
   const { indices: liveIndices, commodities, marketOverview, loading } = useLiveMarket();
 
   // Use live data for hero index cards
@@ -125,47 +127,51 @@ const Hero = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-[85vh] md:min-h-screen flex items-center overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(135deg, hsl(213 80% 12% / 0.92) 0%, hsl(213 80% 22% / 0.88) 50%, hsl(145 70% 25% / 0.85) 100%), url(${heroBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
+        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
       }}
     >
-      {/* Animated background elements */}
+      {/* Animated background elements — reduced on mobile */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-secondary/30 to-brand-gold/20 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3], x: [0, 50, 0], y: [0, 30, 0] }}
+          className="absolute top-10 left-10 w-48 md:w-96 h-48 md:h-96 bg-gradient-to-br from-secondary/30 to-brand-gold/20 rounded-full blur-3xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
-          className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-tl from-brand-gold/20 to-secondary/30 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2], x: [0, -40, 0], y: [0, -20, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/3 w-72 h-72 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl"
-          animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        />
-        {/* Floating particles */}
-        {[...Array(10)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: `${4 + (i % 3) * 4}px`,
-              height: `${4 + (i % 3) * 4}px`,
-              left: `${8 + i * 9}%`,
-              top: `${15 + (i % 5) * 17}%`,
-              background: i % 2 === 0 ? 'hsl(145 70% 40% / 0.4)' : 'hsl(45 90% 55% / 0.3)',
-            }}
-            animate={{ y: [-20, 20, -20], x: [-10, 10, -10], opacity: [0.3, 0.9, 0.3], scale: [1, 1.5, 1] }}
-            transition={{ duration: 4 + i * 0.7, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
-          />
-        ))}
+        {!isMobile && (
+          <>
+            <motion.div
+              className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-tl from-brand-gold/20 to-secondary/30 rounded-full blur-3xl"
+              animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2] }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute top-1/2 left-1/3 w-72 h-72 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl"
+              animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            />
+            {/* Floating particles — desktop only */}
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: `${4 + (i % 3) * 4}px`,
+                  height: `${4 + (i % 3) * 4}px`,
+                  left: `${8 + i * 15}%`,
+                  top: `${15 + (i % 4) * 20}%`,
+                  background: i % 2 === 0 ? 'hsl(145 70% 40% / 0.4)' : 'hsl(45 90% 55% / 0.3)',
+                }}
+                animate={{ y: [-20, 20, -20], opacity: [0.3, 0.9, 0.3] }}
+                transition={{ duration: 4 + i * 0.7, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
+              />
+            ))}
+          </>
+        )}
         {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-5"
@@ -174,69 +180,53 @@ const Hero = () => {
             backgroundSize: '50px 50px',
           }}
         />
-        {/* Animated diagonal lines */}
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={`line-${i}`}
-            className="absolute h-px opacity-10"
-            style={{
-              width: '200px',
-              background: 'linear-gradient(90deg, transparent, hsl(145 70% 40%), transparent)',
-              top: `${20 + i * 15}%`,
-              left: '-200px',
-            }}
-            animate={{ x: ['0vw', '120vw'] }}
-            transition={{ duration: 8 + i * 2, repeat: Infinity, ease: "linear", delay: i * 1.5 }}
-          />
-        ))}
       </div>
 
-      <div className="container mx-auto px-4 py-24 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
 
             {/* Trust badges row */}
-            <motion.div className="flex flex-wrap gap-3 mb-6" variants={itemVariants}>
+            <motion.div className="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6" variants={itemVariants}>
               {trustBadges.map(({ icon: Icon, label }, i) => (
                 <motion.div
                   key={label}
-                  className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 backdrop-blur-md"
+                  className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-2.5 py-1 md:px-3 md:py-1.5 backdrop-blur-md"
                   whileHover={{ scale: 1.08, backgroundColor: "rgba(255,255,255,0.15)" }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.1 }}
                 >
-                  <Icon className="w-3.5 h-3.5 text-secondary" />
-                  <span className="text-primary-foreground text-xs font-semibold">{label}</span>
+                  <Icon className="w-3 h-3 md:w-3.5 md:h-3.5 text-secondary" />
+                  <span className="text-primary-foreground text-[11px] md:text-xs font-semibold">{label}</span>
                 </motion.div>
               ))}
             </motion.div>
 
-            {/* Live Index Cards — Groww/Moneycontrol style */}
-            <motion.div className="flex flex-wrap gap-3 mb-8" variants={itemVariants}>
+            {/* Live Index Cards */}
+            <motion.div className="grid grid-cols-3 gap-2 md:flex md:flex-wrap md:gap-3 mb-6 md:mb-8" variants={itemVariants}>
               {heroIndices.map((idx, i) => (
                 <motion.div
                   key={idx.name}
-                  className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 backdrop-blur-md min-w-[160px]"
+                  className="flex items-center gap-2 md:gap-3 bg-white/10 border border-white/20 rounded-xl px-2.5 py-2 md:px-4 md:py-3 backdrop-blur-md"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
-                  whileHover={{ scale: 1.04, backgroundColor: "rgba(255,255,255,0.15)" }}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idx.up ? "bg-secondary/20" : "bg-destructive/20"}`}>
-                    {idx.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
+                  <div className={`w-6 h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center shrink-0 ${idx.up ? "bg-secondary/20" : "bg-destructive/20"}`}>
+                    {idx.up ? <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-secondary" /> : <TrendingDown className="w-3 h-3 md:w-4 md:h-4 text-destructive" />}
                   </div>
-                  <div>
-                    <div className="text-[10px] text-primary-foreground/60 font-semibold uppercase tracking-wide">{idx.name}</div>
-                    <div className="text-sm font-bold text-primary-foreground">{idx.price}</div>
-                    <div className={`text-xs font-bold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
+                  <div className="min-w-0">
+                    <div className="text-[9px] md:text-[10px] text-primary-foreground/60 font-semibold uppercase tracking-wide truncate">{idx.name}</div>
+                    <div className="text-xs md:text-sm font-bold text-primary-foreground truncate">{idx.price}</div>
+                    <div className={`text-[10px] md:text-xs font-bold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
                   </div>
                 </motion.div>
               ))}
             </motion.div>
 
             <motion.h1
-              className="font-heading text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-8 leading-[1.1]"
+              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 md:mb-8 leading-[1.1]"
               variants={itemVariants}
             >
               <motion.span initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.7 }}>
@@ -253,25 +243,20 @@ const Hero = () => {
               </motion.span>
             </motion.h1>
 
-            <motion.p className="text-lg md:text-xl text-primary-foreground/85 mb-6 max-w-xl leading-relaxed" variants={itemVariants}>
+            <motion.p className="text-base md:text-xl text-primary-foreground/85 mb-4 md:mb-6 max-w-xl leading-relaxed" variants={itemVariants}>
               Parasram India brings decades of stock broking expertise to Panipat.
               Join thousands of investors who trust us with their financial future.
             </motion.p>
 
             {/* Rotating investment tip */}
             <motion.div
-              className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-10 backdrop-blur-md"
+              className="flex items-center gap-2 md:gap-3 bg-white/10 border border-white/20 rounded-xl px-3 py-2 md:px-4 md:py-3 mb-6 md:mb-10 backdrop-blur-md"
               variants={itemVariants}
             >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-4 h-4 text-brand-gold flex-shrink-0" />
-              </motion.div>
+              <Sparkles className="w-4 h-4 text-brand-gold flex-shrink-0" />
               <motion.span
                 key={tipIndex}
-                className="text-sm text-primary-foreground/90"
+                className="text-xs md:text-sm text-primary-foreground/90 line-clamp-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
@@ -281,16 +266,16 @@ const Hero = () => {
               </motion.span>
             </motion.div>
 
-            <motion.div className="flex flex-col sm:flex-row gap-4 mb-14" variants={itemVariants}>
+            <motion.div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-8 md:mb-14" variants={itemVariants}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-lg px-10 py-6 shadow-xl shadow-secondary/30 transition-all duration-300"
+                  className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-sm md:text-lg px-6 md:px-10 py-4 md:py-6 shadow-xl shadow-secondary/30 transition-all duration-300 w-full sm:w-auto"
                 >
                   <Link to="/open-account">
                     Start Investing Today
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                   </Link>
                 </Button>
               </motion.div>
@@ -299,7 +284,7 @@ const Hero = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-lg px-10 py-6 backdrop-blur-sm transition-all duration-300"
+                  className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-sm md:text-lg px-6 md:px-10 py-4 md:py-6 backdrop-blur-sm transition-all duration-300 w-full sm:w-auto"
                 >
                   <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer">Start Trading Now</a>
                 </Button>
@@ -308,19 +293,27 @@ const Hero = () => {
 
             {/* Stats with count-up */}
             <motion.div
-              className="grid grid-cols-3 gap-6 pt-8 border-t border-primary-foreground/20"
+              className="grid grid-cols-3 gap-4 md:gap-6 pt-6 md:pt-8 border-t border-primary-foreground/20"
               variants={containerVariants}
             >
               <StatCounter target={50} suffix="+" label="Years Legacy" delay={0.8} />
-              <StatCounter target={1000000} suffix="+" label="Happy Clients" delay={1.0} />
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0, duration: 0.6 }}
+              >
+                <div className="text-2xl md:text-4xl font-bold text-primary-foreground">10L+</div>
+                <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Happy Clients</div>
+              </motion.div>
               <motion.div
                 className="text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2, duration: 0.6 }}
               >
-                <div className="text-3xl md:text-4xl font-bold text-primary-foreground">SEBI</div>
-                <div className="text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Registered</div>
+                <div className="text-2xl md:text-4xl font-bold text-primary-foreground">SEBI</div>
+                <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Registered</div>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -436,10 +429,10 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — hidden on mobile */}
       <motion.a
         href="#about"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-primary-foreground/60 hover:text-primary-foreground transition-colors cursor-pointer"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-primary-foreground/60 hover:text-primary-foreground transition-colors cursor-pointer"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5, duration: 0.5 }}
