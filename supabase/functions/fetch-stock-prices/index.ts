@@ -52,18 +52,20 @@ const MARKET_SYMBOLS = [
   { symbol: "LT.NS", name: "L&T" },
 ];
 
+// Commodities: fetched in USD, converted to INR using live USD/INR rate
+// Conversion factors to MCX-standard units
 const COMMODITY_SYMBOLS = [
-  { symbol: "GC=F", name: "GOLD", unit: "USD/oz" },
-  { symbol: "SI=F", name: "SILVER", unit: "USD/oz" },
-  { symbol: "CL=F", name: "CRUDE OIL", unit: "USD/bbl" },
-  { symbol: "NG=F", name: "NAT GAS", unit: "USD/MMBtu" },
-  { symbol: "HG=F", name: "COPPER", unit: "USD/lb" },
-  { symbol: "ALI=F", name: "ALUMINIUM", unit: "USD/lb" },
-  { symbol: "ZW=F", name: "WHEAT", unit: "USD/bu" },
-  { symbol: "USDINR=X", name: "USD/INR", unit: "" },
-  { symbol: "EURINR=X", name: "EUR/INR", unit: "" },
-  { symbol: "GBPINR=X", name: "GBP/INR", unit: "" },
-  { symbol: "^INDIAVIX", name: "INDIA VIX", unit: "" },
+  { symbol: "GC=F", name: "GOLD", unit: "₹/10g", convert: true, factor: 0.32151 }, // 1 oz = 31.1035g → 10g = 10/31.1035 oz
+  { symbol: "SI=F", name: "SILVER", unit: "₹/kg", convert: true, factor: 32.1507 }, // 1 oz = 31.1035g → 1kg = 1000/31.1035 oz
+  { symbol: "CL=F", name: "CRUDE OIL", unit: "₹/bbl", convert: true, factor: 1 },
+  { symbol: "NG=F", name: "NAT GAS", unit: "₹/MMBtu", convert: true, factor: 1 },
+  { symbol: "HG=F", name: "COPPER", unit: "₹/kg", convert: true, factor: 2.20462 }, // 1 lb = 0.4536kg → 1kg = 2.20462 lb
+  { symbol: "ALI=F", name: "ALUMINIUM", unit: "₹/kg", convert: true, factor: 2.20462 },
+  { symbol: "ZW=F", name: "WHEAT", unit: "₹/quintal", convert: true, factor: 3.67437 }, // 1 bushel = ~27.216kg → 1 quintal = 100/27.216 bu
+  { symbol: "USDINR=X", name: "USD/INR", unit: "", convert: false, factor: 1 },
+  { symbol: "EURINR=X", name: "EUR/INR", unit: "", convert: false, factor: 1 },
+  { symbol: "GBPINR=X", name: "GBP/INR", unit: "", convert: false, factor: 1 },
+  { symbol: "^INDIAVIX", name: "INDIA VIX", unit: "", convert: false, factor: 1 },
 ];
 
 // Global market indices
@@ -304,17 +306,34 @@ Deno.serve(async (req) => {
           low: q.low ? `₹${formatPrice(q.low)}` : undefined,
         };
       })),
-      Promise.all(COMMODITY_SYMBOLS.map(async (item) => {
-        const q = await fetchYahooQuote(item.symbol);
-        if (!q) return null;
-        return {
-          name: item.name,
-          price: formatPrice(q.price, item.unit !== "" && !item.name.includes("INR")),
-          change: `${q.changePercent >= 0 ? '+' : ''}${q.changePercent.toFixed(2)}%`,
-          up: q.changePercent >= 0,
-          unit: item.unit,
-        };
-      })),
+      // First fetch USD/INR rate for commodity conversion
+      (async () => {
+        const usdInrQuote = await fetchYahooQuote("USDINR=X");
+        const usdInrRate = usdInrQuote?.price || 83.5; // fallback rate
+
+        const results = await Promise.all(COMMODITY_SYMBOLS.map(async (item) => {
+          const q = await fetchYahooQuote(item.symbol);
+          if (!q) return null;
+
+          let displayPrice = q.price;
+          if (item.convert && item.factor) {
+            // Convert: USD price × factor × USD/INR rate = INR price
+            displayPrice = q.price * item.factor * usdInrRate;
+          }
+
+          const isCurrency = item.name.includes("INR");
+          const isVix = item.name === "INDIA VIX";
+
+          return {
+            name: item.name,
+            price: (isCurrency || isVix) ? formatPrice(displayPrice, false) : `₹${formatPrice(displayPrice)}`,
+            change: `${q.changePercent >= 0 ? '+' : ''}${q.changePercent.toFixed(2)}%`,
+            up: q.changePercent >= 0,
+            unit: item.unit,
+          };
+        }));
+        return results;
+      })(),
       // Global markets
       Promise.all(GLOBAL_SYMBOLS.map(async (g) => {
         const q = await fetchYahooQuote(g.symbol);

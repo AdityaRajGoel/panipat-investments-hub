@@ -117,11 +117,11 @@ const fallbackStocks: LiveStock[] = [
 ];
 
 const fallbackCommodities: LiveStock[] = [
-  { name: "GOLD", price: "2,345.60", change: "+0.45%", up: true, unit: "USD/oz" },
-  { name: "SILVER", price: "29.82", change: "+1.20%", up: true, unit: "USD/oz" },
-  { name: "CRUDE OIL", price: "78.45", change: "-0.65%", up: false, unit: "USD/bbl" },
-  { name: "NAT GAS", price: "2.34", change: "-1.10%", up: false, unit: "USD/MMBtu" },
-  { name: "COPPER", price: "4.52", change: "+0.80%", up: true, unit: "USD/lb" },
+  { name: "GOLD", price: "₹62,450.00", change: "+0.45%", up: true, unit: "₹/10g" },
+  { name: "SILVER", price: "₹78,920.00", change: "+1.20%", up: true, unit: "₹/kg" },
+  { name: "CRUDE OIL", price: "₹6,540.00", change: "-0.65%", up: false, unit: "₹/bbl" },
+  { name: "NAT GAS", price: "₹195.00", change: "-1.10%", up: false, unit: "₹/MMBtu" },
+  { name: "COPPER", price: "₹832.00", change: "+0.80%", up: true, unit: "₹/kg" },
   { name: "USD/INR", price: "83.42", change: "+0.05%", up: true, unit: "" },
   { name: "EUR/INR", price: "90.15", change: "-0.12%", up: false, unit: "" },
   { name: "GBP/INR", price: "105.78", change: "+0.08%", up: true, unit: "" },
