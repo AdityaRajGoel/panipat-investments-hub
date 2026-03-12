@@ -14,7 +14,6 @@ const Header = () => {
     { href: "/services", label: "Services" },
     { href: "/unlisted-zone", label: "Unlisted Zone", highlight: true },
     { href: "/screener", label: "Screener" },
-    { href: "/fno", label: "F&O" },
     { href: "/holidays", label: "Holidays" },
     { href: "/about", label: "About" },
     { href: "/team", label: "Team" },
