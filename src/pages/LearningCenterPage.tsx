@@ -136,8 +136,18 @@ const NEWS_CATEGORY_COLORS: Record<string, string> = {
 };
 
 const LIVE_CHANNELS = [
-  { name: "Zee Business", channelId: "UCkXopQ3ubd-rnXnStZqCl2w", description: "India's leading Hindi business news channel covering markets, economy, and corporate news" },
-  { name: "CNBC Awaaz", channelId: "UCN-GCUOe2P9OhR6ynblmGsQ", description: "Hindi business news with live market analysis, stock recommendations, and expert opinions" },
+  {
+    name: "Zee Business",
+    handle: "ZeeBusiness",
+    channelId: "UCkXopQ3ubd-rnXnStZqCl2w",
+    description: "India's leading Hindi business news channel covering markets, economy, and corporate news"
+  },
+  {
+    name: "CNBC Awaaz",
+    handle: "CNBCAwaaz",
+    channelId: "UCQIycDaLsBpMKjOCeaKUYVg",
+    description: "Hindi business news with live market analysis, stock recommendations, and expert opinions"
+  },
 ];
 
 const LearningCenterPage = () => {
@@ -150,6 +160,8 @@ const LearningCenterPage = () => {
   const [worldNews, setWorldNews] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsTab, setNewsTab] = useState<"indian" | "world">("indian");
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [liveEmbeds, setLiveEmbeds] = useState<Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -181,11 +193,39 @@ const LearningCenterPage = () => {
     }
   };
 
+  const fetchLiveBroadcasts = async () => {
+    setLiveLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-live-broadcasts');
+      if (!error && data?.success && Array.isArray(data.channels)) {
+        const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>, channel: any) => {
+          acc[channel.channelId] = {
+            embedUrl: channel.embedUrl || `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`,
+            watchUrl: channel.watchUrl || channel.liveUrl || `https://www.youtube.com/@${channel.handle}/live`,
+            title: channel.title || null,
+          };
+          return acc;
+        }, {});
+        setLiveEmbeds(nextEmbeds);
+      }
+    } catch (e) {
+      console.error('Live TV fetch error:', e);
+    } finally {
+      setLiveLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeSection === "news" && indianNews.length === 0) {
       fetchNews();
     }
   }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === "live" && Object.keys(liveEmbeds).length === 0) {
+      fetchLiveBroadcasts();
+    }
+  }, [activeSection, liveEmbeds]);
 
   const filtered = useMemo(() => articles.filter(a => {
     const matchCat = category === "all" || a.category === category;
@@ -370,46 +410,65 @@ const LearningCenterPage = () => {
           {/* LIVE TV */}
           {activeSection === "live" && (
             <motion.div key="live" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={fetchLiveBroadcasts}
+                  disabled={liveLoading}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${liveLoading ? "animate-spin" : ""}`} />
+                  Refresh Broadcasts
+                </button>
+              </div>
+
               <div className="grid md:grid-cols-2 gap-6">
-                {LIVE_CHANNELS.map((channel) => (
-                  <Card key={channel.name} className="overflow-hidden">
-                    <div className="aspect-video bg-muted relative">
-                      <iframe
-                        src={`https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`}
-                        title={`${channel.name} Live`}
-                        className="w-full h-full absolute inset-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-                        <span className="text-xs font-bold text-destructive">LIVE</span>
-                        <h3 className="font-heading text-lg font-bold text-foreground">{channel.name}</h3>
+                {LIVE_CHANNELS.map((channel) => {
+                  const channelEmbed = liveEmbeds[channel.channelId];
+                  const embedUrl = channelEmbed?.embedUrl || `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`;
+                  const watchUrl = channelEmbed?.watchUrl || `https://www.youtube.com/@${channel.handle}/live`;
+
+                  return (
+                    <Card key={channel.name} className="overflow-hidden">
+                      <div className="aspect-video bg-muted relative">
+                        <iframe
+                          src={embedUrl}
+                          title={`${channel.name} Live`}
+                          className="w-full h-full absolute inset-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          loading="lazy"
+                        />
                       </div>
-                      <p className="text-sm text-muted-foreground mb-3">{channel.description}</p>
-                      <a
-                        href={`https://www.youtube.com/@${channel.name === "Zee Business" ? "ZeeBusiness" : "CNBCAwaaz"}/live`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        Watch on YouTube
-                      </a>
-                    </div>
-                  </Card>
-                ))}
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+                          <span className="text-xs font-bold text-destructive">LIVE</span>
+                          <h3 className="font-heading text-lg font-bold text-foreground">{channel.name}</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{channel.description}</p>
+                        {channelEmbed?.title && (
+                          <p className="text-xs text-muted-foreground mb-3 line-clamp-2">Now Playing: {channelEmbed.title}</p>
+                        )}
+                        <a
+                          href={watchUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          Open Live on YouTube
+                        </a>
+                      </div>
+                    </Card>
+                  );
+                })}
               </div>
               <Card className="mt-6 p-6 bg-muted/30 border-border/50">
                 <div className="text-center">
                   <Radio className="w-8 h-8 text-brand-orange mx-auto mb-3" />
                   <h3 className="font-semibold text-foreground mb-2">Live Business News Broadcast</h3>
                   <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-                    Watch live market analysis and financial news from India's top business channels.
-                    YouTube embeds may be restricted in Lovable preview — <strong>publish your app</strong> or click "Watch on YouTube" for full access.
+                    Workaround enabled: we now load each channel's latest broadcast feed dynamically so the player remains playable even when standard live channel embeds fail.
                   </p>
                 </div>
               </Card>
