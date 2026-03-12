@@ -375,20 +375,13 @@ const LearningCenterPage = () => {
                   <Card key={channel.name} className="overflow-hidden">
                     <div className="aspect-video bg-muted relative">
                       <iframe
-                        src={`https://www.youtube-nocookie.com/embed/live_stream?channel=${channel.embedId}&autoplay=0`}
+                        src={`https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`}
                         title={`${channel.name} Live`}
                         className="w-full h-full absolute inset-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen
                         loading="lazy"
-                        referrerPolicy="no-referrer"
-                        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
                       />
-                      {/* Fallback overlay if iframe is blocked */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/80 opacity-0 hover:opacity-0 pointer-events-none">
-                        <Radio className="w-10 h-10 text-brand-orange mb-2" />
-                        <span className="text-sm font-semibold text-foreground">{channel.name}</span>
-                      </div>
                     </div>
                     <div className="p-4">
                       <div className="flex items-center gap-2 mb-1">
@@ -398,7 +391,7 @@ const LearningCenterPage = () => {
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{channel.description}</p>
                       <a
-                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(channel.name + " live")}&sp=EgJAAQ%253D%253D`}
+                        href={`https://www.youtube.com/@${channel.name === "Zee Business" ? "ZeeBusiness" : "CNBCAwaaz"}/live`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
@@ -415,8 +408,8 @@ const LearningCenterPage = () => {
                   <Radio className="w-8 h-8 text-brand-orange mx-auto mb-3" />
                   <h3 className="font-semibold text-foreground mb-2">Live Business News Broadcast</h3>
                   <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-                    Watch live market analysis, stock recommendations, and financial news from India's top business channels.
-                    If the embed is blocked in preview, click "Watch on YouTube" to open directly.
+                    Watch live market analysis and financial news from India's top business channels.
+                    YouTube embeds may be restricted in Lovable preview — <strong>publish your app</strong> or click "Watch on YouTube" for full access.
                   </p>
                 </div>
               </Card>
