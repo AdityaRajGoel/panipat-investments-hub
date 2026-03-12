@@ -27,7 +27,7 @@ type OptionRow = {
 };
 
 type ExpiryOption = {
-  timestamp: number;
+  timestamp: string;
   label: string;
 };
 
@@ -36,7 +36,7 @@ type FnOData = {
   spot: number;
   chain: OptionRow[];
   expiries: ExpiryOption[];
-  currentExpiry: number | null;
+  currentExpiry: string | null;
   maxPain: number;
   pcr: number;
   totalCallOI: number;
