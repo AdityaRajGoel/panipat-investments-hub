@@ -47,6 +47,48 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_articles: {
+        Row: {
+          category: string
+          content: string
+          cover_image: string | null
+          created_at: string
+          excerpt: string
+          id: string
+          published: boolean
+          read_time: number
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string
+          id?: string
+          published?: boolean
+          read_time?: number
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string
+          id?: string
+          published?: boolean
+          read_time?: number
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_cache: {
         Row: {
           data: Json

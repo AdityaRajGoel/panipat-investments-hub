@@ -1,10 +1,16 @@
-import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3 } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import ThemeToggle from "@/components/ThemeToggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,10 +20,18 @@ const Header = () => {
     { href: "/services", label: "Services" },
     { href: "/unlisted-zone", label: "Unlisted Zone", highlight: true },
     { href: "/screener", label: "Screener" },
-    { href: "/holidays", label: "Holidays" },
+    { href: "/learn", label: "Learn" },
     { href: "/about", label: "About" },
-    { href: "/team", label: "Team" },
     { href: "/contact", label: "Contact" },
+  ];
+
+  const toolLinks = [
+    { href: "/margin-calculator", label: "Margin Calculator" },
+    { href: "/brokerage-calculator", label: "Brokerage Calculator" },
+    { href: "/compare", label: "Stock Comparison" },
+    { href: "/fno", label: "F&O Dashboard" },
+    { href: "/holidays", label: "Holiday Calendar" },
+    { href: "/52-week-tracker", label: "52 Week Tracker" },
   ];
 
   return (
@@ -62,12 +76,12 @@ const Header = () => {
             <img src={logo} alt="Parasram - Science of Investment" className="h-10 md:h-20 w-auto" />
           </Link>
           
-          <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
+          <nav className="hidden md:flex items-center gap-5" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className={`font-medium transition-colors ${
+                className={`font-medium transition-colors text-sm ${
                   location.pathname === link.href
                     ? "text-secondary"
                     : link.highlight
@@ -81,6 +95,20 @@ const Header = () => {
                 )}
               </Link>
             ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger className={`font-medium text-sm transition-colors flex items-center gap-1 hover:text-secondary ${toolLinks.some(t => location.pathname === t.href) ? "text-secondary" : "text-foreground"}`}>
+                Tools <ChevronDown className="w-3.5 h-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-48">
+                {toolLinks.map(link => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link to={link.href} className={location.pathname === link.href ? "text-secondary" : ""}>
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
           
           <div className="flex items-center gap-2">
@@ -136,7 +164,7 @@ const Header = () => {
               transition={{ duration: 0.3 }}
               className="md:hidden overflow-hidden border-t border-border"
             >
-              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3" aria-label="Mobile navigation">
+               <nav className="container mx-auto px-4 py-4 flex flex-col gap-3" aria-label="Mobile navigation">
                 {navLinks.map((link, i) => (
                   <motion.div
                     key={link.href}
@@ -157,10 +185,31 @@ const Header = () => {
                     </Link>
                   </motion.div>
                 ))}
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Tools</p>
+                {toolLinks.map((link, i) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (navLinks.length + i) * 0.05 }}
+                  >
+                    <Link
+                      to={link.href}
+                      className={`block text-sm py-1.5 border-b border-border/20 transition-colors ${
+                        location.pathname === link.href
+                          ? "text-secondary"
+                          : "text-foreground hover:text-secondary"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                ))}
                 <Button 
                   asChild
                   variant="outline"
-                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold w-full"
+                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold w-full mt-2"
                 >
                   <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
                     <LogIn className="w-4 h-4 mr-1" />

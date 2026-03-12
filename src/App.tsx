@@ -30,6 +30,10 @@ const Week52TrackerPage = lazy(() => import("./pages/Week52TrackerPage"));
 const FnODashboardPage = lazy(() => import("./pages/FnODashboardPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const MarginCalculatorPage = lazy(() => import("./pages/MarginCalculatorPage"));
+const BrokerageCalculatorPage = lazy(() => import("./pages/BrokerageCalculatorPage"));
+const StockComparisonPage = lazy(() => import("./pages/StockComparisonPage"));
+const LearningCenterPage = lazy(() => import("./pages/LearningCenterPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
@@ -139,6 +143,10 @@ const App = () => (
                 <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/margin-calculator" element={<MarginCalculatorPage />} />
+                <Route path="/brokerage-calculator" element={<BrokerageCalculatorPage />} />
+                <Route path="/compare" element={<StockComparisonPage />} />
+                <Route path="/learn" element={<LearningCenterPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
