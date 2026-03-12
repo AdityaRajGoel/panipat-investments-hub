@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { usePageTracking } from "@/hooks/usePageTracking";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -27,6 +28,8 @@ const StockScreenerPage = lazy(() => import("./pages/StockScreenerPage"));
 const HolidayCalendarPage = lazy(() => import("./pages/HolidayCalendarPage"));
 const Week52TrackerPage = lazy(() => import("./pages/Week52TrackerPage"));
 const FnODashboardPage = lazy(() => import("./pages/FnODashboardPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
@@ -118,25 +121,29 @@ const App = () => (
         <Analytics />
         <SpeedInsights />
         <BrowserRouter>
-          <PageTracker />
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/unlisted-zone" element={<UnlistedZonePage />} />
-              <Route path="/team" element={<TeamPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/open-account" element={<OpenAccountPage />} />
-              <Route path="/screener" element={<StockScreenerPage />} />
-              <Route path="/fno" element={<FnODashboardPage />} />
-              <Route path="/holidays" element={<HolidayCalendarPage />} />
-              <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <AuthProvider>
+            <PageTracker />
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/unlisted-zone" element={<UnlistedZonePage />} />
+                <Route path="/team" element={<TeamPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/open-account" element={<OpenAccountPage />} />
+                <Route path="/screener" element={<StockScreenerPage />} />
+                <Route path="/fno" element={<FnODashboardPage />} />
+                <Route path="/holidays" element={<HolidayCalendarPage />} />
+                <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </AuthProvider>
         </BrowserRouter>
       </LiveMarketProvider>
     </TooltipProvider>
