@@ -1,10 +1,16 @@
-import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3 } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import ThemeToggle from "@/components/ThemeToggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,10 +20,18 @@ const Header = () => {
     { href: "/services", label: "Services" },
     { href: "/unlisted-zone", label: "Unlisted Zone", highlight: true },
     { href: "/screener", label: "Screener" },
-    { href: "/holidays", label: "Holidays" },
+    { href: "/learn", label: "Learn" },
     { href: "/about", label: "About" },
-    { href: "/team", label: "Team" },
     { href: "/contact", label: "Contact" },
+  ];
+
+  const toolLinks = [
+    { href: "/margin-calculator", label: "Margin Calculator" },
+    { href: "/brokerage-calculator", label: "Brokerage Calculator" },
+    { href: "/compare", label: "Stock Comparison" },
+    { href: "/fno", label: "F&O Dashboard" },
+    { href: "/holidays", label: "Holiday Calendar" },
+    { href: "/52-week-tracker", label: "52 Week Tracker" },
   ];
 
   return (
