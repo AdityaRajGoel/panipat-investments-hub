@@ -162,6 +162,8 @@ const LearningCenterPage = () => {
   const [newsTab, setNewsTab] = useState<"indian" | "world">("indian");
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveEmbeds, setLiveEmbeds] = useState<Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>>({});
+  const [iframeErrors, setIframeErrors] = useState<Record<string, boolean>>({});
+  const healthCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -207,6 +209,7 @@ const LearningCenterPage = () => {
           return acc;
         }, {});
         setLiveEmbeds(nextEmbeds);
+        setIframeErrors({});
       }
     } catch (e) {
       console.error('Live TV fetch error:', e);
@@ -215,17 +218,48 @@ const LearningCenterPage = () => {
     }
   };
 
+  const handleIframeError = (channelId: string) => {
+    setIframeErrors(prev => ({ ...prev, [channelId]: true }));
+  };
+
+  // Auto-refresh every 60s when live tab is active, and auto-recover on iframe errors
+  useEffect(() => {
+    if (activeSection === "live") {
+      if (Object.keys(liveEmbeds).length === 0) {
+        fetchLiveBroadcasts();
+      }
+
+      healthCheckRef.current = setInterval(() => {
+        const hasErrors = Object.values(iframeErrors).some(Boolean);
+        if (hasErrors) {
+          console.log('[LiveTV] Health check: iframe error detected, refreshing broadcasts...');
+          fetchLiveBroadcasts();
+        }
+      }, 30000); // Check every 30s
+
+      // Full refresh every 90s regardless
+      const fullRefresh = setInterval(() => {
+        console.log('[LiveTV] Auto-refreshing broadcast IDs...');
+        fetchLiveBroadcasts();
+      }, 90000);
+
+      return () => {
+        if (healthCheckRef.current) clearInterval(healthCheckRef.current);
+        clearInterval(fullRefresh);
+      };
+    } else {
+      if (healthCheckRef.current) {
+        clearInterval(healthCheckRef.current);
+        healthCheckRef.current = null;
+      }
+    }
+  }, [activeSection, iframeErrors]);
+
   useEffect(() => {
     if (activeSection === "news" && indianNews.length === 0) {
       fetchNews();
     }
   }, [activeSection]);
-
-  useEffect(() => {
-    if (activeSection === "live" && Object.keys(liveEmbeds).length === 0) {
-      fetchLiveBroadcasts();
-    }
-  }, [activeSection, liveEmbeds]);
 
   const filtered = useMemo(() => articles.filter(a => {
     const matchCat = category === "all" || a.category === category;
