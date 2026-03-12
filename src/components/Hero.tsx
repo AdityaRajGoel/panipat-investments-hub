@@ -127,47 +127,51 @@ const Hero = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-[85vh] md:min-h-screen flex items-center overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(135deg, hsl(213 80% 12% / 0.92) 0%, hsl(213 80% 22% / 0.88) 50%, hsl(145 70% 25% / 0.85) 100%), url(${heroBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
+        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
       }}
     >
-      {/* Animated background elements */}
+      {/* Animated background elements — reduced on mobile */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-secondary/30 to-brand-gold/20 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3], x: [0, 50, 0], y: [0, 30, 0] }}
+          className="absolute top-10 left-10 w-48 md:w-96 h-48 md:h-96 bg-gradient-to-br from-secondary/30 to-brand-gold/20 rounded-full blur-3xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
-          className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-tl from-brand-gold/20 to-secondary/30 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2], x: [0, -40, 0], y: [0, -20, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/3 w-72 h-72 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl"
-          animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        />
-        {/* Floating particles */}
-        {[...Array(10)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: `${4 + (i % 3) * 4}px`,
-              height: `${4 + (i % 3) * 4}px`,
-              left: `${8 + i * 9}%`,
-              top: `${15 + (i % 5) * 17}%`,
-              background: i % 2 === 0 ? 'hsl(145 70% 40% / 0.4)' : 'hsl(45 90% 55% / 0.3)',
-            }}
-            animate={{ y: [-20, 20, -20], x: [-10, 10, -10], opacity: [0.3, 0.9, 0.3], scale: [1, 1.5, 1] }}
-            transition={{ duration: 4 + i * 0.7, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
-          />
-        ))}
+        {!isMobile && (
+          <>
+            <motion.div
+              className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-tl from-brand-gold/20 to-secondary/30 rounded-full blur-3xl"
+              animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2] }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute top-1/2 left-1/3 w-72 h-72 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl"
+              animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            />
+            {/* Floating particles — desktop only */}
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: `${4 + (i % 3) * 4}px`,
+                  height: `${4 + (i % 3) * 4}px`,
+                  left: `${8 + i * 15}%`,
+                  top: `${15 + (i % 4) * 20}%`,
+                  background: i % 2 === 0 ? 'hsl(145 70% 40% / 0.4)' : 'hsl(45 90% 55% / 0.3)',
+                }}
+                animate={{ y: [-20, 20, -20], opacity: [0.3, 0.9, 0.3] }}
+                transition={{ duration: 4 + i * 0.7, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
+              />
+            ))}
+          </>
+        )}
         {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-5"
@@ -176,21 +180,6 @@ const Hero = () => {
             backgroundSize: '50px 50px',
           }}
         />
-        {/* Animated diagonal lines */}
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={`line-${i}`}
-            className="absolute h-px opacity-10"
-            style={{
-              width: '200px',
-              background: 'linear-gradient(90deg, transparent, hsl(145 70% 40%), transparent)',
-              top: `${20 + i * 15}%`,
-              left: '-200px',
-            }}
-            animate={{ x: ['0vw', '120vw'] }}
-            transition={{ duration: 8 + i * 2, repeat: Infinity, ease: "linear", delay: i * 1.5 }}
-          />
-        ))}
       </div>
 
       <div className="container mx-auto px-4 py-24 relative z-10">
