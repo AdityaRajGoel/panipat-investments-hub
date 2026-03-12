@@ -60,13 +60,16 @@ const mutualFunds: Stock[] = [
   { name: "Nippon India Growth", price: "₹3,245.80", change: "+2.2%", up: true, volume: "₹1,340 Cr", high: "₹3,260.00", low: "₹3,178.40" },
 ];
 
-const commoditiesData: Stock[] = [
-  { name: "GOLD", price: "₹73,450/10g", change: "+0.8%", up: true, volume: "₹8,450 Cr", high: "₹73,680", low: "₹72,920" },
-  { name: "SILVER", price: "₹89,200/kg", change: "+1.2%", up: true, volume: "₹4,280 Cr", high: "₹89,850", low: "₹88,100" },
-  { name: "CRUDE OIL", price: "₹6,280/bbl", change: "-1.5%", up: false, volume: "₹3,120 Cr", high: "₹6,420", low: "₹6,240" },
-  { name: "NATURAL GAS", price: "₹185.40", change: "-2.1%", up: false, volume: "₹1,560 Cr", high: "₹192.80", low: "₹183.60" },
-  { name: "COPPER", price: "₹785.60/kg", change: "+0.4%", up: true, volume: "₹2,340 Cr", high: "₹790.20", low: "₹780.40" },
-  { name: "ALUMINIUM", price: "₹212.40/kg", change: "+0.6%", up: true, volume: "₹1,180 Cr", high: "₹214.80", low: "₹210.20" },
+const fallbackCommodities: Stock[] = [
+  { name: "GOLD", price: "$2,345.60/oz", change: "+0.45%", up: true, volume: "182K", high: "$2,358.40", low: "$2,330.20" },
+  { name: "SILVER", price: "$29.82/oz", change: "+1.20%", up: true, volume: "95K", high: "$30.10", low: "$29.45" },
+  { name: "CRUDE OIL", price: "$78.45/bbl", change: "-0.65%", up: false, volume: "245K", high: "$79.20", low: "$77.80" },
+  { name: "NAT GAS", price: "$2.34/MMBtu", change: "-1.10%", up: false, volume: "128K", high: "$2.42", low: "$2.30" },
+  { name: "COPPER", price: "$4.52/lb", change: "+0.80%", up: true, volume: "67K", high: "$4.56", low: "$4.48" },
+  { name: "ALUMINIUM", price: "$2.28/lb", change: "+0.60%", up: true, volume: "43K", high: "$2.30", low: "$2.25" },
+  { name: "WHEAT", price: "$5.82/bu", change: "-0.35%", up: false, volume: "54K", high: "$5.90", low: "$5.78" },
+  { name: "USD/INR", price: "₹83.42", change: "+0.05%", up: true, volume: "-", high: "₹83.55", low: "₹83.30" },
+  { name: "EUR/INR", price: "₹90.15", change: "-0.12%", up: false, volume: "-", high: "₹90.40", low: "₹89.95" },
 ];
 
 const marketStats = [
@@ -243,7 +246,7 @@ const tabConfig: { key: TabKey; label: string; icon: any; data: Stock[] }[] = [
   { key: "active", label: "Most Active", icon: Activity, data: mostActive },
   { key: "fno", label: "F&O", icon: Layers, data: fnoData },
   { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
-  { key: "commodities", label: "Commodities", icon: Gem, data: commoditiesData },
+  { key: "commodities", label: "Commodities", icon: Gem, data: fallbackCommodities },
 ];
 
 const MarketOverview = () => {
@@ -251,7 +254,21 @@ const MarketOverview = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("gainers");
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [chartData] = useState(() => new Map<string, number[]>());
-  const { marketOverview: liveData, fetchedAt } = useLiveMarket();
+  const { marketOverview: liveData, commodities: liveCommodities, fetchedAt } = useLiveMarket();
+
+  // Convert live commodities to Stock format
+  const liveCommodityStocks: Stock[] = useMemo(() => {
+    if (!liveCommodities?.length) return fallbackCommodities;
+    return liveCommodities
+      .filter(c => c.name !== "INDIA VIX")
+      .map(c => ({
+        name: c.name,
+        price: c.unit ? `$${c.price}/${c.unit.replace("USD/", "")}` : `₹${c.price}`,
+        change: c.change,
+        up: c.up,
+        volume: "-",
+      }));
+  }, [liveCommodities]);
 
   // Merge live data with fallbacks
   const dynamicTabConfig = useMemo(() => {
@@ -261,10 +278,10 @@ const MarketOverview = () => {
       { key: "active", label: "Most Active", icon: Activity, data: liveData?.mostActive?.length ? liveData.mostActive as Stock[] : mostActive },
       { key: "fno", label: "F&O", icon: Layers, data: fnoData },
       { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
-      { key: "commodities", label: "Commodities", icon: Gem, data: commoditiesData },
+      { key: "commodities", label: "Commodities", icon: Gem, data: liveCommodityStocks },
     ];
     return cfg;
-  }, [liveData]);
+  }, [liveData, liveCommodityStocks]);
 
   const activeConfig = dynamicTabConfig.find(t => t.key === activeTab)!;
 
