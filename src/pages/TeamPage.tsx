@@ -68,7 +68,7 @@ const teamMembers = [
     email: "rajat@sphpnp.com",
     icon: Briefcase,
     accent: "from-brand-gold to-brand-green",
-    statValue: "5+",
+    statValue: "15+",
     statLabel: "Years",
     specialties: ["Client Relations", "Transaction Mgmt", "AMC Coordination", "Documentation"],
     achievements: ["Zero-error transaction record", "Fastest turnaround times in region"],
