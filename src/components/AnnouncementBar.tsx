@@ -11,7 +11,7 @@ const announcements = [
 const AnnouncementBar = () => {
   return (
     <div className="bg-gradient-to-r from-brand-gold/10 via-secondary/10 to-brand-gold/10 border-b border-border/30 overflow-hidden">
-      <div className="flex items-center h-9">
+      <div className="flex items-center h-7 md:h-9">
         <motion.div
           className="flex items-center gap-12 whitespace-nowrap"
           animate={{ x: ["0%", "-50%"] }}
