@@ -88,7 +88,28 @@ const Header = () => {
             <ThemeToggle />
             <Button 
               asChild
-              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold hidden sm:inline-flex"
+              variant="outline"
+              size="sm"
+              className="hidden sm:inline-flex border-secondary/50 text-secondary hover:bg-secondary hover:text-secondary-foreground font-semibold"
+            >
+              <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer">
+                <LogIn className="w-4 h-4 mr-1" />
+                Client Login
+              </a>
+            </Button>
+            <Button 
+              asChild
+              size="sm"
+              className="hidden sm:inline-flex bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold"
+            >
+              <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer">
+                <BarChart3 className="w-4 h-4 mr-1" />
+                Web Trade
+              </a>
+            </Button>
+            <Button 
+              asChild
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold hidden sm:inline-flex"
             >
               <Link to="/open-account">
                 Open Account
