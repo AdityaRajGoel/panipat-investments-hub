@@ -226,7 +226,7 @@ const Hero = () => {
             </motion.div>
 
             <motion.h1
-              className="font-heading text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-8 leading-[1.1]"
+              className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 md:mb-8 leading-[1.1]"
               variants={itemVariants}
             >
               <motion.span initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.7 }}>
@@ -243,25 +243,20 @@ const Hero = () => {
               </motion.span>
             </motion.h1>
 
-            <motion.p className="text-lg md:text-xl text-primary-foreground/85 mb-6 max-w-xl leading-relaxed" variants={itemVariants}>
+            <motion.p className="text-base md:text-xl text-primary-foreground/85 mb-4 md:mb-6 max-w-xl leading-relaxed" variants={itemVariants}>
               Parasram India brings decades of stock broking expertise to Panipat.
               Join thousands of investors who trust us with their financial future.
             </motion.p>
 
             {/* Rotating investment tip */}
             <motion.div
-              className="flex items-center gap-3 bg-white/10 border border-white/20 rounded-xl px-4 py-3 mb-10 backdrop-blur-md"
+              className="flex items-center gap-2 md:gap-3 bg-white/10 border border-white/20 rounded-xl px-3 py-2 md:px-4 md:py-3 mb-6 md:mb-10 backdrop-blur-md"
               variants={itemVariants}
             >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-4 h-4 text-brand-gold flex-shrink-0" />
-              </motion.div>
+              <Sparkles className="w-4 h-4 text-brand-gold flex-shrink-0" />
               <motion.span
                 key={tipIndex}
-                className="text-sm text-primary-foreground/90"
+                className="text-xs md:text-sm text-primary-foreground/90 line-clamp-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
@@ -271,16 +266,16 @@ const Hero = () => {
               </motion.span>
             </motion.div>
 
-            <motion.div className="flex flex-col sm:flex-row gap-4 mb-14" variants={itemVariants}>
+            <motion.div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-8 md:mb-14" variants={itemVariants}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                 <Button
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-lg px-10 py-6 shadow-xl shadow-secondary/30 transition-all duration-300"
+                  className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-sm md:text-lg px-6 md:px-10 py-4 md:py-6 shadow-xl shadow-secondary/30 transition-all duration-300 w-full sm:w-auto"
                 >
                   <Link to="/open-account">
                     Start Investing Today
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                   </Link>
                 </Button>
               </motion.div>
@@ -289,7 +284,7 @@ const Hero = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-lg px-10 py-6 backdrop-blur-sm transition-all duration-300"
+                  className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-sm md:text-lg px-6 md:px-10 py-4 md:py-6 backdrop-blur-sm transition-all duration-300 w-full sm:w-auto"
                 >
                   <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer">Start Trading Now</a>
                 </Button>
@@ -298,19 +293,27 @@ const Hero = () => {
 
             {/* Stats with count-up */}
             <motion.div
-              className="grid grid-cols-3 gap-6 pt-8 border-t border-primary-foreground/20"
+              className="grid grid-cols-3 gap-4 md:gap-6 pt-6 md:pt-8 border-t border-primary-foreground/20"
               variants={containerVariants}
             >
               <StatCounter target={50} suffix="+" label="Years Legacy" delay={0.8} />
-              <StatCounter target={1000000} suffix="+" label="Happy Clients" delay={1.0} />
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0, duration: 0.6 }}
+              >
+                <div className="text-2xl md:text-4xl font-bold text-primary-foreground">10L+</div>
+                <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Happy Clients</div>
+              </motion.div>
               <motion.div
                 className="text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2, duration: 0.6 }}
               >
-                <div className="text-3xl md:text-4xl font-bold text-primary-foreground">SEBI</div>
-                <div className="text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Registered</div>
+                <div className="text-2xl md:text-4xl font-bold text-primary-foreground">SEBI</div>
+                <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Registered</div>
               </motion.div>
             </motion.div>
           </motion.div>
