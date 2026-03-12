@@ -186,7 +186,7 @@ const ContactPage = () => {
       </section>
 
       {/* Map section */}
-      <section className="py-12 bg-muted/50">
+      <section id="map" className="py-12 bg-muted/50">
         <div className="container mx-auto px-4">
           <motion.div
             className="max-w-5xl mx-auto rounded-2xl overflow-hidden border border-border/50 shadow-lg"
