@@ -210,9 +210,25 @@ const Header = () => {
                     Web Trade
                   </a>
                 </Button>
+                {user ? (
+                  <Button 
+                    variant="destructive"
+                    className="w-full font-semibold"
+                    onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                  >
+                    <LogOut className="w-4 h-4 mr-1" /> Sign Out
+                  </Button>
+                ) : (
+                  <Button 
+                    asChild
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full"
+                  >
+                    <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+                  </Button>
+                )}
                 <Button 
                   asChild
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full"
+                  className="bg-brand-gold hover:bg-brand-gold/90 text-primary-foreground font-semibold w-full"
                 >
                   <Link to="/open-account" onClick={() => setMobileMenuOpen(false)}>
                     Open Account
