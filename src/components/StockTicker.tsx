@@ -47,9 +47,9 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
   const isReverse = direction === "right";
 
   return (
-    <div className={`${bgClass} ${textClass} py-2.5 overflow-hidden whitespace-nowrap relative border-b border-brand-orange/10`}>
+    <div className={`${bgClass} ${textClass} py-1.5 md:py-2.5 overflow-hidden whitespace-nowrap relative border-b border-brand-orange/10`}>
       <div
-        className="inline-flex gap-10"
+        className="inline-flex gap-4 md:gap-10"
         style={{
           animation: `${isReverse ? 'ticker-right' : 'ticker-left'} ${duration}s linear infinite`,
           animationPlayState: selectedItem ? 'paused' : 'running',
@@ -58,14 +58,14 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
         {duplicated.map((item, i) => (
           <div
             key={i}
-            className="inline-flex items-center gap-3 text-sm cursor-pointer select-none px-3 py-1 rounded-md hover:bg-white/10 transition-colors"
+            className="inline-flex items-center gap-1.5 md:gap-3 text-xs md:text-sm cursor-pointer select-none px-2 md:px-3 py-1 rounded-md hover:bg-white/10 transition-colors"
             onClick={() => setSelectedItem(item)}
           >
             <span className="font-semibold tracking-wide">{item.name}</span>
-            {item.unit ? <span className="opacity-70 text-xs">{item.unit}</span> : null}
+            {item.unit ? <span className="opacity-70 text-[10px] md:text-xs">{item.unit}</span> : null}
             <PriceCell item={item} />
             <span className={`flex items-center gap-0.5 font-medium ${item.up ? "text-secondary" : "text-destructive"}`}>
-              {item.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {item.up ? <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3" /> : <TrendingDown className="w-2.5 h-2.5 md:w-3 md:h-3" />}
               {item.change}
             </span>
           </div>
