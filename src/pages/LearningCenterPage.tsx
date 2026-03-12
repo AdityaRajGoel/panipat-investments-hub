@@ -160,6 +160,8 @@ const LearningCenterPage = () => {
   const [worldNews, setWorldNews] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsTab, setNewsTab] = useState<"indian" | "world">("indian");
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [liveEmbeds, setLiveEmbeds] = useState<Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -191,11 +193,39 @@ const LearningCenterPage = () => {
     }
   };
 
+  const fetchLiveBroadcasts = async () => {
+    setLiveLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-live-broadcasts');
+      if (!error && data?.success && Array.isArray(data.channels)) {
+        const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>, channel: any) => {
+          acc[channel.channelId] = {
+            embedUrl: channel.embedUrl || `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`,
+            watchUrl: channel.watchUrl || channel.liveUrl || `https://www.youtube.com/@${channel.handle}/live`,
+            title: channel.title || null,
+          };
+          return acc;
+        }, {});
+        setLiveEmbeds(nextEmbeds);
+      }
+    } catch (e) {
+      console.error('Live TV fetch error:', e);
+    } finally {
+      setLiveLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeSection === "news" && indianNews.length === 0) {
       fetchNews();
     }
   }, [activeSection]);
+
+  useEffect(() => {
+    if (activeSection === "live" && Object.keys(liveEmbeds).length === 0) {
+      fetchLiveBroadcasts();
+    }
+  }, [activeSection, liveEmbeds]);
 
   const filtered = useMemo(() => articles.filter(a => {
     const matchCat = category === "all" || a.category === category;
