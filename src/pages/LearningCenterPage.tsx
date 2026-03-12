@@ -425,16 +425,18 @@ const LearningCenterPage = () => {
                 {LIVE_CHANNELS.map((channel) => {
                   const channelEmbed = liveEmbeds[channel.channelId];
                   const embedUrl = channelEmbed?.embedUrl || `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`;
+                  const embedSrc = `${embedUrl}${embedUrl.includes("?") ? "&" : "?"}autoplay=0&mute=1&playsinline=1&rel=0&modestbranding=1`;
                   const watchUrl = channelEmbed?.watchUrl || `https://www.youtube.com/@${channel.handle}/live`;
 
                   return (
                     <Card key={channel.name} className="overflow-hidden">
                       <div className="aspect-video bg-muted relative">
                         <iframe
-                          src={embedUrl}
+                          src={embedSrc}
                           title={`${channel.name} Live`}
                           className="w-full h-full absolute inset-0"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
                           allowFullScreen
                           loading="lazy"
                         />

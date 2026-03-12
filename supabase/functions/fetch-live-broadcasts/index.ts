@@ -11,6 +11,13 @@ type ChannelConfig = {
   channelUrl: string;
 };
 
+type FeedEntry = {
+  videoId: string;
+  title: string | null;
+  publishedAt: string | null;
+  updatedAt: string | null;
+};
+
 const CHANNELS: ChannelConfig[] = [
   {
     key: 'zee-business',
@@ -41,23 +48,63 @@ const extractTag = (xml: string, tagName: string) => {
   return match?.[1] ?? null;
 };
 
-const parseLatestVideo = (xml: string) => {
-  const entryMatch = xml.match(/<entry>([\s\S]*?)<\/entry>/);
-  if (!entryMatch) return null;
+const parseFeedEntries = (xml: string): FeedEntry[] => {
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+  const entries: FeedEntry[] = [];
 
-  const entry = entryMatch[1];
-  const videoId = extractTag(entry, 'yt:videoId');
-  if (!videoId) return null;
+  for (const match of xml.matchAll(entryRegex)) {
+    const entryXml = match[1];
+    const videoId = extractTag(entryXml, 'yt:videoId');
+    if (!videoId) continue;
 
-  const title = extractTag(entry, 'title');
-  const publishedAt = extractTag(entry, 'published');
-  const updatedAt = extractTag(entry, 'updated');
+    const title = extractTag(entryXml, 'title');
+    const publishedAt = extractTag(entryXml, 'published');
+    const updatedAt = extractTag(entryXml, 'updated');
+
+    entries.push({
+      videoId,
+      title: title ? decodeXml(title) : null,
+      publishedAt,
+      updatedAt,
+    });
+  }
+
+  return entries;
+};
+
+const isLikelyLiveTitle = (title: string | null) => {
+  if (!title) return false;
+  return /\blive\b|🔴|stream|share market live|market live|final trade/i.test(title);
+};
+
+const pickBestEntries = (entries: FeedEntry[]) => {
+  const scored = [...entries].sort((a, b) => {
+    const scoreA = isLikelyLiveTitle(a.title) ? 1 : 0;
+    const scoreB = isLikelyLiveTitle(b.title) ? 1 : 0;
+    return scoreB - scoreA;
+  });
+
+  return scored.slice(0, 8);
+};
+
+const resolveEmbeddableUrl = async (videoId: string) => {
+  const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(watchUrl)}&format=json`;
+
+  const response = await fetch(oembedUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  if (!response.ok) {
+    throw new Error(`oEmbed lookup failed with status ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const iframeHtml = typeof payload?.html === 'string' ? payload.html : '';
+  const srcMatch = iframeHtml.match(/src=\"([^\"]+)\"/);
+  const rawEmbed = srcMatch?.[1] || `https://www.youtube.com/embed/${videoId}?feature=oembed`;
 
   return {
-    videoId,
-    title: title ? decodeXml(title) : null,
-    publishedAt,
-    updatedAt,
+    embedUrl: rawEmbed.replaceAll('&amp;', '&'),
+    watchUrl,
+    title: typeof payload?.title === 'string' ? payload.title : null,
   };
 };
 
@@ -70,31 +117,50 @@ Deno.serve(async (req) => {
     const channels = await Promise.all(
       CHANNELS.map(async (channel) => {
         try {
-          const response = await fetch(
+          const feedResponse = await fetch(
             `https://www.youtube.com/feeds/videos.xml?channel_id=${channel.channelId}`,
             { headers: { 'User-Agent': 'Mozilla/5.0' } },
           );
 
-          if (!response.ok) {
-            throw new Error(`RSS fetch failed with status ${response.status}`);
+          if (!feedResponse.ok) {
+            throw new Error(`RSS fetch failed with status ${feedResponse.status}`);
           }
 
-          const xml = await response.text();
-          const latest = parseLatestVideo(xml);
+          const xml = await feedResponse.text();
+          const entries = parseFeedEntries(xml);
+          const candidates = pickBestEntries(entries);
 
-          if (!latest) {
-            throw new Error('No video found in RSS feed');
+          let resolved: {
+            embedUrl: string;
+            watchUrl: string;
+            title: string | null;
+            entry: FeedEntry;
+          } | null = null;
+
+          for (const entry of candidates) {
+            try {
+              const embed = await resolveEmbeddableUrl(entry.videoId);
+              resolved = { ...embed, entry };
+              break;
+            } catch {
+              // Try next entry
+            }
+          }
+
+          if (!resolved) {
+            throw new Error('No embeddable videos found for this channel');
           }
 
           return {
             ...channel,
             status: 'ok',
-            videoId: latest.videoId,
-            title: latest.title,
-            publishedAt: latest.publishedAt,
-            updatedAt: latest.updatedAt,
-            embedUrl: `https://www.youtube.com/embed/${latest.videoId}`,
-            watchUrl: `https://www.youtube.com/watch?v=${latest.videoId}`,
+            videoId: resolved.entry.videoId,
+            title: resolved.title || resolved.entry.title,
+            publishedAt: resolved.entry.publishedAt,
+            updatedAt: resolved.entry.updatedAt,
+            embedUrl: resolved.embedUrl,
+            watchUrl: resolved.watchUrl,
+            resolvedFrom: isLikelyLiveTitle(resolved.entry.title) ? 'live-like-title' : 'latest-embeddable',
           };
         } catch (channelError) {
           const errorMessage = channelError instanceof Error ? channelError.message : 'Unknown channel fetch error';
@@ -107,6 +173,7 @@ Deno.serve(async (req) => {
             updatedAt: null,
             embedUrl: `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`,
             watchUrl: channel.liveUrl,
+            resolvedFrom: 'channel-live-url',
             error: errorMessage,
           };
         }
