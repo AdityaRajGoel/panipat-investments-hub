@@ -160,7 +160,26 @@ const Header = () => {
                 ))}
                 <Button 
                   asChild
-                  className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold mt-2 w-full"
+                  variant="outline"
+                  className="border-secondary/50 text-secondary hover:bg-secondary hover:text-secondary-foreground font-semibold w-full"
+                >
+                  <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
+                    <LogIn className="w-4 h-4 mr-1" />
+                    Client Login
+                  </a>
+                </Button>
+                <Button 
+                  asChild
+                  className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold w-full"
+                >
+                  <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
+                    <BarChart3 className="w-4 h-4 mr-1" />
+                    Web Trade
+                  </a>
+                </Button>
+                <Button 
+                  asChild
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full"
                 >
                   <Link to="/open-account" onClick={() => setMobileMenuOpen(false)}>
                     Open Account
