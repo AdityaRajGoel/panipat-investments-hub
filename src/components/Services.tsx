@@ -164,6 +164,7 @@ const Services = () => {
           {services.map((service, index) => (
             <motion.div
               key={service.title}
+              id={service.id}
               variants={cardVariants}
               whileHover={{ y: -10, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
