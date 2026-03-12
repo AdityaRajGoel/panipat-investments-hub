@@ -120,7 +120,7 @@ const ContactPage = () => {
       </section>
 
       {/* Main content: Form + Info side by side */}
-      <section className="py-16 bg-background">
+      <section id="contact-form" className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
             {/* Contact Form */}

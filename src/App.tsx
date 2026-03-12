@@ -130,6 +130,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <PageTracker />
+            <ScrollToHash />
             <Suspense fallback={<PageFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
