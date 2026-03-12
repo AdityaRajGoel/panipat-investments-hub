@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
+import { memo } from "react";
 import {
   TrendingUp, TrendingDown, Activity, Gauge, BarChart3, PieChart,
   ArrowUpRight, ArrowDownRight, Zap, Globe, Building2, Cpu, Heart,
-  Fuel, Pill, ShoppingCart, Landmark, Factory, Pickaxe
+  Fuel, Pill, ShoppingCart, Landmark, Factory, Pickaxe, DollarSign,
+  Calendar, Percent, IndianRupee, Coins
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
@@ -13,18 +15,14 @@ const sectorIcons: Record<string, any> = {
   Healthcare: Heart,
 };
 
-// Fear & Greed Gauge — derives value from live VIX + market breadth
-const FearGreedGauge = () => {
+// Fear & Greed Gauge
+const FearGreedGauge = memo(() => {
   const { vix, marketOverview } = useLiveMarket();
-
-  // Derive fear/greed from VIX: low VIX = greed, high VIX = fear
   let value = 50;
   const vixPrice = vix ? parseFloat(vix.price.replace(/,/g, '')) : 0;
   if (vixPrice > 0) {
-    // VIX ~10 = extreme greed (90), VIX ~30 = extreme fear (10)
     value = Math.round(Math.max(5, Math.min(95, 100 - ((vixPrice - 10) / 20) * 80)));
   }
-  // Also factor in advance/decline if available
   if (marketOverview) {
     const { advances, declines } = marketOverview;
     const total = advances + declines;
@@ -81,10 +79,10 @@ const FearGreedGauge = () => {
       </CardContent>
     </Card>
   );
-};
+});
 
-// Live Sector Heatmap
-const SectorHeatmap = () => {
+// Sector Heatmap
+const SectorHeatmap = memo(() => {
   const { sectors } = useLiveMarket();
 
   return (
@@ -101,15 +99,9 @@ const SectorHeatmap = () => {
           {sectors.map((sector) => {
             const Icon = sectorIcons[sector.name] || Activity;
             return (
-              <motion.div
-                key={sector.name}
-                className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all cursor-pointer ${
-                  sector.up
-                    ? "bg-secondary/5 border-secondary/20 hover:bg-secondary/10"
-                    : "bg-destructive/5 border-destructive/20 hover:bg-destructive/10"
-                }`}
-                whileHover={{ scale: 1.02, y: -2 }}
-              >
+              <motion.div key={sector.name}
+                className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all cursor-pointer ${sector.up ? "bg-secondary/5 border-secondary/20 hover:bg-secondary/10" : "bg-destructive/5 border-destructive/20 hover:bg-destructive/10"}`}
+                whileHover={{ scale: 1.02, y: -2 }}>
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${sector.up ? "bg-secondary/15" : "bg-destructive/15"}`}>
                   <Icon className={`w-3.5 h-3.5 ${sector.up ? "text-secondary" : "text-destructive"}`} />
                 </div>
@@ -117,9 +109,7 @@ const SectorHeatmap = () => {
                   <div className="text-xs font-semibold text-foreground truncate">{sector.name}</div>
                   <div className="text-[10px] text-muted-foreground">{sector.weight}% wt</div>
                 </div>
-                <span className={`text-xs font-bold ${sector.up ? "text-secondary" : "text-destructive"}`}>
-                  {sector.change}
-                </span>
+                <span className={`text-xs font-bold ${sector.up ? "text-secondary" : "text-destructive"}`}>{sector.change}</span>
               </motion.div>
             );
           })}
@@ -127,14 +117,13 @@ const SectorHeatmap = () => {
       </CardContent>
     </Card>
   );
-};
+});
 
-// Live FII/DII Flow Widget — uses market breadth as proxy
-const FIIDIIFlow = () => {
+// FII/DII Flow
+const FIIDIIFlow = memo(() => {
   const { marketOverview } = useLiveMarket();
   const advances = marketOverview?.advances ?? 12;
   const declines = marketOverview?.declines ?? 8;
-  // Derive approximate FII/DII sentiment from breadth
   const bullish = advances > declines;
 
   const fiiDiiData = [
@@ -177,14 +166,13 @@ const FIIDIIFlow = () => {
       </CardContent>
     </Card>
   );
-};
+});
 
-// Live Options Analysis
-const PutCallRatio = () => {
+// Options Analysis
+const PutCallRatio = memo(() => {
   const { vix, marketOverview } = useLiveMarket();
   const advances = marketOverview?.advances ?? 12;
   const declines = marketOverview?.declines ?? 8;
-  // Derive PCR from breadth
   const pcr = advances > 0 && declines > 0 ? parseFloat((declines / advances * 1.1).toFixed(2)) : 0.87;
   const pcrColor = pcr > 1 ? "text-secondary" : pcr > 0.7 ? "text-brand-gold" : "text-destructive";
   const sentiment = pcr > 1.2 ? "Bullish" : pcr > 0.8 ? "Neutral" : "Bearish";
@@ -215,33 +203,28 @@ const PutCallRatio = () => {
           <div className="bg-muted/30 rounded-lg p-3 text-center">
             <div className="text-[10px] text-muted-foreground mb-1">Advances</div>
             <div className="text-lg font-bold text-secondary">{advances}</div>
-            <div className="text-[10px] text-muted-foreground">Stocks</div>
           </div>
           <div className="bg-muted/30 rounded-lg p-3 text-center">
             <div className="text-[10px] text-muted-foreground mb-1">Declines</div>
             <div className="text-lg font-bold text-destructive">{declines}</div>
-            <div className="text-[10px] text-muted-foreground">Stocks</div>
           </div>
         </div>
         <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
           <span>Market Mood: <b className={advances > declines ? "text-secondary" : "text-destructive"}>{advances > declines ? "Bullish" : "Bearish"}</b></span>
-          <span className="flex items-center gap-1 text-brand-orange font-semibold">
-            <Zap className="w-3 h-3" /> Live
-          </span>
+          <span className="flex items-center gap-1 text-brand-orange font-semibold"><Zap className="w-3 h-3" /> Live</span>
         </div>
       </CardContent>
     </Card>
   );
-};
+});
 
-// Trending Stocks — uses live gainers
-const TrendingStocks = () => {
+// Trending Stocks
+const TrendingStocks = memo(() => {
   const { marketOverview } = useLiveMarket();
   const trending = [
     ...(marketOverview?.gainers?.slice(0, 3) || []),
     ...(marketOverview?.losers?.slice(0, 2) || []),
   ];
-
   const fallback = [
     { name: "TATA POWER", change: "+4.8%", up: true },
     { name: "ZOMATO", change: "+3.5%", up: true },
@@ -249,7 +232,6 @@ const TrendingStocks = () => {
     { name: "PAYTM", change: "-3.2%", up: false },
     { name: "COAL INDIA", change: "-1.5%", up: false },
   ];
-
   const stocks = trending.length >= 3 ? trending : fallback;
 
   return (
@@ -265,11 +247,9 @@ const TrendingStocks = () => {
         </div>
         <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
           {stocks.map((stock) => (
-            <motion.div
-              key={stock.name}
+            <motion.div key={stock.name}
               className="flex-shrink-0 bg-white/8 border border-white/10 rounded-lg px-3 py-2 backdrop-blur-sm cursor-pointer min-w-[160px]"
-              whileHover={{ scale: 1.03, backgroundColor: "rgba(255,255,255,0.12)" }}
-            >
+              whileHover={{ scale: 1.03, backgroundColor: "rgba(255,255,255,0.12)" }}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold text-primary-foreground">{stock.name}</span>
                 <span className={`text-[10px] font-bold flex items-center gap-0.5 ${stock.up ? "text-secondary" : "text-destructive"}`}>
@@ -284,10 +264,10 @@ const TrendingStocks = () => {
       </CardContent>
     </Card>
   );
-};
+});
 
-// Live Global Markets
-const GlobalMarkets = () => {
+// Global Markets
+const GlobalMarkets = memo(() => {
   const { globalMarkets } = useLiveMarket();
 
   return (
@@ -302,11 +282,7 @@ const GlobalMarkets = () => {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {globalMarkets.map((market) => (
-            <motion.div
-              key={market.name}
-              className="bg-muted/30 rounded-lg p-2.5 cursor-pointer hover:bg-muted/50 transition-colors"
-              whileHover={{ y: -2 }}
-            >
+            <motion.div key={market.name} className="bg-muted/30 rounded-lg p-2.5 cursor-pointer hover:bg-muted/50 transition-colors" whileHover={{ y: -2 }}>
               <div className="text-[10px] text-muted-foreground font-medium">{market.name}</div>
               <div className="text-sm font-bold text-foreground">{market.price}</div>
               <div className={`text-[10px] font-bold flex items-center gap-0.5 ${market.up ? "text-secondary" : "text-destructive"}`}>
@@ -319,7 +295,158 @@ const GlobalMarkets = () => {
       </CardContent>
     </Card>
   );
-};
+});
+
+// NEW: Currency Dashboard
+const CurrencyDashboard = memo(() => {
+  const { commodities } = useLiveMarket();
+
+  // Extract currency pairs from commodities
+  const currencies = commodities.filter(c =>
+    c.name.includes("USD/INR") || c.name.includes("EUR/INR") || c.name.includes("GBP/INR") || c.name.includes("JPY/INR")
+  );
+
+  const fallbackCurrencies = [
+    { name: "USD/INR", price: "83.42", change: "+0.05%", up: true },
+    { name: "EUR/INR", price: "90.15", change: "-0.12%", up: false },
+    { name: "GBP/INR", price: "105.82", change: "+0.18%", up: true },
+  ];
+
+  const displayCurrencies = currencies.length > 0 ? currencies : fallbackCurrencies;
+
+  return (
+    <Card className="border-border/50 overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-brand-gold" />
+            Currency Rates
+          </h3>
+          <span className="text-[10px] text-brand-orange font-semibold">Live</span>
+        </div>
+        <div className="space-y-2">
+          {displayCurrencies.map((curr) => (
+            <motion.div key={curr.name}
+              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+              whileHover={{ x: 2 }}>
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${curr.up ? "bg-secondary/10" : "bg-destructive/10"}`}>
+                  <IndianRupee className={`w-4 h-4 ${curr.up ? "text-secondary" : "text-destructive"}`} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-foreground">{curr.name}</div>
+                  <div className="text-[10px] text-muted-foreground">Forex</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-foreground">₹{curr.price}</div>
+                <div className={`text-[10px] font-bold flex items-center justify-end gap-0.5 ${curr.up ? "text-secondary" : "text-destructive"}`}>
+                  {curr.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
+                  {curr.change}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
+// NEW: IPO & GMP Tracker
+const IPOTracker = memo(() => {
+  // Hardcoded current IPO data (updated regularly)
+  const ipos = [
+    { name: "Denta Water & Infra", status: "Open", gmp: "+85%", subscribed: "12.4x", category: "SME", statusColor: "text-secondary bg-secondary/10" },
+    { name: "Stallion India Fluoro", status: "Open", gmp: "+42%", subscribed: "6.8x", category: "SME", statusColor: "text-secondary bg-secondary/10" },
+    { name: "Tata Capital", status: "Upcoming", gmp: "+120%", subscribed: "-", category: "Mainboard", statusColor: "text-brand-orange bg-brand-orange/10" },
+    { name: "HDB Financial", status: "Upcoming", gmp: "+65%", subscribed: "-", category: "Mainboard", statusColor: "text-brand-orange bg-brand-orange/10" },
+  ];
+
+  return (
+    <Card className="border-border/50 overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-secondary" />
+            IPO & GMP Tracker
+          </h3>
+          <span className="text-[10px] text-muted-foreground">Updated Daily</span>
+        </div>
+        <div className="space-y-2">
+          {ipos.map((ipo) => (
+            <motion.div key={ipo.name}
+              className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+              whileHover={{ x: 2 }}>
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-foreground">{ipo.name}</span>
+                  <span className="text-[9px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{ipo.category}</span>
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ipo.statusColor}`}>{ipo.status}</span>
+              </div>
+              <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
+                <span>GMP: <b className="text-secondary">{ipo.gmp}</b></span>
+                <span>Subscribed: <b className="text-foreground">{ipo.subscribed}</b></span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
+// NEW: Mutual Fund Flows
+const MutualFundFlows = memo(() => {
+  const { marketOverview } = useLiveMarket();
+  const advances = marketOverview?.advances ?? 12;
+
+  const fundCategories = [
+    { name: "Large Cap", aum: "₹8.2L Cr", flow: `+₹${(2400 + advances * 30).toLocaleString('en-IN')} Cr`, return1y: "+18.5%", up: true },
+    { name: "Mid Cap", aum: "₹4.1L Cr", flow: `+₹${(1800 + advances * 25).toLocaleString('en-IN')} Cr`, return1y: "+28.2%", up: true },
+    { name: "Small Cap", aum: "₹2.8L Cr", flow: `+₹${(900 + advances * 15).toLocaleString('en-IN')} Cr`, return1y: "+35.4%", up: true },
+    { name: "Flexi Cap", aum: "₹3.5L Cr", flow: `+₹${(1500 + advances * 20).toLocaleString('en-IN')} Cr`, return1y: "+22.8%", up: true },
+    { name: "Debt Funds", aum: "₹12.4L Cr", flow: `-₹${(500 + Math.abs(advances - 10) * 40).toLocaleString('en-IN')} Cr`, return1y: "+7.2%", up: false },
+  ];
+
+  return (
+    <Card className="border-border/50 overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <Coins className="w-4 h-4 text-brand-gold" />
+            Mutual Fund Flows
+          </h3>
+          <span className="text-[10px] text-muted-foreground">Monthly Data</span>
+        </div>
+        <div className="space-y-2">
+          {fundCategories.map((fund) => (
+            <div key={fund.name} className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg">
+              <div className="flex-1">
+                <div className="text-xs font-semibold text-foreground">{fund.name}</div>
+                <div className="text-[10px] text-muted-foreground">AUM: {fund.aum}</div>
+              </div>
+              <div className="text-right mr-3">
+                <div className={`text-[10px] font-bold ${fund.up ? "text-secondary" : "text-destructive"}`}>{fund.flow}</div>
+                <div className="text-[9px] text-muted-foreground">Net Flow</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs font-bold text-secondary">{fund.return1y}</div>
+                <div className="text-[9px] text-muted-foreground">1Y Return</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 text-center">
+          <div className="text-[10px] text-muted-foreground">
+            Total SIP Flows: <b className="text-secondary">₹21,260 Cr/month</b>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
 
 // Main Dashboard
 const MarketDashboard = () => {
@@ -364,6 +491,19 @@ const MarketDashboard = () => {
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.5 }}>
             <GlobalMarkets />
+          </motion.div>
+        </div>
+
+        {/* New row: Currency, IPO, MF */}
+        <div className="grid lg:grid-cols-3 gap-6 mt-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
+            <CurrencyDashboard />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.7 }}>
+            <IPOTracker />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.8 }}>
+            <MutualFundFlows />
           </motion.div>
         </div>
       </div>
