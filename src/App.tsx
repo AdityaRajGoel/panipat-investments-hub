@@ -30,6 +30,10 @@ const Week52TrackerPage = lazy(() => import("./pages/Week52TrackerPage"));
 const FnODashboardPage = lazy(() => import("./pages/FnODashboardPage"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+const MarginCalculatorPage = lazy(() => import("./pages/MarginCalculatorPage"));
+const BrokerageCalculatorPage = lazy(() => import("./pages/BrokerageCalculatorPage"));
+const StockComparisonPage = lazy(() => import("./pages/StockComparisonPage"));
+const LearningCenterPage = lazy(() => import("./pages/LearningCenterPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
