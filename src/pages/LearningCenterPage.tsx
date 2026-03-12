@@ -45,75 +45,75 @@ const CATEGORIES = [
 const REAL_ARTICLES: Article[] = [
   {
     id: "r1", title: "What is a Demat Account?", slug: "demat-account",
-    excerpt: "A demat account holds your shares and securities in electronic format, eliminating the need for physical certificates. Learn how it works and how to open one.",
+    excerpt: "A demat account holds your shares and securities in electronic format. Learn how it works, how to open one, and why it's essential for trading.",
     content: "", category: "basics", cover_image: null, read_time: 5, published: true, created_at: "2025-12-01",
-    source: "NSE India", source_url: "https://www.nseindia.com/learn/content/what-demat-account"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dematerialization.asp"
   },
   {
     id: "r2", title: "Understanding P/E Ratio: How to Value Stocks", slug: "pe-ratio",
-    excerpt: "The Price-to-Earnings ratio is one of the most widely used valuation metrics. Learn how to interpret P/E ratios and use them to evaluate stock valuations.",
+    excerpt: "The Price-to-Earnings ratio is one of the most widely used valuation metrics. Learn how to interpret P/E ratios and use them to evaluate stocks.",
     content: "", category: "analysis", cover_image: null, read_time: 7, published: true, created_at: "2025-11-28",
     source: "Investopedia", source_url: "https://www.investopedia.com/terms/p/price-earningsratio.asp"
   },
   {
     id: "r3", title: "SIP vs Lumpsum: Which Investment Strategy Wins?", slug: "sip-vs-lumpsum",
-    excerpt: "Compare rupee cost averaging through SIPs with lumpsum investing. Data-backed analysis of which strategy delivers better returns across market cycles.",
+    excerpt: "Compare rupee cost averaging through SIPs with lumpsum investing. Which strategy delivers better returns across market cycles?",
     content: "", category: "investing", cover_image: null, read_time: 8, published: true, created_at: "2025-11-25",
-    source: "AMFI India", source_url: "https://www.amfiindia.com/investor-corner/knowledge-center/sip.html"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dollarcostaveraging.asp"
   },
   {
     id: "r4", title: "Intraday Trading: Strategies and Risk Management", slug: "intraday-trading",
-    excerpt: "Master the fundamentals of day trading including momentum, breakout, and scalping strategies. Includes position sizing and stop-loss techniques.",
+    excerpt: "Master the fundamentals of day trading including momentum, breakout, and scalping strategies with position sizing and stop-loss techniques.",
     content: "", category: "trading", cover_image: null, read_time: 10, published: true, created_at: "2025-11-22",
-    source: "Zerodha Varsity", source_url: "https://zerodha.com/varsity/module/trading-psychology-and-risk-management/"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/daytrader.asp"
   },
   {
     id: "r5", title: "How to Read Candlestick Chart Patterns", slug: "candlestick-patterns",
-    excerpt: "Comprehensive guide to Japanese candlestick patterns — doji, hammer, engulfing, morning star. Learn to identify trend reversals and continuations.",
+    excerpt: "Guide to Japanese candlestick patterns — doji, hammer, engulfing, morning star. Learn to identify trend reversals and continuations.",
     content: "", category: "analysis", cover_image: null, read_time: 12, published: true, created_at: "2025-11-20",
-    source: "Zerodha Varsity", source_url: "https://zerodha.com/varsity/module/technical-analysis/"
+    source: "Investopedia", source_url: "https://www.investopedia.com/trading/candlestick-charting-what-is-it/"
   },
   {
     id: "r6", title: "Mutual Funds: Types, Benefits & How to Invest", slug: "mutual-funds-guide",
-    excerpt: "Everything you need to know about mutual funds in India — equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns.",
+    excerpt: "Everything about mutual funds — equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns.",
     content: "", category: "basics", cover_image: null, read_time: 8, published: true, created_at: "2025-11-18",
-    source: "SEBI", source_url: "https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=33"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/mutualfund.asp"
   },
   {
     id: "r7", title: "Options Trading: Calls, Puts & Basic Strategies", slug: "options-trading-101",
-    excerpt: "Introduction to F&O trading — how options contracts work, understanding premiums, Greeks (Delta, Theta, Gamma), and strategies like covered calls and straddles.",
+    excerpt: "Introduction to options — how contracts work, understanding premiums, Greeks (Delta, Theta, Gamma), and strategies like covered calls.",
     content: "", category: "trading", cover_image: null, read_time: 15, published: true, created_at: "2025-11-15",
-    source: "NSE Academy", source_url: "https://www.nseindia.com/learn/content/derivatives"
+    source: "Investopedia", source_url: "https://www.investopedia.com/options-basics-tutorial-4583012"
   },
   {
     id: "r8", title: "The Power of Compounding: Why Start Early", slug: "power-of-compounding",
-    excerpt: "Albert Einstein called it the 8th wonder. See how even small monthly investments can grow into crores over decades through the magic of compound interest.",
+    excerpt: "See how even small monthly investments can grow into crores over decades through the magic of compound interest.",
     content: "", category: "investing", cover_image: null, read_time: 5, published: true, created_at: "2025-11-12",
-    source: "RBI", source_url: "https://www.rbi.org.in/commonperson/English/Scripts/FAQs.aspx?Id=711"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/c/compoundinterest.asp"
   },
   {
     id: "r9", title: "How to Analyse Financial Statements", slug: "financial-statements",
-    excerpt: "Learn to read balance sheets, income statements, and cash flow statements. Key ratios like ROE, ROCE, Debt-to-Equity explained with real company examples.",
+    excerpt: "Learn to read balance sheets, income statements, and cash flow statements. Key ratios like ROE, ROCE, Debt-to-Equity explained.",
     content: "", category: "analysis", cover_image: null, read_time: 14, published: true, created_at: "2025-11-10",
     source: "Investopedia", source_url: "https://www.investopedia.com/terms/f/financial-statements.asp"
   },
   {
     id: "r10", title: "Index Funds vs Active Funds: Which is Better?", slug: "index-vs-active",
-    excerpt: "Research shows most active funds underperform their benchmark over 10 years. Explore the data behind passive investing and when active management adds value.",
+    excerpt: "Research shows most active funds underperform their benchmark over 10 years. Explore passive investing and when active management adds value.",
     content: "", category: "investing", cover_image: null, read_time: 7, published: true, created_at: "2025-11-08",
-    source: "Morningstar", source_url: "https://www.morningstar.in/posts/75321/active-vs-passive-funds-india.aspx"
+    source: "Investopedia", source_url: "https://www.investopedia.com/ask/answers/033015/what-difference-between-index-fund-and-actively-managed-fund.asp"
   },
   {
     id: "r11", title: "Understanding IPO: Process, Allotment & Listing", slug: "ipo-guide",
-    excerpt: "Complete guide to Initial Public Offerings — DRHP, price bands, lot sizes, allotment process, listing day strategy, and how to apply via UPI/ASBA.",
+    excerpt: "Complete guide to Initial Public Offerings — DRHP, price bands, lot sizes, allotment process, listing day strategy, and how to apply.",
     content: "", category: "basics", cover_image: null, read_time: 10, published: true, created_at: "2025-11-05",
-    source: "BSE India", source_url: "https://www.bseindia.com/markets/PublicIssues/IPOIssues_new.aspx"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/i/ipo.asp"
   },
   {
     id: "r12", title: "Moving Averages: SMA, EMA & Trading Signals", slug: "moving-averages",
-    excerpt: "How to use Simple and Exponential Moving Averages for trend identification, crossover signals, and support/resistance in stock trading.",
+    excerpt: "How to use Simple and Exponential Moving Averages for trend identification, crossover signals, and support/resistance in trading.",
     content: "", category: "trading", cover_image: null, read_time: 9, published: true, created_at: "2025-11-02",
-    source: "Zerodha Varsity", source_url: "https://zerodha.com/varsity/chapter/moving-averages/"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/movingaverage.asp"
   },
 ];
 
@@ -136,8 +136,8 @@ const NEWS_CATEGORY_COLORS: Record<string, string> = {
 };
 
 const LIVE_CHANNELS = [
-  { name: "Zee Business", embedId: "DnAaS0ONJSI", description: "India's leading Hindi business news channel covering markets, economy, and corporate news" },
-  { name: "CNBC Awaaz", embedId: "enO-WVhQ1p0", description: "Hindi business news with live market analysis, stock recommendations, and expert opinions" },
+  { name: "Zee Business", channelId: "UCkKRvNQBEzGo5IBx0ZsjJyQ", description: "India's leading Hindi business news channel covering markets, economy, and corporate news" },
+  { name: "CNBC Awaaz", channelId: "UCN-GCUOe2P9OhR6ynblmGsQ", description: "Hindi business news with live market analysis, stock recommendations, and expert opinions" },
 ];
 
 const LearningCenterPage = () => {
@@ -375,20 +375,13 @@ const LearningCenterPage = () => {
                   <Card key={channel.name} className="overflow-hidden">
                     <div className="aspect-video bg-muted relative">
                       <iframe
-                        src={`https://www.youtube-nocookie.com/embed/live_stream?channel=${channel.embedId}&autoplay=0`}
+                        src={`https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`}
                         title={`${channel.name} Live`}
                         className="w-full h-full absolute inset-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen
                         loading="lazy"
-                        referrerPolicy="no-referrer"
-                        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
                       />
-                      {/* Fallback overlay if iframe is blocked */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/80 opacity-0 hover:opacity-0 pointer-events-none">
-                        <Radio className="w-10 h-10 text-brand-orange mb-2" />
-                        <span className="text-sm font-semibold text-foreground">{channel.name}</span>
-                      </div>
                     </div>
                     <div className="p-4">
                       <div className="flex items-center gap-2 mb-1">
@@ -398,7 +391,7 @@ const LearningCenterPage = () => {
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{channel.description}</p>
                       <a
-                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(channel.name + " live")}&sp=EgJAAQ%253D%253D`}
+                        href={`https://www.youtube.com/@${channel.name === "Zee Business" ? "ZeeBusiness" : "CNBCAwaaz"}/live`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
@@ -415,8 +408,8 @@ const LearningCenterPage = () => {
                   <Radio className="w-8 h-8 text-brand-orange mx-auto mb-3" />
                   <h3 className="font-semibold text-foreground mb-2">Live Business News Broadcast</h3>
                   <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-                    Watch live market analysis, stock recommendations, and financial news from India's top business channels.
-                    If the embed is blocked in preview, click "Watch on YouTube" to open directly.
+                    Watch live market analysis and financial news from India's top business channels.
+                    YouTube embeds may be restricted in Lovable preview — <strong>publish your app</strong> or click "Watch on YouTube" for full access.
                   </p>
                 </div>
               </Card>
