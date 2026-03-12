@@ -57,10 +57,10 @@ const StatCounter = ({ target, label, suffix = "", delay = 0 }: { target: number
       transition={{ delay, duration: 0.6 }}
       onAnimationComplete={start}
     >
-      <div className="text-3xl md:text-4xl font-bold text-primary-foreground">
+      <div className="text-2xl md:text-4xl font-bold text-primary-foreground">
         {count.toLocaleString('en-IN')}{suffix}
       </div>
-      <div className="text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">{label}</div>
+      <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">{label}</div>
     </motion.div>
   );
 };
