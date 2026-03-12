@@ -1,4 +1,4 @@
-import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
