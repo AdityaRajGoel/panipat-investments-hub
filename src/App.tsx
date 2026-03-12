@@ -28,6 +28,8 @@ const StockScreenerPage = lazy(() => import("./pages/StockScreenerPage"));
 const HolidayCalendarPage = lazy(() => import("./pages/HolidayCalendarPage"));
 const Week52TrackerPage = lazy(() => import("./pages/Week52TrackerPage"));
 const FnODashboardPage = lazy(() => import("./pages/FnODashboardPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
