@@ -1,22 +1,14 @@
-import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3, User, LogOut } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
 
   const navLinks = [
     { href: "/services", label: "Services" },
@@ -56,7 +48,7 @@ const Header = () => {
             <a href="https://x.com/ParasramPanipat" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Twitter className="w-3.5 h-3.5" />
             </a>
-           </div>
+          </div>
           <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
             <span>Visit Main Website</span>
             <ExternalLink className="w-4 h-4" />
@@ -79,14 +71,14 @@ const Header = () => {
                 className={`font-medium transition-colors ${
                   location.pathname === link.href
                     ? "text-secondary"
-                    : (link as any).highlight
+                    : link.highlight
                     ? "text-brand-gold font-bold hover:text-secondary"
                     : "text-foreground hover:text-secondary"
                 }`}
               >
                 {link.label}
-                {(link as any).highlight && (
-                  <span className="ml-1 text-[9px] bg-brand-gold text-white px-1.5 py-0.5 rounded-full font-bold align-super">NEW</span>
+                {link.highlight && (
+                  <span className="ml-1 text-[9px] bg-brand-gold text-primary-foreground px-1.5 py-0.5 rounded-full font-bold align-super">NEW</span>
                 )}
               </Link>
             ))}
@@ -98,7 +90,7 @@ const Header = () => {
               asChild
               variant="outline"
               size="sm"
-              className="hidden sm:inline-flex border-secondary/50 text-secondary hover:bg-secondary hover:text-secondary-foreground font-semibold"
+              className="hidden sm:inline-flex border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold"
             >
               <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer">
                 <LogIn className="w-4 h-4 mr-1" />
@@ -115,34 +107,9 @@ const Header = () => {
                 Web Trade
               </a>
             </Button>
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5 font-semibold">
-                    <User className="w-4 h-4" />
-                    <span className="max-w-[100px] truncate">{user.user_metadata?.full_name || "Account"}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem className="text-xs text-muted-foreground">{user.email}</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer">
-                    <LogOut className="w-4 h-4 mr-2" /> Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button 
-                asChild
-                size="sm"
-                className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-              >
-                <Link to="/auth">Sign In</Link>
-              </Button>
-            )}
             <Button 
               asChild
-              className="bg-brand-gold hover:bg-brand-gold/90 text-primary-foreground font-semibold hidden sm:inline-flex"
+              className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
             >
               <Link to="/open-account">
                 Open Account
@@ -194,7 +161,7 @@ const Header = () => {
                 <Button 
                   asChild
                   variant="outline"
-                  className="border-secondary/50 text-secondary hover:bg-secondary hover:text-secondary-foreground font-semibold w-full"
+                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold w-full"
                 >
                   <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
                     <LogIn className="w-4 h-4 mr-1" />
@@ -210,25 +177,9 @@ const Header = () => {
                     Web Trade
                   </a>
                 </Button>
-                {user ? (
-                  <Button 
-                    variant="destructive"
-                    className="w-full font-semibold"
-                    onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                  >
-                    <LogOut className="w-4 h-4 mr-1" /> Sign Out
-                  </Button>
-                ) : (
-                  <Button 
-                    asChild
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full"
-                  >
-                    <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
-                  </Button>
-                )}
                 <Button 
                   asChild
-                  className="bg-brand-gold hover:bg-brand-gold/90 text-primary-foreground font-semibold w-full"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full"
                 >
                   <Link to="/open-account" onClick={() => setMobileMenuOpen(false)}>
                     Open Account
