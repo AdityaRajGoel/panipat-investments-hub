@@ -66,6 +66,7 @@ const StatCounter = ({ target, label, suffix = "", delay = 0 }: { target: number
 };
 
 const Hero = () => {
+  const isMobile = useIsMobile();
   const { indices: liveIndices, commodities, marketOverview, loading } = useLiveMarket();
 
   // Use live data for hero index cards
