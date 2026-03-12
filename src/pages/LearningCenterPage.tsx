@@ -175,6 +175,12 @@ const LearningCenterPage = () => {
   const [iframeErrors, setIframeErrors] = useState<Record<string, boolean>>({});
   const healthCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Respond to hash changes
+  useEffect(() => {
+    const section = hashToSection(location.hash);
+    setActiveSection(section);
+  }, [location.hash]);
+
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
