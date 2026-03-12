@@ -42,13 +42,12 @@ const CATEGORIES = [
   { key: "investing", label: "Investing", icon: Shield },
 ];
 
-// Real articles from credible sources
 const REAL_ARTICLES: Article[] = [
   {
     id: "r1", title: "What is a Demat Account?", slug: "demat-account",
     excerpt: "A demat account holds your shares and securities in electronic format, eliminating the need for physical certificates. Learn how it works and how to open one.",
     content: "", category: "basics", cover_image: null, read_time: 5, published: true, created_at: "2025-12-01",
-    source: "NSE India", source_url: "https://www.nseindia.com/learn/what-is-demat-account"
+    source: "NSE India", source_url: "https://www.nseindia.com/learn/content/what-demat-account"
   },
   {
     id: "r2", title: "Understanding P/E Ratio: How to Value Stocks", slug: "pe-ratio",
@@ -78,19 +77,19 @@ const REAL_ARTICLES: Article[] = [
     id: "r6", title: "Mutual Funds: Types, Benefits & How to Invest", slug: "mutual-funds-guide",
     excerpt: "Everything you need to know about mutual funds in India — equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns.",
     content: "", category: "basics", cover_image: null, read_time: 8, published: true, created_at: "2025-11-18",
-    source: "SEBI Investor Education", source_url: "https://investor.sebi.gov.in/mutual-funds.html"
+    source: "SEBI", source_url: "https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=33"
   },
   {
     id: "r7", title: "Options Trading: Calls, Puts & Basic Strategies", slug: "options-trading-101",
     excerpt: "Introduction to F&O trading — how options contracts work, understanding premiums, Greeks (Delta, Theta, Gamma), and strategies like covered calls and straddles.",
     content: "", category: "trading", cover_image: null, read_time: 15, published: true, created_at: "2025-11-15",
-    source: "NSE Academy", source_url: "https://www.nseindia.com/learn/what-is-derivatives"
+    source: "NSE Academy", source_url: "https://www.nseindia.com/learn/content/derivatives"
   },
   {
     id: "r8", title: "The Power of Compounding: Why Start Early", slug: "power-of-compounding",
     excerpt: "Albert Einstein called it the 8th wonder. See how even small monthly investments can grow into crores over decades through the magic of compound interest.",
     content: "", category: "investing", cover_image: null, read_time: 5, published: true, created_at: "2025-11-12",
-    source: "RBI Financial Literacy", source_url: "https://rbi.org.in/financialeducation/"
+    source: "RBI", source_url: "https://www.rbi.org.in/commonperson/English/Scripts/FAQs.aspx?Id=711"
   },
   {
     id: "r9", title: "How to Analyse Financial Statements", slug: "financial-statements",
@@ -102,13 +101,13 @@ const REAL_ARTICLES: Article[] = [
     id: "r10", title: "Index Funds vs Active Funds: Which is Better?", slug: "index-vs-active",
     excerpt: "Research shows most active funds underperform their benchmark over 10 years. Explore the data behind passive investing and when active management adds value.",
     content: "", category: "investing", cover_image: null, read_time: 7, published: true, created_at: "2025-11-08",
-    source: "SPIVA India Report", source_url: "https://www.spglobal.com/spdji/en/research-insights/spiva/"
+    source: "Morningstar", source_url: "https://www.morningstar.in/posts/75321/active-vs-passive-funds-india.aspx"
   },
   {
     id: "r11", title: "Understanding IPO: Process, Allotment & Listing", slug: "ipo-guide",
     excerpt: "Complete guide to Initial Public Offerings — DRHP, price bands, lot sizes, allotment process, listing day strategy, and how to apply via UPI/ASBA.",
     content: "", category: "basics", cover_image: null, read_time: 10, published: true, created_at: "2025-11-05",
-    source: "BSE India", source_url: "https://www.bseindia.com/static/about/ipo.html"
+    source: "BSE India", source_url: "https://www.bseindia.com/markets/PublicIssues/IPOIssues_new.aspx"
   },
   {
     id: "r12", title: "Moving Averages: SMA, EMA & Trading Signals", slug: "moving-averages",
@@ -136,7 +135,6 @@ const NEWS_CATEGORY_COLORS: Record<string, string> = {
   Commodities: "bg-brand-gold/10 text-brand-gold",
 };
 
-// Live TV channels
 const LIVE_CHANNELS = [
   { name: "Zee Business", embedId: "DnAaS0ONJSI", description: "India's leading Hindi business news channel covering markets, economy, and corporate news" },
   { name: "CNBC Awaaz", embedId: "enO-WVhQ1p0", description: "Hindi business news with live market analysis, stock recommendations, and expert opinions" },
@@ -153,7 +151,6 @@ const LearningCenterPage = () => {
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsTab, setNewsTab] = useState<"indian" | "world">("indian");
 
-  // Load articles from DB
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
@@ -161,7 +158,6 @@ const LearningCenterPage = () => {
         .select("*")
         .eq("published", true)
         .order("created_at", { ascending: false });
-
       if (data && data.length > 0) {
         setArticles(data as Article[]);
       }
@@ -170,7 +166,6 @@ const LearningCenterPage = () => {
     load();
   }, []);
 
-  // Load live news
   const fetchNews = async () => {
     setNewsLoading(true);
     try {
@@ -205,7 +200,6 @@ const LearningCenterPage = () => {
       <SEOHead title="Learning Center | Parasram India" description="Learn about stock market investing, trading strategies, technical analysis, and personal finance. Free educational resources, live market news, and business TV." keywords="stock market learning, trading guide, investing basics, technical analysis, mutual funds guide, live market news" />
       <Header />
       <main className="container mx-auto px-4 py-8">
-        {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <BookOpen className="w-8 h-8 text-primary" />
@@ -234,10 +228,9 @@ const LearningCenterPage = () => {
         </div>
 
         <AnimatePresence mode="wait">
-          {/* ARTICLES SECTION */}
+          {/* ARTICLES */}
           {activeSection === "articles" && (
             <motion.div key="articles" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              {/* Search & filters */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -273,39 +266,39 @@ const LearningCenterPage = () => {
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filtered.map((article, i) => (
                     <motion.div key={article.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                      <a
-                        href={article.source_url || "#"}
-                        target={article.source_url ? "_blank" : undefined}
-                        rel="noopener noreferrer"
-                        className="block h-full"
+                      <Card
+                        className="p-6 h-full flex flex-col hover:shadow-lg transition-shadow cursor-pointer group"
+                        onClick={() => {
+                          if (article.source_url) {
+                            window.open(article.source_url, '_blank', 'noopener,noreferrer');
+                          }
+                        }}
                       >
-                        <Card className="p-6 h-full flex flex-col hover:shadow-lg transition-shadow cursor-pointer group">
-                          <div className="flex items-center justify-between mb-3">
-                            <Badge className={`w-fit text-xs ${CATEGORY_COLORS[article.category] || ""}`} variant="outline">
-                              {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-                            </Badge>
-                            {article.source && (
-                              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                <ExternalLink className="w-3 h-3" />
-                                {article.source}
-                              </span>
-                            )}
-                          </div>
-                          <h3 className="font-semibold text-lg text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                            {article.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground flex-1 line-clamp-3 mb-4">{article.excerpt}</p>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {article.read_time} min read
+                        <div className="flex items-center justify-between mb-3">
+                          <Badge className={`w-fit text-xs ${CATEGORY_COLORS[article.category] || ""}`} variant="outline">
+                            {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
+                          </Badge>
+                          {article.source && (
+                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                              <ExternalLink className="w-3 h-3" />
+                              {article.source}
                             </span>
-                            <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
-                              Read <ChevronRight className="w-3.5 h-3.5" />
-                            </span>
-                          </div>
-                        </Card>
-                      </a>
+                          )}
+                        </div>
+                        <h3 className="font-semibold text-lg text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                          {article.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground flex-1 line-clamp-3 mb-4">{article.excerpt}</p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {article.read_time} min read
+                          </span>
+                          <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
+                            Read <ChevronRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                      </Card>
                     </motion.div>
                   ))}
                 </div>
@@ -313,7 +306,7 @@ const LearningCenterPage = () => {
             </motion.div>
           )}
 
-          {/* NEWS SECTION */}
+          {/* NEWS */}
           {activeSection === "news" && (
             <motion.div key="news" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <div className="flex items-center justify-between mb-6">
@@ -374,21 +367,28 @@ const LearningCenterPage = () => {
             </motion.div>
           )}
 
-          {/* LIVE TV SECTION */}
+          {/* LIVE TV */}
           {activeSection === "live" && (
             <motion.div key="live" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <div className="grid md:grid-cols-2 gap-6">
                 {LIVE_CHANNELS.map((channel) => (
                   <Card key={channel.name} className="overflow-hidden">
-                    <div className="aspect-video">
+                    <div className="aspect-video bg-muted relative">
                       <iframe
-                        src={`https://www.youtube.com/embed/${channel.embedId}?autoplay=0&rel=0`}
-                        title={channel.name}
-                        className="w-full h-full"
+                        src={`https://www.youtube-nocookie.com/embed/live_stream?channel=${channel.embedId}&autoplay=0`}
+                        title={`${channel.name} Live`}
+                        className="w-full h-full absolute inset-0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                         loading="lazy"
+                        referrerPolicy="no-referrer"
+                        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
                       />
+                      {/* Fallback overlay if iframe is blocked */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/80 opacity-0 hover:opacity-0 pointer-events-none">
+                        <Radio className="w-10 h-10 text-brand-orange mb-2" />
+                        <span className="text-sm font-semibold text-foreground">{channel.name}</span>
+                      </div>
                     </div>
                     <div className="p-4">
                       <div className="flex items-center gap-2 mb-1">
@@ -396,7 +396,16 @@ const LearningCenterPage = () => {
                         <span className="text-xs font-bold text-destructive">LIVE</span>
                         <h3 className="font-heading text-lg font-bold text-foreground">{channel.name}</h3>
                       </div>
-                      <p className="text-sm text-muted-foreground">{channel.description}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{channel.description}</p>
+                      <a
+                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(channel.name + " live")}&sp=EgJAAQ%253D%253D`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Watch on YouTube
+                      </a>
                     </div>
                   </Card>
                 ))}
@@ -406,8 +415,8 @@ const LearningCenterPage = () => {
                   <Radio className="w-8 h-8 text-brand-orange mx-auto mb-3" />
                   <h3 className="font-semibold text-foreground mb-2">Live Business News Broadcast</h3>
                   <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-                    Watch live market analysis, stock recommendations, and financial news from India's top business channels. 
-                    Available during broadcast hours (typically 6 AM - 11 PM IST).
+                    Watch live market analysis, stock recommendations, and financial news from India's top business channels.
+                    If the embed is blocked in preview, click "Watch on YouTube" to open directly.
                   </p>
                 </div>
               </Card>
