@@ -2,13 +2,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Search, Clock, ChevronRight, TrendingUp, GraduationCap, BarChart3, Shield, ExternalLink, Newspaper, Radio, RefreshCw, Globe, IndianRupee } from "lucide-react";
+import { BookOpen, Search, Clock, ChevronRight, TrendingUp, GraduationCap, BarChart3, Shield, ExternalLink, Newspaper, Radio, RefreshCw, Globe, IndianRupee, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Article = {
@@ -162,6 +162,8 @@ const LearningCenterPage = () => {
   const [newsTab, setNewsTab] = useState<"indian" | "world">("indian");
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveEmbeds, setLiveEmbeds] = useState<Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>>({});
+  const [iframeErrors, setIframeErrors] = useState<Record<string, boolean>>({});
+  const healthCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -207,6 +209,7 @@ const LearningCenterPage = () => {
           return acc;
         }, {});
         setLiveEmbeds(nextEmbeds);
+        setIframeErrors({});
       }
     } catch (e) {
       console.error('Live TV fetch error:', e);
@@ -215,17 +218,48 @@ const LearningCenterPage = () => {
     }
   };
 
+  const handleIframeError = (channelId: string) => {
+    setIframeErrors(prev => ({ ...prev, [channelId]: true }));
+  };
+
+  // Auto-refresh every 60s when live tab is active, and auto-recover on iframe errors
+  useEffect(() => {
+    if (activeSection === "live") {
+      if (Object.keys(liveEmbeds).length === 0) {
+        fetchLiveBroadcasts();
+      }
+
+      healthCheckRef.current = setInterval(() => {
+        const hasErrors = Object.values(iframeErrors).some(Boolean);
+        if (hasErrors) {
+          console.log('[LiveTV] Health check: iframe error detected, refreshing broadcasts...');
+          fetchLiveBroadcasts();
+        }
+      }, 30000); // Check every 30s
+
+      // Full refresh every 90s regardless
+      const fullRefresh = setInterval(() => {
+        console.log('[LiveTV] Auto-refreshing broadcast IDs...');
+        fetchLiveBroadcasts();
+      }, 90000);
+
+      return () => {
+        if (healthCheckRef.current) clearInterval(healthCheckRef.current);
+        clearInterval(fullRefresh);
+      };
+    } else {
+      if (healthCheckRef.current) {
+        clearInterval(healthCheckRef.current);
+        healthCheckRef.current = null;
+      }
+    }
+  }, [activeSection, iframeErrors]);
+
   useEffect(() => {
     if (activeSection === "news" && indianNews.length === 0) {
       fetchNews();
     }
   }, [activeSection]);
-
-  useEffect(() => {
-    if (activeSection === "live" && Object.keys(liveEmbeds).length === 0) {
-      fetchLiveBroadcasts();
-    }
-  }, [activeSection, liveEmbeds]);
 
   const filtered = useMemo(() => articles.filter(a => {
     const matchCat = category === "all" || a.category === category;
@@ -431,15 +465,27 @@ const LearningCenterPage = () => {
                   return (
                     <Card key={channel.name} className="overflow-hidden">
                       <div className="aspect-video bg-muted relative">
-                        <iframe
-                          src={embedSrc}
-                          title={`${channel.name} Live`}
-                          className="w-full h-full absolute inset-0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allowFullScreen
-                          loading="lazy"
-                        />
+                        {iframeErrors[channel.channelId] ? (
+                          <div className="w-full h-full absolute inset-0 flex flex-col items-center justify-center bg-muted gap-3">
+                            <AlertTriangle className="w-8 h-8 text-brand-orange" />
+                            <p className="text-sm text-muted-foreground font-medium">Stream unavailable — auto-retrying...</p>
+                            <a href={watchUrl} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
+                              <ExternalLink className="w-3 h-3" /> Watch on YouTube instead
+                            </a>
+                          </div>
+                        ) : (
+                          <iframe
+                            src={embedSrc}
+                            title={`${channel.name} Live`}
+                            className="w-full h-full absolute inset-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                            loading="lazy"
+                            onError={() => handleIframeError(channel.channelId)}
+                          />
+                        )}
                       </div>
                       <div className="p-4">
                         <div className="flex items-center gap-2 mb-1">
