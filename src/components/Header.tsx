@@ -76,12 +76,12 @@ const Header = () => {
             <img src={logo} alt="Parasram - Science of Investment" className="h-10 md:h-20 w-auto" />
           </Link>
           
-          <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
+          <nav className="hidden md:flex items-center gap-5" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className={`font-medium transition-colors ${
+                className={`font-medium transition-colors text-sm ${
                   location.pathname === link.href
                     ? "text-secondary"
                     : link.highlight
@@ -95,6 +95,20 @@ const Header = () => {
                 )}
               </Link>
             ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger className={`font-medium text-sm transition-colors flex items-center gap-1 hover:text-secondary ${toolLinks.some(t => location.pathname === t.href) ? "text-secondary" : "text-foreground"}`}>
+                Tools <ChevronDown className="w-3.5 h-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-48">
+                {toolLinks.map(link => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link to={link.href} className={location.pathname === link.href ? "text-secondary" : ""}>
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
           
           <div className="flex items-center gap-2">
