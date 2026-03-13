@@ -108,21 +108,21 @@ const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; inde
       {/* Hover overlay */}
       <motion.div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <div className="relative z-10 p-6 sm:p-8">
+      <div className="relative z-10 p-8 sm:p-10">
         {/* Header row */}
-        <div className="flex items-start gap-4 mb-5">
+        <div className="flex items-start gap-5 mb-6">
           <motion.div
-            className={`w-16 h-16 bg-gradient-to-br ${member.accent} rounded-2xl flex items-center justify-center text-white shadow-lg flex-shrink-0`}
+            className={`w-20 h-20 bg-gradient-to-br ${member.accent} rounded-2xl flex items-center justify-center text-white shadow-lg flex-shrink-0`}
             whileHover={{ rotate: [0, -8, 8, 0], scale: 1.1 }}
             transition={{ duration: 0.5 }}
           >
-            <member.icon className="w-7 h-7" />
+            <member.icon className="w-8 h-8" />
           </motion.div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-secondary transition-colors">
+            <h3 className="font-heading text-2xl font-bold text-foreground group-hover:text-secondary transition-colors">
               {member.name}
             </h3>
-            <p className="text-secondary font-semibold text-sm">{member.role}</p>
+            <p className="text-secondary font-semibold text-base">{member.role}</p>
           </div>
         </div>
 
