@@ -121,7 +121,7 @@ const About = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
-                Panipat Branch
+               Panipat Branch — Since 1997
               </motion.span>
             </motion.h2>
 
