@@ -14,7 +14,7 @@ import {
   ChevronRight, Shield, Target, Handshake, GraduationCap, MessageCircle,
   MapPin, Calendar
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 const teamMembers = [
   {
