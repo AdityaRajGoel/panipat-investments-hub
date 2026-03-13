@@ -84,10 +84,10 @@ const teamFAQs = [
 ];
 
 const branchStats = [
-  { label: "Years of Service", value: "35+", icon: Calendar },
+  { label: "Established", value: "1997", icon: Calendar },
   { label: "Active Clients", value: "2,000+", icon: Users },
   { label: "AUM Managed", value: "₹250Cr+", icon: TrendingUp },
-  { label: "SEBI Registered", value: "Since 1989", icon: Shield },
+  { label: "SEBI Registered", value: "Since 1997", icon: Shield },
 ];
 
 const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; index: number }) => {
