@@ -13,7 +13,7 @@ const LiveChart = lazy(() => import("@/components/LiveChart"));
 const MarketDashboard = lazy(() => import("@/components/MarketDashboard"));
 const TrustBadges = lazy(() => import("@/components/TrustBadges"));
 const MarketOverview = lazy(() => import("@/components/MarketOverview"));
-const IPOTracker = lazy(() => import("@/components/IPOTracker"));
+
 const ClientMarquee = lazy(() => import("@/components/ClientMarquee"));
 const MarketNews = lazy(() => import("@/components/MarketNews"));
 const Footer = lazy(() => import("@/components/Footer"));
@@ -48,9 +48,6 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-96" />}>
         <MarketOverview />
-      </Suspense>
-      <Suspense fallback={<SectionSkeleton height="h-64" />}>
-        <IPOTracker />
       </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-24" />}>
         <ClientMarquee />
