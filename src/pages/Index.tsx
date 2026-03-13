@@ -49,9 +49,6 @@ const Index = () => {
       <Suspense fallback={<SectionSkeleton height="h-96" />}>
         <MarketOverview />
       </Suspense>
-      <Suspense fallback={<SectionSkeleton height="h-64" />}>
-        <IPOTracker />
-      </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-24" />}>
         <ClientMarquee />
       </Suspense>
