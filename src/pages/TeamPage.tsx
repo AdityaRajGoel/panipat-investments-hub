@@ -84,10 +84,10 @@ const teamFAQs = [
 ];
 
 const branchStats = [
-  { label: "Years of Service", value: "35+", icon: Calendar },
+  { label: "Established", value: "1997", icon: Calendar },
   { label: "Active Clients", value: "2,000+", icon: Users },
   { label: "AUM Managed", value: "₹250Cr+", icon: TrendingUp },
-  { label: "SEBI Registered", value: "Since 1989", icon: Shield },
+  { label: "SEBI Registered", value: "Since 1997", icon: Shield },
 ];
 
 const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; index: number }) => {
@@ -108,26 +108,26 @@ const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; inde
       {/* Hover overlay */}
       <motion.div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <div className="relative z-10 p-6 sm:p-8">
+      <div className="relative z-10 p-8 sm:p-10">
         {/* Header row */}
-        <div className="flex items-start gap-4 mb-5">
+        <div className="flex items-start gap-5 mb-6">
           <motion.div
-            className={`w-16 h-16 bg-gradient-to-br ${member.accent} rounded-2xl flex items-center justify-center text-white shadow-lg flex-shrink-0`}
+            className={`w-20 h-20 bg-gradient-to-br ${member.accent} rounded-2xl flex items-center justify-center text-white shadow-lg flex-shrink-0`}
             whileHover={{ rotate: [0, -8, 8, 0], scale: 1.1 }}
             transition={{ duration: 0.5 }}
           >
-            <member.icon className="w-7 h-7" />
+            <member.icon className="w-8 h-8" />
           </motion.div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-secondary transition-colors">
+            <h3 className="font-heading text-2xl font-bold text-foreground group-hover:text-secondary transition-colors">
               {member.name}
             </h3>
-            <p className="text-secondary font-semibold text-sm">{member.role}</p>
+            <p className="text-secondary font-semibold text-base">{member.role}</p>
           </div>
         </div>
 
         {/* Contact */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col gap-3">
           <a
             href={`tel:${member.phone}`}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors bg-muted/50 hover:bg-secondary/10 rounded-lg px-3 py-2"
@@ -229,7 +229,7 @@ const TeamPage = () => {
               transition={{ delay: 0.4, duration: 0.6 }}
             />
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
-              Experienced professionals dedicated to helping you achieve your financial goals with integrity and expertise
+              Meet the people behind Parasram Panipat
             </p>
 
             <motion.div
@@ -240,7 +240,7 @@ const TeamPage = () => {
             >
               <Clock className="w-4 h-4 text-brand-gold" />
               <span className="text-sm text-foreground font-medium">
-                Serving investors across generations since the late 1980s
+                Serving investors since 1997
               </span>
             </motion.div>
           </motion.div>
