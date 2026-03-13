@@ -117,7 +117,7 @@ const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndica
     <div className="relative">
       <svg
         viewBox={`0 0 ${w} ${h + volH}`}
-        className={large ? "w-full h-[200px] cursor-crosshair" : "w-[100px] h-[40px]"}
+        className={large ? "w-full h-[160px] sm:h-[200px] cursor-crosshair" : "w-[100px] h-[40px]"}
         preserveAspectRatio="none"
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setHoverIdx(null)}
@@ -159,10 +159,10 @@ const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndica
       </svg>
       {large && hoverIdx !== null && coords[hoverIdx] && (
         <div
-          className="absolute top-0 bg-card border border-brand-orange/30 rounded-xl px-4 py-2 shadow-xl pointer-events-none text-xs z-10"
-          style={{ left: `${(coords[hoverIdx].x / w) * 100}%`, transform: "translateX(-50%)" }}
+          className="absolute top-0 bg-card border border-brand-orange/30 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 shadow-xl pointer-events-none text-xs z-10 max-w-[150px] sm:max-w-none"
+          style={{ left: `clamp(40px, ${(coords[hoverIdx].x / w) * 100}%, calc(100% - 40px))`, transform: "translateX(-50%)" }}
         >
-          <div className="font-bold text-foreground text-sm">₹{(coords[hoverIdx].val * 220).toFixed(2)}</div>
+          <div className="font-bold text-foreground text-sm truncate">₹{(coords[hoverIdx].val * 220).toFixed(2)}</div>
           <div className="text-muted-foreground">{`${9 + Math.floor(hoverIdx / 10)}:${String((hoverIdx % 10) * 6).padStart(2, "0")}`}</div>
           {volumeData && <div className="text-brand-orange text-[10px]">Vol: {(volumeData[hoverIdx] * 1.2).toFixed(0)}K</div>}
         </div>
@@ -361,13 +361,13 @@ const LiveChart = () => {
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-          <motion.div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+          <motion.div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 snap-x snap-mandatory lg:snap-none" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             {indices.map((idx) => {
               const isActive = activeIndexKey === idx.key;
               return (
                 <motion.button key={idx.key} onClick={() => setActiveIndexKey(idx.key)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border transition-all min-w-[200px] lg:min-w-0 text-left ${isActive ? "bg-card border-brand-orange/40 shadow-lg shadow-brand-orange/10" : "bg-card/50 border-border/30 hover:border-border"}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition-all min-w-[180px] sm:min-w-[200px] lg:min-w-0 snap-start text-left ${isActive ? "bg-card border-brand-orange/40 shadow-lg shadow-brand-orange/10" : "bg-card/50 border-border/30 hover:border-border"}`}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idx.up ? "bg-secondary/10" : "bg-destructive/10"}`}>
                     {idx.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
@@ -384,21 +384,21 @@ const LiveChart = () => {
 
           <div className="space-y-4">
             <Card className="border-border/50 overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <div>
                     <h3 className="font-heading text-lg font-bold text-foreground">{activeIndex?.name}</h3>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-2xl font-bold text-foreground">₹{activeIndex?.price}</span>
+                      <span className="text-xl sm:text-2xl font-bold text-foreground">₹{activeIndex?.price}</span>
                       <span className={`text-sm font-bold px-2.5 py-1 rounded-full ${currentUp ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>
                         {currentUp ? <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> : <TrendingDown className="w-3.5 h-3.5 inline mr-1" />}{activeIndex?.change}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 overflow-x-auto">
                     <button
                       onClick={() => setShowIndicators(!showIndicators)}
-                      className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-md transition-colors ${showIndicators ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80"}`}
+                      className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-md transition-colors whitespace-nowrap ${showIndicators ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80"}`}
                     >
                       <LineChart className="w-3 h-3" />
                       <span className="hidden sm:inline">Indicators</span>
@@ -406,7 +406,7 @@ const LiveChart = () => {
                     <div className="flex gap-1">
                       {["1D", "1W", "1M", "3M", "1Y"].map((tf) => (
                         <button key={tf} onClick={() => setActiveTimeframe(tf)}
-                          className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${activeTimeframe === tf ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"}`}>{tf}</button>
+                          className={`px-2 sm:px-2.5 py-1 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${activeTimeframe === tf ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"}`}>{tf}</button>
                       ))}
                     </div>
                   </div>
