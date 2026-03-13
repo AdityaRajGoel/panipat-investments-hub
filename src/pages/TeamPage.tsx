@@ -127,7 +127,7 @@ const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; inde
         </div>
 
         {/* Contact */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col gap-3">
           <a
             href={`tel:${member.phone}`}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-secondary transition-colors bg-muted/50 hover:bg-secondary/10 rounded-lg px-3 py-2"
