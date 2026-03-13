@@ -98,9 +98,19 @@ const MarketNews = () => {
 
   useEffect(() => {
     fetchNews();
-    // Refresh news every 5 minutes
-    const interval = setInterval(fetchNews, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval> | null = setInterval(() => {
+      if (!document.hidden) fetchNews();
+    }, 5 * 60 * 1000);
+
+    const handleVisibility = () => {
+      if (!document.hidden) fetchNews();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      if (interval) clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const news = activeTab === "indian" ? indianNews : worldNews;

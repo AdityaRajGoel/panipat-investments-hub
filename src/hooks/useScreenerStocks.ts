@@ -66,8 +66,19 @@ export function useScreenerStocks() {
 
   useEffect(() => {
     fetchStocks();
-    const interval = setInterval(() => fetchStocks(), 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      if (!document.hidden) fetchStocks();
+    }, 5 * 60 * 1000);
+
+    const handleVisibility = () => {
+      if (!document.hidden) fetchStocks();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [fetchStocks]);
 
   return { stocks, loading, updatedAt, error, refresh: () => fetchStocks(true) };

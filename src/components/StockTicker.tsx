@@ -156,6 +156,7 @@ const StockTicker = () => {
     const interval = marketOpen ? 60 : 300;
     
     const timer = setInterval(() => {
+      if (document.hidden) return; // Skip updates when tab is hidden
       const elapsed = Math.floor((Date.now() - fetchTime) / 1000);
       const remaining = Math.max(0, interval - elapsed);
       setCountdown(remaining);
