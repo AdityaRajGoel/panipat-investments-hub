@@ -189,11 +189,41 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const marketOpenRef = useRef(marketOpen);
+  marketOpenRef.current = marketOpen;
+
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let visible = !document.hidden;
+
+    const startInterval = () => {
+      if (interval) clearInterval(interval);
+      const ms = marketOpenRef.current ? 60_000 : 300_000;
+      interval = setInterval(() => {
+        if (!document.hidden) fetchData();
+      }, ms);
+    };
+
+    const handleVisibility = () => {
+      visible = !document.hidden;
+      if (visible) {
+        fetchData();
+        startInterval();
+      } else if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
     fetchData();
-    const interval = setInterval(fetchData, marketOpen ? 60 * 1000 : 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [fetchData, marketOpen]);
+    startInterval();
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      if (interval) clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [fetchData]);
 
   return (
     <LiveMarketContext.Provider value={{ indices, stocks, commodities, globalMarkets, sectors, vix, marketOverview, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose, fetchedAt, loading, refresh: fetchData }}>
