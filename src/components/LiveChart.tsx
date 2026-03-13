@@ -367,7 +367,7 @@ const LiveChart = () => {
               const isActive = activeIndexKey === idx.key;
               return (
                 <motion.button key={idx.key} onClick={() => setActiveIndexKey(idx.key)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border transition-all min-w-[200px] lg:min-w-0 text-left ${isActive ? "bg-card border-brand-orange/40 shadow-lg shadow-brand-orange/10" : "bg-card/50 border-border/30 hover:border-border"}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition-all min-w-[180px] sm:min-w-[200px] lg:min-w-0 snap-start text-left ${isActive ? "bg-card border-brand-orange/40 shadow-lg shadow-brand-orange/10" : "bg-card/50 border-border/30 hover:border-border"}`}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idx.up ? "bg-secondary/10" : "bg-destructive/10"}`}>
                     {idx.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
