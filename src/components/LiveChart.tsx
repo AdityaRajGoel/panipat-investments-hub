@@ -361,8 +361,8 @@ const LiveChart = () => {
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-          <motion.div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+          <motion.div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 snap-x snap-mandatory lg:snap-none" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             {indices.map((idx) => {
               const isActive = activeIndexKey === idx.key;
               return (
