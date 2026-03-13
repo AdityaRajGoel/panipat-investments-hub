@@ -108,10 +108,11 @@ function parseIPOWatchHtml(html: string): IPOEntry[] | null {
         // Parse date
         const dateStr = dateRaw || listingGainOrDate || 'TBA';
 
-        // Determine status from date
+        // Parse date to determine status
+        const dateForStatus = dateRaw || dateStr;
         let status: 'upcoming' | 'open' | 'listed' = 'upcoming';
         const now = new Date();
-        const dateRange = dateStr.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
+        const dateRange = dateForStatus.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
         if (dateRange) {
           const months: Record<string, number> = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
           const monthNum = months[dateRange[3].toLowerCase()];
@@ -130,16 +131,15 @@ function parseIPOWatchHtml(html: string): IPOEntry[] | null {
           }
         }
 
-        // Check listing gain column
+        // Parse listing gain if IPO is already listed
         let listingGain: string | undefined;
         let listingUp: boolean | undefined;
-        const gainMatch = listingGainOrDate.match(/(-?\d+\.?\d*)%/);
-        if (gainMatch && status !== 'upcoming') {
-          const gainNum = parseFloat(gainMatch[1]);
-          if (gainNum !== 0 || listingGainOrDate.includes('%')) {
+        if (status === 'listed') {
+          const gainMatch = listingGainOrDate.match(/(-?\d+\.?\d*)%/);
+          if (gainMatch) {
+            const gainNum = parseFloat(gainMatch[1]);
             listingGain = `${gainNum >= 0 ? '+' : ''}${gainNum}%`;
             listingUp = gainNum >= 0;
-            status = 'listed';
           }
         }
 
