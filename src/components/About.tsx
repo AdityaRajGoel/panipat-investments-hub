@@ -127,8 +127,8 @@ const About = () => {
 
             <motion.p className="text-muted-foreground text-lg mb-6" variants={itemVariants}>
               Parasram India is one of India's most trusted stock broking firms with over
-              five decades of experience in the financial markets. Our Panipat branch brings
-              world-class investment services right to your doorstep.
+              five decades of experience in the financial markets. Our Panipat branch,
+              established in 1997, brings world-class investment services right to your doorstep.
             </motion.p>
 
             <motion.p className="text-muted-foreground mb-8" variants={itemVariants}>
