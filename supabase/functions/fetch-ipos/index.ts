@@ -292,16 +292,17 @@ Deno.serve(async (req) => {
 
     let finalIpos: IPOEntry[];
 
-    if (ipos && ipos.length >= 5) {
-      finalIpos = ipos;
-      console.log(`Using ${ipos.length} live IPOs from ${source}`);
-    } else if (ipos && ipos.length > 0) {
-      // Supplement with curated, but prefer live data
+    if (ipos && ipos.length > 0) {
+      // Always supplement live data with curated "listed" entries for completeness
       const liveNames = new Set(ipos.map(ipo => ipo.name.toLowerCase()));
-      const supplemented = getCuratedIPOs().filter(c => !liveNames.has(c.name.toLowerCase()));
-      finalIpos = [...ipos, ...supplemented];
-      source = `${source}+curated`;
-      console.log(`Merged ${ipos.length} live + ${supplemented.length} curated`);
+      const listedSupplements = getCuratedIPOs().filter(
+        c => c.status === 'listed' && !liveNames.has(c.name.toLowerCase())
+      );
+      finalIpos = [...ipos, ...listedSupplements];
+      if (listedSupplements.length > 0) {
+        source = `${source}+curated`;
+      }
+      console.log(`Using ${ipos.length} live + ${listedSupplements.length} curated listed IPOs`);
     } else {
       console.log('All live sources failed, using curated data');
       finalIpos = getCuratedIPOs();
