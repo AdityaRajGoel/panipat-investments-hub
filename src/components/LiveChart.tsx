@@ -384,21 +384,21 @@ const LiveChart = () => {
 
           <div className="space-y-4">
             <Card className="border-border/50 overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <div>
                     <h3 className="font-heading text-lg font-bold text-foreground">{activeIndex?.name}</h3>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-2xl font-bold text-foreground">₹{activeIndex?.price}</span>
+                      <span className="text-xl sm:text-2xl font-bold text-foreground">₹{activeIndex?.price}</span>
                       <span className={`text-sm font-bold px-2.5 py-1 rounded-full ${currentUp ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>
                         {currentUp ? <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> : <TrendingDown className="w-3.5 h-3.5 inline mr-1" />}{activeIndex?.change}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 overflow-x-auto">
                     <button
                       onClick={() => setShowIndicators(!showIndicators)}
-                      className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-md transition-colors ${showIndicators ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80"}`}
+                      className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-md transition-colors whitespace-nowrap ${showIndicators ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80"}`}
                     >
                       <LineChart className="w-3 h-3" />
                       <span className="hidden sm:inline">Indicators</span>
@@ -406,7 +406,7 @@ const LiveChart = () => {
                     <div className="flex gap-1">
                       {["1D", "1W", "1M", "3M", "1Y"].map((tf) => (
                         <button key={tf} onClick={() => setActiveTimeframe(tf)}
-                          className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${activeTimeframe === tf ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"}`}>{tf}</button>
+                          className={`px-2 sm:px-2.5 py-1 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${activeTimeframe === tf ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"}`}>{tf}</button>
                       ))}
                     </div>
                   </div>
