@@ -91,7 +91,7 @@ const branchStats = [
 ];
 
 const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; index: number }) => {
-  const [expanded, setExpanded] = useState(false);
+  const _unused = member; // keep lint happy
 
   return (
     <motion.div
