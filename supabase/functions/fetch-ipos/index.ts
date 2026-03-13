@@ -62,10 +62,11 @@ function parseIPOWatchHtml(html: string): IPOEntry[] | null {
 
       // Check headers to determine table type
       const headerRow = cleanText(rows[0]).toLowerCase();
-      const isGMPTable = headerRow.includes('gmp') && headerRow.includes('ipo');
-      const isPerformanceTable = headerRow.includes('listing price') || headerRow.includes('listing');
+      const isGMPTable = headerRow.includes('gmp') && headerRow.includes('ipo') && headerRow.includes('date');
+      const isPerformanceTable = headerRow.includes('listing price') || headerRow.includes('ipo price');
 
-      if (!isGMPTable && !isPerformanceTable) continue;
+      // Only process current GMP tables, skip historical performance tables
+      if (!isGMPTable || isPerformanceTable) continue;
 
       // Determine if SME by checking heading content before table in HTML
       const tablePos = html.indexOf(tableHtml);
