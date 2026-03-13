@@ -159,10 +159,10 @@ const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndica
       </svg>
       {large && hoverIdx !== null && coords[hoverIdx] && (
         <div
-          className="absolute top-0 bg-card border border-brand-orange/30 rounded-xl px-4 py-2 shadow-xl pointer-events-none text-xs z-10"
-          style={{ left: `${(coords[hoverIdx].x / w) * 100}%`, transform: "translateX(-50%)" }}
+          className="absolute top-0 bg-card border border-brand-orange/30 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 shadow-xl pointer-events-none text-xs z-10 max-w-[150px] sm:max-w-none"
+          style={{ left: `clamp(40px, ${(coords[hoverIdx].x / w) * 100}%, calc(100% - 40px))`, transform: "translateX(-50%)" }}
         >
-          <div className="font-bold text-foreground text-sm">₹{(coords[hoverIdx].val * 220).toFixed(2)}</div>
+          <div className="font-bold text-foreground text-sm truncate">₹{(coords[hoverIdx].val * 220).toFixed(2)}</div>
           <div className="text-muted-foreground">{`${9 + Math.floor(hoverIdx / 10)}:${String((hoverIdx % 10) * 6).padStart(2, "0")}`}</div>
           {volumeData && <div className="text-brand-orange text-[10px]">Vol: {(volumeData[hoverIdx] * 1.2).toFixed(0)}K</div>}
         </div>
