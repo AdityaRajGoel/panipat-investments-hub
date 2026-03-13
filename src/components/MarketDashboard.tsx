@@ -494,15 +494,12 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
-        {/* New row: Currency, IPO, MF */}
-        <div className="grid lg:grid-cols-3 gap-6 mt-6">
+        {/* Currency & MF */}
+        <div className="grid lg:grid-cols-2 gap-6 mt-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
             <CurrencyDashboard />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.7 }}>
-            <IPOTracker />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.8 }}>
             <MutualFundFlows />
           </motion.div>
         </div>
