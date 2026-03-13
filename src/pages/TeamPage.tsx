@@ -14,7 +14,7 @@ import {
   ChevronRight, Shield, Target, Handshake, GraduationCap, MessageCircle,
   MapPin, Calendar
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 const teamMembers = [
   {
@@ -91,7 +91,7 @@ const branchStats = [
 ];
 
 const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; index: number }) => {
-  const [expanded, setExpanded] = useState(false);
+  
 
   return (
     <motion.div
@@ -135,36 +135,15 @@ const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; inde
           {member.description}
         </p>
 
-        {/* Expandable long bio */}
-        <motion.div
-          initial={false}
-          animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-          className="overflow-hidden"
-        >
-          <p className="text-muted-foreground text-sm leading-relaxed mb-4 border-l-2 border-secondary/30 pl-3 italic">
-            {member.longBio}
-          </p>
-          {/* Achievements */}
-          <div className="mb-4">
-            {member.achievements.map((a, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs text-foreground mb-1.5">
-                <Star className="w-3 h-3 text-brand-gold flex-shrink-0" />
-                <span>{a}</span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-xs text-secondary font-semibold hover:underline mb-4 flex items-center gap-1"
-        >
-          {expanded ? "Show less" : "Read full bio"}
-          <motion.span animate={{ rotate: expanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
-            <ChevronRight className="w-3 h-3" />
-          </motion.span>
-        </button>
+        {/* Achievements */}
+        <div className="mb-4">
+          {member.achievements.map((a, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs text-foreground mb-1.5">
+              <Star className="w-3 h-3 text-brand-gold flex-shrink-0" />
+              <span>{a}</span>
+            </div>
+          ))}
+        </div>
 
         {/* Specialties */}
         <div className="flex flex-wrap gap-1.5 mb-5">
