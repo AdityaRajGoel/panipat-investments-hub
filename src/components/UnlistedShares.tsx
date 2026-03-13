@@ -100,6 +100,23 @@ const UnlistedShares = () => {
       }
     };
     fetchShares();
+
+    // Re-fetch when tab becomes visible again (e.g. after being in background)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchShares();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Also re-fetch on window focus as a fallback
+    const handleFocus = () => fetchShares();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   return (
