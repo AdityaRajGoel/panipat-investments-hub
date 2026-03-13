@@ -309,13 +309,14 @@ Deno.serve(async (req) => {
       source = 'curated';
     }
 
-    // Deduplicate
-    const seen = new Set<string>();
+    // Deduplicate (fuzzy — check if one name starts with another)
+    const seen: string[] = [];
     finalIpos = finalIpos.filter(ipo => {
       if (!ipo.name || ipo.name.length < 2) return false;
-      const key = ipo.name.toLowerCase().replace(/\s*(ipo|limited|ltd)\s*/gi, '').trim();
-      if (seen.has(key)) return false;
-      seen.add(key);
+      const key = ipo.name.toLowerCase().replace(/\s*(ipo|limited|ltd|constructions?)\s*/gi, '').trim();
+      const isDup = seen.some(s => s.startsWith(key) || key.startsWith(s));
+      if (isDup) return false;
+      seen.push(key);
       return true;
     });
 
