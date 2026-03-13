@@ -229,7 +229,7 @@ const TeamPage = () => {
               transition={{ delay: 0.4, duration: 0.6 }}
             />
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
-              Experienced professionals dedicated to helping you achieve your financial goals with integrity and expertise
+              Meet the people behind Parasram Panipat
             </p>
 
             <motion.div
@@ -240,7 +240,7 @@ const TeamPage = () => {
             >
               <Clock className="w-4 h-4 text-brand-gold" />
               <span className="text-sm text-foreground font-medium">
-                Serving investors across generations since the late 1980s
+                Serving investors since 1997
               </span>
             </motion.div>
           </motion.div>
