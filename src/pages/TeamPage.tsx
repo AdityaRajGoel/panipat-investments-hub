@@ -124,37 +124,6 @@ const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; inde
             </h3>
             <p className="text-secondary font-semibold text-sm">{member.role}</p>
           </div>
-          <div className="bg-muted rounded-xl px-3 py-2 text-center flex-shrink-0">
-            <div className="text-lg font-bold text-secondary leading-tight">{member.statValue}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{member.statLabel}</div>
-          </div>
-        </div>
-
-        {/* Description */}
-        <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-          {member.description}
-        </p>
-
-        {/* Achievements */}
-        <div className="mb-4">
-          {member.achievements.map((a, i) => (
-            <div key={i} className="flex items-center gap-2 text-xs text-foreground mb-1.5">
-              <Star className="w-3 h-3 text-brand-gold flex-shrink-0" />
-              <span>{a}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Specialties */}
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          {member.specialties.map((s) => (
-            <span
-              key={s}
-              className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20"
-            >
-              {s}
-            </span>
-          ))}
         </div>
 
         {/* Contact */}
