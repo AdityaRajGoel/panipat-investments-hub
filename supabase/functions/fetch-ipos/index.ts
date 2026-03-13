@@ -67,22 +67,11 @@ function parseIPOWatchHtml(html: string): IPOEntry[] | null {
 
       if (!isGMPTable && !isPerformanceTable) continue;
 
-      // Determine if this is mainboard or SME based on nearby headings
+      // Determine if SME by checking heading content before table in HTML
       const tablePos = html.indexOf(tableHtml);
-      let isSMESection = false;
-      for (const heading of headings) {
-        if (heading.includes('sme')) {
-          const headingPos = html.indexOf(heading);
-          if (headingPos > 0 && headingPos < tablePos && tablePos - headingPos < 500) {
-            isSMESection = true;
-          }
-        }
-      }
-
-      // Check section heading right before the table
-      const beforeTable = html.substring(Math.max(0, tablePos - 300), tablePos).toLowerCase();
-      if (beforeTable.includes('sme ipo')) isSMESection = true;
-      if (beforeTable.includes('performance')) continue; // skip historical performance tables
+      const beforeTable = html.substring(Math.max(0, tablePos - 500), tablePos).toLowerCase();
+      const isSMESection = beforeTable.includes('sme ipo') || beforeTable.includes('sme gmp');
+      const isMainboardSection = beforeTable.includes('mainboard ipo') || beforeTable.includes('mainboard gmp');
 
       for (let ri = 1; ri < rows.length; ri++) {
         const cells = rows[ri].match(/<td[^>]*>([\s\S]*?)<\/td>/gi);
