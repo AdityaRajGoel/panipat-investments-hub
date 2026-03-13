@@ -117,7 +117,7 @@ const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndica
     <div className="relative">
       <svg
         viewBox={`0 0 ${w} ${h + volH}`}
-        className={large ? "w-full h-[200px] cursor-crosshair" : "w-[100px] h-[40px]"}
+        className={large ? "w-full h-[160px] sm:h-[200px] cursor-crosshair" : "w-[100px] h-[40px]"}
         preserveAspectRatio="none"
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setHoverIdx(null)}
