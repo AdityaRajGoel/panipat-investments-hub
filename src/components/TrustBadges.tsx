@@ -2,14 +2,15 @@ import { motion } from "framer-motion";
 import { Shield, Award, Clock, Users, Building, Briefcase, Globe, Headphones } from "lucide-react";
 
 const badges = [
-  { icon: Shield, label: "SEBI Registered", desc: "INZ000175134", color: "text-secondary", bg: "bg-secondary/10" },
-  { icon: Building, label: "NSE Member", desc: "Code: 12583", color: "text-primary", bg: "bg-primary/10" },
-  { icon: Building, label: "BSE Member", desc: "Code: 1153", color: "text-brand-gold", bg: "bg-brand-gold/10" },
-  { icon: Globe, label: "MCX Member", desc: "Code: 46510", color: "text-secondary", bg: "bg-secondary/10" },
+  { icon: Shield, label: "SEBI Registered", desc: "INZ000220838", color: "text-secondary", bg: "bg-secondary/10" },
+  { icon: Building, label: "NSE Member", desc: "Code: INZ000220838", color: "text-primary", bg: "bg-primary/10" },
+  { icon: Building, label: "BSE Member", desc: "Code: INZ000220838", color: "text-brand-gold", bg: "bg-brand-gold/10" },
+  { icon: Globe, label: "MCX Member", desc: "Code: INZ000033839", color: "text-secondary", bg: "bg-secondary/10" },
+  { icon: Building, label: "CDSL IN-DP-47-2015", desc: "Code: DP ID: 12058200", color: "text-primary-blue", bg: "bg-primary/10" },
+  { icon: Building, label: "NSDL IN-DP-NSDL-194-2001", desc: "Code: DP ID: IN302365", color: "text-primary-blue", bg: "bg-primary/10" },
+  { icon: Building, label: "AMFI Regn. No.", desc: "Code: ARN-35616", color: "text-primary-green", bg: "bg-primary/10" },
   { icon: Award, label: "50+ Years", desc: "Since 1974", color: "text-brand-gold", bg: "bg-brand-gold/10" },
   { icon: Users, label: "10 Lakh+", desc: "Happy Clients", color: "text-primary", bg: "bg-primary/10" },
-  { icon: Briefcase, label: "Full Service", desc: "Broker", color: "text-secondary", bg: "bg-secondary/10" },
-  { icon: Headphones, label: "24/7", desc: "Support", color: "text-brand-gold", bg: "bg-brand-gold/10" },
 ];
 
 const TrustBadges = () => {
