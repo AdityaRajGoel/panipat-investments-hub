@@ -11,15 +11,6 @@ const corsHeaders = {
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
-type ChatHistoryMessage = {
-  role: string;
-  text: string;
-};
-
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
 async function askGroq(prompt: string, isChat: boolean = false) {
   if (!GROQ_API_KEY) throw new Error("Groq API key not configured");
 
@@ -169,24 +160,18 @@ serve(async (req) => {
   try {
     const payload = await req.json();
     const { is_chat, chat_message, chat_history, context, ...stockData } = payload;
-    const safeChatHistory: ChatHistoryMessage[] = Array.isArray(chat_history)
-      ? chat_history.filter((message): message is ChatHistoryMessage => (
-          typeof message === "object" &&
-          message !== null &&
-          typeof (message as Record<string, unknown>).role === "string" &&
-          typeof (message as Record<string, unknown>).text === "string"
-        ))
-      : [];
     let finalPrompt = "";
 
     if (is_chat) {
-      console.log(`[AI Chat] Request for ${stockData.symbol || "unknown"}`);
+      // Chat mode
+      console.log(`[AI Chat] Request for ${stockData.symbol || 'unknown'}`);
       finalPrompt = `Context about the stock:\n${context}\n\n`;
-      if (safeChatHistory.length > 0) {
-        finalPrompt += `Recent Conversation History:\n${safeChatHistory.map((m) => `${m.role.toUpperCase()}: ${m.text}`).join("\n")}\n\n`;
+      if (chat_history && chat_history.length > 0) {
+         finalPrompt += `Recent Conversation History:\n${chat_history.map(m => `${m.role.toUpperCase()}: ${m.text}`).join('\n')}\n\n`;
       }
       finalPrompt += `USER QUESTION: ${chat_message}`;
     } else {
+      // Deep Report mode
       console.log(`[AI Report] Detailed analysis request for ${stockData.symbol}`);
       finalPrompt = `Analyze this live market data:\n` + JSON.stringify({
         Symbol: stockData.symbol,
@@ -200,24 +185,23 @@ serve(async (req) => {
         "Debt/Equity Profile": stockData.debt_equity,
         "Detected Chart Patterns": stockData.patterns,
         "Technical Score": `${stockData.score}/100`,
-        Momentum: stockData.isBullish ? "Bullish" : "Bearish"
+        "Momentum": stockData.isBullish ? "Bullish" : "Bearish"
       }, null, 2);
     }
 
     let result;
     try {
+      // Try Groq first for blazing speed
       console.log("Attempting Groq analysis...");
       result = await askGroq(finalPrompt, !!is_chat);
     } catch (groqErr) {
-      const groqMessage = getErrorMessage(groqErr);
-      console.error("Groq failed, falling back to Gemini:", groqMessage);
+      console.error("Groq failed, falling back to Gemini:", groqErr.message);
       try {
         console.log("Attempting Gemini analysis...");
         result = await askGemini(finalPrompt, !!is_chat);
       } catch (geminiErr) {
-        const geminiMessage = getErrorMessage(geminiErr);
-        console.error("Gemini fallback also failed:", geminiMessage);
-        throw new Error(`AI Services Unavailable. Groq: ${groqMessage} | Gemini: ${geminiMessage}`);
+        console.error("Gemini fallback also failed:", geminiErr.message);
+        throw new Error(`AI Services Unavailable. Groq: ${groqErr.message} | Gemini: ${geminiErr.message}`);
       }
     }
 
@@ -234,7 +218,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: getErrorMessage(error)
+        error: error.message
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

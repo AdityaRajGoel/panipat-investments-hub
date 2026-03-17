@@ -36,7 +36,7 @@ serve(async (req) => {
     // Page views
     const { data: pageViews } = await sb
       .from("page_analytics")
-      .select("page_path, event_type, created_at, metadata, session_id")
+      .select("page_path, event_type, created_at, metadata")
       .gte("created_at", since)
       .order("created_at", { ascending: true });
 
@@ -119,10 +119,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Failed to fetch analytics";
     console.error("Analytics error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: errorMessage }),
+      JSON.stringify({ success: false, error: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
