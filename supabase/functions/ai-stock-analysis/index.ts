@@ -48,7 +48,7 @@ Structure:
       ],
       response_format: { type: isChat ? "text" : "json_object" },
       temperature: 0.1,
-      max_tokens: 2000
+      max_tokens: 4000
     })
   });
 
@@ -114,7 +114,7 @@ Structure:
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { 
         temperature: 0.1, 
-        maxOutputTokens: 2000,
+        maxOutputTokens: 8000,
         responseMimeType: isChat ? "text/plain" : "application/json"
       }
     })
