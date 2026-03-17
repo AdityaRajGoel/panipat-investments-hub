@@ -36,7 +36,7 @@ serve(async (req) => {
     // Page views
     const { data: pageViews } = await sb
       .from("page_analytics")
-      .select("page_path, event_type, created_at, metadata")
+      .select("page_path, event_type, created_at, metadata, session_id")
       .gte("created_at", since)
       .order("created_at", { ascending: true });
 

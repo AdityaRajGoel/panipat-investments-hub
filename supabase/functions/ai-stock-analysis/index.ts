@@ -11,6 +11,15 @@ const corsHeaders = {
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
+type ChatHistoryMessage = {
+  role: string;
+  text: string;
+};
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 async function askGroq(prompt: string, isChat: boolean = false) {
   if (!GROQ_API_KEY) throw new Error("Groq API key not configured");
 
