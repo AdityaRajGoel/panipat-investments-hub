@@ -203,6 +203,44 @@ const NSE_SYMBOLS: { symbol: string; yahoo: string; name: string; sector: string
   { symbol: "SUPREMEIND", yahoo: "SUPREMEIND.NS", name: "Supreme Industries", sector: "Diversified" },
   { symbol: "HONAUT", yahoo: "HONAUT.NS", name: "Honeywell Automation", sector: "Diversified" },
   { symbol: "OFSS", yahoo: "OFSS.NS", name: "Oracle Financial Services", sector: "IT" },
+  { symbol: "IRB", yahoo: "IRB.NS", name: "IRB Infrastructure", sector: "Infra" },
+  { symbol: "RVNL", yahoo: "RVNL.NS", name: "Rail Vikas Nigam", sector: "Defence" },
+  { symbol: "IRCON", yahoo: "IRCON.NS", name: "Ircon International", sector: "Defence" },
+  { symbol: "MAZDOCK", yahoo: "MAZDOCK.NS", name: "Mazagon Dock Shipbuilders", sector: "Defence" },
+  { symbol: "COCHINSHIP", yahoo: "COCHINSHIP.NS", name: "Cochin Shipyard", sector: "Defence" },
+  { symbol: "HUDCO", yahoo: "HUDCO.NS", name: "HUDCO", sector: "NBFC" },
+  { symbol: "IREDA", yahoo: "IREDA.NS", name: "IREDA", sector: "Energy" },
+  { symbol: "NBCC", yahoo: "NBCC.NS", name: "NBCC India", sector: "Infra" },
+  { symbol: "SJVN", yahoo: "SJVN.NS", name: "SJVN Ltd", sector: "Energy" },
+  { symbol: "NHPC", yahoo: "NHPC.NS", name: "NHPC Ltd", sector: "Energy" },
+  { symbol: "UNIONBANK", yahoo: "UNIONBANK.NS", name: "Union Bank", sector: "Banking" },
+  { symbol: "IDBI", yahoo: "IDBI.NS", name: "IDBI Bank", sector: "Banking" },
+  { symbol: "CENTRALBK", yahoo: "CENTRALBK.NS", name: "Central Bank of India", sector: "Banking" },
+  { symbol: "IOB", yahoo: "IOB.NS", name: "Indian Overseas Bank", sector: "Banking" },
+  { symbol: "UCOBANK", yahoo: "UCOBANK.NS", name: "UCO Bank", sector: "Banking" },
+  { symbol: "BANKINDIA", yahoo: "BANKINDIA.NS", name: "Bank of India", sector: "Banking" },
+  { symbol: "MAHABANK", yahoo: "MAHABANK.NS", name: "Bank of Maharashtra", sector: "Banking" },
+  { symbol: "TATACHEM", yahoo: "TATACHEM.NS", name: "Tata Chemicals", sector: "Chemicals" },
+  { symbol: "TATAMETALI", yahoo: "TATAMETALI.NS", name: "Tata Metaliks", sector: "Metals" },
+  { symbol: "TATAINVEST", yahoo: "TATAINVEST.NS", name: "Tata Investment Corp", sector: "NBFC" },
+  { symbol: "PATANJALI", yahoo: "PATANJALI.NS", name: "Patanjali Foods", sector: "FMCG" },
+  { symbol: "AWL", yahoo: "AWL.NS", name: "Adani Wilmar", sector: "FMCG" },
+  { symbol: "ADANITRANS", yahoo: "ADANITRANS.NS", name: "Adani Energy Solutions", sector: "Energy" },
+  { symbol: "ATGL", yahoo: "ATGL.NS", name: "Adani Total Gas", sector: "Energy" },
+  { symbol: "YESBANK", yahoo: "YESBANK.NS", name: "Yes Bank", sector: "Banking" },
+  { symbol: "SUZLON", yahoo: "SUZLON.NS", name: "Suzlon Energy", sector: "Energy" },
+  { symbol: "JIOFIN", yahoo: "JIOFIN.NS", name: "Jio Financial Services", sector: "NBFC" },
+  { symbol: "MRF", yahoo: "MRF.NS", name: "MRF Ltd", sector: "Auto" },
+  { symbol: "PAGEIND", yahoo: "PAGEIND.NS", name: "Page Industries", sector: "Consumer" },
+  { symbol: "HONAUT", yahoo: "HONAUT.NS", name: "Honeywell Automation", sector: "Diversified" },
+  { symbol: "3MINDIA", yahoo: "3MINDIA.NS", name: "3M India", sector: "Diversified" },
+  { symbol: "ABB", yahoo: "ABB.NS", name: "ABB India", sector: "Diversified" },
+  { symbol: "SIEMENS", yahoo: "SIEMENS.NS", name: "Siemens", sector: "Diversified" },
+  { symbol: "BOSCHLTD", yahoo: "BOSCHLTD.NS", name: "Bosch", sector: "Auto" },
+  { symbol: "LICI", yahoo: "LICI.NS", name: "LIC of India", sector: "Insurance" },
+  { symbol: "HDFCBANK", yahoo: "HDFCBANK.BO", name: "HDFC Bank (BSE)", sector: "Banking" },
+  { symbol: "RELIANCE", yahoo: "RELIANCE.BO", name: "Reliance (BSE)", sector: "Energy" },
+  { symbol: "TCS", yahoo: "TCS.BO", name: "TCS (BSE)", sector: "IT" },
 ];
 
 // Get Yahoo Finance crumb + cookies for authenticated API access
@@ -331,9 +369,26 @@ async function processBatch(stocks: typeof NSE_SYMBOLS, crumb: string, cookie: s
   return results;
 }
 
+const BOT_USER_AGENTS = [
+  "googlebot", "bingbot", "yandexbot", "duckduckbot", "slurp", "baiduspider", "ia_archiver",
+  "facebot", "facebookexternalhit", "twitterbot", "rogerbot", "linkedinbot", "embedly", 
+  "quora link preview", "showyoubot", "outbrain", "pinterest/0.", "developers.google.com/+/web/snippet",
+  "slackbot", "vkShare", "W3C_Validator", "redditbot", "Applebot", "WhatsApp", "flipboard", 
+  "Tumblr", "bitlybot", "SkypeShell", "TelegramBot", "Skype", "node-fetch", "axios", "python-requests"
+];
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const userAgent = req.headers.get("user-agent")?.toLowerCase() || "";
+  if (BOT_USER_AGENTS.some(bot => userAgent.includes(bot))) {
+    console.warn(`[Blocked] Bot detected: ${userAgent}`);
+    return new Response(JSON.stringify({ success: false, error: "Bot access denied. Data scraping is prohibited." }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
   }
 
   try {
@@ -352,6 +407,39 @@ Deno.serve(async (req) => {
 
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const forceRefresh = body.refresh === true;
+    const requestedSymbol = body.symbol?.toUpperCase();
+
+    if (requestedSymbol) {
+      console.log(`Searching for specific symbol: ${requestedSymbol}`);
+      // Check if it exists in local dataset first
+      let stockInfo = NSE_SYMBOLS.find(s => s.symbol === requestedSymbol);
+      
+      // If not in local, try to search Yahoo directly
+      if (!stockInfo) {
+        try {
+          const { crumb, cookie } = await getYahooCrumb();
+          const yahooSym = requestedSymbol.includes(".") ? requestedSymbol : `${requestedSymbol}.NS`;
+          const quoteMap = await fetchBatchQuotes([yahooSym], crumb, cookie);
+          const q = quoteMap.get(yahooSym);
+          
+          if (q) {
+            const newStock = { 
+              symbol: requestedSymbol, 
+              yahoo: yahooSym, 
+              name: q.shortName || q.longName || requestedSymbol, 
+              sector: q.quoteType || "General" 
+            };
+            const row = buildStockRow(newStock, q);
+            await sb.from("screener_stocks").upsert(row, { onConflict: "symbol" });
+            return new Response(JSON.stringify({ success: true, stocks: [row] }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        } catch (e) {
+          console.error("Search failed for", requestedSymbol, e.message);
+        }
+      }
+    }
 
     if (!isFresh || forceRefresh) {
       console.log(`Fetching ${NSE_SYMBOLS.length} stocks from Yahoo Finance...`);

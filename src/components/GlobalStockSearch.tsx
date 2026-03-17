@@ -320,7 +320,7 @@ const GlobalStockSearch = ({ className }: Props) => {
         </div>
 
         <AnimatePresence>
-          {showDropdown && results.length > 0 && (
+          {showDropdown && (results.length > 0 || (query.length >= 2 && !searching)) && (
             <motion.div
               ref={dropdownRef}
               initial={{ opacity: 0, y: -4 }}
@@ -346,13 +346,45 @@ const GlobalStockSearch = ({ className }: Props) => {
                   </div>
                 </button>
               ))}
+
+              {/* On-demand fetch option if no results or specifically requested */}
+              {query.length >= 3 && (
+                <button
+                  className="w-full px-4 py-3 flex items-center gap-3 hover:bg-muted/50 transition-colors text-left border-t border-border/30 bg-muted/20"
+                  onClick={async () => {
+                    setSearching(true);
+                    try {
+                      const { data, error } = await supabase.functions.invoke("fetch-screener-data", {
+                        body: { symbol: query.trim().toUpperCase() }
+                      });
+                      if (!error && data?.success && data.stocks?.length > 0) {
+                        handleSelect(data.stocks[0]);
+                      } else {
+                        // Fallback or error handling
+                        console.error("Could not find stock");
+                      }
+                    } catch (e) {
+                      console.error("Fetch error", e);
+                    } finally {
+                      setSearching(false);
+                    }
+                  }}
+                >
+                  <Bot className="w-4 h-4 text-brand-orange" />
+                  <div className="flex-1">
+                    <div className="text-xs font-bold text-foreground">Search for "{query.toUpperCase()}" on Exchanges</div>
+                    <div className="text-[10px] text-muted-foreground">AI will fetch live data for this specific symbol from NSE/BSE</div>
+                  </div>
+                  {searching && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {showDropdown && query.length > 0 && results.length === 0 && !searching && (
+        {showDropdown && query.length > 0 && results.length === 0 && !searching && query.length < 3 && (
           <div className="absolute z-50 top-full mt-1 w-full bg-popover border border-border rounded-lg shadow-lg p-4 text-center text-sm text-muted-foreground">
-            No stocks found for "{query}"
+            No stocks found for "{query}". Try entering full ticker.
           </div>
         )}
       </div>

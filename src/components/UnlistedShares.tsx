@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 
 type StockItem = {
   name: string; short: string; tag: string; tagColor: string; price: string;
@@ -66,34 +67,35 @@ const UnlistedShares = () => {
   useEffect(() => {
     const fetchShares = async () => {
       try {
-        const { data, error } = await supabase
-          .from('unlisted_shares')
-          .select('*')
-          .eq('is_active', true)
-          .order('display_order', { ascending: true });
+        const { data, error } = await lovableSupabase.functions.invoke("manage-unlisted-shares", {
+          body: { action: "list" }
+        });
         
         if (error) {
           console.error('Error fetching unlisted shares:', error);
           return;
         }
         
-        if (data && data.length > 0) {
-          setStocks(data.map((s) => ({
-            name: s.name,
-            short: s.short_code,
-            tag: s.tag,
-            tagColor: s.tag_color,
-            price: s.price,
-            buyPrice: s.buy_price,
-            sellPrice: s.sell_price,
-            minQty: s.min_qty,
-            color: s.gradient_color,
-            imageUrl: s.image_url,
-            description: s.company_description,
-            sector: s.sector,
-            foundedYear: s.founded_year,
-            headquarters: s.headquarters,
-          })));
+        if (data && data.success && Array.isArray(data.data)) {
+          const activeShares = data.data.filter((s: any) => s.is_active !== false);
+          if (activeShares.length > 0) {
+            setStocks(activeShares.map((s: any) => ({
+              name: s.name,
+              short: s.short_code,
+              tag: s.tag || 'Popular',
+              tagColor: s.tag_color || 'bg-secondary/10 text-secondary',
+              price: s.price,
+              buyPrice: s.buy_price,
+              sellPrice: s.sell_price,
+              minQty: s.min_qty || '1 Share',
+              color: s.gradient_color || 'from-blue-600 to-blue-800',
+              imageUrl: s.image_url,
+              description: s.company_description,
+              sector: s.sector || 'General',
+              foundedYear: s.founded_year,
+              headquarters: s.headquarters,
+            })));
+          }
         }
       } catch (err) {
         console.error('Failed to fetch unlisted shares:', err);

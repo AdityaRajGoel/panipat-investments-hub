@@ -1,6 +1,14 @@
 /// <reference lib="deno.ns" />
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+interface GroqResponse {
+  choices: Array<{
+    message: {
+      content: any;
+    };
+  }>;
+}
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +19,14 @@ const corsHeaders = {
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
+const BOT_USER_AGENTS = [
+  "googlebot", "bingbot", "yandexbot", "duckduckbot", "slurp", "baiduspider", "ia_archiver",
+  "facebot", "facebookexternalhit", "twitterbot", "rogerbot", "linkedinbot", "embedly", 
+  "quora link preview", "showyoubot", "outbrain", "pinterest/0.", "developers.google.com/+/web/snippet",
+  "slackbot", "vkShare", "W3C_Validator", "redditbot", "Applebot", "WhatsApp", "flipboard", 
+  "Tumblr", "bitlybot", "SkypeShell", "TelegramBot", "Skype", "node-fetch", "axios", "python-requests"
+];
+
 async function askGroq(prompt: string, isChat: boolean = false) {
   if (!GROQ_API_KEY) throw new Error("Groq API key not configured");
 
@@ -18,7 +34,9 @@ async function askGroq(prompt: string, isChat: boolean = false) {
     ? "You are 'Parasram Intelligence', a seasoned human stock market expert. Your tone should be friendly, confident, and professional—like a veteran analyst talking to a client. Use conversational markers like 'I see...', 'Looking at the charts...', or 'In my view...'. AVOID robotic 'As an AI' boilerplate. Be direct and helpful, using markdown for clarity."
     : `You are an elite AI stock market analyst for 'Parasram Intelligence'. 
 Write a deep, professional analysis. 
-STRICT REQUIREMENT: The 'markdown_report' must use Markdown TABLES for financial metrics and BULLET POINTS for pros/cons. AVOID paragraphs longer than 2 sentences. Include a '### Financial Overview' table.
+STRICT REQUIREMENT: Return the result as a JSON object.
+The 'markdown_report' field must use Markdown TABLES for financial metrics and BULLET POINTS for pros/cons. AVOID paragraphs longer than 2 sentences. Include a '### Financial Overview' table. 
+Ensure the markdown is rich and avoids raw JSON characters inside the strings.
 Structure:
 {
   "markdown_report": "Valid Markdown with Tables and Lists",
@@ -44,11 +62,11 @@ Structure:
       model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: systemMsg },
-        { role: "user", content: prompt }
+        { role: "user", content: prompt + (isChat ? "" : "\n\nResponse must be a JSON object.") }
       ],
       response_format: { type: isChat ? "text" : "json_object" },
       temperature: 0.1,
-      max_tokens: 4000
+      max_tokens: 8000
     })
   });
 
@@ -85,7 +103,9 @@ async function askGemini(prompt: string, isChat: boolean = false) {
     ? "You are 'Parasram Intelligence', a seasoned human stock market expert. Your tone should be friendly, confident, and professional—like a veteran analyst talking to a client. Use conversational markers like 'I see...', 'Looking at the charts...', or 'In my view...'. AVOID robotic 'As an AI' boilerplate. Be direct and helpful, using markdown for clarity."
     : `You are an elite AI stock market analyst for 'Parasram Intelligence'. 
 Write a deep, professional analysis. 
-STRICT REQUIREMENT: The 'markdown_report' must use Markdown TABLES for financial metrics and BULLET POINTS for pros/cons. AVOID paragraphs longer than 2 sentences. Include a '### Financial Overview' table.
+STRICT REQUIREMENT: Return the result as a JSON object.
+The 'markdown_report' field must use Markdown TABLES for financial metrics and BULLET POINTS for pros/cons. AVOID paragraphs longer than 2 sentences. Include a '### Financial Overview' table.
+Ensure the markdown is rich and avoids raw JSON characters inside the strings.
 Structure:
 {
   "markdown_report": "Valid Markdown with Tables and Lists",
@@ -114,7 +134,7 @@ Structure:
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { 
         temperature: 0.1, 
-        maxOutputTokens: 8000,
+        maxOutputTokens: 16000,
         responseMimeType: isChat ? "text/plain" : "application/json"
       }
     })
@@ -128,7 +148,10 @@ Structure:
 
   const data = await response.json();
   let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Empty response from Gemini");
+  if (!text) {
+    console.error("Gemini Empty Response:", JSON.stringify(data));
+    throw new Error("Empty response from Gemini");
+  }
 
   if (!isChat) {
     try {
@@ -148,6 +171,15 @@ Structure:
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const userAgent = req.headers.get("user-agent")?.toLowerCase() || "";
+  if (BOT_USER_AGENTS.some(bot => userAgent.includes(bot))) {
+    console.warn(`[Blocked] Bot detected: ${userAgent}`);
+    return new Response(JSON.stringify({ success: false, error: "Bot access denied. Data scraping is prohibited." }), {
+      status: 403,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
