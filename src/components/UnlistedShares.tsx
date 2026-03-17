@@ -6,15 +6,26 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 type StockItem = {
-  name: string; short: string; tag: string; tagColor: string; price: string;
-  buyPrice?: string | null; sellPrice?: string | null; minQty: string; color: string;
-  imageUrl?: string | null; description?: string | null; sector?: string | null;
-  foundedYear?: string | null; headquarters?: string | null;
+  id: string;
+  name: string;
+  short: string;
+  tag: string;
+  tagColor: string;
+  price: string;
+  buyPrice?: string | null;
+  sellPrice?: string | null;
+  minQty: string;
+  color: string;
+  imageUrl?: string | null;
+  description?: string | null;
+  sector?: string | null;
+  foundedYear?: string | null;
+  headquarters?: string | null;
 };
 
 const unlistedStocks: StockItem[] = [
-  { name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Most Bought", tagColor: "bg-secondary/10 text-secondary", price: "₹2,060", buyPrice: "₹2,100", sellPrice: "₹2,020", minQty: "1 Share", color: "from-indigo-600 to-indigo-800" },
-  { name: "Chennai Super Kings Cricket Ltd (CSK)", short: "CSK", tag: "Hot Right Now", tagColor: "bg-destructive/10 text-destructive", price: "₹265", buyPrice: "₹270", sellPrice: "₹260", minQty: "1 Share", color: "from-yellow-500 to-amber-600" },
+  { id: "fallback-nse", name: "National Stock Exchange Ltd (NSE)", short: "NSE", tag: "Most Bought", tagColor: "bg-secondary/10 text-secondary", price: "₹2,060", buyPrice: "₹2,100", sellPrice: "₹2,020", minQty: "1 Share", color: "from-indigo-600 to-indigo-800" },
+  { id: "fallback-csk", name: "Chennai Super Kings Cricket Ltd (CSK)", short: "CSK", tag: "Hot Right Now", tagColor: "bg-destructive/10 text-destructive", price: "₹265", buyPrice: "₹270", sellPrice: "₹260", minQty: "1 Share", color: "from-yellow-500 to-amber-600" },
 ];
 
 const benefits = [
@@ -59,63 +70,83 @@ const MiniPriceChart = ({ trend = "up" }: { trend?: "up" | "down" | "mixed" }) =
   );
 };
 
+const mapShareToStockItem = (share: {
+  id: string;
+  name: string;
+  short_code: string;
+  tag: string;
+  tag_color: string;
+  price: string;
+  buy_price: string | null;
+  sell_price: string | null;
+  min_qty: string;
+  gradient_color: string;
+  image_url: string | null;
+  company_description: string | null;
+  sector: string | null;
+  founded_year: string | null;
+  headquarters: string | null;
+}): StockItem => ({
+  id: share.id,
+  name: share.name,
+  short: share.short_code,
+  tag: share.tag,
+  tagColor: share.tag_color,
+  price: share.price,
+  buyPrice: share.buy_price,
+  sellPrice: share.sell_price,
+  minQty: share.min_qty,
+  color: share.gradient_color,
+  imageUrl: share.image_url,
+  description: share.company_description,
+  sector: share.sector,
+  foundedYear: share.founded_year,
+  headquarters: share.headquarters,
+});
+
 const UnlistedShares = () => {
   const [stocks, setStocks] = useState<StockItem[]>(unlistedStocks);
   const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
+  const [stocksLoaded, setStocksLoaded] = useState(false);
 
   useEffect(() => {
     const fetchShares = async () => {
       try {
         const { data, error } = await supabase
-          .from('unlisted_shares')
-          .select('*')
-          .eq('is_active', true)
-          .order('display_order', { ascending: true });
-        
+          .from("unlisted_shares")
+          .select("*")
+          .eq("is_active", true)
+          .order("display_order", { ascending: true })
+          .order("created_at", { ascending: true });
+
         if (error) {
-          console.error('Error fetching unlisted shares:', error);
+          console.error("Error fetching unlisted shares:", error);
           return;
         }
-        
-        if (data && data.length > 0) {
-          setStocks(data.map((s) => ({
-            name: s.name,
-            short: s.short_code,
-            tag: s.tag,
-            tagColor: s.tag_color,
-            price: s.price,
-            buyPrice: s.buy_price,
-            sellPrice: s.sell_price,
-            minQty: s.min_qty,
-            color: s.gradient_color,
-            imageUrl: s.image_url,
-            description: s.company_description,
-            sector: s.sector,
-            foundedYear: s.founded_year,
-            headquarters: s.headquarters,
-          })));
-        }
+
+        setStocks((data || []).map(mapShareToStockItem));
+        setStocksLoaded(true);
       } catch (err) {
-        console.error('Failed to fetch unlisted shares:', err);
+        console.error("Failed to fetch unlisted shares:", err);
       }
     };
+
     fetchShares();
 
-    // Re-fetch when tab becomes visible again (e.g. after being in background)
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         fetchShares();
       }
     };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Also re-fetch on window focus as a fallback
     const handleFocus = () => fetchShares();
-    window.addEventListener('focus', handleFocus);
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
     };
   }, []);
 
@@ -155,9 +186,15 @@ const UnlistedShares = () => {
             <p className="text-muted-foreground">Contact us for live pricing & availability</p>
           </motion.div>
 
-          <motion.div key={stocks.length} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
+          <motion.div
+            key={stocksLoaded ? `loaded-${stocks.length}` : "fallback-stocks"}
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {stocks.map((stock, index) => (
-              <motion.div key={stock.name} variants={itemVariants}>
+              <motion.div key={stock.id} variants={itemVariants}>
                 <Card className="group cursor-pointer transition-all duration-300 border-border/50 hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/5"
                   onClick={() => setSelectedStock(stock)}>
                   <CardContent className="p-5">
