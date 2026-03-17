@@ -3,7 +3,7 @@ import { useRef, useState, useMemo, useCallback } from "react";
 import {
   TrendingUp, TrendingDown, Activity, Eye, ArrowUpRight, ArrowDownRight,
   BarChart3, Layers, PieChart, Gem, Maximize2, X, Clock, Volume2,
-  IndianRupee, Percent, ChevronRight
+  IndianRupee, Percent, ChevronRight, Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -70,6 +70,15 @@ const fallbackCommodities: Stock[] = [
   { name: "WHEAT", price: "$5.82/bu", change: "-0.35%", up: false, volume: "54K", high: "$5.90", low: "$5.78" },
   { name: "USD/INR", price: "₹83.42", change: "+0.05%", up: true, volume: "-", high: "₹83.55", low: "₹83.30" },
   { name: "EUR/INR", price: "₹90.15", change: "-0.12%", up: false, volume: "-", high: "₹90.40", low: "₹89.95" },
+];
+
+const corporateActions = [
+  { date: "Oct 25, 2024", symbol: "RELIANCE", eventName: "Q2 Earnings", details: "Est EPS: ₹24.5", up: true },
+  { date: "Oct 28, 2024", symbol: "TCS", eventName: "Interim Dividend", details: "₹9.00 per share", up: true },
+  { date: "Nov 02, 2024", symbol: "HDFC BANK", eventName: "Stock Split", details: "1:2 Ratio Ex-Date", up: true },
+  { date: "Nov 05, 2024", symbol: "INFY", eventName: "Q2 Earnings", details: "Est EPS: ₹16.2", up: true },
+  { date: "Nov 12, 2024", symbol: "ITC", eventName: "AGM", details: "Annual General Meeting", up: false },
+  { date: "Nov 15, 2024", symbol: "BAJFINANCE", eventName: "Bonus Issue", details: "1:1 Ratio Record Date", up: true },
 ];
 
 const marketStats = [
@@ -238,15 +247,38 @@ const StockRow = ({ stock, index, onChartClick }: { stock: Stock; index: number;
   </motion.div>
 );
 
-type TabKey = "gainers" | "losers" | "active" | "fno" | "mf" | "commodities";
+const CalendarRow = ({ action, index }: { action: any; index: number }) => (
+  <motion.div
+    className="flex items-center justify-between py-3 px-3 sm:px-4 rounded-xl hover:bg-muted/50 transition-all duration-200 cursor-default group border-b border-border/30 last:border-0"
+    initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }}
+    whileHover={{ x: 4 }}
+  >
+    <div className="flex items-center gap-3 min-w-0 flex-1">
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 ${action.up ? "bg-secondary/10 text-secondary" : "bg-destructive/10 text-destructive"}`}>
+        {action.symbol.slice(0, 2)}
+      </div>
+      <div className="min-w-0">
+        <span className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors block truncate">{action.symbol}</span>
+        <span className="text-[10px] text-muted-foreground block">{action.eventName}</span>
+      </div>
+    </div>
+    <div className="flex flex-col items-end shrink-0 text-right">
+      <span className="text-sm font-medium text-foreground">{action.date}</span>
+      <span className="text-[10px] text-muted-foreground">{action.details}</span>
+    </div>
+  </motion.div>
+);
 
-const tabConfig: { key: TabKey; label: string; icon: any; data: Stock[] }[] = [
+type TabKey = "gainers" | "losers" | "active" | "fno" | "mf" | "commodities" | "calendar";
+
+const tabConfig: { key: TabKey; label: string; icon: any; data: Stock[] | any[] }[] = [
   { key: "gainers", label: "Top Gainers", icon: TrendingUp, data: fallbackTopGainers },
   { key: "losers", label: "Top Losers", icon: TrendingDown, data: fallbackTopLosers },
   { key: "active", label: "Most Active", icon: Activity, data: mostActive },
   { key: "fno", label: "F&O", icon: Layers, data: fnoData },
   { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
   { key: "commodities", label: "Commodities", icon: Gem, data: fallbackCommodities },
+  { key: "calendar", label: "Corp Actions", icon: Calendar, data: corporateActions },
 ];
 
 const MarketOverview = () => {
@@ -272,13 +304,14 @@ const MarketOverview = () => {
 
   // Merge live data with fallbacks
   const dynamicTabConfig = useMemo(() => {
-    const cfg: { key: TabKey; label: string; icon: any; data: Stock[] }[] = [
+    const cfg: { key: TabKey; label: string; icon: any; data: Stock[] | any[] }[] = [
       { key: "gainers", label: "Top Gainers", icon: TrendingUp, data: liveData?.gainers?.length ? liveData.gainers as Stock[] : fallbackTopGainers },
       { key: "losers", label: "Top Losers", icon: TrendingDown, data: liveData?.losers?.length ? liveData.losers as Stock[] : fallbackTopLosers },
       { key: "active", label: "Most Active", icon: Activity, data: liveData?.mostActive?.length ? liveData.mostActive as Stock[] : mostActive },
       { key: "fno", label: "F&O", icon: Layers, data: fnoData },
       { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
       { key: "commodities", label: "Commodities", icon: Gem, data: liveCommodityStocks },
+      { key: "calendar", label: "Corp Actions", icon: Calendar, data: corporateActions },
     ];
     return cfg;
   }, [liveData, liveCommodityStocks]);
@@ -356,20 +389,29 @@ const MarketOverview = () => {
 
           <CardContent className="p-0">
             {/* Column headers */}
-            <div className="flex items-center justify-between py-2 px-3 sm:px-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-wide border-b border-border/30 bg-muted/20">
-              <span>{activeTab === "fno" ? "Contract" : activeTab === "mf" ? "Fund" : activeTab === "commodities" ? "Commodity" : "Company"}</span>
-              <div className="flex items-center gap-2 sm:gap-4">
-                <span className="w-16 text-center hidden sm:block">Chart</span>
-                <span className="w-20 sm:w-28 text-right">Price</span>
-                <span className="w-[60px] sm:w-[70px] text-center">Change</span>
-                <span className="w-8 sm:hidden"></span>
+            {activeTab === "calendar" ? (
+              <div className="flex items-center justify-between py-2 px-3 sm:px-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-wide border-b border-border/30 bg-muted/20">
+                <span>Company / Event</span>
+                <span className="text-right">Date / Details</span>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between py-2 px-3 sm:px-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-wide border-b border-border/30 bg-muted/20">
+                <span>{activeTab === "fno" ? "Contract" : activeTab === "mf" ? "Fund" : activeTab === "commodities" ? "Commodity" : "Company"}</span>
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <span className="w-16 text-center hidden sm:block">Chart</span>
+                  <span className="w-20 sm:w-28 text-right">Price</span>
+                  <span className="w-[60px] sm:w-[70px] text-center">Change</span>
+                  <span className="w-8 sm:hidden"></span>
+                </div>
+              </div>
+            )}
 
             <AnimatePresence mode="wait">
               <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="p-1 sm:p-2">
-                {activeConfig.data.map((stock, i) => (
-                  <StockRow key={`${activeTab}-${stock.name}`} stock={stock} index={i} onChartClick={handleChartClick} />
+                {activeConfig.data.map((item, i) => (
+                  activeTab === "calendar"
+                    ? <CalendarRow key={`cal-${(item as any).symbol}`} action={item} index={i} />
+                    : <StockRow key={`${activeTab}-${(item as Stock).name}`} stock={item as Stock} index={i} onChartClick={handleChartClick} />
                 ))}
               </motion.div>
             </AnimatePresence>

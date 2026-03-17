@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 
 export type LiveIndex = {
   key: string;
@@ -166,7 +166,7 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchData = useCallback(async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-stock-prices');
+      const { data, error } = await lovableSupabase.functions.invoke('fetch-stock-prices');
       if (!error && data?.success) {
         if (data.indices?.length > 0) setIndices(data.indices);
         if (data.data?.length > 0) setStocks(data.data);

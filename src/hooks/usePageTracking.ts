@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 
 // Simple session ID for grouping events
 const getSessionId = () => {
@@ -18,7 +18,7 @@ const trackEvent = async (
   metadata: Record<string, unknown> = {}
 ) => {
   try {
-    await supabase.from("page_analytics" as any).insert({
+    await lovableSupabase.from("page_analytics" as any).insert({
       page_path: pagePath,
       event_type: eventType,
       session_id: getSessionId(),

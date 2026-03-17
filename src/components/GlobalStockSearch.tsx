@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, TrendingUp, TrendingDown, Loader2, CandlestickChart, LineChart } from "lucide-react";
+import { Search, X, TrendingUp, TrendingDown, Loader2, CandlestickChart, LineChart, Bot } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { lovableSupabase } from "@/integrations/supabase/lovable-client";
+import AIAnalysisModal from "@/components/AIAnalysisModal";
 
 type StockResult = {
   symbol: string;
@@ -225,6 +227,7 @@ const GlobalStockSearch = ({ className }: Props) => {
   const [chartLoading, setChartLoading] = useState(false);
   const [chartRange, setChartRange] = useState<TimeRange>("3mo");
   const [chartMode, setChartMode] = useState<ChartMode>("candle");
+  const [analyzingStock, setAnalyzingStock] = useState<StockResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -258,7 +261,7 @@ const GlobalStockSearch = ({ className }: Props) => {
     setChartLoading(true);
     setChartData([]);
     try {
-      const { data, error } = await supabase.functions.invoke("fetch-stock-chart", {
+      const { data, error } = await lovableSupabase.functions.invoke("fetch-stock-chart", {
         body: { symbol, range },
       });
       if (!error && data?.success && data.dataPoints?.length > 0) {
@@ -382,13 +385,26 @@ const GlobalStockSearch = ({ className }: Props) => {
                 {/* Chart */}
                 <Card className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-1">
-                      {TIME_RANGES.map(({ key, label }) => (
-                        <Button key={key} variant={chartRange === key ? "default" : "ghost"} size="sm"
-                          className="h-7 px-2.5 text-xs" onClick={() => setChartRange(key)}>
-                          {label}
-                        </Button>
-                      ))}
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        {TIME_RANGES.map(({ key, label }) => (
+                          <Button key={key} variant={chartRange === key ? "default" : "ghost"} size="sm"
+                            className="h-7 px-2.5 text-xs" onClick={() => setChartRange(key)}>
+                            {label}
+                          </Button>
+                        ))}
+                      </div>
+                      
+                      {/* AI Analyze Button added here */}
+                      <div className="hidden sm:block w-px h-6 bg-border mx-1"></div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs h-7 px-3 hidden sm:flex"
+                        onClick={() => setAnalyzingStock(selected)}
+                      >
+                        <Bot className="w-3.5 h-3.5 mr-1" /> AI Analyze
+                      </Button>
                     </div>
                     <div className="flex items-center gap-0.5 border border-border rounded-md p-0.5">
                       <button
@@ -407,6 +423,19 @@ const GlobalStockSearch = ({ className }: Props) => {
                       </button>
                     </div>
                   </div>
+                  
+                  {/* Mobile AI Button (If it doesn't fit on top) */}
+                  <div className="sm:hidden mb-4">
+                     <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs w-full h-8"
+                        onClick={() => setAnalyzingStock(selected)}
+                      >
+                        <Bot className="w-3.5 h-3.5 mr-1" /> Generate AI Technical Analysis
+                      </Button>
+                  </div>
+
                   {chartLoading ? (
                     <Skeleton className="h-[180px] w-full rounded" />
                   ) : chartData.length > 1 ? (
@@ -464,6 +493,25 @@ const GlobalStockSearch = ({ className }: Props) => {
           )}
         </DialogContent>
       </Dialog>
+      
+      <AIAnalysisModal 
+        isOpen={!!analyzingStock} 
+        onClose={() => setAnalyzingStock(null)} 
+        stock={analyzingStock ? {
+          name: analyzingStock.name,
+          symbol: analyzingStock.symbol,
+          price: analyzingStock.price,
+          change_pct: analyzingStock.change_pct,
+          pe: analyzingStock.pe,
+          high_52: analyzingStock.high_52,
+          low_52: analyzingStock.low_52,
+          day_high: analyzingStock.day_high,
+          day_low: analyzingStock.day_low,
+          volume: analyzingStock.volume,
+          market_cap: analyzingStock.market_cap,
+          sector: analyzingStock.sector,
+        } : null} 
+      />
     </>
   );
 };

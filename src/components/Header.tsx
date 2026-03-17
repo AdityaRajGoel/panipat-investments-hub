@@ -1,4 +1,4 @@
-import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3, ChevronDown, ChevronRight } from "lucide-react";
+import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3, ChevronDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,6 +7,7 @@ import logo from "@/assets/logo.png";
 import ThemeToggle from "@/components/ThemeToggle";
 import MegaDropdown from "@/components/header/MegaDropdown";
 import { megaMenuItems } from "@/components/header/megaMenuData";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ const Header = () => {
   const [expandedMobileSection, setExpandedMobileSection] = useState<string | null>(null);
   const location = useLocation();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { watchlist } = useWatchlist();
 
   const handleMouseEnter = useCallback((label: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -119,6 +121,21 @@ const Header = () => {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            {watchlist.length > 0 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="relative"
+                title={`My Watchlist (${watchlist.length})`}
+              >
+                <button className="p-2 rounded-md text-muted-foreground hover:text-yellow-500 hover:bg-yellow-500/10 transition-colors relative">
+                  <Star className="w-4 h-4" />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-yellow-500 text-[9px] text-black font-bold flex items-center justify-center">
+                    {watchlist.length}
+                  </span>
+                </button>
+              </motion.div>
+            )}
             <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold">
               <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer">
                 <LogIn className="w-4 h-4 mr-1" />Client Login

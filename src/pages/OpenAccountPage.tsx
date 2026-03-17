@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import PageTransition from "@/components/PageTransition";
 
 const benefits = [
   { icon: Shield, title: "SEBI Registered", desc: "Trade with a trusted, regulation-compliant broker" },
@@ -62,7 +63,7 @@ const OpenAccountPage = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('submit-lead', {
+      const { data, error } = await lovableSupabase.functions.invoke('submit-lead', {
         body: {
           ...trimmed,
           _website: "", // honeypot
@@ -88,7 +89,8 @@ const OpenAccountPage = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background">
+      <PageTransition>
+        <div className="min-h-screen bg-background">
         <SEOHead
           title="Open Free Demat Account in Panipat | Parasram India"
           description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
@@ -112,12 +114,14 @@ const OpenAccountPage = () => {
           </motion.div>
         </div>
         <Footer />
-      </div>
+        </div>
+      </PageTransition>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead
         title="Open Free Demat Account in Panipat | Parasram India"
         description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
@@ -251,7 +255,8 @@ const OpenAccountPage = () => {
       </section>
 
       <Footer />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

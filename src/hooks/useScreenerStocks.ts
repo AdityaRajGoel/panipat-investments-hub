@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 
 export type ScreenerStock = {
   symbol: string;
@@ -29,7 +29,7 @@ export function useScreenerStocks() {
   const fetchStocks = useCallback(async (refresh = false) => {
     try {
       setError(null);
-      const { data, error: fnError } = await supabase.functions.invoke("fetch-screener-data", {
+      const { data, error: fnError } = await lovableSupabase.functions.invoke("fetch-screener-data", {
         body: { refresh },
       });
 

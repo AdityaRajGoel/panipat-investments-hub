@@ -7,11 +7,12 @@ import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import useScrollToHash from "@/hooks/useScrollToHash";
+import { useLocation } from "react-router-dom";
 
 const PageTracker = () => { usePageTracking(); return null; };
 const ScrollToHash = () => { useScrollToHash(); return null; };
@@ -117,6 +118,37 @@ const PageFallback = () => (
   </div>
 );
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Index />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/unlisted-zone" element={<UnlistedZonePage />} />
+        <Route path="/team" element={<TeamPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/open-account" element={<OpenAccountPage />} />
+        <Route path="/screener" element={<StockScreenerPage />} />
+        <Route path="/fno" element={<FnODashboardPage />} />
+        <Route path="/holidays" element={<HolidayCalendarPage />} />
+        <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/margin-calculator" element={<MarginCalculatorPage />} />
+        <Route path="/brokerage-calculator" element={<BrokerageCalculatorPage />} />
+        <Route path="/compare" element={<StockComparisonPage />} />
+        <Route path="/learn" element={<LearningCenterPage />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -132,28 +164,7 @@ const App = () => (
             <PageTracker />
             <ScrollToHash />
             <Suspense fallback={<PageFallback />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/unlisted-zone" element={<UnlistedZonePage />} />
-                <Route path="/team" element={<TeamPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/open-account" element={<OpenAccountPage />} />
-                <Route path="/screener" element={<StockScreenerPage />} />
-                <Route path="/fno" element={<FnODashboardPage />} />
-                <Route path="/holidays" element={<HolidayCalendarPage />} />
-                <Route path="/52-week-tracker" element={<Week52TrackerPage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/margin-calculator" element={<MarginCalculatorPage />} />
-                <Route path="/brokerage-calculator" element={<BrokerageCalculatorPage />} />
-                <Route path="/compare" element={<StockComparisonPage />} />
-                <Route path="/learn" element={<LearningCenterPage />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <AnimatedRoutes />
             </Suspense>
           </AuthProvider>
         </BrowserRouter>

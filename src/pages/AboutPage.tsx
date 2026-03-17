@@ -10,6 +10,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import FAQ from "@/components/FAQ";
 import SEOHead from "@/components/SEOHead";
+import PageTransition from "@/components/PageTransition";
 
 const aboutFAQs = [
   { q: "How long has Parasram India been in business?", a: "Parasram India was established in 1970 and has over 50+ years of experience in the financial markets. Our Panipat branch has been serving clients since 1997." },
@@ -22,7 +23,8 @@ const aboutFAQs = [
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead
         title="About Parasram India Panipat | 50+ Years Legacy Stock Broker"
         description="Learn about Parasram India - Panipat's most trusted stock broker since 1970. SEBI registered, NSE & BSE member, 10L+ happy clients. Open your Demat account today."
@@ -43,7 +45,8 @@ const AboutPage = () => {
       />
       <Footer />
       <WhatsAppButton />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

@@ -9,8 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Search, Clock, ChevronRight, TrendingUp, GraduationCap, BarChart3, Shield, ExternalLink, Newspaper, Radio, RefreshCw, Globe, IndianRupee, AlertTriangle } from "lucide-react";
+import { BookOpen, Search, Clock, ChevronRight, TrendingUp, GraduationCap, BarChart3, Shield, ExternalLink, Newspaper, Radio, RefreshCw, Globe, IndianRupee, AlertTriangle, Star, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 
 type Article = {
   id: string;
@@ -25,6 +26,8 @@ type Article = {
   created_at: string;
   source?: string;
   source_url?: string;
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
+  featured?: boolean;
 };
 
 type NewsItem = {
@@ -46,75 +49,143 @@ const CATEGORIES = [
 const REAL_ARTICLES: Article[] = [
   {
     id: "r1", title: "What is a Demat Account?", slug: "demat-account",
-    excerpt: "A demat account holds your shares and securities in electronic format. Learn how it works, how to open one, and why it's essential for trading.",
+    excerpt: "A demat account holds your shares in electronic format. Learn how it works, how to open one, and why it's essential for stock market investing in India.",
     content: "", category: "basics", cover_image: null, read_time: 5, published: true, created_at: "2025-12-01",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dematerialization.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dematerialization.asp",
+    difficulty: "Beginner", featured: true,
   },
   {
     id: "r2", title: "Understanding P/E Ratio: How to Value Stocks", slug: "pe-ratio",
-    excerpt: "The Price-to-Earnings ratio is one of the most widely used valuation metrics. Learn how to interpret P/E ratios and use them to evaluate stocks.",
+    excerpt: "The P/E ratio is the most widely used valuation metric. Learn how to interpret it to evaluate whether a stock is cheap or expensive relative to earnings.",
     content: "", category: "analysis", cover_image: null, read_time: 7, published: true, created_at: "2025-11-28",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/p/price-earningsratio.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/p/price-earningsratio.asp",
+    difficulty: "Beginner", featured: true,
   },
   {
     id: "r3", title: "SIP vs Lumpsum: Which Investment Strategy Wins?", slug: "sip-vs-lumpsum",
     excerpt: "Compare rupee cost averaging through SIPs with lumpsum investing. Which strategy delivers better returns across market cycles?",
     content: "", category: "investing", cover_image: null, read_time: 8, published: true, created_at: "2025-11-25",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dollarcostaveraging.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dollarcostaveraging.asp",
+    difficulty: "Beginner",
   },
   {
     id: "r4", title: "Intraday Trading: Strategies and Risk Management", slug: "intraday-trading",
-    excerpt: "Master the fundamentals of day trading including momentum, breakout, and scalping strategies with position sizing and stop-loss techniques.",
+    excerpt: "Master day trading fundamentals including momentum, breakout, and scalping strategies with proper position sizing and stop-loss techniques.",
     content: "", category: "trading", cover_image: null, read_time: 10, published: true, created_at: "2025-11-22",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/daytrader.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/daytrader.asp",
+    difficulty: "Intermediate",
   },
   {
     id: "r5", title: "How to Read Candlestick Chart Patterns", slug: "candlestick-patterns",
-    excerpt: "Guide to Japanese candlestick patterns — doji, hammer, engulfing, morning star. Learn to identify trend reversals and continuations.",
+    excerpt: "Master Japanese candlestick patterns — Doji, Hammer, Engulfing, Morning Star. Learn to identify trend reversals and continuations with visual examples.",
     content: "", category: "analysis", cover_image: null, read_time: 12, published: true, created_at: "2025-11-20",
-    source: "Investopedia", source_url: "https://www.investopedia.com/trading/candlestick-charting-what-is-it/"
+    source: "Investopedia", source_url: "https://www.investopedia.com/trading/candlestick-charting-what-is-it/",
+    difficulty: "Intermediate",
   },
   {
     id: "r6", title: "Mutual Funds: Types, Benefits & How to Invest", slug: "mutual-funds-guide",
-    excerpt: "Everything about mutual funds — equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns.",
+    excerpt: "Everything about mutual funds — equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns. SEBI classification explained.",
     content: "", category: "basics", cover_image: null, read_time: 8, published: true, created_at: "2025-11-18",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/mutualfund.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/mutualfund.asp",
+    difficulty: "Beginner",
   },
   {
     id: "r7", title: "Options Trading: Calls, Puts & Basic Strategies", slug: "options-trading-101",
-    excerpt: "Introduction to options — how contracts work, understanding premiums, Greeks (Delta, Theta, Gamma), and strategies like covered calls.",
+    excerpt: "Introduction to options — contracts, premiums, Greeks (Delta, Theta, Gamma, Vega), and basic strategies like covered calls and protective puts.",
     content: "", category: "trading", cover_image: null, read_time: 15, published: true, created_at: "2025-11-15",
-    source: "Investopedia", source_url: "https://www.investopedia.com/options-basics-tutorial-4583012"
+    source: "Investopedia", source_url: "https://www.investopedia.com/options-basics-tutorial-4583012",
+    difficulty: "Advanced",
   },
   {
     id: "r8", title: "The Power of Compounding: Why Start Early", slug: "power-of-compounding",
-    excerpt: "See how even small monthly investments can grow into crores over decades through the magic of compound interest.",
+    excerpt: "Even small monthly investments can grow into crores over decades. Understand compound interest with real examples and the Rule of 72.",
     content: "", category: "investing", cover_image: null, read_time: 5, published: true, created_at: "2025-11-12",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/c/compoundinterest.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/c/compoundinterest.asp",
+    difficulty: "Beginner",
   },
   {
     id: "r9", title: "How to Analyse Financial Statements", slug: "financial-statements",
-    excerpt: "Learn to read balance sheets, income statements, and cash flow statements. Key ratios like ROE, ROCE, Debt-to-Equity explained.",
+    excerpt: "Read balance sheets, income statements, and cash flow statements. Key ratios like ROE, ROCE, Debt-to-Equity, and current ratio explained with examples.",
     content: "", category: "analysis", cover_image: null, read_time: 14, published: true, created_at: "2025-11-10",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/f/financial-statements.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/f/financial-statements.asp",
+    difficulty: "Intermediate",
   },
   {
     id: "r10", title: "Index Funds vs Active Funds: Which is Better?", slug: "index-vs-active",
-    excerpt: "Research shows most active funds underperform their benchmark over 10 years. Explore passive investing and when active management adds value.",
+    excerpt: "Research shows most active funds underperform their benchmark over 10 years. Explore passive investing and when active management genuinely adds value.",
     content: "", category: "investing", cover_image: null, read_time: 7, published: true, created_at: "2025-11-08",
-    source: "Investopedia", source_url: "https://www.investopedia.com/ask/answers/033015/what-difference-between-index-fund-and-actively-managed-fund.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/ask/answers/033015/what-difference-between-index-fund-and-actively-managed-fund.asp",
+    difficulty: "Beginner",
   },
   {
     id: "r11", title: "Understanding IPO: Process, Allotment & Listing", slug: "ipo-guide",
-    excerpt: "Complete guide to Initial Public Offerings — DRHP, price bands, lot sizes, allotment process, listing day strategy, and how to apply.",
+    excerpt: "Complete guide to IPOs in India — DRHP, price bands, lot sizes, ASBA application process, GMP, listing day strategy, and grey market explained.",
     content: "", category: "basics", cover_image: null, read_time: 10, published: true, created_at: "2025-11-05",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/i/ipo.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/i/ipo.asp",
+    difficulty: "Beginner",
   },
   {
     id: "r12", title: "Moving Averages: SMA, EMA & Trading Signals", slug: "moving-averages",
-    excerpt: "How to use Simple and Exponential Moving Averages for trend identification, crossover signals, and support/resistance in trading.",
+    excerpt: "Use Simple and Exponential Moving Averages for trend identification. Golden Cross, Death Cross, and EMA crossover strategies explained with charts.",
     content: "", category: "trading", cover_image: null, read_time: 9, published: true, created_at: "2025-11-02",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/movingaverage.asp"
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/movingaverage.asp",
+    difficulty: "Intermediate",
+  },
+  {
+    id: "r13", title: "F&O Basics: Futures & Options for Beginners", slug: "fno-basics",
+    excerpt: "Unlock the world of derivatives. Futures contracts, option buying vs selling, margin requirements, and why F&O has a higher risk profile than equities.",
+    content: "", category: "trading", cover_image: null, read_time: 13, published: true, created_at: "2025-10-28",
+    source: "NSE India", source_url: "https://www.nseindia.com/products/content/derivatives/equities/homepage.htm",
+    difficulty: "Advanced",
+  },
+  {
+    id: "r14", title: "Tax on Stock Market: STCG, LTCG & F&O Income", slug: "tax-on-stocks",
+    excerpt: "India's complete guide to capital gains tax. Short-term (15%) vs long-term (10% above ₹1L), F&O as business income, ITR-3 filing, and advance tax.",
+    content: "", category: "basics", cover_image: null, read_time: 11, published: true, created_at: "2025-10-24",
+    source: "ClearTax", source_url: "https://cleartax.in/s/capital-gains-tax-on-sale-of-shares",
+    difficulty: "Intermediate",
+  },
+  {
+    id: "r15", title: "Portfolio Construction: Diversification Principles", slug: "portfolio-diversification",
+    excerpt: "Build a resilient portfolio using asset allocation, modern portfolio theory, sector diversification, and rebalancing strategies that reduce risk without sacrificing returns.",
+    content: "", category: "investing", cover_image: null, read_time: 10, published: true, created_at: "2025-10-20",
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/diversification.asp",
+    difficulty: "Intermediate", featured: true,
+  },
+  {
+    id: "r16", title: "RSI, MACD & Bollinger Bands: A Practical Guide", slug: "technical-indicators",
+    excerpt: "Three of the most popular technical indicators explained with real stock examples. When to trust them, when to ignore them, and how to combine signals.",
+    content: "", category: "analysis", cover_image: null, read_time: 14, published: true, created_at: "2025-10-16",
+    source: "Investopedia", source_url: "https://www.investopedia.com/terms/t/technicalanalysis.asp",
+    difficulty: "Advanced",
+  },
+  {
+    id: "r17", title: "Fundamental vs Technical Analysis: When to Use Which", slug: "fundamental-vs-technical",
+    excerpt: "Understand the key differences between fundamental (Warren Buffett style) and technical (chart-based) analysis and how smart investors combine both.",
+    content: "", category: "analysis", cover_image: null, read_time: 9, published: true, created_at: "2025-10-12",
+    source: "Investopedia", source_url: "https://www.investopedia.com/ask/answers/difference-between-fundamental-and-technical-analysis/",
+    difficulty: "Intermediate",
+  },
+  {
+    id: "r18", title: "Psychology of Trading: Avoiding Common Mistakes", slug: "trading-psychology",
+    excerpt: "FOMO, loss aversion, overconfidence, and revenge trading are the biggest wealth destroyers. Master your emotions for consistent trading success.",
+    content: "", category: "trading", cover_image: null, read_time: 8, published: true, created_at: "2025-10-08",
+    source: "Trading Psychology", source_url: "https://www.investopedia.com/articles/trading/02/soldier.asp",
+    difficulty: "Beginner",
+  },
+  {
+    id: "r19", title: "Unlisted Shares: How to Invest in Pre-IPO Companies", slug: "unlisted-shares",
+    excerpt: "Access pre-IPO opportunities through the unlisted share market. How pricing works, risks, documents needed, and how Parasram facilitates these transactions.",
+    content: "", category: "investing", cover_image: null, read_time: 7, published: true, created_at: "2025-10-04",
+    source: "Parasram India", source_url: "/unlisted-zone",
+    difficulty: "Intermediate",
+  },
+  {
+    id: "r20", title: "Risk Management: Stop-Loss, Position Sizing & R-Multiples", slug: "risk-management",
+    excerpt: "Professional traders never risk more than 1-2% per trade. Learn stop-loss placement, position sizing formulas, and R-multiple tracking for consistent performance.",
+    content: "", category: "trading", cover_image: null, read_time: 12, published: true, created_at: "2025-10-01",
+    source: "Investopedia", source_url: "https://www.investopedia.com/articles/stocks/09/trade-stop-loss.asp",
+    difficulty: "Intermediate",
   },
 ];
 
@@ -156,7 +227,23 @@ const LearningCenterPage = () => {
   const [articles, setArticles] = useState<Article[]>(REAL_ARTICLES);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [difficulty, setDifficulty] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [readArticles, setReadArticles] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("pnp_read_articles");
+      return new Set(stored ? JSON.parse(stored) : []);
+    } catch { return new Set(); }
+  });
+
+  const markRead = (id: string) => {
+    setReadArticles(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      try { localStorage.setItem("pnp_read_articles", JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  };
 
   // Map hash to section
   const hashToSection = (hash: string): "articles" | "news" | "live" => {
@@ -199,7 +286,7 @@ const LearningCenterPage = () => {
   const fetchNews = async () => {
     setNewsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-news');
+      const { data, error } = await lovableSupabase.functions.invoke('fetch-news');
       if (!error && data?.success) {
         setIndianNews(data.indian || []);
         setWorldNews(data.world || []);
@@ -214,7 +301,7 @@ const LearningCenterPage = () => {
   const fetchLiveBroadcasts = async () => {
     setLiveLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-live-broadcasts');
+      const { data, error } = await lovableSupabase.functions.invoke('fetch-live-broadcasts');
       if (!error && data?.success && Array.isArray(data.channels)) {
         const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>, channel: any) => {
           acc[channel.channelId] = {
@@ -279,9 +366,13 @@ const LearningCenterPage = () => {
 
   const filtered = useMemo(() => articles.filter(a => {
     const matchCat = category === "all" || a.category === category;
+    const matchDiff = difficulty === "all" || (a.difficulty ?? "Beginner") === difficulty;
     const matchSearch = !search.trim() || a.title.toLowerCase().includes(search.toLowerCase()) || a.excerpt.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  }), [articles, category, search]);
+    return matchCat && matchDiff && matchSearch;
+  }), [articles, category, search, difficulty]);
+
+  const featuredArticles = useMemo(() => filtered.filter(a => a.featured), [filtered]);
+  const regularArticles = useMemo(() => filtered.filter(a => !a.featured), [filtered]);
 
   const currentNews = newsTab === "indian" ? indianNews : worldNews;
 
@@ -321,8 +412,9 @@ const LearningCenterPage = () => {
           {/* ARTICLES */}
           {activeSection === "articles" && (
             <motion.div key="articles" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <div className="relative flex-1 max-w-md">
+              {/* Filters row */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-6 flex-wrap">
+                <div className="relative flex-1 min-w-0 max-w-md">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input placeholder="Search articles..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
                 </div>
@@ -333,6 +425,21 @@ const LearningCenterPage = () => {
                     ))}
                   </TabsList>
                 </Tabs>
+                <div className="flex gap-1.5">
+                  {["all", "Beginner", "Intermediate", "Advanced"].map(d => (
+                    <button key={d} onClick={() => setDifficulty(d)}
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-all font-medium whitespace-nowrap ${
+                        difficulty === d
+                          ? d === "Beginner" ? "bg-secondary text-secondary-foreground border-secondary"
+                            : d === "Intermediate" ? "bg-brand-gold text-black border-brand-gold"
+                            : d === "Advanced" ? "bg-destructive text-destructive-foreground border-destructive"
+                            : "bg-primary text-primary-foreground border-primary"
+                          : "border-border text-muted-foreground hover:bg-muted"
+                      }`}>
+                      {d === "all" ? "All Levels" : d}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {loading ? (
@@ -352,45 +459,116 @@ const LearningCenterPage = () => {
                   <p className="text-lg font-medium">No articles found</p>
                   <p className="text-sm mt-1">Try adjusting your search or category filter</p>
                 </Card>
-              ) : (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filtered.map((article, i) => (
-                    <motion.div key={article.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                      <Card
-                        className="p-6 h-full flex flex-col hover:shadow-lg transition-shadow cursor-pointer group"
-                        onClick={() => {
-                          if (article.source_url) {
-                            window.open(article.source_url, '_blank', 'noopener,noreferrer');
-                          }
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <Badge className={`w-fit text-xs ${CATEGORY_COLORS[article.category] || ""}`} variant="outline">
-                            {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-                          </Badge>
-                          {article.source && (
-                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                              <ExternalLink className="w-3 h-3" />
-                              {article.source}
-                            </span>
-                          )}
+                ) : (
+                <div className="space-y-8">
+                  {/* Featured hero cards */}
+                  {featuredArticles.length > 0 && search.trim() === "" && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        <span className="text-sm font-semibold text-foreground">Featured Articles</span>
+                      </div>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {featuredArticles.map((article, i) => {
+                          const isRead = readArticles.has(article.id);
+                          return (
+                            <motion.div key={article.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.06 }} whileHover={{ y: -4 }}>
+                              <Card className={`p-6 h-full flex flex-col cursor-pointer group overflow-hidden border-t-4 ${{
+                                basics: "border-t-primary", trading: "border-t-brand-orange",
+                                analysis: "border-t-secondary", investing: "border-t-brand-gold",
+                              }[article.category] || "border-t-border"} ${isRead ? "opacity-75" : ""}`}
+                                onClick={() => {
+                                  markRead(article.id);
+                                  if (article.source_url) window.open(article.source_url, '_blank', 'noopener,noreferrer');
+                                }}>
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center gap-2">
+                                    <Badge className={`text-xs ${CATEGORY_COLORS[article.category] || ""}`} variant="outline">
+                                      {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
+                                    </Badge>
+                                    {article.difficulty && (
+                                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                        article.difficulty === "Beginner" ? "bg-secondary/10 text-secondary" :
+                                        article.difficulty === "Advanced" ? "bg-destructive/10 text-destructive" :
+                                        "bg-brand-gold/10 text-brand-gold"
+                                      }`}>{article.difficulty}</span>
+                                    )}
+                                  </div>
+                                  {isRead 
+                                    ? <CheckCircle2 className="w-4 h-4 text-secondary" />
+                                    : article.source && <span className="text-[10px] text-muted-foreground flex items-center gap-1"><ExternalLink className="w-3 h-3" />{article.source}</span>
+                                  }
+                                </div>
+                                <h3 className="font-semibold text-lg text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">{article.title}</h3>
+                                <p className="text-sm text-muted-foreground flex-1 line-clamp-3 mb-4">{article.excerpt}</p>
+                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{article.read_time} min read</span>
+                                  <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3.5 h-3.5" /></span>
+                                </div>
+                              </Card>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Regular articles grid */}
+                  {regularArticles.length > 0 && (
+                    <div>
+                      {featuredArticles.length > 0 && search.trim() === "" && (
+                        <div className="flex items-center gap-2 mb-4">
+                          <BookOpen className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-semibold text-foreground">All Articles</span>
+                          <span className="text-xs text-muted-foreground">({readArticles.size} read)</span>
                         </div>
-                        <h3 className="font-semibold text-lg text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                          {article.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground flex-1 line-clamp-3 mb-4">{article.excerpt}</p>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" />
-                            {article.read_time} min read
-                          </span>
-                          <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
-                            Read <ChevronRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  ))}
+                      )}
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {regularArticles.map((article, i) => {
+                          const isRead = readArticles.has(article.id);
+                          return (
+                            <motion.div key={article.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.04 }} whileHover={{ y: -3 }}>
+                              <Card className={`p-5 h-full flex flex-col cursor-pointer group overflow-hidden border-l-4 ${{
+                                basics: "border-l-primary/40", trading: "border-l-brand-orange/40",
+                                analysis: "border-l-secondary/40", investing: "border-l-brand-gold/40",
+                              }[article.category] || "border-l-border"} ${isRead ? "opacity-70" : "hover:shadow-md"} transition-all`}
+                                onClick={() => {
+                                  markRead(article.id);
+                                  if (article.source_url) window.open(article.source_url, '_blank', 'noopener,noreferrer');
+                                }}>
+                                <div className="flex items-center justify-between mb-2.5">
+                                  <div className="flex items-center gap-1.5">
+                                    <Badge className={`text-xs ${CATEGORY_COLORS[article.category] || ""}`} variant="outline">
+                                      {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
+                                    </Badge>
+                                    {article.difficulty && (
+                                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                                        article.difficulty === "Beginner" ? "bg-secondary/10 text-secondary" :
+                                        article.difficulty === "Advanced" ? "bg-destructive/10 text-destructive" :
+                                        "bg-brand-gold/10 text-brand-gold"
+                                      }`}>{article.difficulty}</span>
+                                    )}
+                                  </div>
+                                  {isRead
+                                    ? <CheckCircle2 className="w-3.5 h-3.5 text-secondary shrink-0" />
+                                    : article.source && <span className="text-[10px] text-muted-foreground flex items-center gap-1"><ExternalLink className="w-3 h-3" />{article.source}</span>
+                                  }
+                                </div>
+                                <h3 className="font-semibold text-base text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">{article.title}</h3>
+                                <p className="text-xs text-muted-foreground flex-1 line-clamp-3 mb-3">{article.excerpt}</p>
+                                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{article.read_time} min</span>
+                                  <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3 h-3" /></span>
+                                </div>
+                              </Card>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

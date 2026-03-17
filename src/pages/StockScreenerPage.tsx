@@ -4,7 +4,7 @@ import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3 } from "lucide-react";
+import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,23 @@ import { Button } from "@/components/ui/button";
 import { useScreenerStocks, type ScreenerStock } from "@/hooks/useScreenerStocks";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
+import AIAnalysisModal from "@/components/AIAnalysisModal";
+
+const THEMATIC_BASKETS = [
+  { id: "banking", name: "Banking & Finance", desc: "Top private & PSU banks", icon: Landmark, filter: (s: ScreenerStock) => s.sector === "Banking" || s.sector === "NBFC" || s.sector === "Insurance" },
+  { id: "it", name: "IT Leaders", desc: "India's tech giants", icon: Cpu, filter: (s: ScreenerStock) => s.sector === "IT" },
+  { id: "auto", name: "Auto & EV", desc: "Automobile stocks", icon: Car, filter: (s: ScreenerStock) => s.sector === "Auto" },
+  { id: "psu", name: "PSU Momentum", desc: "Public sector entities", icon: Building2, filter: (s: ScreenerStock) => ["SBIN", "BANKBARODA", "PNB", "CANBK", "UNIONBANK", "COALINDIA", "NTPC", "POWERGRID", "ONGC", "IOC", "BPCL", "GAIL", "NHPC", "HAL", "BEL", "BHEL", "IRFC", "RECLTD", "PFC", "CONCOR", "NMDC", "SAIL", "NATIONALUM"].includes(s.symbol) },
+  { id: "fmcg", name: "FMCG Staples", desc: "Everyday consumer goods", icon: ShoppingCart, filter: (s: ScreenerStock) => s.sector === "FMCG" },
+];
+
+const TECHNICAL_SCANNERS = [
+  { id: "vol_shocker", name: "Volume Shockers", desc: "Unusual high volume today", icon: Activity, filter: (s: ScreenerStock) => s.volume > 5000000 && Math.abs(s.change_pct) > 2 },
+  { id: "52w_high", name: "52W High Breakout", desc: "Trading near 52-week high", icon: TrendingUp, filter: (s: ScreenerStock) => s.price >= s.high_52 * 0.95 && s.high_52 > 0 },
+  { id: "52w_low", name: "52W Low Breakdown", desc: "Trading near 52-week low", icon: TrendingDown, filter: (s: ScreenerStock) => s.price <= s.low_52 * 1.05 && s.low_52 > 0 },
+  { id: "momentum", name: "High Momentum", desc: "Strong intraday trend", icon: Zap, filter: (s: ScreenerStock) => s.change_pct > 4 },
+  { id: "value_buy", name: "Value Buys", desc: "Low P/E & profitable", icon: PiggyBank, filter: (s: ScreenerStock) => s.pe > 0 && s.pe < 15 && s.market_cap > 5000 },
+];
 
 const formatMarketCap = (cr: number) => {
   if (cr >= 100000) return `₹${(cr / 100000).toFixed(1)}L Cr`;
@@ -99,6 +116,10 @@ const StockScreenerPage = () => {
   const [sortKey, setSortKey] = useState<SortKey>("market_cap");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [refreshing, setRefreshing] = useState(false);
+  const [analyzingStock, setAnalyzingStock] = useState<ScreenerStock | null>(null);
+  const [activeBasket, setActiveBasket] = useState<string | null>(null);
+  const [activeScanner, setActiveScanner] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "heatmap">("list");
 
   const sectors = useMemo(() => [...new Set(stocks.map(s => s.sector))].sort(), [stocks]);
 
@@ -113,12 +134,21 @@ const StockScreenerPage = () => {
     else if (capRange === "mid") list = list.filter(s => s.market_cap >= 10000 && s.market_cap < 50000);
     else if (capRange === "small") list = list.filter(s => s.market_cap > 0 && s.market_cap < 10000);
 
+    if (activeBasket) {
+      const basket = THEMATIC_BASKETS.find(b => b.id === activeBasket);
+      if (basket) list = list.filter(basket.filter);
+    }
+    if (activeScanner) {
+      const scanner = TECHNICAL_SCANNERS.find(s => s.id === activeScanner);
+      if (scanner) list = list.filter(scanner.filter);
+    }
+
     list.sort((a, b) => {
       const av = a[sortKey], bv = b[sortKey];
       return sortDir === "asc" ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
     });
     return list;
-  }, [stocks, search, sector, peRange, capRange, sortKey, sortDir]);
+  }, [stocks, search, sector, peRange, capRange, sortKey, sortDir, activeBasket, activeScanner]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
@@ -156,6 +186,70 @@ const StockScreenerPage = () => {
 
         {/* Global Stock Search */}
         <GlobalStockSearch className="mb-6" />
+
+        {/* Thematic Baskets */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-heading font-bold flex items-center gap-2">
+              <LayoutGrid className="w-5 h-5 text-brand-orange" />
+              Thematic Baskets
+            </h2>
+            {activeBasket && (
+              <Button variant="ghost" size="sm" onClick={() => setActiveBasket(null)} className="h-8 text-muted-foreground hover:text-foreground">
+                Clear Selection
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            {THEMATIC_BASKETS.map(b => {
+              const Icon = b.icon;
+              const isActive = activeBasket === b.id;
+              return (
+                <Card 
+                  key={b.id} 
+                  className={`p-4 flex flex-col cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${isActive ? "ring-2 ring-brand-orange bg-brand-orange/5 border-brand-orange/50" : "hover:border-primary/50"}`}
+                  onClick={() => setActiveBasket(isActive ? null : b.id)}
+                >
+                  <Icon className={`w-6 h-6 mb-3 ${isActive ? "text-brand-orange" : "text-muted-foreground"}`} />
+                  <h3 className="font-semibold text-sm mb-1 text-foreground">{b.name}</h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{b.desc}</p>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Technical Scanners */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-heading font-bold flex items-center gap-2">
+              <Radar className="w-5 h-5 text-secondary" />
+              Technical Scanners
+            </h2>
+            {activeScanner && (
+              <Button variant="ghost" size="sm" onClick={() => setActiveScanner(null)} className="h-8 text-muted-foreground hover:text-foreground">
+                Clear Selection
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            {TECHNICAL_SCANNERS.map(s => {
+              const Icon = s.icon;
+              const isActive = activeScanner === s.id;
+              return (
+                <Card 
+                  key={s.id} 
+                  className={`p-4 flex flex-col cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${isActive ? "ring-2 ring-secondary bg-secondary/5 border-secondary/50" : "hover:border-primary/50"}`}
+                  onClick={() => setActiveScanner(isActive ? null : s.id)}
+                >
+                  <Icon className={`w-6 h-6 mb-3 ${isActive ? "text-secondary" : "text-muted-foreground"}`} />
+                  <h3 className="font-semibold text-sm mb-1 text-foreground">{s.name}</h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{s.desc}</p>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Filters */}
         <Card className="p-4 mb-6">
@@ -195,12 +289,7 @@ const StockScreenerPage = () => {
           </div>
         </Card>
 
-        {/* Heatmap */}
-        {!loading && filtered.length > 0 && (
-          <div className="mb-6">
-            <StockHeatmap stocks={filtered} maxItems={60} />
-          </div>
-        )}
+        {/* Heatmap (Moved inside View Toggles) */}
 
         {error && (
           <Card className="p-4 mb-4 border-destructive/50 bg-destructive/5">
@@ -215,9 +304,31 @@ const StockScreenerPage = () => {
             </motion.div>
           ) : (
             <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <p className="text-sm text-muted-foreground mb-3">{filtered.length} stocks found</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <p className="text-sm text-muted-foreground">{filtered.length} stocks matching criteria</p>
+                
+                {/* View Toggles */}
+                <div className="flex bg-muted rounded-lg p-1 self-start sm:self-auto">
+                  <button 
+                    onClick={() => setViewMode("list")} 
+                    className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-2 ${viewMode === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <List className="w-4 h-4" /> List
+                  </button>
+                  <button 
+                    onClick={() => setViewMode("heatmap")} 
+                    className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-2 ${viewMode === "heatmap" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <LayoutGrid className="w-4 h-4" /> Heatmap
+                  </button>
+                </div>
+              </div>
 
-              {/* Table */}
+              {viewMode === "heatmap" ? (
+                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="min-h-[50vh]">
+                  <StockHeatmap stocks={filtered} maxItems={150} />
+                </motion.div>
+              ) : (
               <Card className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -229,6 +340,7 @@ const StockScreenerPage = () => {
                       ))}
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">52W Range</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">Volume</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -268,12 +380,26 @@ const StockScreenerPage = () => {
                           <td className="px-4 py-3 text-right font-mono text-muted-foreground">
                             {s.volume > 0 ? `${(s.volume / 1000000).toFixed(1)}M` : "—"}
                           </td>
+                          <td className="px-4 py-3 text-right">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs h-8 px-3"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAnalyzingStock(s);
+                              }}
+                            >
+                              <Bot className="w-3.5 h-3.5 mr-1" /> AI Edit
+                            </Button>
+                          </td>
                         </motion.tr>
                       );
                     })}
                   </tbody>
                 </table>
               </Card>
+              )}
 
               <p className="text-xs text-muted-foreground mt-4 text-center">
                 Live data from Yahoo Finance. Prices may be delayed by up to 15 minutes. Auto-refreshes every 5 minutes.
@@ -281,6 +407,25 @@ const StockScreenerPage = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <AIAnalysisModal 
+          isOpen={!!analyzingStock} 
+          onClose={() => setAnalyzingStock(null)} 
+          stock={analyzingStock ? {
+            name: analyzingStock.name,
+            symbol: analyzingStock.symbol,
+            price: analyzingStock.price,
+            change_pct: analyzingStock.change_pct,
+            pe: analyzingStock.pe,
+            high_52: analyzingStock.high_52,
+            low_52: analyzingStock.low_52,
+            day_high: analyzingStock.day_high,
+            day_low: analyzingStock.day_low,
+            volume: analyzingStock.volume,
+            market_cap: analyzingStock.market_cap,
+            sector: analyzingStock.sector,
+          } : null} 
+        />
       </main>
       <Footer />
       <WhatsAppButton />

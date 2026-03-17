@@ -7,6 +7,7 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import PageTransition from "@/components/PageTransition";
 
 // Lazy load below-fold heavy components
 const LiveChart = lazy(() => import("@/components/LiveChart"));
@@ -26,7 +27,8 @@ const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead
         title="Best Stock Broker in Panipat | Parasram India - Since 1970"
         description="Parasram India Panipat - SEBI registered stock broker since 1970. Open free Demat account. Stocks, mutual funds, IPO, unlisted shares, F&O, commodities trading."
@@ -62,7 +64,8 @@ const Index = () => {
         <Footer />
       </Suspense>
       <WhatsAppButton />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 
