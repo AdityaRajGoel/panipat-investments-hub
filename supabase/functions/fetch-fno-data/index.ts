@@ -425,11 +425,12 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch F&O data";
     console.error("F&O fetch error:", error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || "Failed to fetch F&O data",
+        error: errorMessage,
       }),
       {
         status: 200,

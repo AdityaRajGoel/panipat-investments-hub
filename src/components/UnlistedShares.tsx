@@ -186,9 +186,15 @@ const UnlistedShares = () => {
             <p className="text-muted-foreground">Contact us for live pricing & availability</p>
           </motion.div>
 
-          <motion.div key={stocks.length} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
+          <motion.div
+            key={stocksLoaded ? `loaded-${stocks.length}` : "fallback-stocks"}
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {stocks.map((stock, index) => (
-              <motion.div key={stock.name} variants={itemVariants}>
+              <motion.div key={stock.id} variants={itemVariants}>
                 <Card className="group cursor-pointer transition-all duration-300 border-border/50 hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/5"
                   onClick={() => setSelectedStock(stock)}>
                   <CardContent className="p-5">
