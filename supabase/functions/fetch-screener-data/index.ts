@@ -408,36 +408,95 @@ Deno.serve(async (req) => {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const forceRefresh = body.refresh === true;
     const requestedSymbol = body.symbol?.toUpperCase();
+    const searchQuery = body.query?.trim();
+
+    // New: Chart Data Fetching
+    if (requestedSymbol && body.range) {
+      console.log(`Fetching chart for: ${requestedSymbol} (${body.range})`);
+      const range = body.range || "3mo";
+      const interval = ["1d", "5d"].includes(range) ? "15m" : ["1mo", "3mo"].includes(range) ? "1h" : "1d";
+      
+      const yahooSym = NSE_SYMBOLS.find(s => s.symbol === requestedSymbol)?.yahoo || 
+                      (requestedSymbol.includes(".") ? requestedSymbol : `${requestedSymbol}.NS`);
+      
+      const chartUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSym}?range=${range}&interval=${interval}&includePrePost=false`;
+      const cRes = await fetch(chartUrl, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" }
+      });
+
+      if (cRes.ok) {
+        const cJson = await cRes.ok ? await cRes.json() : null;
+        const result = cJson?.chart?.result?.[0];
+        if (result) {
+          const timestamps = result.timestamp || [];
+          const quotes = result.indicators?.quote?.[0] || {};
+          const chartData = timestamps.map((t: number, i: number) => ({
+            t: t * 1000,
+            o: quotes.open?.[i] || 0,
+            h: quotes.high?.[i] || 0,
+            l: quotes.low?.[i] || 0,
+            c: quotes.close?.[i] || 0,
+            v: quotes.volume?.[i] || 0,
+          })).filter((p: any) => p.c > 0);
+
+          return new Response(JSON.stringify({ success: true, chartData }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
+
+    // New: Dynamic Search Action
+    if (searchQuery && searchQuery.length >= 2) {
+      console.log(`Live searching for: ${searchQuery}`);
+      const searchUrl = `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(searchQuery)}&quotesCount=20&newsCount=0&enableFuzzyQuery=true&quotesQueryId=tss_match_phrase_query`;
+      const sRes = await fetch(searchUrl, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" }
+      });
+      
+      if (sRes.ok) {
+        const sJson = await sRes.json();
+        const results = (sJson.quotes || [])
+          .filter((q: any) => q.symbol.endsWith(".NS") || q.symbol.endsWith(".BO"))
+          .map((q: any) => ({
+            symbol: q.symbol.split(".")[0],
+            yahoo: q.symbol,
+            name: q.shortname || q.longname || q.symbol,
+            sector: q.sector || q.quoteType || "India Exchange"
+          }));
+        
+        console.log(`Found ${results.length} results on exchanges`);
+        return new Response(JSON.stringify({ success: true, results }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     if (requestedSymbol) {
-      console.log(`Searching for specific symbol: ${requestedSymbol}`);
-      // Check if it exists in local dataset first
+      console.log(`Searching/Updating dynamic symbol: ${requestedSymbol}`);
       let stockInfo = NSE_SYMBOLS.find(s => s.symbol === requestedSymbol);
       
-      // If not in local, try to search Yahoo directly
-      if (!stockInfo) {
-        try {
-          const { crumb, cookie } = await getYahooCrumb();
-          const yahooSym = requestedSymbol.includes(".") ? requestedSymbol : `${requestedSymbol}.NS`;
-          const quoteMap = await fetchBatchQuotes([yahooSym], crumb, cookie);
-          const q = quoteMap.get(yahooSym);
-          
-          if (q) {
-            const newStock = { 
-              symbol: requestedSymbol, 
-              yahoo: yahooSym, 
-              name: q.shortName || q.longName || requestedSymbol, 
-              sector: q.quoteType || "General" 
-            };
-            const row = buildStockRow(newStock, q);
-            await sb.from("screener_stocks").upsert(row, { onConflict: "symbol" });
-            return new Response(JSON.stringify({ success: true, stocks: [row] }), {
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            });
-          }
-        } catch (e) {
-          console.error("Search failed for", requestedSymbol, e.message);
+      try {
+        const { crumb, cookie } = await getYahooCrumb();
+        const yahooSym = stockInfo?.yahoo || (requestedSymbol.includes(".") ? requestedSymbol : `${requestedSymbol}.NS`);
+        const quoteMap = await fetchBatchQuotes([yahooSym], crumb, cookie);
+        const q = quoteMap.get(yahooSym);
+        
+        if (q) {
+          const discoveredStock = { 
+            symbol: requestedSymbol, 
+            yahoo: yahooSym, 
+            name: q.shortName || q.longName || stockInfo?.name || requestedSymbol, 
+            sector: q.quoteType || stockInfo?.sector || "General" 
+          };
+          const row = buildStockRow(discoveredStock, q);
+          await sb.from("screener_stocks").upsert(row, { onConflict: "symbol" });
+          return new Response(JSON.stringify({ success: true, stocks: [row] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
+      } catch (e) {
+        console.error("Direct fetch failed for", requestedSymbol, e.message);
       }
     }
 

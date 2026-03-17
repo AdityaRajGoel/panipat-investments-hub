@@ -27,6 +27,7 @@ type StockResult = {
   day_low: number;
   open_price: number;
   prev_close: number;
+  yahoo?: string;
 };
 
 type ChartPoint = { t: number; o: number; h: number; l: number; c: number; v: number };
@@ -220,6 +221,7 @@ type Props = { className?: string };
 const GlobalStockSearch = ({ className }: Props) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<StockResult[]>([]);
+  const [exchangeResults, setExchangeResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<StockResult | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -232,18 +234,40 @@ const GlobalStockSearch = ({ className }: Props) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const searchStocks = useCallback(async (q: string) => {
-    if (q.length < 1) { setResults([]); return; }
+    if (q.length < 1) { 
+      setResults([]); 
+      setExchangeResults([]);
+      return; 
+    }
     setSearching(true);
     try {
-      const { data } = await supabase
+      // 1. Local Search
+      const { data: localData } = await supabase
         .from("screener_stocks")
         .select("*")
         .or(`symbol.ilike.%${q}%,name.ilike.%${q}%`)
         .order("market_cap", { ascending: false })
-        .limit(10);
-      setResults((data as StockResult[]) || []);
+        .limit(6);
+      
+      setResults((localData as StockResult[]) || []);
+
+      // 2. Exchange Search (Yahoo) if query is 2+ chars
+      if (q.length >= 2) {
+        const { data: exData, error } = await supabase.functions.invoke("fetch-screener-data", {
+          body: { query: q }
+        });
+        if (!error && exData?.success) {
+          // Filter out what we already have in local results to avoid duplicates
+          const localSymbols = new Set((localData || []).map(s => s.symbol));
+          const filteredEx = (exData.results || []).filter((r: any) => !localSymbols.has(r.symbol));
+          setExchangeResults(filteredEx.slice(0, 10)); // Show more results if available
+        }
+      } else {
+        setExchangeResults([]);
+      }
     } catch {
       setResults([]);
+      setExchangeResults([]);
     } finally {
       setSearching(false);
     }
@@ -252,32 +276,36 @@ const GlobalStockSearch = ({ className }: Props) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (query.trim()) searchStocks(query.trim());
-      else setResults([]);
-    }, 250);
+      else {
+        setResults([]);
+        setExchangeResults([]);
+      }
+    }, 350);
     return () => clearTimeout(timer);
   }, [query, searchStocks]);
 
-  const fetchChart = useCallback(async (symbol: string, range: TimeRange) => {
-    setChartLoading(true);
-    setChartData([]);
-    try {
-      const { data, error } = await lovableSupabase.functions.invoke("fetch-stock-chart", {
-        body: { symbol, range },
-      });
-      if (!error && data?.success && data.dataPoints?.length > 0) {
-        setChartData(data.dataPoints);
+  // Handle selecting a stock (either local or from exchange)
+  const handleSelect = async (stock: any, isExchange = false) => {
+    if (isExchange) {
+      setSearching(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("fetch-screener-data", {
+          body: { symbol: stock.symbol }
+        });
+        if (!error && data?.success && data.stocks?.length > 0) {
+          const fullStock = data.stocks[0];
+          setSelected(fullStock);
+          setAnalyzingStock(fullStock);
+        }
+      } catch (e) {
+        console.error("Failed to select exchange stock", e);
+      } finally {
+        setSearching(false);
       }
-    } catch {} finally {
-      setChartLoading(false);
+    } else {
+      setSelected(stock);
+      setAnalyzingStock(stock);
     }
-  }, []);
-
-  useEffect(() => {
-    if (selected) fetchChart(selected.symbol, chartRange);
-  }, [selected, chartRange, fetchChart]);
-
-  const handleSelect = (stock: StockResult) => {
-    setSelected(stock);
     setChartRange("3mo");
     setShowDropdown(false);
   };
@@ -293,6 +321,29 @@ const GlobalStockSearch = ({ className }: Props) => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    const fetchChartData = async () => {
+      if (!selected) {
+        setChartData([]);
+        return;
+      }
+      setChartLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("fetch-screener-data", {
+          body: { symbol: selected.yahoo || selected.symbol, range: chartRange }
+        });
+        if (!error && data?.success) {
+          setChartData(data.chartData || []);
+        }
+      } catch (e) {
+        console.error("Failed to fetch chart data", e);
+      } finally {
+        setChartLoading(false);
+      }
+    };
+    fetchChartData();
+  }, [selected, chartRange]);
+
   const chartUp = useMemo(() => {
     if (chartData.length < 2) return (selected?.change_pct ?? 0) >= 0;
     return chartData[chartData.length - 1].c >= chartData[0].c;
@@ -305,14 +356,14 @@ const GlobalStockSearch = ({ className }: Props) => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             ref={inputRef}
-            placeholder="Search any stock (e.g. RELIANCE, TCS)..."
+            placeholder="Search any NSE/BSE stock..."
             value={query}
             onChange={e => { setQuery(e.target.value); setShowDropdown(true); }}
-            onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
+            onFocus={() => { if (results.length > 0 || exchangeResults.length > 0) setShowDropdown(true); }}
             className="pl-9 pr-9"
           />
           {query && (
-            <button onClick={() => { setQuery(""); setResults([]); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            <button onClick={() => { setQuery(""); setResults([]); setExchangeResults([]); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -320,14 +371,19 @@ const GlobalStockSearch = ({ className }: Props) => {
         </div>
 
         <AnimatePresence>
-          {showDropdown && (results.length > 0 || (query.length >= 2 && !searching)) && (
+          {showDropdown && (results.length > 0 || exchangeResults.length > 0 || (query.length >= 2 && !searching)) && (
             <motion.div
               ref={dropdownRef}
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute z-50 top-full mt-1 w-full bg-popover border border-border rounded-lg shadow-lg overflow-hidden max-h-80 overflow-y-auto"
+              className="absolute z-50 top-full mt-1 w-full bg-popover border border-border rounded-lg shadow-lg overflow-hidden max-h-[400px] overflow-y-auto"
             >
+              {results.length > 0 && (
+                <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/30 border-b border-border/30">
+                  Quick Results
+                </div>
+              )}
               {results.map(stock => (
                 <button
                   key={stock.symbol}
@@ -347,36 +403,38 @@ const GlobalStockSearch = ({ className }: Props) => {
                 </button>
               ))}
 
-              {/* On-demand fetch option if no results or specifically requested */}
-              {query.length >= 3 && (
+              {exchangeResults.length > 0 && (
+                <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider bg-muted/30 border-y border-border/30">
+                  NSE/BSE Exchange Results
+                </div>
+              )}
+              {exchangeResults.map(stock => (
                 <button
-                  className="w-full px-4 py-3 flex items-center gap-3 hover:bg-muted/50 transition-colors text-left border-t border-border/30 bg-muted/20"
-                  onClick={async () => {
-                    setSearching(true);
-                    try {
-                      const { data, error } = await supabase.functions.invoke("fetch-screener-data", {
-                        body: { symbol: query.trim().toUpperCase() }
-                      });
-                      if (!error && data?.success && data.stocks?.length > 0) {
-                        handleSelect(data.stocks[0]);
-                      } else {
-                        // Fallback or error handling
-                        console.error("Could not find stock");
-                      }
-                    } catch (e) {
-                      console.error("Fetch error", e);
-                    } finally {
-                      setSearching(false);
-                    }
-                  }}
+                  key={stock.yahoo}
+                  className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors text-left border-b border-border/30 last:border-0"
+                  onClick={() => handleSelect(stock, true)}
                 >
-                  <Bot className="w-4 h-4 text-brand-orange" />
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-foreground">Search for "{query.toUpperCase()}" on Exchanges</div>
-                    <div className="text-[10px] text-muted-foreground">AI will fetch live data for this specific symbol from NSE/BSE</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm text-foreground">{stock.symbol}</span>
+                      <Badge variant="outline" className="text-[10px] h-4 px-1 leading-none uppercase">
+                        {stock.yahoo.split('.')[1]}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground">{stock.name}</div>
                   </div>
-                  {searching && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
+                  <div className="text-[10px] text-brand-orange font-bold flex items-center gap-1">
+                    <Bot className="w-3 h-3" /> ANALYZE
+                  </div>
                 </button>
+              ))}
+
+              {!searching && results.length === 0 && exchangeResults.length === 0 && query.length >= 2 && (
+                <div className="p-6 text-center">
+                  <Bot className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-20" />
+                  <p className="text-sm text-muted-foreground">No stocks matching "{query}"</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Try a common ticker like RELIANCE, TCS, or MRF.</p>
+                </div>
               )}
             </motion.div>
           )}
@@ -391,137 +449,182 @@ const GlobalStockSearch = ({ className }: Props) => {
 
       {/* Stock Detail Dialog */}
       <Dialog open={!!selected} onOpenChange={open => { if (!open) setSelected(null); }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl bg-background/95 backdrop-blur-xl border-border/50 shadow-2xl p-0 overflow-hidden">
           {selected && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-3">
-                  <span className="text-xl font-bold">{selected.symbol}</span>
-                  <Badge variant="outline" className="text-xs">{selected.sector}</Badge>
-                </DialogTitle>
-                <p className="text-sm text-muted-foreground">{selected.name}</p>
-              </DialogHeader>
-
-              <div className="space-y-4 mt-2">
-                {/* Price */}
-                <div className="flex items-end gap-4">
-                  <span className="text-3xl font-bold font-mono text-foreground">
-                    ₹{selected.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  <span className={`text-lg font-medium flex items-center gap-1 ${selected.change_pct >= 0 ? "text-secondary" : "text-destructive"}`}>
-                    {selected.change_pct >= 0 ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
-                    {selected.change >= 0 ? "+" : ""}{selected.change.toFixed(2)} ({selected.change_pct >= 0 ? "+" : ""}{selected.change_pct.toFixed(2)}%)
-                  </span>
+            <div className="flex flex-col h-full max-h-[90vh]">
+              {/* Premium Header */}
+              <div className="p-6 pb-4 border-b border-border/20 bg-gradient-to-br from-muted/50 to-transparent">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-black tracking-tight text-foreground">{selected.symbol}</span>
+                    <Badge variant="secondary" className="bg-brand-orange/10 text-brand-orange border-brand-orange/20 text-[10px] font-bold uppercase tracking-wider">
+                      {selected.sector}
+                    </Badge>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setSelected(null)} className="h-8 w-8 rounded-full opacity-70 hover:opacity-100">
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
+                <p className="text-sm text-muted-foreground font-medium">{selected.name}</p>
 
-                {/* Chart */}
-                <Card className="p-4">
-                  <div className="flex items-center justify-between mb-3">
+                {/* Live Price Section */}
+                <div className="flex items-end gap-6 mt-6">
+                  <div>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Current Price</p>
+                    <div className="text-4xl font-extrabold tracking-tighter text-foreground">
+                      ₹{selected.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  <div className={`flex flex-col items-start pb-1 ${selected.change_pct >= 0 ? "text-secondary" : "text-destructive"}`}>
+                    <div className="flex items-center gap-1 font-bold text-lg">
+                      {selected.change_pct >= 0 ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
+                      {selected.change >= 0 ? "+" : ""}{selected.change.toFixed(2)}
+                    </div>
+                    <div className="text-sm font-semibold">
+                      ({selected.change_pct >= 0 ? "+" : ""}{selected.change_pct.toFixed(2)}%)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                {/* Chart Section */}
+                <Card className="p-4 bg-muted/20 border-border/30 shadow-none">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-1 bg-background/50 p-1 rounded-lg border border-border/20">
+                      {TIME_RANGES.map(({ key, label }) => (
+                        <Button key={key} variant={chartRange === key ? "secondary" : "ghost"} size="sm"
+                          className={`h-7 px-3 text-[10px] font-bold transition-all ${chartRange === key ? "shadow-sm" : ""}`} onClick={() => setChartRange(key)}>
+                          {label}
+                        </Button>
+                      ))}
+                    </div>
+                    
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1">
-                        {TIME_RANGES.map(({ key, label }) => (
-                          <Button key={key} variant={chartRange === key ? "default" : "ghost"} size="sm"
-                            className="h-7 px-2.5 text-xs" onClick={() => setChartRange(key)}>
-                            {label}
-                          </Button>
-                        ))}
-                      </div>
-                      
-                      {/* AI Analyze Button added here */}
-                      <div className="hidden sm:block w-px h-6 bg-border mx-1"></div>
-                      <Button 
-                        variant="outline" 
+                       <Button 
+                        variant="default" 
                         size="sm" 
-                        className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs h-7 px-3 hidden sm:flex"
+                        className="bg-brand-orange hover:bg-brand-orange/90 text-white text-[10px] font-bold h-7 px-4 shadow-lg shadow-brand-orange/20"
                         onClick={() => setAnalyzingStock(selected)}
                       >
-                        <Bot className="w-3.5 h-3.5 mr-1" /> AI Analyze
+                        <Bot className="w-3.5 h-3.5 mr-1.5" /> AI ANALYSIS
                       </Button>
-                    </div>
-                    <div className="flex items-center gap-0.5 border border-border rounded-md p-0.5">
-                      <button
-                        className={`p-1 rounded ${chartMode === "candle" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                        onClick={() => setChartMode("candle")}
-                        title="Candlestick"
-                      >
-                        <CandlestickChart className="w-4 h-4" />
-                      </button>
-                      <button
-                        className={`p-1 rounded ${chartMode === "line" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                        onClick={() => setChartMode("line")}
-                        title="Line"
-                      >
-                        <LineChart className="w-4 h-4" />
-                      </button>
+
+                      <div className="flex items-center gap-1 bg-background/50 p-1 rounded-lg border border-border/20">
+                        <button
+                          className={`p-1 rounded ${chartMode === "candle" ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"}`}
+                          onClick={() => setChartMode("candle")}
+                        >
+                          <CandlestickChart className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          className={`p-1 rounded ${chartMode === "line" ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"}`}
+                          onClick={() => setChartMode("line")}
+                        >
+                          <LineChart className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                   
-                  {/* Mobile AI Button (If it doesn't fit on top) */}
-                  <div className="sm:hidden mb-4">
-                     <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs w-full h-8"
-                        onClick={() => setAnalyzingStock(selected)}
-                      >
-                        <Bot className="w-3.5 h-3.5 mr-1" /> Generate AI Technical Analysis
-                      </Button>
-                  </div>
-
-                  {chartLoading ? (
-                    <Skeleton className="h-[180px] w-full rounded" />
-                  ) : chartData.length > 1 ? (
-                    chartMode === "candle" ? (
-                      <CandlestickSVGChart data={chartData} />
+                  <div className="bg-background/40 backdrop-blur-md rounded-lg p-2 border border-border/10">
+                    {chartLoading ? (
+                      <div className="h-[220px] w-full flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-brand-orange opacity-50" />
+                      </div>
+                    ) : chartData.length > 1 ? (
+                      <div className="h-[220px]">
+                        {chartMode === "candle" ? (
+                          <CandlestickSVGChart data={chartData} height={220} />
+                        ) : (
+                          <LineAreaChart data={chartData} up={chartUp} height={220} />
+                        )}
+                      </div>
                     ) : (
-                      <LineAreaChart data={chartData} up={chartUp} />
-                    )
-                  ) : (
-                    <div className="h-[180px] flex items-center justify-center text-sm text-muted-foreground">
-                      No chart data available
-                    </div>
-                  )}
+                      <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground font-medium">
+                        Live technical data unavailable for this range
+                      </div>
+                    )}
+                  </div>
                 </Card>
 
-                {/* Key Metrics */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* Performance Visualizer (52W Range) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">Market Statistics</h3>
+                    <div className="grid grid-cols-1 gap-1">
+                      {[
+                        { label: "Market Cap", value: selected.market_cap > 0 ? formatMarketCap(selected.market_cap) : "—" },
+                        { label: "P/E Ratio", value: selected.pe > 0 ? selected.pe.toFixed(2) : "N/A" },
+                        { label: "Day Range", value: `₹${selected.day_low.toFixed(1)} — ₹${selected.day_high.toFixed(1)}` },
+                        { label: "Volume (24h)", value: selected.volume > 0 ? `${(selected.volume / 1000000).toFixed(2)}M` : "—" },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex justify-between items-center px-3 py-2.5 rounded-lg bg-muted/10 border border-transparent hover:border-border/20 transition-colors">
+                          <span className="text-xs text-muted-foreground font-medium">{label}</span>
+                          <span className="text-xs font-bold text-foreground font-mono">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 text-center md:text-left">
+                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">52-Week Range</h3>
+                    <Card className="p-5 bg-muted/10 border-border/30 flex flex-col justify-center h-[calc(100%-32px)]">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground mb-4">
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="uppercase text-[8px] opacity-70">Low</span>
+                          <span className="text-foreground">₹{selected.low_52.toLocaleString("en-IN")}</span>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="uppercase text-[8px] opacity-70">High</span>
+                          <span className="text-foreground">₹{selected.high_52.toLocaleString("en-IN")}</span>
+                        </div>
+                      </div>
+                      <div className="h-3 bg-muted rounded-full relative overflow-hidden shadow-inner">
+                        <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive/60 via-brand-orange/60 to-secondary/60"
+                          style={{ width: `100%` }} />
+                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white shadow-xl rounded-full border-2 border-brand-orange z-10"
+                          style={{ left: `${Math.min(95, Math.max(5, ((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100))}%`, transform: "translate(-50%, -50%)" }} />
+                      </div>
+                      <p className="text-[10px] text-center mt-4 text-muted-foreground font-medium">
+                        Stock is trading at <span className="text-foreground font-bold">{Math.round(((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100)}%</span> of its 52-week range
+                      </p>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* Additional Details Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[
-                    { label: "Open", value: `₹${selected.open_price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
-                    { label: "Prev Close", value: `₹${selected.prev_close.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
-                    { label: "Day High", value: `₹${selected.day_high.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
-                    { label: "Day Low", value: `₹${selected.day_low.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
-                    { label: "52W High", value: `₹${selected.high_52.toLocaleString("en-IN")}` },
-                    { label: "52W Low", value: `₹${selected.low_52.toLocaleString("en-IN")}` },
-                    { label: "Market Cap", value: selected.market_cap > 0 ? formatMarketCap(selected.market_cap) : "—" },
-                    { label: "P/E Ratio", value: selected.pe > 0 ? selected.pe.toFixed(1) : "—" },
-                    { label: "Volume", value: selected.volume > 0 ? `${(selected.volume / 1000000).toFixed(2)}M` : "—" },
-                    { label: "Sector", value: selected.sector },
+                    { label: "Open", value: selected.open_price },
+                    { label: "Prev Close", value: selected.prev_close },
+                    { label: "Day High", value: selected.day_high },
+                    { label: "Day Low", value: selected.day_low },
                   ].map(({ label, value }) => (
-                    <div key={label} className="flex justify-between items-center py-1.5 border-b border-border/30">
-                      <span className="text-xs text-muted-foreground">{label}</span>
-                      <span className="text-sm font-medium text-foreground">{value}</span>
+                    <div key={label} className="p-3 bg-muted/5 rounded-xl border border-border/10">
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">{label}</p>
+                      <p className="text-xs font-bold font-mono text-foreground">₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
                     </div>
                   ))}
                 </div>
-
-                {/* 52W Range Bar */}
-                {selected.high_52 > 0 && (
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1.5">52-Week Range</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>₹{selected.low_52.toLocaleString("en-IN")}</span>
-                      <div className="flex-1 h-2 bg-muted rounded-full relative">
-                        <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive to-secondary rounded-full"
-                          style={{ width: `${Math.min(100, Math.max(0, ((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100))}%` }} />
-                        <div className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-foreground rounded-full border-2 border-background"
-                          style={{ left: `${Math.min(100, Math.max(0, ((selected.price - selected.low_52) / (selected.high_52 - selected.low_52)) * 100))}%` }} />
-                      </div>
-                      <span>₹{selected.high_52.toLocaleString("en-IN")}</span>
-                    </div>
-                  </div>
-                )}
               </div>
-            </>
+
+              {/* Action Footer */}
+              <div className="p-4 border-t border-border/20 bg-muted/10 flex items-center justify-between gap-4">
+                <p className="text-[10px] text-muted-foreground italic">
+                  * Live data provided by Yahoo Finance exchanges. 
+                </p>
+                <div className="flex items-center gap-2">
+                   <Button 
+                    variant="outline" 
+                    className="h-9 px-6 text-xs font-bold border-border/40 hover:bg-muted"
+                    onClick={() => setSelected(null)}
+                  >
+                    CLOSE
+                  </Button>
+                </div>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>

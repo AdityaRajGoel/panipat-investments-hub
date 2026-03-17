@@ -42,6 +42,7 @@ const analysisSteps = [
   { text: "Scanning complex chart patterns...", icon: "📉" },
   { text: "Benchmarking against sector peers...", icon: "⚖️" },
   { text: "Generating deep actionable insights...", icon: "✨" },
+  { text: "Polishing Intelligence Report...", icon: "📝" },
 ];
 
 function useTypewriter(text: string, speed = 10, start = false) {
@@ -303,6 +304,8 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       body: {
         symbol: stock.symbol, name: stock.name, price: analysis.priceNum,
         change_pct: analysis.changePct, pe: stock.pe, high_52: analysis.high52, low_52: analysis.low52,
+        market_cap: stock.market_cap, volume: stock.volume, sector: stock.sector,
+        day_high: stock.day_high, day_low: stock.day_low,
         roe: analysis.roeSignal, debt_equity: analysis.deSignal, patterns: analysis.patterns,
         score: analysis.score, isBullish: analysis.isBullish, deep_report: true 
       }
@@ -401,8 +404,8 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       const { data, error } = await supabase.functions.invoke('ai-stock-analysis', {
         body: {
           symbol: stock.symbol, is_chat: true, chat_message: userMsg,
-          chat_history: chatHistory.slice(-4), 
-          context: `Price: ${stock.price}. Score: ${analysis?.score}. Patterns: ${analysis?.patterns.join(',')}`
+          chat_history: chatHistory.slice(-10), 
+          context: `Price: ₹${stock.price}. Sector: ${stock.sector || 'N/A'}. Market Cap: ₹${stock.market_cap} Cr. Vol: ${stock.volume}. Score: ${analysis?.score}. Patterns: ${analysis?.patterns.join(',')}`
         }
       });
       
@@ -696,7 +699,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                         <BarChart2 className="w-4 h-4 text-brand-orange" />
                         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Detailed Intelligence Report</h3>
                       </div>
-                      <div className="bg-muted/30 border border-border/50 rounded-xl p-5 prose prose-sm dark:prose-invert max-w-none shadow-inner">
+                      <div className="bg-muted/30 border border-border/50 rounded-xl p-5 prose prose-sm dark:prose-invert max-w-none shadow-inner prose-headings:text-brand-orange prose-h1:text-xl prose-h2:text-lg prose-table:border prose-table:border-border/50 prose-th:bg-muted/50 prose-th:p-2 prose-td:p-2">
                         {geminiVerdict ? (
                           <Markdown>{geminiVerdict.analysis}</Markdown>
                         ) : (
@@ -748,8 +751,9 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                           <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-secondary' : 'bg-brand-orange/20'}`}>
                             {msg.role === 'user' ? <div className="text-xs font-bold text-background">YOU</div> : <Bot className="w-4 h-4 text-brand-orange"/>}
                           </div>
-                          <div className={`border rounded-2xl p-3 text-sm shadow-sm max-w-[85%] ${msg.role === 'user' ? 'bg-secondary text-background border-secondary rounded-tr-none' : 'bg-card text-foreground border-border/50 rounded-tl-none prose prose-sm dark:prose-invert'}`}>
+                          <div className={`border rounded-2xl p-3 text-sm shadow-sm max-w-[85%] backdrop-blur-md ${msg.role === 'user' ? 'bg-secondary/90 text-background border-secondary rounded-tr-none' : 'bg-card/70 text-foreground border-border/50 rounded-tl-none prose prose-sm dark:prose-invert shadow-[0_4px_12px_rgba(0,0,0,0.05)]'}`}>
                             {msg.role === 'ai' ? <Markdown>{msg.text}</Markdown> : msg.text}
+                            {msg.role === 'ai' && <div className="text-[8px] opacity-30 mt-2 flex items-center gap-1"><BrainCircuit className="w-2 h-2"/> Analysis by Parasram Intelligence</div>}
                           </div>
                         </div>
                       ))}

@@ -21,9 +21,9 @@ const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
 const BOT_USER_AGENTS = [
   "googlebot", "bingbot", "yandexbot", "duckduckbot", "slurp", "baiduspider", "ia_archiver",
-  "facebot", "facebookexternalhit", "twitterbot", "rogerbot", "linkedinbot", "embedly", 
+  "facebot", "facebookexternalhit", "twitterbot", "rogerbot", "linkedinbot", "embedly",
   "quora link preview", "showyoubot", "outbrain", "pinterest/0.", "developers.google.com/+/web/snippet",
-  "slackbot", "vkShare", "W3C_Validator", "redditbot", "Applebot", "WhatsApp", "flipboard", 
+  "slackbot", "vkShare", "W3C_Validator", "redditbot", "Applebot", "WhatsApp", "flipboard",
   "Tumblr", "bitlybot", "SkypeShell", "TelegramBot", "Skype", "node-fetch", "axios", "python-requests"
 ];
 
@@ -66,7 +66,7 @@ Structure:
       ],
       response_format: { type: isChat ? "text" : "json_object" },
       temperature: 0.1,
-      max_tokens: 8000
+      max_tokens: 12000
     })
   });
 
@@ -78,7 +78,7 @@ Structure:
 
   const data = await response.json();
   let content = data.choices[0].message.content;
-  
+
   if (!isChat) {
     try {
       // Clean up markdown code blocks if present
@@ -122,19 +122,19 @@ Structure:
 }`;
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`;
-  
+
   const response = await fetch(url, {
     method: "POST",
-    headers: { 
+    headers: {
       "Content-Type": "application/json",
       "X-goog-api-key": GEMINI_API_KEY
     },
     body: JSON.stringify({
       system_instruction: { parts: { text: systemMsg } },
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { 
-        temperature: 0.1, 
-        maxOutputTokens: 16000,
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 20000,
         responseMimeType: isChat ? "text/plain" : "application/json"
       }
     })
@@ -199,18 +199,22 @@ serve(async (req) => {
       console.log(`[AI Chat] Request for ${stockData.symbol || 'unknown'}`);
       finalPrompt = `Context about the stock:\n${context}\n\n`;
       if (chat_history && chat_history.length > 0) {
-         finalPrompt += `Recent Conversation History:\n${chat_history.map(m => `${m.role.toUpperCase()}: ${m.text}`).join('\n')}\n\n`;
+        finalPrompt += `Recent Conversation History:\n${chat_history.map(m => `${m.role.toUpperCase()}: ${m.text}`).join('\n')}\n\n`;
       }
       finalPrompt += `USER QUESTION: ${chat_message}`;
     } else {
       // Deep Report mode
       console.log(`[AI Report] Detailed analysis request for ${stockData.symbol}`);
-      finalPrompt = `Analyze this live market data:\n` + JSON.stringify({
+      finalPrompt = `Analyze this live market data for ${stockData.name} (${stockData.symbol}):\n` + JSON.stringify({
         Symbol: stockData.symbol,
         Name: stockData.name,
-        CMP: stockData.price,
+        CMP: `₹${stockData.price}`,
         Change: `${stockData.change_pct}%`,
         PE: stockData.pe || "N/A",
+        MarketCap: stockData.market_cap ? `₹${stockData.market_cap} Cr` : "N/A",
+        Volume: stockData.volume?.toLocaleString() || "N/A",
+        Sector: stockData.sector || "N/A",
+        DayRange: stockData.day_low && stockData.day_high ? `₹${stockData.day_low} - ₹${stockData.day_high}` : "N/A",
         "52W High": stockData.high_52,
         "52W Low": stockData.low_52,
         "ROE Profile": stockData.roe,
@@ -218,7 +222,12 @@ serve(async (req) => {
         "Detected Chart Patterns": stockData.patterns,
         "Technical Score": `${stockData.score}/100`,
         "Momentum": stockData.isBullish ? "Bullish" : "Bearish"
-      }, null, 2);
+      }, null, 2) + `\n\nProvide a comprehensive analysis including:
+1. Macro Context & Sector Outlook
+2. Deep Technical Analysis (based on patterns and price action)
+3. Fundamental Health Check (PE, ROE, Debt/Equity, Market Cap size) 
+4. Risk Assessment (Bearish/Risk factors)
+5. Actionable Final Verdict.`;
     }
 
     let result;
@@ -238,9 +247,9 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        verdict: result.result, 
+      JSON.stringify({
+        success: true,
+        verdict: result.result,
         model: result.model
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -248,8 +257,8 @@ serve(async (req) => {
   } catch (error) {
     console.error("Edge function top-level error:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
+      JSON.stringify({
+        success: false,
         error: error.message
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
