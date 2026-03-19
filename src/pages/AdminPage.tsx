@@ -480,6 +480,8 @@ const LeadsPanel = ({ password }: { password: string }) => {
   );
 };
 
+
+
 // ---- Analytics Panel ----
 const AnalyticsPanel = ({ password }: { password: string }) => {
   const [data, setData] = useState<any>(null);
@@ -756,6 +758,7 @@ const AdminPage = () => {
           <TabsContent value="leads">
             <LeadsPanel password={password} />
           </TabsContent>
+
 
           <TabsContent value="analytics">
             <AnalyticsPanel password={password} />

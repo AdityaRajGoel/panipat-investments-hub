@@ -286,7 +286,7 @@ const LearningCenterPage = () => {
   const fetchNews = async () => {
     setNewsLoading(true);
     try {
-      const { data, error } = await lovableSupabase.functions.invoke('fetch-news');
+      const { data, error } = await supabase.functions.invoke('fetch-news');
       if (!error && data?.success) {
         setIndianNews(data.indian || []);
         setWorldNews(data.world || []);

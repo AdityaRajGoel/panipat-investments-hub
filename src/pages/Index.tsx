@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import ScrollProgress from "@/components/ScrollProgress";
 import SEOHead from "@/components/SEOHead";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import BannerMessage from "@/components/BannerMessage";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +35,7 @@ const Index = () => {
         description="Parasram India Panipat - SEBI registered stock broker since 1970. Open free Demat account. Stocks, mutual funds, IPO, unlisted shares, F&O, commodities trading."
         keywords="best stock broker Panipat, demat account Panipat, stock trading Panipat, mutual funds Panipat, IPO Panipat, Parasram India, SEBI registered broker Haryana"
       />
+      <BannerMessage />
       <ScrollProgress />
       <Header />
       <AnnouncementBar />

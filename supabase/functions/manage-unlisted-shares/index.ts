@@ -101,6 +101,13 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ success: true, data: shares }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
+    // Public: list active banners (no auth)
+    if (action === 'list_banners') {
+      const { data: banners, error } = await supabase.from('banner_messages').select('id, message, type, link_url, link_text').eq('is_active', true).order('display_order', { ascending: true })
+      if (error) { console.error('List banners error:', error); return safeErrorResponse(500, 'Failed to load banners') }
+      return new Response(JSON.stringify({ success: true, banners }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
     const rateCheck = checkRateLimit(clientIp)
     if (!rateCheck.allowed) return safeErrorResponse(429, `Too many attempts. Try again in ${rateCheck.retryAfterSeconds} seconds.`)
 
@@ -197,6 +204,54 @@ Deno.serve(async (req) => {
       if (!data.id || typeof data.id !== 'string') return safeErrorResponse(400, 'Invalid lead ID')
       const { error } = await supabase.from('account_leads').delete().eq('id', data.id)
       if (error) { console.error('Delete lead error:', error); return safeErrorResponse(500, 'Failed to delete lead') }
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // ---- Banner Management ----
+    if (action === 'list_all_banners') {
+      const { data: banners, error } = await supabase.from('banner_messages').select('*').order('display_order', { ascending: true })
+      if (error) { console.error('List all banners error:', error); return safeErrorResponse(500, 'Failed to load banners') }
+      return new Response(JSON.stringify({ success: true, banners }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    if (action === 'create_banner') {
+      const message = sanitizeString(data.message, 500)
+      if (!message) return safeErrorResponse(400, 'Banner message is required')
+      const type = sanitizeString(data.type, 20) || 'info'
+      if (!['info', 'warning', 'success', 'promo'].includes(type)) return safeErrorResponse(400, 'Invalid banner type')
+      const { error } = await supabase.from('banner_messages').insert({
+        message,
+        type,
+        link_url: sanitizeString(data.link_url, 1000) || null,
+        link_text: sanitizeString(data.link_text, 100) || null,
+        is_active: data.is_active !== undefined ? sanitizeBoolean(data.is_active) : true,
+        display_order: sanitizeNumber(data.display_order),
+      })
+      if (error) { console.error('Create banner error:', error); return safeErrorResponse(500, 'Failed to create banner') }
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    if (action === 'update_banner') {
+      if (!data.id || typeof data.id !== 'string') return safeErrorResponse(400, 'Invalid banner ID')
+      const type = sanitizeString(data.type, 20) || 'info'
+      if (!['info', 'warning', 'success', 'promo'].includes(type)) return safeErrorResponse(400, 'Invalid banner type')
+      const { error } = await supabase.from('banner_messages').update({
+        message: sanitizeString(data.message, 500),
+        type,
+        link_url: sanitizeString(data.link_url, 1000) || null,
+        link_text: sanitizeString(data.link_text, 100) || null,
+        is_active: sanitizeBoolean(data.is_active),
+        display_order: sanitizeNumber(data.display_order),
+        updated_at: new Date().toISOString(),
+      }).eq('id', data.id)
+      if (error) { console.error('Update banner error:', error); return safeErrorResponse(500, 'Failed to update banner') }
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    if (action === 'delete_banner') {
+      if (!data.id || typeof data.id !== 'string') return safeErrorResponse(400, 'Invalid banner ID')
+      const { error } = await supabase.from('banner_messages').delete().eq('id', data.id)
+      if (error) { console.error('Delete banner error:', error); return safeErrorResponse(500, 'Failed to delete banner') }
       return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
