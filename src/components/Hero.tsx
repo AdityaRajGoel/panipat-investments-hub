@@ -5,6 +5,8 @@ import { useEffect, useState, useMemo, memo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import heroVideo from "@/assets/video.mp4";
+import platformImg from "@/assets/parasram-india.png";
 
 type IndexData = { name: string; price: string; change: string; up: boolean };
 
@@ -137,24 +139,29 @@ const Hero = () => {
   }, [dynamicTips.length]);
 
   return (
-    <section
-      className="relative min-h-[85vh] md:min-h-screen flex items-center overflow-hidden"
-      style={{
-        background: `linear-gradient(135deg, hsl(213 80% 12% / 0.92) 0%, hsl(213 80% 22% / 0.88) 50%, hsl(145 70% 25% / 0.85) 100%)`,
-      }}
-    >
-      {/* Lightweight background — CSS only, no framer-motion */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-48 md:w-96 h-48 md:h-96 bg-gradient-to-br from-secondary/20 to-brand-gold/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-        {!isMobile && (
-          <>
-            <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-gradient-to-tl from-brand-gold/15 to-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '12s' }} />
-            <div className="absolute top-1/2 left-1/3 w-60 h-60 bg-gradient-to-r from-primary/15 to-secondary/15 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '10s' }} />
-          </>
-        )}
-        {/* Grid pattern — CSS only */}
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Video background */}
+      <div className="absolute inset-0">
+        <video
+          src={heroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        {/* Brand overlay — keeps text legible */}
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/72 via-brand-navy/58 to-brand-green/40" />
+        {/* Original solid gradient as mid-layer */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(135deg, hsl(213 80% 12% / 0.72) 0%, hsl(213 80% 22% / 0.68) 50%, hsl(145 70% 25% / 0.65) 100%)`,
+          }}
+        />
+        {/* Subtle grid */}
+        <div
+          className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
             backgroundSize: '50px 50px',
@@ -162,8 +169,8 @@ const Hero = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 py-16 md:py-24 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+      <div className="container mx-auto px-4 py-16 md:py-24 relative z-10 h-full min-h-screen flex items-center">
+        <div className="w-full lg:w-1/2">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
             {/* Trust badges */}
@@ -256,90 +263,25 @@ const Hero = () => {
               </div>
             </div>
           </motion.div>
-
-          {/* Right side — desktop only, simplified */}
-          {!isMobile && (
-            <div className="hidden lg:flex items-center justify-center relative h-[520px]">
-              {/* Central orb — CSS animations instead of framer-motion */}
-              <div className="relative w-80 h-80" style={{ animation: 'float 6s ease-in-out infinite' }}>
-                <div className="absolute inset-0 rounded-full border-4 border-dashed border-secondary/30" style={{ animation: 'spin 30s linear infinite' }} />
-                <div className="absolute inset-8 rounded-full border-2 border-brand-gold/40" style={{ animation: 'spin 25s linear infinite reverse' }} />
-                <div className="absolute inset-16 rounded-full border border-secondary/20" style={{ animation: 'spin 15s linear infinite' }} />
-                <div className="absolute inset-12 rounded-full bg-gradient-to-br from-secondary/20 to-brand-gold/10 backdrop-blur-xl flex items-center justify-center border border-secondary/30">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-primary-foreground mb-1">₹</div>
-                    <div className="text-sm text-primary-foreground/80 font-semibold">Invest Smart</div>
-                  </div>
-                </div>
-                {/* Orbiting icons — CSS transforms */}
-                {[TrendingUp, Shield, Users, BarChart2].map((Icon, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-11 h-11 bg-gradient-to-br from-secondary to-brand-green rounded-full flex items-center justify-center shadow-lg"
-                    style={{
-                      top: '50%', left: '50%',
-                      marginTop: '-22px', marginLeft: '-22px',
-                      animation: `orbit 18s linear infinite`,
-                      animationDelay: `${-i * 4.5}s`,
-                    }}
-                  >
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Floating cards — static positioned, CSS hover only */}
-              <div className="absolute top-4 left-0 bg-card/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-4 min-w-[160px]" style={{ animation: 'float 4s ease-in-out infinite' }}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${niftyData?.up !== false ? "bg-secondary/20" : "bg-destructive/20"}`}>
-                    {niftyData?.up !== false ? <TrendingUp className="w-5 h-5 text-secondary" /> : <TrendingDown className="w-5 h-5 text-destructive" />}
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground">NIFTY 50</div>
-                    <div className={`font-bold text-sm ${niftyData?.up !== false ? "text-secondary" : "text-destructive"}`}>{niftyData?.change || "+0.85%"}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute top-4 right-0 bg-card/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-4 min-w-[160px]" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${sensexData?.up !== false ? "bg-secondary/20" : "bg-destructive/20"}`}>
-                    {sensexData?.up !== false ? <TrendingUp className="w-5 h-5 text-secondary" /> : <TrendingDown className="w-5 h-5 text-destructive" />}
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground">SENSEX</div>
-                    <div className={`font-bold text-sm ${sensexData?.up !== false ? "text-secondary" : "text-destructive"}`}>{sensexData?.change || "+0.72%"}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-4 left-0 bg-card/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-4 min-w-[170px]" style={{ animation: 'float 4.5s ease-in-out infinite 1s' }}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${goldData?.up !== false ? "bg-brand-gold/20" : "bg-destructive/20"}`}>
-                    {goldData?.up !== false ? <TrendingUp className="w-5 h-5 text-brand-gold" /> : <TrendingDown className="w-5 h-5 text-destructive" />}
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground">GOLD</div>
-                    <div className={`font-bold text-sm ${goldData?.up !== false ? "text-brand-gold" : "text-destructive"}`}>{goldData?.price || "$2,345.60"}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-4 right-0 bg-card/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-4 min-w-[160px]" style={{ animation: 'float 5.5s ease-in-out infinite 1.5s' }}>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-secondary/10 rounded-lg flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-secondary" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground">Since</div>
-                    <div className="font-bold text-foreground text-sm">1970</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Platform image — absolutely positioned right half, full hero height */}
+      {!isMobile && (
+        <motion.div
+          className="absolute inset-y-0 right-0 w-1/2 hidden lg:flex items-center justify-center z-10 pointer-events-none"
+          initial={{ opacity: 0, x: 60 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.9, delay: 0.4 }}
+        >
+          <img
+            src={platformImg}
+            alt="Parasram India Platform"
+            className="w-full h-full object-contain drop-shadow-2xl"
+            style={{ animation: 'float 6s ease-in-out infinite', padding: '2rem' }}
+          />
+        </motion.div>
+      )}
 
       {/* Scroll indicator — desktop only */}
       {!isMobile && (
