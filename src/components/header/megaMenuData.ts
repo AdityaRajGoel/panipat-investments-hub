@@ -3,7 +3,7 @@ import {
   Calculator, GitCompare, Calendar, ArrowUpDown, Activity,
   BookOpen, GraduationCap, Radio, Newspaper,
   Users, Building2, Phone, Mail, Award, ShieldCheck,
-  Search, Flame
+  Search, Flame, Briefcase
 } from "lucide-react";
 
 export type SubItem = {
@@ -26,12 +26,11 @@ export const megaMenuItems: MegaMenuItem[] = [
     label: "Services",
     href: "/services",
     subItems: [
-      { label: "Equity Trading", href: "/services#equity-trading", icon: TrendingUp, description: "Buy & sell stocks on NSE/BSE" },
-      { label: "Mutual Funds & SIP", href: "/services#mutual-funds", icon: PieChart, description: "Invest in top-rated mutual funds" },
-      { label: "IPO Applications", href: "/services#ipo-services", icon: Landmark, description: "Apply for latest IPOs online" },
+      { label: "All Services Overview", href: "/services", icon: Briefcase, description: "View our complete range of services" },
       { label: "F&O Trading", href: "/fno", icon: Activity, description: "Futures & Options dashboard" },
-      { label: "Commodities", href: "/services#currency-trading", icon: Coins, description: "Trade gold, silver, crude & more" },
       { label: "Unlisted Shares", href: "/unlisted-zone", icon: Flame, description: "Pre-IPO & unlisted opportunities" },
+      { label: "Fixed Deposits/Bonds", href: "/products", icon: Building2, description: "FDs, Bonds & Insurance" },
+      { label: "Depository Services", href: "/depository-services", icon: ShieldCheck, description: "Demat & CDSL/NSDL" },
     ],
   },
   {
@@ -74,6 +73,7 @@ export const megaMenuItems: MegaMenuItem[] = [
       { label: "Our Journey", href: "/about#timeline", icon: Award, description: "Company milestones & timeline" },
       { label: "Our Team", href: "/team", icon: Users, description: "Meet the people behind Parasram Panipat" },
       { label: "SEBI Registration", href: "/about#about", icon: ShieldCheck, description: "Fully licensed & regulated broker" },
+      { label: "Careers", href: "/careers", icon: Award, description: "Join our Panipat team" },
     ],
   },
   {

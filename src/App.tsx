@@ -39,6 +39,9 @@ const BrokerageCalculatorPage = lazy(() => import("./pages/BrokerageCalculatorPa
 const StockComparisonPage = lazy(() => import("./pages/StockComparisonPage"));
 const LearningCenterPage = lazy(() => import("./pages/LearningCenterPage"));
 const BannerManagerPage = lazy(() => import("./pages/BannerManagerPage"));
+const ProductsPage = lazy(() => import("./pages/ProductsPage"));
+const DepositoryServicesPage = lazy(() => import("./pages/DepositoryServicesPage"));
+const CareersPage = lazy(() => import("./pages/CareersPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
@@ -144,6 +147,9 @@ const AnimatedRoutes = () => {
         <Route path="/compare" element={<StockComparisonPage />} />
         <Route path="/learn" element={<LearningCenterPage />} />
         <Route path="/banner-manager" element={<BannerManagerPage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/depository-services" element={<DepositoryServicesPage />} />
+        <Route path="/careers" element={<CareersPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

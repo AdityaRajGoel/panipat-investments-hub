@@ -14,6 +14,7 @@ import PageTransition from "@/components/PageTransition";
 const LiveChart = lazy(() => import("@/components/LiveChart"));
 const MarketDashboard = lazy(() => import("@/components/MarketDashboard"));
 const TrustBadges = lazy(() => import("@/components/TrustBadges"));
+const AwardsSection = lazy(() => import("@/components/AwardsSection"));
 const MarketOverview = lazy(() => import("@/components/MarketOverview"));
 const IPOTracker = lazy(() => import("@/components/IPOTracker"));
 const ClientMarquee = lazy(() => import("@/components/ClientMarquee"));
@@ -49,6 +50,9 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-32" />}>
         <TrustBadges />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-64" />}>
+        <AwardsSection />
       </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-96" />}>
         <MarketOverview />

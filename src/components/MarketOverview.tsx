@@ -72,13 +72,19 @@ const fallbackCommodities: Stock[] = [
   { name: "EUR/INR", price: "₹90.15", change: "-0.12%", up: false, volume: "-", high: "₹90.40", low: "₹89.95" },
 ];
 
+const generateDynamicDate = (daysAhead: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() + daysAhead);
+  return d.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+};
+
 const corporateActions = [
-  { date: "Oct 25, 2024", symbol: "RELIANCE", eventName: "Q2 Earnings", details: "Est EPS: ₹24.5", up: true },
-  { date: "Oct 28, 2024", symbol: "TCS", eventName: "Interim Dividend", details: "₹9.00 per share", up: true },
-  { date: "Nov 02, 2024", symbol: "HDFC BANK", eventName: "Stock Split", details: "1:2 Ratio Ex-Date", up: true },
-  { date: "Nov 05, 2024", symbol: "INFY", eventName: "Q2 Earnings", details: "Est EPS: ₹16.2", up: true },
-  { date: "Nov 12, 2024", symbol: "ITC", eventName: "AGM", details: "Annual General Meeting", up: false },
-  { date: "Nov 15, 2024", symbol: "BAJFINANCE", eventName: "Bonus Issue", details: "1:1 Ratio Record Date", up: true },
+  { date: generateDynamicDate(3), symbol: "RELIANCE", eventName: "Earnings", details: "Est EPS: ₹24.5", up: true },
+  { date: generateDynamicDate(6), symbol: "TCS", eventName: "Interim Dividend", details: "₹9.00 per share", up: true },
+  { date: generateDynamicDate(11), symbol: "HDFC BANK", eventName: "Stock Split", details: "1:2 Ratio Ex-Date", up: true },
+  { date: generateDynamicDate(14), symbol: "INFY", eventName: "Earnings", details: "Est EPS: ₹16.2", up: true },
+  { date: generateDynamicDate(21), symbol: "ITC", eventName: "AGM", details: "Annual General Meeting", up: false },
+  { date: generateDynamicDate(24), symbol: "BAJFINANCE", eventName: "Bonus Issue", details: "1:1 Ratio Record Date", up: true },
 ];
 
 const marketStats = [

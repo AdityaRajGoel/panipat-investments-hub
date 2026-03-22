@@ -55,7 +55,7 @@ const BrandBanner = () => {
 
           {/* Quick contact strip below */}
           <motion.div
-            className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-muted-foreground"
+            className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-6 mt-6 sm:mt-8 text-xs sm:text-sm text-muted-foreground"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

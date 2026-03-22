@@ -136,7 +136,7 @@ const BannerMessage = () => {
                <img 
                  src={activeBanner.image_url} 
                  alt={activeBanner.title || "Banner Image"} 
-                 className={`block mx-auto max-w-full h-auto max-h-[85vh] object-contain ${!hasContentArea ? "rounded-lg" : "rounded-t-lg"}`}
+                 className={`block mx-auto max-w-full h-auto max-h-[60vh] sm:max-h-[85vh] object-contain ${!hasContentArea ? "rounded-lg" : "rounded-t-lg"}`}
                />
             </div>
         )}
@@ -151,13 +151,13 @@ const BannerMessage = () => {
             )}
             
             {activeBanner.title && (
-              <DialogTitle className={`text-lg sm:text-2xl font-heading font-bold ${themeStyle.title}`}>
+              <DialogTitle className={`text-base sm:text-2xl font-heading font-bold leading-tight ${themeStyle.title}`}>
                 {activeBanner.title}
               </DialogTitle>
             )}
 
             {activeBanner.message && (
-              <DialogDescription className={`mt-2 text-sm sm:text-base leading-relaxed ${themeStyle.text} whitespace-pre-wrap`}>
+              <DialogDescription className={`mt-1.5 sm:mt-2 text-xs sm:text-base leading-snug sm:leading-relaxed ${themeStyle.text} whitespace-pre-wrap`}>
                 {activeBanner.message}
               </DialogDescription>
             )}
