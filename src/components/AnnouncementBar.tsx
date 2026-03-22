@@ -33,10 +33,11 @@ const AnnouncementBar = () => {
           <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[hsl(213_80%_10%)] to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[hsl(145_70%_12%)] to-transparent z-10 pointer-events-none" />
 
-          <motion.div
-            className="flex items-center gap-0 whitespace-nowrap"
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+          <div
+            className="flex items-center gap-0 whitespace-nowrap hover:[animation-play-state:paused]"
+            style={{ 
+              animation: 'ticker-left 35s linear infinite',
+            }}
           >
             {[...announcements, ...announcements].map((item, i) => (
               <div key={i} className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6">
@@ -53,7 +54,7 @@ const AnnouncementBar = () => {
                 <span className="text-white/15 mx-2 text-lg">|</span>
               </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
 
