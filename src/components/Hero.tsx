@@ -282,26 +282,56 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Platform image — absolutely positioned right half, full hero height */}
+      {/* Platform image + floating cards — absolutely positioned right half */}
       {!isMobile && (
         <motion.div
-          className="absolute inset-y-0 right-0 w-1/2 hidden lg:flex items-center justify-center z-10 pointer-events-none"
+          className="absolute inset-y-0 right-0 w-1/2 hidden lg:flex flex-col items-center justify-center z-10 pointer-events-none px-6"
           initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.9, delay: 0.4 }}
         >
-          {/* Glow halo behind the image */}
+          {/* Floating live market cards to fill gap above image */}
+          <div className="flex items-center gap-3 mb-5 pointer-events-auto">
+            {[
+              { label: "NIFTY 50", data: niftyData, delay: 0 },
+              { label: "SENSEX", data: sensexData, delay: 0.5 },
+              { label: "GOLD", data: goldData, delay: 1 },
+            ].map(({ label, data, delay }) => (
+              <motion.div
+                key={label}
+                className="bg-black/35 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2.5 flex items-center gap-2.5 shadow-xl"
+                animate={{ y: [0, -7, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay }}
+              >
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${data?.up !== false ? "bg-secondary/20" : "bg-destructive/20"}`}>
+                  {data?.up !== false
+                    ? <TrendingUp className="w-4 h-4 text-secondary" />
+                    : <TrendingDown className="w-4 h-4 text-destructive" />}
+                </div>
+                <div>
+                  <div className="text-[10px] text-white/50 font-bold uppercase tracking-wider">{label}</div>
+                  <div className={`text-sm font-bold ${data?.up !== false ? "text-secondary" : "text-destructive"}`}>
+                    {data?.change || "+0.00%"}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Glow halo */}
           <motion.div
-            className="absolute w-[60%] h-[60%] rounded-full blur-3xl"
-            style={{ background: 'radial-gradient(circle, hsl(145 70% 40% / 0.35) 0%, hsl(213 80% 40% / 0.2) 60%, transparent 100%)' }}
+            className="absolute w-[50%] h-[50%] rounded-full blur-3xl pointer-events-none"
+            style={{ background: 'radial-gradient(circle, hsl(145 70% 40% / 0.3) 0%, hsl(213 80% 40% / 0.15) 60%, transparent 100%)' }}
             animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           />
+
+          {/* Platform screenshot */}
           <motion.img
             src={platformImg}
             alt="Parasram India Platform"
-            className="w-full h-full object-contain drop-shadow-2xl relative z-10"
-            style={{ padding: '2rem', x: imgX, y: imgY }}
+            className="w-full object-contain drop-shadow-2xl relative z-10"
+            style={{ maxHeight: '68%', x: imgX, y: imgY }}
             animate={{
               y: [0, -20, 5, -12, 0],
               x: [0, 8, -5, 10, 0],
@@ -309,11 +339,7 @@ const Hero = () => {
               rotate: [0, 0.8, -0.5, 0.3, 0],
               filter: ['brightness(1)', 'brightness(1.08)', 'brightness(0.97)', 'brightness(1.05)', 'brightness(1)'],
             }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
           />
         </motion.div>
       )}

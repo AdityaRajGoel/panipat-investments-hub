@@ -4,15 +4,28 @@ import { TrendingUp, TrendingDown, BarChart3, Activity, ArrowUpRight, ArrowDownR
 import { Card, CardContent } from "@/components/ui/card";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 
-const generateChartData = (trend: "up" | "down" | "mixed", points = 60, seed = 0) => {
+const generateChartData = (trend: "up" | "down" | "mixed", points = 60, seed = 0, timeframe = "1D") => {
   const data: number[] = [];
-  let value = 100 + ((seed * 7 + 13) % 20);
-  const volatility = points > 100 ? 1.5 : points > 30 ? 2 : 2.5;
+  let value = 100 + ((seed * 17 + 31) % 25);
+
+  // Each timeframe has its own volatility and movement style
+  const tfConfig: Record<string, { vol: number; driftMul: number; freq1: number; freq2: number; amp1: number; amp2: number }> = {
+    "1D": { vol: 0.8,  driftMul: 0.04, freq1: 8.1,  freq2: 5.7,  amp1: 0.6, amp2: 0.4 }, // choppy intraday
+    "1W": { vol: 1.4,  driftMul: 0.08, freq1: 3.3,  freq2: 2.1,  amp1: 0.7, amp2: 0.5 }, // smoother weekly
+    "1M": { vol: 2.2,  driftMul: 0.10, freq1: 1.9,  freq2: 1.1,  amp1: 0.8, amp2: 0.6 }, // medium trend
+    "3M": { vol: 3.0,  driftMul: 0.12, freq1: 0.9,  freq2: 0.5,  amp1: 0.9, amp2: 0.5 }, // broader swings
+    "1Y": { vol: 4.0,  driftMul: 0.15, freq1: 0.4,  freq2: 0.25, amp1: 1.0, amp2: 0.7 }, // long-term trend
+  };
+
+  const cfg = tfConfig[timeframe] || tfConfig["1D"];
+  const drift = trend === "up" ? cfg.driftMul : trend === "down" ? -cfg.driftMul : 0;
+
   for (let i = 0; i < points; i++) {
-    const drift = trend === "up" ? 0.12 : trend === "down" ? -0.12 : 0;
-    const pseudo = Math.sin(seed * 1000 + i * 3.7) * 0.5 + Math.cos(seed * 500 + i * 2.3) * 0.5;
-    value += (pseudo + drift) * volatility;
-    value = Math.max(75, Math.min(135, value));
+    // Use drastically different seed multipliers per timeframe so shapes differ
+    const s = seed * 137 + i;
+    const pseudo = Math.sin(s * cfg.freq1) * cfg.amp1 + Math.cos(s * cfg.freq2 + seed * 29) * cfg.amp2;
+    value += (pseudo + drift) * cfg.vol;
+    value = Math.max(70, Math.min(140, value));
     data.push(value);
   }
   return data;
@@ -277,13 +290,13 @@ const LiveChart = () => {
   const chartData = useMemo(() => {
     const trend = currentUp ? "up" : "down";
     const points = timeframePoints[activeTimeframe] || 60;
-    const seed = timeframeSeed[activeTimeframe] + idxPosition;
-    return generateChartData(trend, points, seed);
+    const seed = timeframeSeed[activeTimeframe] + idxPosition * 7;
+    return generateChartData(trend, points, seed, activeTimeframe);
   }, [activeIndexKey, activeTimeframe, currentUp, idxPosition]);
 
   const volumeData = useMemo(() => {
     const points = timeframePoints[activeTimeframe] || 60;
-    const seed = timeframeSeed[activeTimeframe] + idxPosition + 10;
+    const seed = timeframeSeed[activeTimeframe] * 31 + idxPosition * 11;
     return generateVolumeData(points, seed);
   }, [activeIndexKey, activeTimeframe, idxPosition]);
 

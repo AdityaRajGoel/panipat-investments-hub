@@ -47,7 +47,10 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
   const isReverse = direction === "right";
 
   return (
-    <div className={`${bgClass} ${textClass} py-1.5 md:py-2.5 overflow-hidden whitespace-nowrap relative border-b border-brand-orange/10`}>
+    <div className={`${bgClass} ${textClass} py-1.5 md:py-2.5 overflow-hidden whitespace-nowrap relative border-b border-white/5`}>
+      {/* Edge fade masks */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to right, hsl(220 20% 10%), transparent)` }} />
+      <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to left, hsl(220 20% 10%), transparent)` }} />
       <div
         className="inline-flex gap-4 md:gap-10"
         style={{
@@ -58,16 +61,17 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
         {duplicated.map((item, i) => (
           <div
             key={i}
-            className="inline-flex items-center gap-1.5 md:gap-3 text-xs md:text-sm cursor-pointer select-none px-2 md:px-3 py-1 rounded-md hover:bg-white/10 transition-colors"
+            className="inline-flex items-center gap-1.5 md:gap-3 text-xs md:text-sm cursor-pointer select-none px-2 md:px-3 py-1 rounded-md hover:bg-white/10 transition-colors group"
             onClick={() => setSelectedItem(item)}
           >
-            <span className="font-semibold tracking-wide">{item.name}</span>
-            {item.unit ? <span className="opacity-70 text-[10px] md:text-xs">{item.unit}</span> : null}
+            <span className="font-bold tracking-wide text-white/90 group-hover:text-white transition-colors">{item.name}</span>
+            {item.unit ? <span className="opacity-50 text-[10px] md:text-xs">{item.unit}</span> : null}
             <PriceCell item={item} />
-            <span className={`flex items-center gap-0.5 font-medium ${item.up ? "text-secondary" : "text-destructive"}`}>
+            <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
               {item.up ? <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3" /> : <TrendingDown className="w-2.5 h-2.5 md:w-3 md:h-3" />}
               {item.change}
             </span>
+            <span className="text-white/10 text-lg mx-1">·</span>
           </div>
         ))}
       </div>
@@ -90,7 +94,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
                 </h3>
                 <div className="flex items-center justify-center gap-4 mt-1">
                   <span className="text-lg md:text-xl font-semibold opacity-90">{selectedItem.price}</span>
-                  <span className={`flex items-center gap-1 text-base md:text-lg font-bold ${selectedItem.up ? "text-secondary" : "text-destructive"}`}>
+                  <span className={`flex items-center gap-1 text-base md:text-lg font-bold px-3 py-1 rounded-full ${selectedItem.up ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
                     {selectedItem.up ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                     {selectedItem.change}
                   </span>

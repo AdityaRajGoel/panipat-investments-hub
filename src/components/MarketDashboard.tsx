@@ -450,6 +450,7 @@ const MutualFundFlows = memo(() => {
 
 // Main Dashboard
 const MarketDashboard = () => {
+  const { marketOverview, commodities } = useLiveMarket();
   return (
     <section className="py-16 bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -494,12 +495,116 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
+        {/* Top Gainers & Losers + IPO GMP */}
+        <div className="grid lg:grid-cols-3 gap-6 mt-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
+            <Card className="border-border/50 overflow-hidden h-full">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-secondary" />
+                    Top Gainers
+                  </h3>
+                  <span className="text-[10px] text-brand-orange font-semibold">Live NSE</span>
+                </div>
+                <div className="space-y-2">
+                  {(marketOverview?.gainers?.slice(0, 5) || [
+                    { name: "TATA POWER", change: "+4.8%", up: true, price: "₹452" },
+                    { name: "ZOMATO", change: "+3.5%", up: true, price: "₹218" },
+                    { name: "ADANI GREEN", change: "+3.9%", up: true, price: "₹1,842" },
+                    { name: "IREDA", change: "+2.8%", up: true, price: "₹187" },
+                    { name: "NHPC", change: "+2.1%", up: true, price: "₹82" },
+                  ]).map((s: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-0">
+                      <span className="text-xs font-semibold text-foreground">{s.name}</span>
+                      <div className="text-right">
+                        {s.price && <div className="text-[10px] text-muted-foreground">{s.price}</div>}
+                        <span className="text-xs font-bold text-secondary">{s.change}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.7 }}>
+            <Card className="border-border/50 overflow-hidden h-full">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <TrendingDown className="w-4 h-4 text-destructive" />
+                    Top Losers
+                  </h3>
+                  <span className="text-[10px] text-brand-orange font-semibold">Live NSE</span>
+                </div>
+                <div className="space-y-2">
+                  {(marketOverview?.losers?.slice(0, 5) || [
+                    { name: "PAYTM", change: "-3.2%", up: false, price: "₹368" },
+                    { name: "COAL INDIA", change: "-1.5%", up: false, price: "₹412" },
+                    { name: "ONGC", change: "-2.1%", up: false, price: "₹264" },
+                    { name: "BHEL", change: "-1.8%", up: false, price: "₹218" },
+                    { name: "MTNL", change: "-2.9%", up: false, price: "₹43" },
+                  ]).map((s: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-0">
+                      <span className="text-xs font-semibold text-foreground">{s.name}</span>
+                      <div className="text-right">
+                        {s.price && <div className="text-[10px] text-muted-foreground">{s.price}</div>}
+                        <span className="text-xs font-bold text-destructive">{s.change}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.8 }}>
+            <Card className="border-border/50 overflow-hidden h-full">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <Coins className="w-4 h-4 text-brand-gold" />
+                    Commodity Snapshot
+                  </h3>
+                  <span className="text-[10px] text-muted-foreground">MCX Live</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { name: "GOLD", unit: "10g", val: commodities.find(c => c.name === "GOLD"), fallback: { price: "₹72,450", change: "+0.8%", up: true } },
+                    { name: "SILVER", unit: "kg", val: commodities.find(c => c.name === "SILVER"), fallback: { price: "₹86,200", change: "+1.2%", up: true } },
+                    { name: "CRUDE OIL", unit: "bbl", val: commodities.find(c => c.name === "CRUDE"), fallback: { price: "₹6,820", change: "-0.5%", up: false } },
+                    { name: "NAT GAS", unit: "mmBtu", val: commodities.find(c => c.name === "NATURAL GAS"), fallback: { price: "₹210", change: "+2.1%", up: true } },
+                  ].map(({ name, unit, val, fallback }) => {
+                    const d = val || fallback;
+                    return (
+                      <div key={name} className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg">
+                        <div>
+                          <div className="text-xs font-bold text-foreground">{name}</div>
+                          <div className="text-[9px] text-muted-foreground">per {unit}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-foreground">{val ? `₹${d.price}` : (d as any).price}</div>
+                          <div className={`text-[10px] font-bold flex items-center justify-end gap-0.5 ${d.up ? "text-secondary" : "text-destructive"}`}>
+                            {d.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
+                            {d.change}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
         {/* Currency & MF */}
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.9 }}>
             <CurrencyDashboard />
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.7 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 1.0 }}>
             <MutualFundFlows />
           </motion.div>
         </div>
