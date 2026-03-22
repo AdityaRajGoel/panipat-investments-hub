@@ -138,8 +138,13 @@ const Footer = () => {
               <ExternalLink className="w-4 h-4" />
             </a>
             <div className="text-center text-sm text-primary-foreground/60">
-              <p className="mb-1">
+              <p className="mb-2">
                 SEBI Registration No: INZ000175134 | NSE: 12583 | BSE: 1153 | MCX: 46510
+              </p>
+              <p className="mb-2 text-primary-foreground/80">
+                <Link to="/privacy-policy" className="hover:text-secondary hover:underline transition-colors">Privacy Policy</Link>
+                <span className="mx-2">|</span>
+                <Link to="/cookie-policy" className="hover:text-secondary hover:underline transition-colors">Cookie Policy</Link>
               </p>
               <p>
                 © {new Date().getFullYear()} Parasram India Pvt. Ltd. All rights reserved. | Panipat Branch

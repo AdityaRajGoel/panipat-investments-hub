@@ -13,6 +13,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import useScrollToHash from "@/hooks/useScrollToHash";
 import { useLocation } from "react-router-dom";
+import SmartPopup from "@/components/SmartPopup";
 
 const PageTracker = () => { usePageTracking(); return null; };
 const ScrollToHash = () => { useScrollToHash(); return null; };
@@ -42,6 +43,8 @@ const BannerManagerPage = lazy(() => import("./pages/BannerManagerPage"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage"));
 const DepositoryServicesPage = lazy(() => import("./pages/DepositoryServicesPage"));
 const CareersPage = lazy(() => import("./pages/CareersPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const CookiePolicyPage = lazy(() => import("./pages/CookiePolicyPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
@@ -150,6 +153,8 @@ const AnimatedRoutes = () => {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/depository-services" element={<DepositoryServicesPage />} />
         <Route path="/careers" element={<CareersPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/cookie-policy" element={<CookiePolicyPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -171,6 +176,7 @@ const App = () => (
           <AuthProvider>
             <PageTracker />
             <ScrollToHash />
+            <SmartPopup />
             <Suspense fallback={<PageFallback />}>
               <AnimatedRoutes />
             </Suspense>
