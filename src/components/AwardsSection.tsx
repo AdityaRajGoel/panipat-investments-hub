@@ -3,11 +3,11 @@ import { useRef } from "react";
 import { Trophy, Award, Star, ShieldCheck, HeartHandshake } from "lucide-react";
 
 const awards = [
-  { icon: Trophy, title: "Top Volume Broker", org: "NSE & BSE", year: "2023-24", desc: "Recognized for driving massive trading volumes across multiple segments." },
-  { icon: Star, title: "Star Performer", org: "NSDL", year: "2022-23", desc: "Awarded for exceptional depository growth and unyielding service quality." },
-  { icon: ShieldCheck, title: "Excellence in Compliance", org: "MCX", year: "2021-22", desc: "Commended for maintaining strictly transparent and secure trading operations." },
-  { icon: Award, title: "Best Brokerage Firm", org: "Zee Business", year: "2020-21", desc: "Voted as one of the most trusted retail brokers by industry peers." },
-  { icon: HeartHandshake, title: "Top Distributor", org: "Mutual Funds", year: "Regional", desc: "Honored for driving significant financial literacy and SIP adoption." },
+  { icon: Trophy, title: "Top Volume Broker", org: "", year: "2023-24", desc: "Recognized for driving massive trading volumes across multiple segments." },
+  { icon: Star, title: "Star Performer", org: "", year: "2022-23", desc: "Awarded for exceptional depository growth and unyielding service quality." },
+  { icon: ShieldCheck, title: "Excellence in Compliance", org: "", year: "2021-22", desc: "Commended for maintaining strictly transparent and secure trading operations." },
+  { icon: Award, title: "Best Brokerage Firm", org: "", year: "2020-21", desc: "Voted as one of the most trusted retail brokers by industry peers." },
+  { icon: HeartHandshake, title: "Top Distributor", org: "", year: "Regional", desc: "Honored for driving significant financial literacy and SIP adoption." },
 ];
 
 const AwardsSection = () => {
