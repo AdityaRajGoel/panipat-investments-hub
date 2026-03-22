@@ -3,10 +3,10 @@ import { useRef } from "react";
 import { Rocket, Shield, Users, Clock, Award, Globe } from "lucide-react";
 
 const steps = [
-  { icon: Globe, title: "Visit Our Branch", desc: "Walk into our Panipat office at Shakuntala Complex or call us.", num: "01" },
+  { icon: Globe, title: "Visit Our Branch Or Call Us", desc: "Walk into our Panipat office at Shakuntala Complex, call us or fill out the form for us to contact you.", num: "01" },
   { icon: Shield, title: "KYC Verification", desc: "Complete your KYC with Aadhaar, PAN, and bank details.", num: "02" },
   { icon: Users, title: "Account Opening", desc: "Open your Demat & Trading account in minutes.", num: "03" },
-  { icon: Rocket, title: "Start Trading", desc: "Begin investing in stocks, mutual funds, IPOs and more.", num: "04" },
+  { icon: Rocket, title: "Start Trading", desc: "Begin investing in stocks, F&O, mutual funds, IPOs and more.", num: "04" },
 ];
 
 const HowItWorks = () => {
