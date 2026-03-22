@@ -1,7 +1,7 @@
 import { ArrowRight, TrendingUp, TrendingDown, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { useEffect, useState, useMemo, memo } from "react";
+import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { useEffect, useState, useRef, useMemo, memo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -138,8 +138,24 @@ const Hero = () => {
     return () => clearInterval(t);
   }, [dynamicTips.length]);
 
+  // Mouse-tracking parallax for the platform image
+  const sectionRef = useRef<HTMLElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 60, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 60, damping: 20 });
+  const imgX = useTransform(springX, [-1, 1], [-18, 18]);
+  const imgY = useTransform(springY, [-1, 1], [-12, 12]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set(((e.clientX - rect.left) / rect.width - 0.5) * 2);
+    mouseY.set(((e.clientY - rect.top) / rect.height - 0.5) * 2);
+  };
+
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section ref={sectionRef} onMouseMove={handleMouseMove} className="relative min-h-screen flex items-center overflow-hidden">
       {/* Video background */}
       <div className="absolute inset-0">
         <video
@@ -274,11 +290,30 @@ const Hero = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.9, delay: 0.4 }}
         >
-          <img
+          {/* Glow halo behind the image */}
+          <motion.div
+            className="absolute w-[60%] h-[60%] rounded-full blur-3xl"
+            style={{ background: 'radial-gradient(circle, hsl(145 70% 40% / 0.35) 0%, hsl(213 80% 40% / 0.2) 60%, transparent 100%)' }}
+            animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.img
             src={platformImg}
             alt="Parasram India Platform"
-            className="w-full h-full object-contain drop-shadow-2xl"
-            style={{ animation: 'float 6s ease-in-out infinite', padding: '2rem' }}
+            className="w-full h-full object-contain drop-shadow-2xl relative z-10"
+            style={{ padding: '2rem', x: imgX, y: imgY }}
+            animate={{
+              y: [0, -20, 5, -12, 0],
+              x: [0, 8, -5, 10, 0],
+              scale: [1, 1.03, 0.98, 1.02, 1],
+              rotate: [0, 0.8, -0.5, 0.3, 0],
+              filter: ['brightness(1)', 'brightness(1.08)', 'brightness(0.97)', 'brightness(1.05)', 'brightness(1)'],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
           />
         </motion.div>
       )}
