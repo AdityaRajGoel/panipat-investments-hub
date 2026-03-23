@@ -172,8 +172,10 @@ const StockTicker = () => {
   return (
     <div className="border-b border-brand-orange/20 bg-brand-charcoal relative">
       <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={80} />
-      <div className="h-px bg-brand-orange/15" />
-      <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
+      <div className="hidden md:block h-px bg-brand-orange/15" />
+      <div className="hidden md:block">
+        <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
+      </div>
       
       {/* Market status bar */}
       <div className="absolute top-1 right-2 flex items-center gap-2 z-20">

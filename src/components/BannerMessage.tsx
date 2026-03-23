@@ -128,22 +128,22 @@ const BannerMessage = () => {
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) dismiss();
     }}>
-      <DialogContent className={`w-fit max-w-[95vw] md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto p-0 border-0 shadow-2xl flex flex-col items-center ${themeStyle.container} ${!hasContentArea && activeBanner.image_url ? "bg-transparent shadow-none" : ""}`}>
+      <DialogContent className={`w-screen h-[100dvh] max-w-none max-h-none rounded-none md:w-fit md:h-auto md:max-w-3xl lg:max-w-4xl md:max-h-[90vh] md:rounded-lg overflow-y-auto p-0 border-0 shadow-2xl flex flex-col items-center justify-center md:justify-start ${themeStyle.container} ${!hasContentArea && activeBanner.image_url ? "bg-black/95 md:bg-transparent shadow-none" : ""}`}>
         
         {/* Full Image View - naturally scales perfectly without any side paddings */}
         {activeBanner.image_url && (
-            <div className={`relative ${hasContentArea ? "w-full border-b border-border/10" : ""}`}>
+            <div className={`relative ${hasContentArea ? "w-full border-b border-border/10" : "w-full flex-1 flex items-center justify-center p-4 md:p-0"}`}>
                <img 
                  src={activeBanner.image_url} 
                  alt={activeBanner.title || "Banner Image"} 
-                 className={`block mx-auto max-w-full h-auto max-h-[60vh] sm:max-h-[85vh] object-contain ${!hasContentArea ? "rounded-lg" : "rounded-t-lg"}`}
+                 className={`block mx-auto w-full md:w-auto md:max-w-full h-auto max-h-[80vh] md:max-h-[60vh] sm:max-h-[85vh] object-contain ${!hasContentArea ? "rounded-lg" : "rounded-t-lg"}`}
                />
             </div>
         )}
         
         {/* Tight Content Section underneath without enormous spaces */}
         {hasContentArea && (
-          <div className="p-4 sm:p-5 w-full max-w-3xl flex flex-col items-center text-center">
+          <div className="p-4 sm:p-5 w-full flex-1 md:flex-none justify-center max-w-3xl flex flex-col items-center text-center">
             {activeBanner.type !== 'none' && (
               <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 mb-3 ${themeStyle.iconBg} shadow-sm border border-border/10`}>
                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${themeStyle.iconCol}`} />
