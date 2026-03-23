@@ -61,7 +61,7 @@ const DepositoryServicesPage = () => {
               <div className="relative z-10 max-w-3xl">
                 <h2 className="text-3xl font-bold font-heading text-foreground mb-6">Why Open a Demat With Us?</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                  Parasram India acts as a Depository Participant (DP) with both **NSDL** and **CDSL**. 
+                  Parasram India acts as a Depository Participant (DP) with both **NSDL** and **CDSL** . 
                   Our depository services form the cornerstone of all your investment activities, 
                   allowing you to hold shares, mutual funds, bonds, and ETFs electronically in a single, secure account.
                 </p>
