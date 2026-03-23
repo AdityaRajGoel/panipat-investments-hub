@@ -3,8 +3,8 @@ import { Flame, TrendingUp, Shield, Zap, ArrowRight, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const announcements = [
-  { icon: Flame, text: "Open a FREE Demat Account Today — Zero Brokerage on first 30 days!", cta: "Start Now", href: "/open-account", color: "text-brand-gold" },
-  { icon: TrendingUp, text: "IPO Applications Now Open — Apply for upcoming IPOs online", cta: "Apply Now", href: "/services", color: "text-secondary" },
+  { icon: Flame, text: "Open a FREE Demat Account Today !", cta: "Start Now", href: "/open-account", color: "text-brand-gold" },
+  { icon: TrendingUp, text: "IPO Applications Now Open : Apply for upcoming IPOs online", cta: "Apply Now", href: "/services", color: "text-secondary" },
   { icon: Shield, text: "SEBI Registered Broker • NSE • BSE • MCX • NSDL • CDSL", cta: null, href: null, color: "text-sky-400" },
   { icon: Gift, text: "Refer & Earn — Get rewards for every successful referral", cta: "Learn More", href: "/open-account", color: "text-purple-400" },
   { icon: Zap, text: "Explore Pre-IPO & Unlisted Shares — High-growth opportunities", cta: "Explore", href: "/unlisted-zone", color: "text-amber-400" },
