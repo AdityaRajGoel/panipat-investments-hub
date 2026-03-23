@@ -87,16 +87,7 @@ const corporateActions = [
   { date: generateDynamicDate(24), symbol: "BAJFINANCE", eventName: "Bonus Issue", details: "1:1 Ratio Record Date", up: true },
 ];
 
-const marketStats = [
-  { icon: Activity, label: "Market Cap", value: "₹385L Cr", color: "text-secondary", bgColor: "bg-secondary/10" },
-  { icon: BarChart3, label: "Volume", value: "18.2B", color: "text-brand-gold", bgColor: "bg-brand-gold/10" },
-  { icon: TrendingUp, label: "Advances", value: "1,456", color: "text-secondary", bgColor: "bg-secondary/10" },
-  { icon: TrendingDown, label: "Declines", value: "892", color: "text-destructive", bgColor: "bg-destructive/10" },
-  { icon: Eye, label: "Most Active", value: "TATA STEEL", color: "text-primary", bgColor: "bg-primary/10" },
-  { icon: Activity, label: "India VIX", value: "13.45", color: "text-brand-gold", bgColor: "bg-brand-gold/10" },
-  { icon: IndianRupee, label: "FII Flow", value: "-₹1,245 Cr", color: "text-destructive", bgColor: "bg-destructive/10" },
-  { icon: Percent, label: "DII Flow", value: "+₹2,180 Cr", color: "text-secondary", bgColor: "bg-secondary/10" },
-];
+// marketStats is now computed dynamically inside the component using live data
 
 // Generate realistic chart data
 const generateChartData = (up: boolean, points = 60) => {
@@ -292,7 +283,7 @@ const MarketOverview = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("gainers");
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [chartData] = useState(() => new Map<string, number[]>());
-  const { marketOverview: liveData, commodities: liveCommodities, fetchedAt } = useLiveMarket();
+  const { marketOverview: liveData, commodities: liveCommodities, vix, fetchedAt } = useLiveMarket();
 
   // Convert live commodities to Stock format
   const liveCommodityStocks: Stock[] = useMemo(() => {
@@ -328,6 +319,20 @@ const MarketOverview = () => {
   const liveDeclines = liveData?.declines ?? 892;
   const liveUnchanged = liveData?.unchanged ?? 186;
   const totalStocks = liveAdvances + liveDeclines + liveUnchanged;
+
+  const liveVix = vix?.price ?? "13.45";
+  const liveMostActive = liveData?.mostActive?.[0]?.name ?? "TATA STEEL";
+
+  const marketStats = useMemo(() => [
+    { icon: Activity, label: "Market Cap", value: "₹385L Cr", color: "text-secondary", bgColor: "bg-secondary/10" },
+    { icon: BarChart3, label: "F&O Volume", value: "18.2B", color: "text-brand-gold", bgColor: "bg-brand-gold/10" },
+    { icon: TrendingUp, label: "Advances", value: liveAdvances.toLocaleString(), color: "text-secondary", bgColor: "bg-secondary/10" },
+    { icon: TrendingDown, label: "Declines", value: liveDeclines.toLocaleString(), color: "text-destructive", bgColor: "bg-destructive/10" },
+    { icon: Eye, label: "Most Active", value: liveMostActive, color: "text-primary", bgColor: "bg-primary/10" },
+    { icon: Activity, label: "India VIX", value: liveVix, color: "text-brand-gold", bgColor: "bg-brand-gold/10" },
+    { icon: IndianRupee, label: "FII Flow", value: "-₹1,245 Cr", color: "text-destructive", bgColor: "bg-destructive/10" },
+    { icon: Percent, label: "DII Flow", value: "+₹2,180 Cr", color: "text-secondary", bgColor: "bg-secondary/10" },
+  ], [liveAdvances, liveDeclines, liveMostActive, liveVix]);
 
   const getChartData = useCallback((stock: Stock) => {
     if (!chartData.has(stock.name)) {
