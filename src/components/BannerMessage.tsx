@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Info, AlertTriangle, CheckCircle, Sparkles, ExternalLink } from "lucide-react";
+import { Info, AlertTriangle, CheckCircle, Sparkles, ExternalLink, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -128,15 +128,26 @@ const BannerMessage = () => {
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) dismiss();
     }}>
-      <DialogContent className={`w-screen h-[100dvh] max-w-none max-h-none rounded-none md:w-fit md:h-auto md:max-w-3xl lg:max-w-4xl md:max-h-[90vh] md:rounded-lg overflow-y-auto p-0 border-0 shadow-2xl flex flex-col items-center justify-center md:justify-start ${themeStyle.container} ${!hasContentArea && activeBanner.image_url ? "bg-black/95 md:bg-transparent shadow-none" : ""}`}>
+      <DialogContent className={`w-screen h-[100dvh] sm:w-screen sm:h-[100dvh] max-w-none max-h-none rounded-none sm:rounded-none overflow-y-auto p-0 border-0 shadow-2xl flex flex-col items-center justify-center [&>button]:hidden ${themeStyle.container} ${!hasContentArea && activeBanner.image_url ? "bg-black/30 backdrop-blur-2xl shadow-none" : ""}`}>
+        
+        {/* Custom Labeled Close Button */}
+        <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50">
+          <button 
+            onClick={dismiss} 
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/20 transition-all duration-200"
+          >
+            <span className="text-xs font-bold uppercase tracking-wider">Close</span>
+            <X className="w-4 h-4" />
+          </button>
+        </div>
         
         {/* Full Image View - naturally scales perfectly without any side paddings */}
         {activeBanner.image_url && (
-            <div className={`relative ${hasContentArea ? "w-full border-b border-border/10" : "w-full flex-1 flex items-center justify-center p-4 md:p-0"}`}>
+            <div className={`relative ${hasContentArea ? "w-full border-b border-border/10" : "w-full flex-1 flex items-center justify-center p-4 md:p-8"}`}>
                <img 
                  src={activeBanner.image_url} 
                  alt={activeBanner.title || "Banner Image"} 
-                 className={`block mx-auto w-full md:w-auto md:max-w-full h-auto max-h-[80vh] md:max-h-[60vh] sm:max-h-[85vh] object-contain ${!hasContentArea ? "rounded-lg" : "rounded-t-lg"}`}
+                 className={`block mx-auto w-full md:w-auto h-auto max-h-[80vh] md:max-h-[85vh] object-contain rounded-none`}
                />
             </div>
         )}
