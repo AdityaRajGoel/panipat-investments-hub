@@ -457,7 +457,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
           <AnimatePresence mode="wait">
             {isAnalyzing ? (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-16 p-6">
+                className="flex flex-col items-center justify-center py-8 md:py-16 p-6">
                 <NeuralNetworkAnimation />
                 <div className="w-64 h-2 bg-muted rounded-full overflow-hidden mb-8 shadow-inner">
                   <motion.div className="h-full bg-gradient-to-r from-brand-orange via-secondary to-brand-orange bg-[length:200%_100%]"

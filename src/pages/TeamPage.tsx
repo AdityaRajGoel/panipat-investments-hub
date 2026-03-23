@@ -182,7 +182,7 @@ const TeamPage = () => {
       <Header />
 
       {/* Hero Section */}
-      <motion.section ref={heroRef} style={{ opacity: heroOpacity }} className="py-20 md:py-28 bg-background relative overflow-hidden">
+      <motion.section ref={heroRef} style={{ opacity: heroOpacity }} className="py-10 md:py-28 bg-background relative overflow-hidden">
         {/* Ambient background */}
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
@@ -272,7 +272,7 @@ const TeamPage = () => {
       </section>
 
       {/* Team Grid */}
-      <section className="py-16 bg-background">
+      <section className="py-8 md:py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {teamMembers.map((member, index) => (
@@ -283,7 +283,7 @@ const TeamPage = () => {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-16 bg-muted/30 border-y border-border/50">
+      <section className="py-8 md:py-16 bg-muted/30 border-y border-border/50">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.h2
             className="font-heading text-2xl md:text-3xl font-bold text-foreground text-center mb-10"
@@ -321,7 +321,7 @@ const TeamPage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-background">
+      <section className="py-8 md:py-16 bg-background">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

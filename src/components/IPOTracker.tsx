@@ -141,7 +141,7 @@ const IPOTracker = () => {
   };
 
   return (
-    <section className="py-16 bg-muted/20 relative overflow-hidden">
+    <section className="py-8 md:py-16 bg-muted/20 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-brand-orange/5 to-transparent rounded-full blur-3xl" />
       </div>
@@ -195,7 +195,7 @@ const IPOTracker = () => {
 
         {/* IPO Grid */}
         {loading ? (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center py-8 md:py-16">
             <Loader2 className="w-6 h-6 animate-spin text-brand-orange" />
             <span className="ml-2 text-sm text-muted-foreground">Loading IPO data...</span>
           </div>

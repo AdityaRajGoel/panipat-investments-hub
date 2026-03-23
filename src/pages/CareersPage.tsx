@@ -19,7 +19,7 @@ const CareersPage = () => {
         <Header />
         
         {/* Hero Section */}
-        <section className="pt-24 pb-20 bg-hero text-primary-foreground text-center relative overflow-hidden">
+        <section className="pt-16 pb-10 md:pt-24 md:pb-20 bg-hero text-primary-foreground text-center relative overflow-hidden">
           <div className="absolute inset-0 z-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
           <div className="container mx-auto px-4 z-10 relative">
             <motion.div 
@@ -49,7 +49,7 @@ const CareersPage = () => {
         </section>
 
         {/* Culture Section */}
-        <section className="py-16 bg-muted/30">
+        <section className="py-8 md:py-16 bg-muted/30">
           <div className="container mx-auto px-4 max-w-5xl text-center">
             <h2 className="text-3xl font-heading font-bold text-foreground mb-10">Why Join Parasram Panipat?</h2>
             <div className="grid md:grid-cols-3 gap-8 text-left">
@@ -79,7 +79,7 @@ const CareersPage = () => {
         </section>
 
         {/* General Application Section */}
-        <section className="py-20 relative">
+        <section className="py-10 md:py-20 relative">
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="text-center bg-brand-gold/10 border border-brand-gold/30 rounded-2xl p-8">
               <h4 className="text-2xl font-bold text-foreground mb-3">Looking for Opportunities?</h4>

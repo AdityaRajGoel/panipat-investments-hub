@@ -19,7 +19,7 @@ const SIPCalculator = () => {
   const investedPercent = (totalInvested / futureValue) * 100;
 
   return (
-    <section className="py-20 bg-background relative overflow-hidden">
+    <section className="py-10 md:py-20 bg-background relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div

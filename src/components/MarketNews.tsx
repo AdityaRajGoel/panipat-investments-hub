@@ -117,7 +117,7 @@ const MarketNews = () => {
   const news = activeTab === "indian" ? indianNews : worldNews;
 
   return (
-    <section id="news" className="py-20 bg-background relative overflow-hidden">
+    <section id="news" className="py-10 md:py-20 bg-background relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div

@@ -15,7 +15,7 @@ const BrandBanner = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.3, 1, 1, 0.3]);
 
   return (
-    <section ref={ref} className="py-16 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
+    <section ref={ref} className="py-8 md:py-16 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div

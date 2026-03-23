@@ -129,7 +129,7 @@ const OpenAccountPage = () => {
       />
       <Header />
 
-      <section className="relative py-20 md:py-28 overflow-hidden" style={{ background: `linear-gradient(135deg, hsl(213 80% 12% / 0.95), hsl(213 80% 22% / 0.9), hsl(145 70% 25% / 0.88))` }}>
+      <section className="relative py-10 md:py-28 overflow-hidden" style={{ background: `linear-gradient(135deg, hsl(213 80% 12% / 0.95), hsl(213 80% 22% / 0.9), hsl(145 70% 25% / 0.88))` }}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-10 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-brand-gold/15 rounded-full blur-3xl" />
@@ -160,7 +160,7 @@ const OpenAccountPage = () => {
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-8 md:py-16">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-5 gap-10">
             <motion.div className="lg:col-span-3" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>

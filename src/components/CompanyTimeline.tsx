@@ -21,7 +21,7 @@ const CompanyTimeline = () => {
   const lineHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]);
 
   return (
-    <section ref={sectionRef} id="timeline" className="py-20 bg-background relative overflow-hidden">
+    <section ref={sectionRef} id="timeline" className="py-10 md:py-20 bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           className="absolute top-40 right-10 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"

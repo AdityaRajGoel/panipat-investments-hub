@@ -48,7 +48,7 @@ type FnOData = {
 const FnOLoadingAnimation = () => {
   const columns = Array.from({ length: 20 });
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-8">
+    <div className="flex flex-col items-center justify-center py-8 md:py-16 gap-8">
       {/* Animated OI bars */}
       <div className="flex items-center gap-0.5">
         <div className="flex items-end gap-0.5 h-20">

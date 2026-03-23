@@ -46,7 +46,7 @@ const ContactPage = () => {
       <Header />
 
       {/* Hero banner */}
-      <section className="py-16 md:py-20 bg-hero text-primary-foreground relative overflow-hidden">
+      <section className="py-8 md:py-20 bg-hero text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <motion.div
             className="absolute top-10 right-20 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"
@@ -120,7 +120,7 @@ const ContactPage = () => {
       </section>
 
       {/* Main content: Form + Info side by side */}
-      <section id="contact-form" className="py-16 bg-background">
+      <section id="contact-form" className="py-8 md:py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
             {/* Contact Form */}

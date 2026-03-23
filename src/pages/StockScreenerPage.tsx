@@ -44,7 +44,7 @@ type SortKey = "symbol" | "price" | "change_pct" | "market_cap" | "pe";
 const StockLoadingAnimation = () => {
   const bars = Array.from({ length: 12 });
   return (
-    <div className="flex flex-col items-center justify-center py-20 gap-6">
+    <div className="flex flex-col items-center justify-center py-10 md:py-20 gap-6">
       <div className="flex items-end gap-1.5 h-24">
         {bars.map((_, i) => {
           const h = 30 + Math.random() * 60;

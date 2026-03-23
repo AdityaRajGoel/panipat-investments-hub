@@ -12,7 +12,7 @@ const values = [
 
 const CompanyValues = () => {
   return (
-    <section className="py-16 bg-muted/20 relative overflow-hidden">
+    <section className="py-8 md:py-16 bg-muted/20 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           className="absolute top-20 left-20 w-72 h-72 bg-brand-gold/5 rounded-full blur-3xl"

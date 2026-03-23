@@ -16,7 +16,7 @@ const AwardsSection = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
 
   return (
-    <section ref={ref} className="py-20 relative overflow-hidden bg-background">
+    <section ref={ref} className="py-10 md:py-20 relative overflow-hidden bg-background">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-gold/10 rounded-full blur-3xl opacity-50" />

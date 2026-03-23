@@ -68,7 +68,7 @@ const GoogleReviews = () => {
   };
 
   return (
-    <section ref={sectionRef} id="google-reviews" className="py-20 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
+    <section ref={sectionRef} id="google-reviews" className="py-10 md:py-20 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
       {/* Background decorations */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
         <motion.div

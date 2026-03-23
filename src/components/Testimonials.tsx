@@ -89,7 +89,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section ref={sectionRef} id="testimonials" className="py-24 bg-gradient-to-b from-muted/50 to-background relative overflow-hidden">
+    <section ref={sectionRef} id="testimonials" className="py-12 md:py-24 bg-gradient-to-b from-muted/50 to-background relative overflow-hidden">
       {/* Background decoration with parallax */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
         <motion.div

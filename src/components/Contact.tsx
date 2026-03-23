@@ -73,7 +73,7 @@ const Contact = () => {
   const mapY = useTransform(scrollYProgress, [0, 1], [30, -30]);
 
   return (
-    <section ref={sectionRef} id="contact" className="py-20 bg-muted/50 relative overflow-hidden">
+    <section ref={sectionRef} id="contact" className="py-10 md:py-20 bg-muted/50 relative overflow-hidden">
       {/* Ambient background orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div

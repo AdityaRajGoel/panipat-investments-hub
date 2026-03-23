@@ -155,7 +155,7 @@ const Hero = () => {
   };
 
   return (
-    <section ref={sectionRef} onMouseMove={handleMouseMove} className="relative min-h-screen flex items-center overflow-hidden">
+    <section ref={sectionRef} onMouseMove={handleMouseMove} className="relative min-[85svh] lg:min-h-screen flex items-center overflow-hidden">
       {/* Video background */}
       <div className="absolute inset-0">
         <video
@@ -185,8 +185,8 @@ const Hero = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 py-16 md:py-24 relative z-10 h-full min-h-screen flex items-center">
-        <div className="w-full lg:w-1/2">
+      <div className="container mx-auto px-4 py-8 md:py-24 2xl:py-32 relative z-10 h-full min-h-screen flex items-center 2xl:max-w-[1800px]">
+        <div className="w-full md:w-[55%] lg:w-1/2 2xl:w-[50%]">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
             {/* Trust badges */}
@@ -226,7 +226,7 @@ const Hero = () => {
               <MarketBreadthBar />
             </div>
 
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-foreground mb-4 md:mb-8 leading-[1.1]">
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1]">
               Your Trusted Partner
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary">
@@ -234,7 +234,7 @@ const Hero = () => {
               </span>
             </h1>
 
-            <p className="text-base md:text-xl text-primary-foreground/85 mb-4 md:mb-6 max-w-xl leading-relaxed">
+            <p className="text-base md:text-xl 2xl:text-2xl text-primary-foreground/85 mb-4 md:mb-6 2xl:mb-10 max-w-xl 2xl:max-w-3xl leading-relaxed">
               Parasram India brings decades of stock broking expertise to Panipat.
               Join thousands of investors who trust us with their financial future.
             </p>
@@ -247,22 +247,22 @@ const Hero = () => {
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-8 md:mb-14">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-8 md:mb-14 2xl:mb-20">
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-sm md:text-lg px-6 md:px-10 py-4 md:py-6 shadow-xl shadow-secondary/30 transition-all duration-300 w-full sm:w-auto"
+                className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-sm md:text-lg 2xl:text-xl px-6 md:px-10 2xl:px-14 py-4 md:py-6 2xl:py-8 shadow-xl shadow-secondary/30 transition-all duration-300 w-full sm:w-auto"
               >
                 <Link to="/open-account">
                   Start Investing Today
-                  <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+                  <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 2xl:w-6 2xl:h-6" />
                 </Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-sm md:text-lg px-6 md:px-10 py-4 md:py-6 backdrop-blur-sm transition-all duration-300 w-full sm:w-auto"
+                className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-sm md:text-lg 2xl:text-xl px-6 md:px-10 2xl:px-14 py-4 md:py-6 2xl:py-8 backdrop-blur-sm transition-all duration-300 w-full sm:w-auto"
               >
                 <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer">Start Trading Now</a>
               </Button>
@@ -287,7 +287,7 @@ const Hero = () => {
       {/* Platform image + floating cards — absolutely positioned right half */}
       {!isMobile && (
         <motion.div
-          className="absolute inset-y-0 right-0 w-1/2 hidden lg:flex flex-col items-center justify-center z-10 pointer-events-none px-6"
+          className="absolute inset-y-0 right-0 w-[45%] lg:w-1/2 hidden md:flex flex-col items-center justify-center z-10 pointer-events-none px-6 2xl:px-12"
           initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.9, delay: 0.4 }}
@@ -332,8 +332,8 @@ const Hero = () => {
           <motion.img
             src={platformImg}
             alt="Parasram India Platform"
-            className="w-full object-contain drop-shadow-2xl relative z-10"
-            style={{ maxHeight: '68%', x: imgX, y: imgY }}
+            className="w-full object-contain drop-shadow-2xl relative z-10 2xl:max-w-4xl"
+            style={{ maxHeight: '75%', x: imgX, y: imgY }}
             animate={{
               y: [0, -20, 5, -12, 0],
               x: [0, 8, -5, 10, 0],

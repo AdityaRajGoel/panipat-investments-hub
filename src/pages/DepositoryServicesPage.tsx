@@ -24,7 +24,7 @@ const DepositoryServicesPage = () => {
         <Header />
         
         {/* Hero Section */}
-        <section className="pt-24 pb-16 bg-gradient-to-br from-brand-navy to-background text-primary-foreground text-center">
+        <section className="pt-16 pb-8 md:pt-24 md:pb-16 bg-gradient-to-br from-brand-navy to-background text-primary-foreground text-center">
           <div className="container mx-auto px-4 z-10 relative">
             <motion.h1 
               className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 text-foreground"
@@ -46,7 +46,7 @@ const DepositoryServicesPage = () => {
         </section>
 
         {/* Info Content Section */}
-        <section className="py-20 relative">
+        <section className="py-10 md:py-20 relative">
           <div className="container mx-auto px-4 max-w-6xl">
             
             <motion.div 

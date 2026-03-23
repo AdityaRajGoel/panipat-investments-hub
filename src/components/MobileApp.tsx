@@ -28,7 +28,7 @@ const MobileApp = () => {
   const contentX = useTransform(scrollYProgress, [0, 0.5], [-20, 0]);
 
   return (
-    <section ref={sectionRef} id="app" className="py-20 bg-hero overflow-hidden relative">
+    <section ref={sectionRef} id="app" className="py-10 md:py-20 bg-hero overflow-hidden relative">
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div

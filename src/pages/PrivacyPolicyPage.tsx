@@ -14,7 +14,7 @@ const PrivacyPolicyPage = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
         
-        <main className="flex-1 py-16">
+        <main className="flex-1 py-8 md:py-16">
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary shrink-0">

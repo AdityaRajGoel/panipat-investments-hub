@@ -48,7 +48,7 @@ const About = () => {
   };
 
   return (
-    <section ref={sectionRef} id="about" className="py-24 bg-background overflow-hidden relative">
+    <section ref={sectionRef} id="about" className="py-12 md:py-24 bg-background overflow-hidden relative">
       {/* Ambient orbs with parallax */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: parallaxY }}>
         <motion.div

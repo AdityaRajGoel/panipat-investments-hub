@@ -49,7 +49,7 @@ const tools = [
 
 const InvestmentTools = () => {
   return (
-    <section className="py-20 bg-background relative overflow-hidden">
+    <section className="py-10 md:py-20 bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           className="absolute -top-20 -right-20 w-[500px] h-[500px] bg-secondary/3 rounded-full blur-3xl"

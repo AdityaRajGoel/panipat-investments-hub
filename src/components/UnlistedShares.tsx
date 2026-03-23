@@ -124,7 +124,7 @@ const UnlistedShares = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="relative py-20 md:py-28 overflow-hidden" style={{ background: "linear-gradient(135deg, hsl(213 80% 12%) 0%, hsl(213 80% 18%) 50%, hsl(145 40% 20%) 100%)" }}>
+      <section className="relative py-10 md:py-28 overflow-hidden" style={{ background: "linear-gradient(135deg, hsl(213 80% 12%) 0%, hsl(213 80% 18%) 50%, hsl(145 40% 20%) 100%)" }}>
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 opacity-5" style={{ backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`, backgroundSize: '30px 30px' }} />
           <motion.div className="absolute top-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 8, repeat: Infinity }} />
@@ -150,7 +150,7 @@ const UnlistedShares = () => {
       </section>
 
       {/* Stock Cards */}
-      <section className="py-16 bg-background relative">
+      <section className="py-8 md:py-16 bg-background relative">
         <div className="container mx-auto px-4">
           <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">Available <span className="text-secondary">Unlisted Shares</span></h2>
@@ -273,7 +273,7 @@ const UnlistedShares = () => {
       </AnimatePresence>
 
       {/* Benefits */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-8 md:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <motion.div className="grid md:grid-cols-3 gap-6" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {benefits.map((b) => (
@@ -296,7 +296,7 @@ const UnlistedShares = () => {
       </section>
 
       {/* How it works */}
-      <section className="py-16 bg-background">
+      <section className="py-8 md:py-16 bg-background">
         <div className="container mx-auto px-4">
           <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">How It <span className="text-secondary">Works</span></h2>
@@ -349,7 +349,7 @@ const UnlistedShares = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-16">
+      <section className="py-8 md:py-16">
         <div className="container mx-auto px-4">
           <motion.div className="bg-hero rounded-3xl p-10 md:p-16 text-center text-primary-foreground relative overflow-hidden" initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
             <div className="relative z-10">

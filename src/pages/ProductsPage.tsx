@@ -54,7 +54,7 @@ const ProductsPage = () => {
         <Header />
         
         {/* Hero Section */}
-        <section className="pt-24 pb-16 relative overflow-hidden bg-hero text-primary-foreground">
+        <section className="pt-16 pb-8 md:pt-24 md:pb-16 relative overflow-hidden bg-hero text-primary-foreground">
           <div className="container mx-auto px-4 z-10 relative text-center">
             <motion.h1 
               className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6"
@@ -76,7 +76,7 @@ const ProductsPage = () => {
         </section>
 
         {/* Content Section */}
-        <section className="py-20 relative">
+        <section className="py-10 md:py-20 relative">
           <div className="container mx-auto px-4 max-w-5xl">
             <div className="grid gap-12">
               {products.map((product, idx) => (

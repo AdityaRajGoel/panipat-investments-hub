@@ -540,7 +540,7 @@ const BannerManagerPage = () => {
               ))}
             </div>
           ) : banners.length === 0 && !creating ? (
-            <div className="text-center py-20 bg-muted/20 rounded-2xl border border-dashed border-border/60">
+            <div className="text-center py-10 md:py-20 bg-muted/20 rounded-2xl border border-dashed border-border/60">
               <Megaphone className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
               <p className="text-muted-foreground text-xl font-medium">No popups yet</p>
               <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto">

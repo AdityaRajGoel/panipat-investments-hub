@@ -83,7 +83,7 @@ const Services = () => {
   };
 
   return (
-    <section ref={sectionRef} id="services" className="py-24 bg-muted/50 overflow-hidden relative">
+    <section ref={sectionRef} id="services" className="py-12 md:py-24 bg-muted/50 overflow-hidden relative">
       {/* Parallax background orbs */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
         <motion.div

@@ -17,7 +17,7 @@ type FAQProps = {
 
 const FAQ = ({ title = "Frequently Asked Questions", subtitle, items }: FAQProps) => {
   return (
-    <section className="py-16 bg-muted/20 relative overflow-hidden">
+    <section className="py-8 md:py-16 bg-muted/20 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           className="absolute bottom-20 left-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
