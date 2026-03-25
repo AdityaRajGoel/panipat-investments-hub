@@ -69,10 +69,8 @@ export const megaMenuItems: MegaMenuItem[] = [
     label: "About",
     href: "/about",
     subItems: [
-      { label: "Our Story", href: "/about#about", icon: Building2, description: "Since 1970 — Panipat since 1997" },
       { label: "Our Journey", href: "/about#timeline", icon: Award, description: "Company milestones & timeline" },
       { label: "Our Team", href: "/team", icon: Users, description: "Meet the people behind Parasram Panipat" },
-      { label: "SEBI Registration", href: "/about#about", icon: ShieldCheck, description: "Fully licensed & regulated broker" },
       { label: "Careers", href: "/careers", icon: Award, description: "Join our Panipat team" },
     ],
   },
