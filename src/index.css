@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap');
+/* Fonts are loaded via <link> tags in index.html for maximum performance */
 
 @tailwind base;
 @tailwind components;
@@ -123,11 +123,12 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-display: swap;
   }
 }
 

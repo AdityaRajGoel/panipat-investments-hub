@@ -147,7 +147,9 @@ const BannerMessage = () => {
                <img 
                  src={activeBanner.image_url} 
                  alt={activeBanner.title || "Banner Image"} 
-                 className={`block mx-auto w-full md:w-auto h-auto max-h-[80vh] md:max-h-[85vh] object-contain rounded-none`}
+                 className={`block mx-auto w-full md:w-auto h-auto max-h-[55vh] md:max-h-[85vh] object-contain rounded-none`}
+                 loading="eager"
+                 fetchPriority="high"
                />
             </div>
         )}

@@ -226,15 +226,15 @@ const Hero = () => {
               <MarketBreadthBar />
             </div>
 
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1]">
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1] 2xl:leading-[1.15]">
               Your Trusted Partner
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary pb-1 2xl:pb-2 block">
                 for Smart Investments
               </span>
             </h1>
 
-            <p className="text-base md:text-xl 2xl:text-2xl text-primary-foreground/85 mb-4 md:mb-6 2xl:mb-10 max-w-xl 2xl:max-w-3xl leading-relaxed">
+            <p className="text-sm md:text-xl 2xl:text-2xl text-primary-foreground/80 mb-3 md:mb-6 2xl:mb-10 max-w-xl 2xl:max-w-3xl leading-snug md:leading-relaxed line-clamp-3 md:line-clamp-none">
               Parasram India brings decades of stock broking expertise to Panipat.
               Join thousands of investors who trust us with their financial future.
             </p>
