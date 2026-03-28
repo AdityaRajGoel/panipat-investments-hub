@@ -61,7 +61,8 @@ const MiniPriceChart = ({ trend = "up" }: { trend?: "up" | "down" | "mixed" }) =
 };
 
 const UnlistedShares = () => {
-  const [stocks, setStocks] = useState<StockItem[]>(unlistedStocks);
+  const [stocks, setStocks] = useState<StockItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedStock, setSelectedStock] = useState<StockItem | null>(null);
 
   useEffect(() => {
@@ -73,6 +74,7 @@ const UnlistedShares = () => {
         
         if (error) {
           console.error('Error fetching unlisted shares:', error);
+          setStocks(unlistedStocks); // fallback to hardcoded on error
           return;
         }
         
@@ -95,10 +97,17 @@ const UnlistedShares = () => {
               foundedYear: s.founded_year,
               headquarters: s.headquarters,
             })));
+          } else {
+            setStocks(unlistedStocks); // fallback if DB is empty
           }
+        } else {
+          setStocks(unlistedStocks); // fallback on unexpected response
         }
       } catch (err) {
         console.error('Failed to fetch unlisted shares:', err);
+        setStocks(unlistedStocks); // fallback on exception
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchShares();
@@ -157,47 +166,67 @@ const UnlistedShares = () => {
             <p className="text-muted-foreground">Contact us for live pricing & availability</p>
           </motion.div>
 
-          <motion.div key={stocks.length} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
-            {stocks.map((stock, index) => (
-              <motion.div key={stock.name} variants={itemVariants}>
-                <Card className="group cursor-pointer transition-all duration-300 border-border/50 hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/5"
-                  onClick={() => setSelectedStock(stock)}>
+          {isLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="border-border/50 animate-pulse">
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      {stock.imageUrl ? (
-                        <img src={stock.imageUrl} alt={stock.short} className="w-14 h-14 rounded-xl object-contain border border-border bg-white shrink-0 shadow-lg" />
-                      ) : (
-                        <div className={`w-14 h-14 bg-gradient-to-br ${stock.color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}>{stock.short}</div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-heading font-semibold text-foreground text-sm leading-tight group-hover:text-secondary transition-colors line-clamp-2">{stock.name}</h4>
-                        {(stock.buyPrice || stock.sellPrice) ? (
-                          <div className="flex items-center gap-3 mt-2">
-                            {stock.buyPrice && <div className="text-xs"><span className="text-muted-foreground">Buy:</span> <span className="font-bold text-secondary">{stock.buyPrice}</span></div>}
-                            {stock.sellPrice && <div className="text-xs"><span className="text-muted-foreground">Sell:</span> <span className="font-bold text-destructive">{stock.sellPrice}</span></div>}
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-lg font-bold text-foreground">{stock.price}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${stock.tagColor}`}>{stock.tag}</span>
-                          {stock.sector && stock.sector !== "General" && <span className="text-[10px] text-muted-foreground">{stock.sector}</span>}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground mt-1">Min: {stock.minQty}</p>
+                      <div className="w-14 h-14 bg-muted rounded-xl shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-muted rounded w-3/4" />
+                        <div className="h-3 bg-muted rounded w-1/2" />
+                        <div className="h-3 bg-muted rounded w-1/3" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-secondary transition-colors shrink-0 mt-4" />
                     </div>
-                    {/* Mini chart */}
-                    <div className="mt-3 -mx-1">
-                      <MiniPriceChart trend={index % 3 === 1 ? "down" : index % 3 === 2 ? "mixed" : "up"} />
-                    </div>
+                    <div className="mt-3 h-16 bg-muted rounded" />
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+              ))}
+            </div>
+          ) : (
+            <motion.div key={stocks.length} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }}>
+              {stocks.map((stock, index) => (
+                <motion.div key={stock.name} variants={itemVariants}>
+                  <Card className="group cursor-pointer transition-all duration-300 border-border/50 hover:border-secondary/50 hover:shadow-xl hover:shadow-secondary/5"
+                    onClick={() => setSelectedStock(stock)}>
+                    <CardContent className="p-5">
+                      <div className="flex items-start gap-4">
+                        {stock.imageUrl ? (
+                          <img src={stock.imageUrl} alt={stock.short} className="w-14 h-14 rounded-xl object-contain border border-border bg-white shrink-0 shadow-lg" />
+                        ) : (
+                          <div className={`w-14 h-14 bg-gradient-to-br ${stock.color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}>{stock.short}</div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-heading font-semibold text-foreground text-sm leading-tight group-hover:text-secondary transition-colors line-clamp-2">{stock.name}</h4>
+                          {(stock.buyPrice || stock.sellPrice) ? (
+                            <div className="flex items-center gap-3 mt-2">
+                              {stock.buyPrice && <div className="text-xs"><span className="text-muted-foreground">Buy:</span> <span className="font-bold text-secondary">{stock.buyPrice}</span></div>}
+                              {stock.sellPrice && <div className="text-xs"><span className="text-muted-foreground">Sell:</span> <span className="font-bold text-destructive">{stock.sellPrice}</span></div>}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-lg font-bold text-foreground">{stock.price}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${stock.tagColor}`}>{stock.tag}</span>
+                            {stock.sector && stock.sector !== "General" && <span className="text-[10px] text-muted-foreground">{stock.sector}</span>}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-1">Min: {stock.minQty}</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-secondary transition-colors shrink-0 mt-4" />
+                      </div>
+                      {/* Mini chart */}
+                      <div className="mt-3 -mx-1">
+                        <MiniPriceChart trend={index % 3 === 1 ? "down" : index % 3 === 2 ? "mixed" : "up"} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
 
           <motion.p className="text-center text-muted-foreground mt-8 text-base" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             ...and many more! <span className="text-secondary font-semibold">Contact us for pricing & availability.</span>
