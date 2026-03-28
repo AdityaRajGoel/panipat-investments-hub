@@ -94,8 +94,8 @@ const LogoUpload = memo(({ form, setForm, shareId, password }: {
       formData.append("password", password);
       formData.append("file", file);
       if (shareId) formData.append("share_id", shareId);
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-unlisted-shares`, {
-        method: "POST", headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` }, body: formData,
+      const response = await fetch(`${import.meta.env.VITE_LOVABLE_SUPABASE_URL}/functions/v1/manage-unlisted-shares`, {
+        method: "POST", headers: { Authorization: `Bearer ${import.meta.env.VITE_LOVABLE_SUPABASE_PUBLISHABLE_KEY}` }, body: formData,
       });
       const result = await response.json();
       if (result.success && result.url) { toast({ title: "Logo uploaded" }); setForm({ ...form, image_url: result.url }); }
@@ -145,12 +145,45 @@ const ShareForm = memo(({ form, setForm, onSave, onCancel, title, shareId, passw
         <div className="sm:col-span-2"><Label>Headquarters</Label><Input value={form.headquarters || ""} onChange={(e) => setForm({ ...form, headquarters: e.target.value || null })} placeholder="e.g. Mumbai, Maharashtra" maxLength={200} /></div>
         <div className="sm:col-span-2"><Label>Company Description</Label><Textarea value={form.company_description || ""} onChange={(e) => setForm({ ...form, company_description: e.target.value || null })} placeholder="Brief description..." maxLength={2000} rows={3} /></div>
         <LogoUpload form={form} setForm={setForm} shareId={shareId} password={password} />
-        <div><Label>Tag</Label>
-          <div className="flex flex-wrap gap-1.5 mt-1">
+        <div className="sm:col-span-2"><Label>Tag</Label>
+          {/* Preset tag buttons */}
+          <div className="flex flex-wrap gap-1.5 mt-1 mb-2">
             {TAG_PRESETS.map((t) => (
               <button key={t.value} type="button" onClick={() => setForm({ ...form, tag: t.value, tag_color: t.color })}
-                className={`px-2 py-1 rounded-full text-[10px] font-semibold border transition-all ${form.tag === t.value ? "ring-2 ring-secondary" : ""} ${t.color}`}>{t.label}</button>
+                className={`px-2 py-1 rounded-full text-[10px] font-semibold border transition-all ${form.tag === t.value && form.tag_color === t.color ? "ring-2 ring-secondary" : ""} ${t.color}`}>{t.label}</button>
             ))}
+          </div>
+          {/* Custom tag input */}
+          <div className="flex items-center gap-2">
+            <Input
+              value={form.tag || ""}
+              onChange={(e) => setForm({ ...form, tag: e.target.value })}
+              placeholder="Or type a custom tag…"
+              maxLength={50}
+              className="h-8 text-xs flex-1"
+            />
+            {form.tag && (
+              <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold ${form.tag_color}`}>
+                {form.tag}
+              </span>
+            )}
+          </div>
+          {/* Tag color picker */}
+          <div className="mt-1.5">
+            <p className="text-[10px] text-muted-foreground mb-1">Tag color:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {TAG_PRESETS.map((t) => (
+                <button
+                  key={t.color}
+                  type="button"
+                  title={t.label}
+                  onClick={() => setForm({ ...form, tag_color: t.color })}
+                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold border transition-all ${t.color} ${form.tag_color === t.color ? "ring-2 ring-secondary scale-105" : ""}`}
+                >
+                  Aa
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div><Label>Color (fallback)</Label>
