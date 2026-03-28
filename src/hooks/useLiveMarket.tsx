@@ -194,6 +194,8 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
+    let initialTimer: ReturnType<typeof setTimeout> | null = null;
+    let wakeTimeout: ReturnType<typeof setTimeout> | null = null;
     let visible = !document.hidden;
 
     const startInterval = () => {
@@ -204,24 +206,45 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
       }, ms);
     };
 
-    const handleVisibility = () => {
+    const handleWakeup = () => {
       visible = !document.hidden;
       if (visible) {
-        fetchData();
-        startInterval();
+        if (wakeTimeout) clearTimeout(wakeTimeout);
+        wakeTimeout = setTimeout(() => {
+          fetchData();
+          startInterval();
+        }, 800);
       } else if (interval) {
         clearInterval(interval);
         interval = null;
       }
     };
 
-    fetchData();
-    startInterval();
-    document.addEventListener('visibilitychange', handleVisibility);
+    const handleOnline = () => {
+      if (wakeTimeout) clearTimeout(wakeTimeout);
+      wakeTimeout = setTimeout(() => {
+        if (!document.hidden) {
+          fetchData();
+          startInterval();
+        }
+      }, 500);
+    };
+
+    // Defer initial massive payload fetch to prioritize LCP rendering on slow networks
+    initialTimer = setTimeout(() => {
+      fetchData();
+      startInterval();
+    }, 1500);
+    
+    document.addEventListener('visibilitychange', handleWakeup);
+    window.addEventListener('online', handleOnline);
 
     return () => {
+      if (initialTimer) clearTimeout(initialTimer);
+      if (wakeTimeout) clearTimeout(wakeTimeout);
       if (interval) clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibility);
+      document.removeEventListener('visibilitychange', handleWakeup);
+      window.removeEventListener('online', handleOnline);
     };
   }, [fetchData]);
 

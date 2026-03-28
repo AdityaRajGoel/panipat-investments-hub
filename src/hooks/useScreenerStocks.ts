@@ -92,18 +92,38 @@ export function useScreenerStocks() {
 
   useEffect(() => {
     fetchStocks();
-    const interval = setInterval(() => {
+    
+    // Background 5-minute interval
+    const intervalId = setInterval(() => {
       if (!document.hidden) fetchStocks();
     }, 5 * 60 * 1000);
 
-    const handleVisibility = () => {
-      if (!document.hidden) fetchStocks();
+    // When bringing app from background to foreground, network radios take slightly longer to wake up.
+    // We delay the refetch slightly so it doesn't instantly fail and wait another 5 minutes.
+    let wakeTimeout: ReturnType<typeof setTimeout>;
+    
+    const handleWakeup = () => {
+      if (!document.hidden) {
+        clearTimeout(wakeTimeout);
+        wakeTimeout = setTimeout(() => {
+          fetchStocks();
+        }, 800);
+      }
     };
-    document.addEventListener('visibilitychange', handleVisibility);
+
+    const handleOnline = () => {
+      clearTimeout(wakeTimeout);
+      wakeTimeout = setTimeout(() => fetchStocks(), 500);
+    };
+
+    document.addEventListener('visibilitychange', handleWakeup);
+    window.addEventListener('online', handleOnline);
 
     return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibility);
+      clearInterval(intervalId);
+      clearTimeout(wakeTimeout);
+      document.removeEventListener('visibilitychange', handleWakeup);
+      window.removeEventListener('online', handleOnline);
     };
   }, [fetchStocks]);
 
