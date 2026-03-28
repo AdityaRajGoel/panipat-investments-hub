@@ -108,7 +108,7 @@ const TableRowSkeleton = ({ index }: { index: number }) => (
 );
 
 const StockScreenerPage = () => {
-  const { stocks, loading, updatedAt, error, refresh } = useScreenerStocks();
+  const { stocks, loading, refreshing: bgRefreshing, updatedAt, error, refresh } = useScreenerStocks();
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState("all");
   const [peRange, setPeRange] = useState("all");
@@ -305,7 +305,14 @@ const StockScreenerPage = () => {
           ) : (
             <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                <p className="text-sm text-muted-foreground">{filtered.length} stocks matching criteria</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  {filtered.length} stocks matching criteria
+                  {bgRefreshing && (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-orange animate-pulse">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Refreshing prices...
+                    </span>
+                  )}
+                </p>
                 
                 {/* View Toggles */}
                 <div className="flex bg-muted rounded-lg p-1 self-start sm:self-auto">

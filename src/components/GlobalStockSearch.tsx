@@ -234,40 +234,52 @@ const GlobalStockSearch = ({ className }: Props) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const searchStocks = useCallback(async (q: string) => {
-    if (q.length < 1) { 
-      setResults([]); 
+    if (q.length < 1) {
+      setResults([]);
       setExchangeResults([]);
-      return; 
+      return;
     }
     setSearching(true);
-    try {
-      // 1. Local Search
-      const { data: localData } = await supabase
+
+    // Fire DB and Yahoo exchange search in parallel simultaneously
+    const dbPromise = Promise.resolve(
+      supabase
         .from("screener_stocks")
         .select("*")
         .or(`symbol.ilike.%${q}%,name.ilike.%${q}%`)
         .order("market_cap", { ascending: false })
-        .limit(6);
-      
-      setResults((localData as StockResult[]) || []);
+        .limit(8)
+    ).then(({ data }) => (data as StockResult[]) || []);
 
-      // 2. Exchange Search (Yahoo) if query is 2+ chars
-      if (q.length >= 2) {
-        const { data: exData, error } = await supabase.functions.invoke("fetch-screener-data", {
-          body: { query: q }
-        });
+    const exchangePromise = supabase.functions.invoke("fetch-screener-data", {
+      body: { query: q },
+    });
+
+    // Show DB results immediately when they arrive (fast path — typically <100ms)
+    dbPromise
+      .then((data) => {
+        setResults(data);
+        if (data.length > 0) setShowDropdown(true);
+      })
+      .catch(() => setResults([]));
+
+    try {
+      const [localResult, exResult] = await Promise.allSettled([dbPromise, exchangePromise]);
+      const localData = localResult.status === "fulfilled" ? localResult.value : [];
+
+      if (exResult.status === "fulfilled") {
+        const { data: exData, error } = exResult.value as any;
         if (!error && exData?.success) {
-          // Filter out what we already have in local results to avoid duplicates
-          const localSymbols = new Set((localData || []).map(s => s.symbol));
-          const filteredEx = (exData.results || []).filter((r: any) => !localSymbols.has(r.symbol));
-          setExchangeResults(filteredEx.slice(0, 10)); // Show more results if available
+          const localSymbols = new Set(localData.map((s) => s.symbol));
+          setExchangeResults(
+            (exData.results || [])
+              .filter((r: any) => !localSymbols.has(r.symbol))
+              .slice(0, 10)
+          );
         }
-      } else {
-        setExchangeResults([]);
       }
     } catch {
-      setResults([]);
-      setExchangeResults([]);
+      // individual .then/.catch handlers already set state
     } finally {
       setSearching(false);
     }
@@ -280,11 +292,12 @@ const GlobalStockSearch = ({ className }: Props) => {
         setResults([]);
         setExchangeResults([]);
       }
-    }, 350);
+    }, 200); // Reduced from 350ms → 200ms for faster response
     return () => clearTimeout(timer);
   }, [query, searchStocks]);
 
   // Handle selecting a stock (either local or from exchange)
+  // NOTE: We intentionally do NOT auto-open AI here — user must click the AI button explicitly
   const handleSelect = async (stock: any, isExchange = false) => {
     if (isExchange) {
       setSearching(true);
@@ -293,9 +306,7 @@ const GlobalStockSearch = ({ className }: Props) => {
           body: { symbol: stock.symbol }
         });
         if (!error && data?.success && data.stocks?.length > 0) {
-          const fullStock = data.stocks[0];
-          setSelected(fullStock);
-          setAnalyzingStock(fullStock);
+          setSelected(data.stocks[0]);
         }
       } catch (e) {
         console.error("Failed to select exchange stock", e);
@@ -304,7 +315,6 @@ const GlobalStockSearch = ({ className }: Props) => {
       }
     } else {
       setSelected(stock);
-      setAnalyzingStock(stock);
     }
     setChartRange("3mo");
     setShowDropdown(false);

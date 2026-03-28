@@ -251,6 +251,14 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
         roe_avg: number;
         valuation_status: string;
       };
+      price_targets?: {
+        support: number;
+        resistance: number;
+        target_1m: number;
+        target_3m: number;
+      };
+      momentum_score?: number;
+      volume_signal?: string;
     }
   } | null>(null);
   const [chatHistory, setChatHistory] = useState<{role: 'user' | 'ai', text: string}[]>([]);
@@ -259,12 +267,14 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   const [activeTab, setActiveTab] = useState<'report' | 'chat'>('report');
   
   const sampleQuestions = [
+    "What's the price target for 3 months?",
+    "What are the key support & resistance levels?",
+    "Is volume unusually high or low today?",
     "Is this a good time to buy?",
-    "What are the major risks?",
-    "How are the fundamentals?",
-    "Technical outlook for 1 month?",
-    "Explain the chart patterns.",
-    "Debt-to-Equity concerns?"
+    "What are the top 3 risks I should know?",
+    "How does the P/E compare to sector peers?",
+    "Technical outlook for next month?",
+    "Explain the detected chart pattern.",
   ];
   
   const endOfChatRef = useRef<HTMLDivElement>(null);
@@ -542,6 +552,74 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                       <IndicatorCard label="Return on Equity" signal={analysis.roeSignal} desc={analysis.roeDesc} icon={TrendingUp} delay={0.1} />
                       <IndicatorCard label="Debt to Equity" signal={analysis.deSignal} desc={analysis.deDesc} icon={AlertTriangle} delay={0.2} />
                     </div>
+
+                    {/* Price Targets Card — shown when AI has returned structured data */}
+                    {geminiVerdict?.structured?.price_targets && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-gradient-to-br from-brand-orange/5 via-transparent to-secondary/5 border border-brand-orange/20 rounded-xl p-4"
+                      >
+                        <div className="flex items-center gap-2 mb-4">
+                          <Zap className="w-3.5 h-3.5 text-brand-orange" />
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">AI Price Targets</span>
+                          {geminiVerdict.structured.volume_signal && (
+                            <span className={`ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                              geminiVerdict.structured.volume_signal === 'High' ? 'bg-orange-500/10 text-orange-500 border-orange-500/30' :
+                              geminiVerdict.structured.volume_signal === 'Low' ? 'bg-muted text-muted-foreground border-border' :
+                              'bg-secondary/10 text-secondary border-secondary/30'
+                            }`}>
+                              Vol: {geminiVerdict.structured.volume_signal}
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          {[
+                            { label: "Support", value: geminiVerdict.structured.price_targets.support, color: "text-secondary", bg: "bg-secondary/10" },
+                            { label: "Resistance", value: geminiVerdict.structured.price_targets.resistance, color: "text-destructive", bg: "bg-destructive/10" },
+                            { label: "Target 1M", value: geminiVerdict.structured.price_targets.target_1m, color: "text-brand-orange", bg: "bg-brand-orange/10" },
+                            { label: "Target 3M", value: geminiVerdict.structured.price_targets.target_3m, color: "text-brand-gold", bg: "bg-brand-gold/10" },
+                          ].map(({ label, value, color, bg }) => (
+                            <div key={label} className={`${bg} rounded-lg p-3 text-center`}>
+                              <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">{label}</p>
+                              <p className={`text-sm font-black font-mono ${color}`}>
+                                {value > 0 ? `₹${value.toLocaleString("en-IN")}` : "—"}
+                              </p>
+                              {value > 0 && analysis.priceNum > 0 && (
+                                <p className={`text-[8px] font-medium mt-0.5 ${value >= analysis.priceNum ? "text-secondary" : "text-destructive"}`}>
+                                  {value >= analysis.priceNum ? "+" : ""}{(((value - analysis.priceNum) / analysis.priceNum) * 100).toFixed(1)}%
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {/* Price range bar: support → current → resistance */}
+                        {geminiVerdict.structured.price_targets.support > 0 && geminiVerdict.structured.price_targets.resistance > 0 && (
+                          <div>
+                            <div className="flex justify-between text-[8px] text-muted-foreground mb-1">
+                              <span>Support ₹{geminiVerdict.structured.price_targets.support.toLocaleString("en-IN")}</span>
+                              <span>Resistance ₹{geminiVerdict.structured.price_targets.resistance.toLocaleString("en-IN")}</span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full relative overflow-hidden">
+                              <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-secondary via-brand-orange to-destructive rounded-full" style={{ width: "100%", opacity: 0.3 }} />
+                              <motion.div
+                                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-2 border-brand-orange rounded-full z-10 shadow"
+                                initial={{ left: "50%" }}
+                                animate={{
+                                  left: `${Math.min(95, Math.max(5,
+                                    ((analysis.priceNum - geminiVerdict.structured.price_targets.support) /
+                                    (geminiVerdict.structured.price_targets.resistance - geminiVerdict.structured.price_targets.support)) * 100
+                                  ))}%`
+                                }}
+                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                style={{ transform: "translate(-50%, -50%)" }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
 
                     {/* New Infographics Section */}
                     {geminiVerdict?.structured && (

@@ -42,13 +42,16 @@ Structure:
   "markdown_report": "Valid Markdown with Tables and Lists",
   "structured_data": {
     "sentiment_score": 0-100,
-    "technical_signals": ["Signal 1", "Signal 2"],
-    "bullish_signals": ["Factor 1", "Factor 2"],
-    "bearish_signals": ["Risk 1", "Risk 2"],
+    "technical_signals": ["Signal 1", "Signal 2", "Signal 3"],
+    "bullish_signals": ["Factor 1", "Factor 2", "Factor 3"],
+    "bearish_signals": ["Risk 1", "Risk 2", "Risk 3"],
     "action_verdict": "BUY" | "SELL" | "HOLD" | "WATCH",
     "insights": { "quality": 0-100, "valuation": 0-100, "growth": 0-100 },
-    "key_indicators": { "RSI": "Value", "MACD": "Signal", "SMA": "Signal" },
-    "sector_comparison": { "pe_avg": 0, "roe_avg": 0, "valuation_status": "Premium/Discount" }
+    "key_indicators": { "RSI": "Value", "MACD": "Signal", "SMA_50": "Signal", "SMA_200": "Signal", "Beta": "Value" },
+    "sector_comparison": { "pe_avg": 0, "roe_avg": 0, "valuation_status": "Premium/Discount" },
+    "price_targets": { "support": 0, "resistance": 0, "target_1m": 0, "target_3m": 0 },
+    "momentum_score": 0-100,
+    "volume_signal": "High" | "Normal" | "Low"
   }
 }`;
 
@@ -205,29 +208,51 @@ serve(async (req) => {
     } else {
       // Deep Report mode
       console.log(`[AI Report] Detailed analysis request for ${stockData.symbol}`);
-      finalPrompt = `Analyze this live market data for ${stockData.name} (${stockData.symbol}):\n` + JSON.stringify({
+      const high52 = stockData.high_52 || (stockData.price * 1.15);
+      const low52 = stockData.low_52 || (stockData.price * 0.85);
+      const pos52w = high52 > low52
+        ? Math.round(((stockData.price - low52) / (high52 - low52)) * 100)
+        : 50;
+      const gapVsPrevClose = stockData.prev_close && stockData.prev_close > 0
+        ? (((stockData.price - stockData.prev_close) / stockData.prev_close) * 100).toFixed(2)
+        : null;
+      const gapVsOpen = stockData.open_price && stockData.open_price > 0
+        ? (((stockData.price - stockData.open_price) / stockData.open_price) * 100).toFixed(2)
+        : null;
+      const volInMillions = stockData.volume ? (stockData.volume / 1000000).toFixed(2) : "N/A";
+
+      finalPrompt = `Analyze this live NSE market data for ${stockData.name} (${stockData.symbol}):\n` + JSON.stringify({
         Symbol: stockData.symbol,
         Name: stockData.name,
-        CMP: `₹${stockData.price}`,
-        Change: `${stockData.change_pct}%`,
-        PE: stockData.pe || "N/A",
-        MarketCap: stockData.market_cap ? `₹${stockData.market_cap} Cr` : "N/A",
-        Volume: stockData.volume?.toLocaleString() || "N/A",
         Sector: stockData.sector || "N/A",
-        DayRange: stockData.day_low && stockData.day_high ? `₹${stockData.day_low} - ₹${stockData.day_high}` : "N/A",
-        "52W High": stockData.high_52,
-        "52W Low": stockData.low_52,
+        CMP: `₹${stockData.price}`,
+        "Day Change": `${stockData.change_pct >= 0 ? "+" : ""}${stockData.change_pct}%`,
+        "vs Prev Close": gapVsPrevClose ? `${gapVsPrevClose >= "0" ? "+" : ""}${gapVsPrevClose}%` : "N/A",
+        "vs Open": gapVsOpen ? `${gapVsOpen >= "0" ? "+" : ""}${gapVsOpen}%` : "N/A",
+        "Day Range": `₹${stockData.day_low} – ₹${stockData.day_high}`,
+        "Prev Close": stockData.prev_close ? `₹${stockData.prev_close}` : "N/A",
+        "Open Price": stockData.open_price ? `₹${stockData.open_price}` : "N/A",
+        PE_Ratio: stockData.pe || "N/A",
+        MarketCap: stockData.market_cap ? `₹${stockData.market_cap} Cr` : "N/A",
+        Volume: `${volInMillions}M shares`,
+        "52W High": `₹${high52}`,
+        "52W Low": `₹${low52}`,
+        "52W Position": `${pos52w}% of range (0%=Low, 100%=High)`,
         "ROE Profile": stockData.roe,
         "Debt/Equity Profile": stockData.debt_equity,
         "Detected Chart Patterns": stockData.patterns,
         "Technical Score": `${stockData.score}/100`,
-        "Momentum": stockData.isBullish ? "Bullish" : "Bearish"
-      }, null, 2) + `\n\nProvide a comprehensive analysis including:
-1. Macro Context & Sector Outlook
-2. Deep Technical Analysis (based on patterns and price action)
-3. Fundamental Health Check (PE, ROE, Debt/Equity, Market Cap size) 
-4. Risk Assessment (Bearish/Risk factors)
-5. Actionable Final Verdict.`;
+        Momentum: stockData.isBullish ? "Bullish" : "Bearish",
+      }, null, 2) + `\n\nProvide a comprehensive professional analysis with these sections in the markdown_report:
+1. **Market Context & Sector Outlook** — macro tailwinds/headwinds for the sector
+2. **Price Action Analysis** — gap analysis (vs open/prev close), intraday trend, volume signal (is ${volInMillions}M volume high/normal/low for this stock?)
+3. **Technical Levels** — key support & resistance levels based on 52W range (${pos52w}% positioned), and estimated 1-month & 3-month price targets with reasoning
+4. **Fundamental Health** — PE (${stockData.pe || "N/A"}) vs sector avg, ROE quality, debt levels, market cap tier assessment
+5. **Risk Assessment** — top 3 specific risk factors with quantified impact
+6. **Actionable Verdict** — BUY/SELL/HOLD/WATCH with entry zone, stop-loss, and exit target
+
+For structured_data, include accurate price_targets.support (nearest strong support), price_targets.resistance (nearest resistance), price_targets.target_1m (1 month price target), price_targets.target_3m (3 month price target), momentum_score (0-100), and volume_signal (High/Normal/Low).`;
+
     }
 
     let result;
