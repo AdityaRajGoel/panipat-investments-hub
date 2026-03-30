@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import type { SubItem } from "./megaMenuData";
 
@@ -26,8 +27,9 @@ const MegaDropdown = ({ items, onClose }: MegaDropdownProps) => {
                   <Icon className="w-4.5 h-4.5 text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors inline-flex items-center gap-1">
                     {item.label}
+                    {item.external && <ExternalLink className="w-3 h-3 text-muted-foreground" />}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                     {item.description}

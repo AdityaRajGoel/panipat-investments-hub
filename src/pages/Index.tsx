@@ -5,7 +5,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import SEOHead from "@/components/SEOHead";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import BannerMessage from "@/components/BannerMessage";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import FloatingActions from "@/components/FloatingActions";
 import { lazy, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageTransition from "@/components/PageTransition";
@@ -19,6 +19,9 @@ const MarketOverview = lazy(() => import("@/components/MarketOverview"));
 const IPOTracker = lazy(() => import("@/components/IPOTracker"));
 const ClientMarquee = lazy(() => import("@/components/ClientMarquee"));
 const MarketNews = lazy(() => import("@/components/MarketNews"));
+const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
+const DailyResearch = lazy(() => import("@/components/DailyResearch"));
+const BecomePartner = lazy(() => import("@/components/BecomePartner"));
 const Footer = lazy(() => import("@/components/Footer"));
 
 const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
@@ -54,6 +57,9 @@ const Index = () => {
       <Suspense fallback={<SectionSkeleton height="h-64" />}>
         <AwardsSection />
       </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-64" />}>
+        <WhyChooseUs />
+      </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-96" />}>
         <MarketOverview />
       </Suspense>
@@ -66,10 +72,16 @@ const Index = () => {
       <Suspense fallback={<SectionSkeleton height="h-64" />}>
         <MarketNews />
       </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-64" />}>
+        <DailyResearch />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-80" />}>
+        <BecomePartner />
+      </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-48" />}>
         <Footer />
       </Suspense>
-      <WhatsAppButton />
+      <FloatingActions />
       </div>
     </PageTransition>
   );

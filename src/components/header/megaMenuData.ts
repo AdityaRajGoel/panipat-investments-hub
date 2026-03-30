@@ -3,7 +3,7 @@ import {
   Calculator, GitCompare, Calendar, ArrowUpDown, Activity,
   BookOpen, GraduationCap, Radio, Newspaper,
   Users, Building2, Phone, Mail, Award, ShieldCheck,
-  Search, Flame, Briefcase
+  Search, Flame, Briefcase, Globe, KeyRound, Banknote
 } from "lucide-react";
 
 export type SubItem = {
@@ -29,8 +29,11 @@ export const megaMenuItems: MegaMenuItem[] = [
       { label: "All Services Overview", href: "/services", icon: Briefcase, description: "View our complete range of services" },
       { label: "F&O Trading", href: "/fno", icon: Activity, description: "Futures & Options dashboard" },
       { label: "Unlisted Shares", href: "/unlisted-zone", icon: Flame, description: "Pre-IPO & unlisted opportunities" },
+      { label: "Mutual Funds", href: "https://parasrammf.com/", icon: PieChart, description: "Invest in top-performing mutual funds", external: true },
       { label: "Fixed Deposits/Bonds", href: "/products", icon: Building2, description: "FDs, Bonds & Insurance" },
       { label: "Depository Services", href: "/depository-services", icon: ShieldCheck, description: "Demat & CDSL/NSDL" },
+      { label: "Global Exchange", href: "https://www.indiainxga.com/member/index.aspx?memberCode=100183", icon: Globe, description: "Trade on international exchanges", external: true },
+      { label: "Apply IPO", href: "https://dashboard.parasramindia.com/Account/Login?Link=1002", icon: FileText, description: "Apply for upcoming IPOs online", external: true },
     ],
   },
   {
@@ -80,6 +83,8 @@ export const megaMenuItems: MegaMenuItem[] = [
     subItems: [
       { label: "Get in Touch", href: "/contact#contact-form", icon: Phone, description: "Call, email, or visit our office" },
       { label: "Open Account", href: "/open-account", icon: FileText, description: "Start trading in minutes" },
+      { label: "Update KYC", href: "https://dashboard.parasramindia.com/Account/Login?Link=1006", icon: KeyRound, description: "Update your KYC details online", external: true },
+      { label: "Fund Transfer", href: "https://www.parasramindia.com/fund-transfer/", icon: Banknote, description: "Transfer funds to your trading account", external: true },
       { label: "Find Us", href: "/contact#map", icon: Mail, description: "Office location & directions" },
     ],
   },

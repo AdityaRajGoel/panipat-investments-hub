@@ -1,0 +1,98 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle, PhoneCall, Download, X, HelpCircle } from "lucide-react";
+
+const FloatingActions = () => {
+  const [expanded, setExpanded] = useState(false);
+  const phoneNumber = "919416400314";
+  const whatsappMessage = "Hello! I'm interested in learning more about your investment services at Parasram Panipat.";
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const callbackMessage = "Hi, I would like to request a callback from Parasram Panipat branch.";
+  const callbackUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(callbackMessage)}`;
+
+  const actions = [
+    {
+      icon: MessageCircle,
+      label: "WhatsApp Chat",
+      href: whatsappUrl,
+      color: "bg-green-500 hover:bg-green-600 shadow-green-500/30",
+    },
+    {
+      icon: PhoneCall,
+      label: "Request Callback",
+      href: callbackUrl,
+      color: "bg-blue-500 hover:bg-blue-600 shadow-blue-500/30",
+    },
+    {
+      icon: Download,
+      label: "Download App",
+      href: "https://play.google.com/store/apps/details?id=com.parasramindia.xts",
+      color: "bg-purple-500 hover:bg-purple-600 shadow-purple-500/30",
+    },
+  ];
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pb-[env(safe-area-inset-bottom)]">
+      {/* Expanded action buttons */}
+      <AnimatePresence>
+        {expanded && (
+          <>
+            {actions.map((action, i) => (
+              <motion.a
+                key={action.label}
+                href={action.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-3 group`}
+                initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                transition={{ delay: (actions.length - 1 - i) * 0.06, duration: 0.2 }}
+              >
+                {/* Label tooltip */}
+                <span className="bg-card/95 backdrop-blur-md text-foreground text-sm font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-200">
+                  {action.label}
+                </span>
+
+                {/* Icon button */}
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${action.color} text-white transition-all duration-200 hover:scale-110`}>
+                  <action.icon className="w-5 h-5" />
+                </div>
+              </motion.a>
+            ))}
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main toggle button */}
+      <motion.button
+        onClick={() => setExpanded(!expanded)}
+        className="relative"
+        whileTap={{ scale: 0.9 }}
+      >
+        {/* Pulse ring when collapsed */}
+        {!expanded && (
+          <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-25" />
+        )}
+
+        <motion.div
+          className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
+            expanded
+              ? "bg-card text-foreground border border-border/50 hover:bg-accent"
+              : "bg-green-500 hover:bg-green-600 text-white shadow-green-500/30"
+          }`}
+          animate={{ rotate: expanded ? 90 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {expanded ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <HelpCircle className="w-7 h-7" />
+          )}
+        </motion.div>
+      </motion.button>
+    </div>
+  );
+};
+
+export default FloatingActions;
