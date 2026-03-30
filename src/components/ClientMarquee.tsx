@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 
 const quickTestimonials = [
@@ -10,7 +9,30 @@ const quickTestimonials = [
   { name: "Meena D.", text: "Rajat bhai handles all my mutual fund paperwork seamlessly.", rating: 5 },
 ];
 
+const ReviewCard = ({ t }: { t: typeof quickTestimonials[0] }) => (
+  <div className="inline-flex items-start gap-3 bg-card border border-border/50 rounded-xl px-5 py-4 min-w-[300px] max-w-[340px] shadow-sm flex-shrink-0">
+    <Quote className="w-5 h-5 text-secondary/40 flex-shrink-0 mt-0.5" />
+    <div className="whitespace-normal">
+      <p className="text-sm text-foreground leading-snug mb-2">"{t.text}"</p>
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-[10px] font-bold text-secondary">
+          {t.name[0]}
+        </div>
+        <span className="text-xs text-muted-foreground font-medium">{t.name}</span>
+        <div className="flex items-center gap-0.5 ml-auto">
+          {[...Array(t.rating)].map((_, j) => (
+            <Star key={j} className="w-2.5 h-2.5 fill-brand-gold text-brand-gold" />
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const ClientMarquee = () => {
+  // Duplicate items for seamless loop
+  const items = [...quickTestimonials, ...quickTestimonials];
+
   return (
     <section className="py-8 bg-muted/30 border-y border-border/30 overflow-hidden">
       <div className="container mx-auto px-4 mb-4">
@@ -24,35 +46,25 @@ const ClientMarquee = () => {
           <span className="text-muted-foreground text-sm">• What our clients say</span>
         </div>
       </div>
-      <div className="flex items-center">
-        <motion.div
-          className="flex gap-6 whitespace-nowrap"
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+
+      <div className="relative flex overflow-hidden">
+        <div
+          className="flex gap-6 animate-marquee-scroll"
+          style={{ willChange: "transform" }}
         >
-          {[...quickTestimonials, ...quickTestimonials].map((t, i) => (
-            <div
-              key={i}
-              className="inline-flex items-start gap-3 bg-card border border-border/50 rounded-xl px-5 py-4 min-w-[300px] max-w-[340px] shadow-sm"
-            >
-              <Quote className="w-5 h-5 text-secondary/40 flex-shrink-0 mt-0.5" />
-              <div className="whitespace-normal">
-                <p className="text-sm text-foreground leading-snug mb-2">"{t.text}"</p>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-[10px] font-bold text-secondary">
-                    {t.name[0]}
-                  </div>
-                  <span className="text-xs text-muted-foreground font-medium">{t.name}</span>
-                  <div className="flex items-center gap-0.5 ml-auto">
-                    {[...Array(t.rating)].map((_, j) => (
-                      <Star key={j} className="w-2.5 h-2.5 fill-brand-gold text-brand-gold" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+          {items.map((t, i) => (
+            <ReviewCard key={`a-${i}`} t={t} />
           ))}
-        </motion.div>
+        </div>
+        <div
+          className="flex gap-6 animate-marquee-scroll absolute left-full"
+          style={{ willChange: "transform" }}
+          aria-hidden="true"
+        >
+          {items.map((t, i) => (
+            <ReviewCard key={`b-${i}`} t={t} />
+          ))}
+        </div>
       </div>
     </section>
   );

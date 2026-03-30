@@ -57,6 +57,9 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
         style={{
           animation: `${isReverse ? 'ticker-right' : 'ticker-left'} ${duration}s linear infinite`,
           animationPlayState: selectedItem ? 'paused' : 'running',
+          willChange: 'transform',
+          transform: 'translate3d(0, 0, 0)',
+          backfaceVisibility: 'hidden',
         }}
       >
         {duplicated.map((item, i) => (
@@ -149,12 +152,8 @@ const useCountdown = (targetISO: string | null) => {
   return remaining;
 };
 
-const StockTicker = () => {
-  const isMobile = useIsMobile();
-  const { stocks, commodities, fetchedAt, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose } = useLiveMarket();
+const CountdownTimer = ({ fetchedAt, marketOpen }: { fetchedAt: string | null, marketOpen: boolean }) => {
   const [countdown, setCountdown] = useState(60);
-  const nextOpenCountdown = useCountdown(nextMarketOpen);
-  const closeCountdown = useCountdown(marketClose);
 
   useEffect(() => {
     if (!fetchedAt) return;
@@ -171,13 +170,28 @@ const StockTicker = () => {
     return () => clearInterval(timer);
   }, [fetchedAt, marketOpen]);
 
+  if (!marketOpen) return null;
+
+  return (
+    <span className="text-[9px] text-primary-foreground/40 font-medium">
+      {countdown > 0 ? `↻ ${countdown}s` : "Updating..."}
+    </span>
+  );
+};
+
+const StockTicker = () => {
+  const isMobile = useIsMobile();
+  const { stocks, commodities, fetchedAt, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose } = useLiveMarket();
+  const nextOpenCountdown = useCountdown(nextMarketOpen);
+  const closeCountdown = useCountdown(marketClose);
+
   return (
     <div className="border-b border-brand-orange/20 bg-brand-charcoal relative">
-      <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={80} />
+      <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={60} />
       {!isMobile && (
         <>
           <div className="h-px bg-brand-orange/15" />
-          <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
+          <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={60} />
         </>
       )}
       
@@ -228,9 +242,7 @@ const StockTicker = () => {
           </span>
         )}
         {marketOpen && (
-          <span className="text-[9px] text-primary-foreground/40 font-medium">
-            {countdown > 0 ? `↻ ${countdown}s` : "Updating..."}
-          </span>
+          <CountdownTimer fetchedAt={fetchedAt} marketOpen={marketOpen} />
         )}
       </div>
     </div>

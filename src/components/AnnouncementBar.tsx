@@ -55,7 +55,10 @@ const AnnouncementBar = () => {
           <div
             className="flex items-center gap-0 whitespace-nowrap hover:[animation-play-state:paused]"
             style={{ 
-              animation: 'ticker-left 35s linear infinite',
+              animation: 'ticker-left 20s linear infinite',
+              willChange: 'transform',
+              transform: 'translate3d(0, 0, 0)',
+              backfaceVisibility: 'hidden',
             }}
           >
             {[...announcements, ...announcements].map((item, i) => (
