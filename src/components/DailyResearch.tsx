@@ -11,7 +11,7 @@ const researchCards = [
     color: "from-secondary to-brand-green",
     bgAccent: "bg-secondary/10",
     textColor: "text-secondary",
-    href: "https://parasramindia.com/research",
+    href: "https://www.parasramindia.com/downloads/SR-LEVELS.pdf",
     cta: "View SR Levels",
   },
   {
@@ -22,7 +22,7 @@ const researchCards = [
     color: "from-primary to-brand-navy",
     bgAccent: "bg-primary/10",
     textColor: "text-primary",
-    href: "https://parasramindia.com/research",
+    href: "https://www.parasramindia.com/downloads/DAILY-NEWSLETTER.pdf",
     cta: "Read Newsletter",
   },
   {
@@ -33,7 +33,7 @@ const researchCards = [
     color: "from-brand-gold to-amber-600",
     bgAccent: "bg-brand-gold/10",
     textColor: "text-brand-gold",
-    href: "https://parasramindia.com/research",
+    href: "https://parasram.stockants.com/",
     cta: "Download Report",
   },
 ];
