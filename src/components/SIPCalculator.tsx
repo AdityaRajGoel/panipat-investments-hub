@@ -57,7 +57,7 @@ const SIPCalculator = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-10 max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-10">
           {/* Sliders */}
           <motion.div
             className="space-y-8"

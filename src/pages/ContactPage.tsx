@@ -90,7 +90,7 @@ const ContactPage = () => {
       {/* Quick contact cards */}
       <section className="relative z-20 -mt-8">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {quickContacts.map((item, i) => (
               <motion.div
                 key={item.label}
@@ -122,7 +122,7 @@ const ContactPage = () => {
       {/* Main content: Form + Info side by side */}
       <section id="contact-form" className="py-8 md:py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-5 gap-8">
             {/* Contact Form */}
             <div className="lg:col-span-3">
               <ContactForm />
@@ -189,7 +189,7 @@ const ContactPage = () => {
       <section id="map" className="py-12 bg-muted/50">
         <div className="container mx-auto px-4">
           <motion.div
-            className="max-w-5xl mx-auto rounded-2xl overflow-hidden border border-border/50 shadow-lg"
+            className="rounded-2xl overflow-hidden border border-border/50 shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

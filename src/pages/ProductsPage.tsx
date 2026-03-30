@@ -77,7 +77,7 @@ const ProductsPage = () => {
 
         {/* Content Section */}
         <section className="py-10 md:py-20 relative">
-          <div className="container mx-auto px-4 max-w-5xl">
+          <div className="container mx-auto px-4">
             <div className="grid gap-12">
               {products.map((product, idx) => (
                 <motion.div 

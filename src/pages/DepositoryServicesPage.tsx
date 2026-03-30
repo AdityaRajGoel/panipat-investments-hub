@@ -47,7 +47,7 @@ const DepositoryServicesPage = () => {
 
         {/* Info Content Section */}
         <section className="py-10 md:py-20 relative">
-          <div className="container mx-auto px-4 max-w-6xl">
+          <div className="container mx-auto px-4">
             
             <motion.div 
               className="mb-16 bg-card glass-card p-8 md:p-12 rounded-3xl border border-border overflow-hidden relative"

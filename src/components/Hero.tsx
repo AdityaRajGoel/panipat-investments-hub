@@ -185,7 +185,7 @@ const Hero = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 py-8 md:py-24 2xl:py-32 relative z-10 h-full min-h-screen flex items-center 2xl:max-w-[1800px]">
+      <div className="container mx-auto px-4 py-8 md:py-24 2xl:py-32 relative z-10 h-full min-h-screen flex items-center">
         <div className="w-full md:w-[55%] lg:w-1/2 2xl:w-[50%]">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 

@@ -274,7 +274,7 @@ const TeamPage = () => {
       {/* Team Grid */}
       <section className="py-8 md:py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8">
             {teamMembers.map((member, index) => (
               <TeamMemberCard key={member.name} member={member} index={index} />
             ))}
@@ -284,7 +284,7 @@ const TeamPage = () => {
 
       {/* Why Choose Us */}
       <section className="py-8 md:py-16 bg-muted/30 border-y border-border/50">
-        <div className="container mx-auto px-4 max-w-4xl">
+        <div className="container mx-auto px-4">
           <motion.h2
             className="font-heading text-2xl md:text-3xl font-bold text-foreground text-center mb-10"
             initial={{ opacity: 0 }}
