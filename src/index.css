@@ -156,23 +156,16 @@
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-accent);
-  }
-  
-  .bg-hero {
-    background: var(--gradient-hero);
-  }
-  
-  .bg-accent-gradient {
-    background: var(--gradient-accent);
-  }
-
-  .glass-card {
-    @apply bg-card/80 backdrop-blur-sm border border-border/50;
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
+
 
 /* Range input styling */
 input[type="range"] {

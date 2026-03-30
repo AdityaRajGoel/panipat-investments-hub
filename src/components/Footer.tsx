@@ -11,11 +11,9 @@ const Footer = () => {
   return (
     <footer className="bg-hero text-primary-foreground relative overflow-hidden">
       {/* Animated top border */}
-      <motion.div
+      <div
         className="h-1 bg-gradient-to-r from-secondary via-brand-gold to-secondary"
-        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-        transition={{ duration: 6, repeat: Infinity }}
-        style={{ backgroundSize: "200% 100%" }}
+        style={{ backgroundSize: "200% 100%", animation: "ticker-left 6s linear infinite alternate" }}
       />
 
       <div className="container mx-auto px-4 py-12">
@@ -33,7 +31,7 @@ const Footer = () => {
               whileHover={{ scale: 1.05 }}
             />
             <p className="text-primary-foreground/70 text-sm mb-4">
-              Science of Investment - Your trusted partner for wealth creation since 1974.
+              Science of Investment - Your trusted partner for wealth creation since 1970.
             </p>
             <div className="flex items-center gap-4">
               {[
@@ -43,20 +41,15 @@ const Footer = () => {
                 { href: "https://www.facebook.com/share/18B5W5rZaT/", icon: Facebook, label: "Facebook" },
                 { href: "https://x.com/ParasramPanipat", icon: Twitter, label: "X" },
               ].map((item, i) => (
-                <motion.a
+                <a
                   key={item.label}
                   href={item.href}
                   target={item.href.startsWith("http") ? "_blank" : undefined}
                   rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-                  whileHover={{ scale: 1.15, y: -3 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-secondary hover:scale-110 hover:-translate-y-1 transition-all"
                 >
                   <item.icon className="w-5 h-5" />
-                </motion.a>
+                </a>
               ))}
             </div>
           </motion.div>
@@ -76,10 +69,9 @@ const Footer = () => {
                 { label: "About Company", href: "https://parasramindia.com/about-parasram" },
                 { label: "Research", href: "https://parasramindia.com/research" },
               ].map((link, i) => (
-                <motion.li
+                <li
                   key={link.label}
-                  whileHover={{ x: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  className="hover:translate-x-1 transition-transform"
                 >
                   {(link as any).internal ? (
                     <Link
@@ -98,7 +90,7 @@ const Footer = () => {
                       {link.label}
                     </a>
                   )}
-                </motion.li>
+                </li>
               ))}
             </ul>
           </motion.div>
@@ -150,16 +142,13 @@ const Footer = () => {
                 © {new Date().getFullYear()} Parasram India Pvt. Ltd. All rights reserved. | Panipat Branch
               </p>
             </div>
-            <motion.button
+            <button
               onClick={scrollToTop}
-              className="w-10 h-10 bg-secondary/20 hover:bg-secondary rounded-full flex items-center justify-center text-primary-foreground transition-colors"
-              whileHover={{ scale: 1.1, y: -3 }}
-              whileTap={{ scale: 0.95 }}
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="w-10 h-10 bg-secondary/20 hover:bg-secondary rounded-full flex items-center justify-center text-primary-foreground transition-all hover:scale-110 hover:-translate-y-1 active:scale-95"
+              style={{ animation: "float 2s ease-in-out infinite" }}
             >
               <ArrowUp className="w-5 h-5" />
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useMemo, useCallback } from "react";
+import { Link } from "react-router-dom";
 import {
   TrendingUp, TrendingDown, Activity, Eye, ArrowUpRight, ArrowDownRight,
   BarChart3, Layers, PieChart, Gem, Maximize2, X, Clock, Volume2,
@@ -386,7 +387,7 @@ const MarketOverview = () => {
               const Icon = tab.icon;
               return (
                 <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 min-h-[44px] min-w-[44px] justify-center rounded-lg text-[11px] sm:text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
                     activeTab === tab.key
                       ? tab.key === "losers" ? "bg-destructive/10 text-destructive shadow-sm" : "bg-secondary/10 text-secondary shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -433,10 +434,10 @@ const MarketOverview = () => {
                 <Clock className="w-3 h-3" />
                 <span>Last updated: {fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</span>
               </div>
-              <div className="flex items-center gap-1 text-[10px] text-secondary font-medium cursor-pointer hover:underline">
+              <Link to="/screener" className="flex items-center gap-1 text-[11px] sm:text-xs text-secondary font-medium cursor-pointer hover:underline p-2 -mr-2 min-h-[44px]">
                 <span>View All</span>
                 <ChevronRight className="w-3 h-3" />
-              </div>
+              </Link>
             </div>
           </CardContent>
         </Card>

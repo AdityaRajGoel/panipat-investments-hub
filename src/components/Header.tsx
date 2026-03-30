@@ -182,7 +182,7 @@ const Header = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="lg:hidden overflow-hidden border-t border-border"
+              className="lg:hidden overflow-y-auto max-h-[80vh] border-t border-border"
             >
               <nav className="container mx-auto px-4 py-4 flex flex-col gap-1" aria-label="Mobile navigation">
                 {megaMenuItems.map((item, i) => (

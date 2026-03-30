@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
 import { Flame, TrendingUp, Shield, Zap, ArrowRight, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 const announcements = [
   { icon: Flame, text: "Open a FREE Demat Account Today !", cta: "Start Now", href: "/open-account", color: "text-brand-gold" },
@@ -11,14 +11,33 @@ const announcements = [
 ];
 
 const AnnouncementBar = () => {
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    
+    const handleScroll = () => {
+      // Auto-hide on mobile when scrolling down Past 50px
+      if (window.innerWidth < 768) {
+        if (window.scrollY > 50 && window.scrollY > lastScrollY) {
+          setHidden(true);
+        } else if (window.scrollY < 50) {
+          setHidden(false);
+        }
+      }
+      lastScrollY = window.scrollY;
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="relative overflow-hidden border-b border-white/5" style={{ background: 'linear-gradient(90deg, hsl(213 80% 10%) 0%, hsl(213 80% 15%) 50%, hsl(145 70% 12%) 100%)' }}>
+    <div className={`relative overflow-hidden border-b border-white/5 transition-all duration-300 ${
+      hidden ? "h-0 border-transparent opacity-0" : "h-8 md:h-10 opacity-100"
+    }`} style={{ background: 'linear-gradient(90deg, hsl(213 80% 10%) 0%, hsl(213 80% 15%) 50%, hsl(145 70% 12%) 100%)' }}>
       {/* Animated shimmer line at top */}
-      <motion.div
-        className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-gold/60 to-transparent"
-        animate={{ x: ["-100%", "100%"] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-      />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-gold/60 to-transparent animate-[ticker-right_4s_linear_infinite]" />
 
       <div className="flex items-center h-8 md:h-10">
         {/* Left badge */}
@@ -59,11 +78,7 @@ const AnnouncementBar = () => {
       </div>
 
       {/* Animated shimmer line at bottom */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent"
-        animate={{ x: ["100%", "-100%"] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-      />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent animate-[ticker-left_5s_linear_infinite]" />
     </div>
   );
 };
