@@ -88,16 +88,13 @@ const Header = () => {
                     to={item.href}
                     className={`px-3 py-2 text-sm font-medium transition-colors rounded-md flex items-center gap-1 ${
                       item.highlight
-                        ? "text-brand-gold font-bold hover:bg-accent/50"
+                        ? "text-brand-green font-bold hover:bg-accent/50"
                         : isActive(item)
                         ? "text-secondary"
                         : "text-foreground hover:text-secondary hover:bg-accent/50"
                     }`}
                   >
                     {item.label}
-                    {item.highlight && (
-                      <span className="text-[9px] bg-brand-gold text-primary-foreground px-1.5 py-0.5 rounded-full font-bold">NEW</span>
-                    )}
                   </Link>
                 ) : (
                   <button
@@ -146,7 +143,7 @@ const Header = () => {
                 <BarChart3 className="w-4 h-4 mr-1" />Web Trade
               </a>
             </Button>
-            <Button asChild className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+            <Button asChild className="hidden sm:inline-flex bg-brand-navy hover:bg-brand-navy/90 text-white font-semibold">
               <Link to="/open-account">Open Account</Link>
             </Button>
             <button
@@ -239,15 +236,12 @@ const Header = () => {
                       <Link
                         to={item.href!}
                         className={`block font-medium py-2.5 border-b border-border/30 transition-colors ${
-                          item.highlight ? "text-brand-gold font-bold" :
+                          item.highlight ? "text-brand-green font-bold" :
                           isActive(item) ? "text-secondary" : "text-foreground hover:text-secondary"
                         }`}
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {item.label}
-                        {item.highlight && (
-                          <span className="ml-2 text-[9px] bg-brand-gold text-primary-foreground px-1.5 py-0.5 rounded-full font-bold align-super">NEW</span>
-                        )}
                       </Link>
                     )}
                   </motion.div>
@@ -264,7 +258,7 @@ const Header = () => {
                       <BarChart3 className="w-4 h-4 mr-1" />Web Trade
                     </a>
                   </Button>
-                  <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full">
+                  <Button asChild className="bg-brand-navy hover:bg-brand-navy/90 text-white font-semibold w-full">
                     <Link to="/open-account" onClick={() => setMobileMenuOpen(false)}>Open Account</Link>
                   </Button>
                 </div>
