@@ -139,7 +139,7 @@ const Footer = () => {
             </a>
             <div className="text-center text-sm text-primary-foreground/60">
               <p className="mb-2">
-                SEBI Registration No: INZ000175134 | NSE: 12583 | BSE: 1153 | MCX: 46510
+                SEBI Registration No: INZ000220838 | CDSL DP ID: 12058200 | NSDL DP ID: IN302365 | MCX: INZ000033839
               </p>
               <p className="mb-2 text-primary-foreground/80">
                 <Link to="/privacy-policy" className="hover:text-secondary hover:underline transition-colors">Privacy Policy</Link>
