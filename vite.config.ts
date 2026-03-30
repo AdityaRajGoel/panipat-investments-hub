@@ -41,7 +41,6 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('@supabase/supabase-js')) {
               return 'supabase-vendor';
             }
-            return 'vendor';
           }
         }
       }
