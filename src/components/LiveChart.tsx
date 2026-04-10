@@ -123,7 +123,7 @@ const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndica
     let closest = 0;
     let closestDist = Infinity;
     coords.forEach((c, i) => { const d = Math.abs(c.x - x); if (d < closestDist) { closestDist = d; closest = i; } });
-    setHoverIdx(closest);
+    requestAnimationFrame(() => setHoverIdx(closest));
   }, [large, w, coords]);
 
   return (
@@ -411,6 +411,7 @@ const LiveChart = () => {
                   <div className="flex items-center gap-2 overflow-x-auto">
                     <button
                       onClick={() => setShowIndicators(!showIndicators)}
+                      aria-label={showIndicators ? "Hide chart indicators" : "Show chart indicators"}
                       className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-md transition-colors whitespace-nowrap ${showIndicators ? "bg-brand-orange/10 text-brand-orange border border-brand-orange/30" : "text-muted-foreground hover:bg-muted/80"}`}
                     >
                       <LineChart className="w-3 h-3" />

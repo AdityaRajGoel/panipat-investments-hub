@@ -131,7 +131,8 @@ const FullChart = ({ stock, data, up }: { stock: Stock; data: number[]; up: bool
       const d = Math.abs(c.x - x);
       if (d < closestDist) { closestDist = d; closest = i; }
     });
-    setHoverIdx(closest);
+    // Use RAF to batch the state update and avoid forced reflow
+    requestAnimationFrame(() => setHoverIdx(closest));
   }, [w, coords]);
 
   const basePrice = parseFloat(stock.price.replace(/[₹,/a-z]/gi, '')) || 100;
@@ -238,6 +239,7 @@ const StockRow = ({ stock, index, onChartClick }: { stock: Stock; index: number;
       <button
         onClick={() => onChartClick(stock)}
         className="sm:hidden p-1.5 rounded-lg hover:bg-muted transition-colors"
+        aria-label={`View chart for ${stock.name}`}
       >
         <Maximize2 className="w-3.5 h-3.5 text-muted-foreground" />
       </button>

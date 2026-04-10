@@ -71,7 +71,7 @@ const Header = () => {
       <div className="bg-card shadow-md relative">
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Parasram - Science of Investment" width={200} height={80} className="h-10 md:h-20 w-auto" />
+            <img src={logo} alt="Parasram - Science of Investment" width={70} height={70} decoding="async" className="h-10 md:h-20 w-auto" />
           </Link>
 
           {/* Desktop mega menu nav */}

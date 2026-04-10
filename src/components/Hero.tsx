@@ -147,10 +147,12 @@ const Hero = () => {
   const imgY = useTransform(springY, [-1, 1], [-12, 12]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const rect = sectionRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set(((e.clientX - rect.left) / rect.width - 0.5) * 2);
-    mouseY.set(((e.clientY - rect.top) / rect.height - 0.5) * 2);
+    requestAnimationFrame(() => {
+      const rect = sectionRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      mouseX.set(((e.clientX - rect.left) / rect.width - 0.5) * 2);
+      mouseY.set(((e.clientY - rect.top) / rect.height - 0.5) * 2);
+    });
   };
 
   return (
@@ -160,6 +162,15 @@ const Hero = () => {
         className="absolute inset-0 pointer-events-none z-0" 
         style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
       >
+        {/* LCP: discoverable poster image with high fetch priority */}
+        <img
+          src="/hero-bg.jpg"
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
+        />
         <video
           src="/video.mp4"
           poster="/hero-bg.jpg"
