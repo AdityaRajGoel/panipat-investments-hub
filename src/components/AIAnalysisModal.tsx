@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip as RechartsTooltip, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export interface StockForAnalysis {
   name: string;
@@ -848,7 +849,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                       <div className="bg-muted/30 border border-border/50 rounded-xl p-5 prose prose-sm dark:prose-invert max-w-none shadow-inner prose-headings:text-brand-orange prose-h1:text-xl prose-h2:text-lg prose-table:border prose-table:border-border/50 prose-th:bg-muted/50 prose-th:p-2 prose-td:p-2">
                         {geminiVerdict ? (
                           <>
-                            <Markdown>{geminiVerdict.analysis}</Markdown>
+                            <Markdown remarkPlugins={[remarkGfm]}>{geminiVerdict.analysis}</Markdown>
                             {geminiVerdict.model !== 'error' && (
                               <div className="flex justify-end mt-4 not-prose">
                                 <button
@@ -934,7 +935,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                             {msg.role === 'user' ? <div className="text-xs font-bold text-background">YOU</div> : <Bot className="w-4 h-4 text-brand-orange"/>}
                           </div>
                           <div className={`border rounded-2xl p-3 text-sm shadow-sm max-w-[85%] backdrop-blur-md ${msg.role === 'user' ? 'bg-secondary/90 text-background border-secondary rounded-tr-none' : 'bg-card/70 text-foreground border-border/50 rounded-tl-none prose prose-sm dark:prose-invert shadow-[0_4px_12px_rgba(0,0,0,0.05)]'}`}>
-                            {msg.role === 'ai' ? <Markdown>{msg.text}</Markdown> : msg.text}
+                            {msg.role === 'ai' ? <Markdown remarkPlugins={[remarkGfm]}>{msg.text}</Markdown> : msg.text}
                             {msg.role === 'ai' && <div className="text-[8px] opacity-30 mt-2 flex items-center gap-1"><BrainCircuit className="w-2 h-2"/> Analysis by Parasram Intelligence</div>}
                           </div>
                         </div>
