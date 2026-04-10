@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useMemo, memo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import platformImg from "@/assets/parasram-india.png";
+import platformImg from "@/assets/parasram-india.webp";
 
 type IndexData = { name: string; price: string; change: string; up: boolean };
 
@@ -169,7 +169,7 @@ const Hero = () => {
           playsInline
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
+          style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
         />
         {/* Brand overlay — keeps text legible */}
         <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/72 via-brand-navy/58 to-brand-green/40" />
@@ -231,7 +231,7 @@ const Hero = () => {
               <MarketBreadthBar />
             </div>
 
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1] 2xl:leading-[1.15]">
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1] 2xl:leading-[1.15]" style={{ minHeight: '2.2em' }}>
               Your Trusted Partner
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary pb-1 2xl:pb-2 block">

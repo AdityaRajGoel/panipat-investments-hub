@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");

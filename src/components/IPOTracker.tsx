@@ -42,7 +42,7 @@ const IPOCard = ({ ipo, index }: { ipo: IPO; index: number }) => (
     <div className="flex items-start justify-between mb-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h4 className="text-sm font-bold text-foreground truncate group-hover:text-brand-orange transition-colors">{ipo.name}</h4>
+          <h3 className="text-sm font-bold text-foreground truncate group-hover:text-brand-orange transition-colors">{ipo.name}</h3>
           <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${ipo.type === "Mainboard" ? "bg-primary/10 text-primary" : "bg-brand-gold/10 text-brand-gold"}`}>
             {ipo.type}
           </span>

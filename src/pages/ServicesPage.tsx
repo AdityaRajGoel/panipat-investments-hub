@@ -16,6 +16,11 @@ const ServicesPage = () => {
         title="Services | Stocks, Mutual Funds, IPO, F&O - Parasram India Panipat"
         description="Complete financial services in Panipat - equity trading, mutual funds, SIP, IPO applications, F&O, commodities, unlisted shares. SEBI registered broker since 1970."
         keywords="stock trading services Panipat, mutual fund advisor Panipat, SIP investment Panipat, IPO application Panipat, F&O trading Panipat, commodities trading Panipat"
+        ogImage="https://www.sphpnp.com/logo.png"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Services" },
+        ]}
       />
       <ScrollProgress />
       <Header />

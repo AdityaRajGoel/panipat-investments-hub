@@ -16,5 +16,9 @@ Disallow: /admin
 Disallow: /auth
 Disallow: /reset-password
 Disallow: /banner-manager
+Disallow: /api/
+
+# Canonical host
+Host: https://parasramindiapanipat.com
 
 Sitemap: https://parasramindiapanipat.com/sitemap.xml

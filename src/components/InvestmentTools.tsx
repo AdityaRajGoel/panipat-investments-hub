@@ -126,7 +126,7 @@ const InvestmentTools = () => {
                     animate={{ x: [0, 3, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    Learn More <ArrowRight className="w-3.5 h-3.5" />
+                    Explore {tool.title} <ArrowRight className="w-3.5 h-3.5" />
                   </motion.div>
                 </CardContent>
               </Card>

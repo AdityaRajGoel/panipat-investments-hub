@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, TrendingUp } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 
 type AuthMode = "login" | "signup" | "forgot";
 

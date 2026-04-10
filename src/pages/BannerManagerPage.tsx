@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 
 // ---- Types & Constants ----
 type BannerMessage = {

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 import ThemeToggle from "@/components/ThemeToggle";
 import MegaDropdown from "@/components/header/MegaDropdown";
 import { megaMenuItems } from "@/components/header/megaMenuData";

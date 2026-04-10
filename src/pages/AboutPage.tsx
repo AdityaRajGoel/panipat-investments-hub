@@ -29,6 +29,12 @@ const AboutPage = () => {
         title="About Parasram India Panipat | 50+ Years Legacy Stock Broker"
         description="Learn about Parasram India - Panipat's most trusted stock broker since 1970. SEBI registered, NSE & BSE member, 10L+ happy clients. Open your Demat account today."
         keywords="about Parasram India, stock broker Panipat history, SEBI registered broker Panipat, NSE BSE member Panipat, trusted financial advisor Haryana"
+        ogImage="https://www.sphpnp.com/logo.png"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "About Us" },
+        ]}
+        faqItems={aboutFAQs.map(f => ({ question: f.q, answer: f.a }))}
       />
       <ScrollProgress />
       <Header />

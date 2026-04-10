@@ -1,7 +1,7 @@
 import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter, Shield, FileText, AlertCircle, Scale } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -152,11 +152,11 @@ const Footer = () => {
               Shakuntala Complex, Palika Bazaar<br />
               Panipat - 132103
             </p>
-            <p className="text-primary-foreground/70 text-sm mb-3">
-              <a href="tel:+919416400314" className="hover:text-secondary transition-colors">+91 9416400314</a><br />
-              <a href="tel:+919999790011" className="hover:text-secondary transition-colors">+91 9999790011</a><br />
-              <a href="tel:+919416400277" className="hover:text-secondary transition-colors">+91 9416400277</a>
-            </p>
+            <div className="flex flex-col gap-1 text-sm mb-3">
+              <a href="tel:+919416400314" className="hover:text-secondary transition-colors py-1.5 inline-block min-h-[44px] flex items-center">+91 9416400314</a>
+              <a href="tel:+919999790011" className="hover:text-secondary transition-colors py-1.5 inline-block min-h-[44px] flex items-center">+91 9999790011</a>
+              <a href="tel:+919416400277" className="hover:text-secondary transition-colors py-1.5 inline-block min-h-[44px] flex items-center">+91 9416400277</a>
+            </div>
             <p className="text-primary-foreground/70 text-sm mb-4">
               <a href="mailto:parasrampnp@gmail.com" className="hover:text-secondary transition-colors">parasrampnp@gmail.com</a>
             </p>
