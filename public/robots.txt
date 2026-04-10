@@ -19,6 +19,6 @@ Disallow: /banner-manager
 Disallow: /api/
 
 # Canonical host
-Host: https://parasramindiapanipat.com
+Host: https://www.sphpnp.com
 
-Sitemap: https://parasramindiapanipat.com/sitemap.xml
+Sitemap: https://www.sphpnp.com/sitemap.xml
