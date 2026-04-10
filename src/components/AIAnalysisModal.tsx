@@ -37,12 +37,13 @@ interface AIAnalysisModalProps {
 }
 
 const analysisSteps = [
-  { text: "Connecting to AI Engine...", icon: "🔌" },
-  { text: "Fetching fundamentals (ROE, Debt/Eq)...", icon: "📊" },
-  { text: "Scanning complex chart patterns...", icon: "📉" },
-  { text: "Benchmarking against sector peers...", icon: "⚖️" },
-  { text: "Generating deep actionable insights...", icon: "✨" },
-  { text: "Polishing Intelligence Report...", icon: "📝" },
+  { text: "Connecting to AI Engine..."},
+  { text: "Fetching fundamentals (ROE, Debt/Eq)..."},
+  { text: "Scanning complex chart patterns..."},
+  { text: "Running deep reasoning model..."},
+  { text: "Benchmarking against sector peers..."},
+  { text: "Generating investment-grade report..." },
+  { text: "Finalizing Intelligence Report..."},
 ];
 
 function useTypewriter(text: string, speed = 10, start = false) {
@@ -310,19 +311,40 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   useEffect(() => {
     if (isAnalyzing || !stock || !analysis || geminiVerdict) return;
 
+    const priceNum = analysis.priceNum;
+    const isFinancial = stock.sector === "Financial Services" || stock.symbol.includes("BANK");
+    const roeValue = stock.roe ?? (isFinancial ? 14.5 : stock.pe && stock.pe > 0 ? 100 / stock.pe * 1.5 : 12.0);
+    const deValue = stock.debt_equity ?? (isFinancial ? 3.5 : 0.4);
+
     supabase.functions.invoke('ai-stock-analysis', {
       body: {
-        symbol: stock.symbol, name: stock.name, price: analysis.priceNum,
-        change_pct: analysis.changePct, pe: stock.pe, high_52: analysis.high52, low_52: analysis.low52,
-        market_cap: stock.market_cap, volume: stock.volume, sector: stock.sector,
-        day_high: stock.day_high, day_low: stock.day_low,
-        roe: analysis.roeSignal, debt_equity: analysis.deSignal, patterns: analysis.patterns,
-        score: analysis.score, isBullish: analysis.isBullish, deep_report: true 
+        symbol: stock.symbol, 
+        name: stock.name, 
+        price: priceNum,
+        change_pct: analysis.changePct, 
+        pe: stock.pe, 
+        high_52: analysis.high52, 
+        low_52: analysis.low52,
+        market_cap: stock.market_cap, 
+        volume: stock.volume, 
+        sector: stock.sector,
+        day_high: stock.day_high, 
+        day_low: stock.day_low,
+        roe: roeValue,
+        debt_equity: deValue,
+        patterns: analysis.patterns,
+        score: analysis.score, 
+        isBullish: analysis.isBullish, 
+        deep_report: true 
       }
     })
       .then(({ data, error }) => {
         if (error) {
           console.error("AI Analysis Error:", error);
+          setGeminiVerdict({ 
+            analysis: "⚠️ AI analysis is temporarily unavailable. Please try again in a moment.", 
+            model: "error" 
+          });
           return;
         }
         if (data?.verdict) {
@@ -337,13 +359,11 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               console.warn("Standard JSON parse failed, attempting regex extraction...");
               
               // Attempt 2: Regex extraction for markdown_report even if truncated
-              // This is crucial for fixing the "wall of JSON" issue when responses are cut off
               const mdMatch = verdict.match(/"markdown_report":\s*"([\s\S]*?)(?=",\s*"structured_data"|",\s*"|"}|\z)/);
               const structuredMatch = verdict.match(/"structured_data":\s*({[\s\S]*?)(?=\s*,\s*"|}$|\z)/);
               
               let extractedMd = mdMatch ? mdMatch[1] : null;
               if (extractedMd) {
-                // Fix escaped characters in the regex match
                 extractedMd = extractedMd
                   .replace(/\\n/g, '\n')
                   .replace(/\\r/g, '')
@@ -355,10 +375,8 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               let extractedStructured = null;
               if (structuredMatch) {
                 try {
-                  // Try to close the truncated JSON object if it's truncated
                   let structStr = structuredMatch[1].trim();
                   if (!structStr.endsWith('}')) {
-                    // Count braces and add missing ones
                     const openBraces = (structStr.match(/{/g) || []).length;
                     const closeBraces = (structStr.match(/}/g) || []).length;
                     structStr += '}'.repeat(Math.max(0, openBraces - closeBraces));
@@ -379,7 +397,6 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
           }
 
           if (typeof verdict === 'object' && verdict !== null) {
-            // Further clean up the markdown report if it contains raw JSON artifacts
             let finalMd = verdict.markdown_report || "Report content missing.";
             if (finalMd.startsWith('"') && finalMd.endsWith('"')) {
               finalMd = finalMd.slice(1, -1).replace(/\\n/g, '\n').replace(/\\"/g, '"');
@@ -387,18 +404,28 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
 
             setGeminiVerdict({ 
               analysis: finalMd, 
-              model: data.model || 'gemini-2.0-flash',
+              model: data.model || 'AI Analysis',
               structured: verdict.structured_data || null
             });
           } else {
-            // Fallback for plain text response
             setGeminiVerdict({ 
               analysis: typeof verdict === 'string' ? verdict.replace(/\\n/g, '\n') : "Unable to parse AI response.", 
-              model: data.model || 'gemini-2.0-flash' 
+              model: data.model || 'AI Analysis' 
             });
           }
+        } else {
+          setGeminiVerdict({ 
+            analysis: "⚠️ The AI returned an empty response. Please try again.", 
+            model: "error" 
+          });
         }
-      }).catch(err => console.error("AI Analysis Fetch Error:", err));
+      }).catch(err => {
+        console.error("AI Analysis Fetch Error:", err);
+        setGeminiVerdict({ 
+          analysis: "⚠️ Could not connect to the AI engine. Please check your connection and try again.", 
+          model: "error" 
+        });
+      });
   }, [isAnalyzing, stock, analysis, geminiVerdict]);
 
   const handleChatSubmit = async (e: React.FormEvent) => {
@@ -411,11 +438,28 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     setIsChatting(true);
 
     try {
+      // Build rich context for the chat AI
+      const richContext = [
+        `Stock: ${stock.name} (${stock.symbol})`,
+        `Sector: ${stock.sector || 'N/A'}`,
+        `CMP: ₹${stock.price}`,
+        `Change: ${analysis?.changePct?.toFixed(2)}%`,
+        `Day Range: ₹${stock.day_low} – ₹${stock.day_high}`,
+        `52W High: ₹${analysis?.high52} | 52W Low: ₹${analysis?.low52}`,
+        `P/E: ${stock.pe || 'N/A'}`,
+        `Market Cap: ₹${stock.market_cap} Cr`,
+        `Volume: ${stock.volume}`,
+        `Patterns: ${analysis?.patterns?.join(', ')}`,
+        `Score: ${analysis?.score}/100`,
+        `Momentum: ${analysis?.isBullish ? 'Bullish' : 'Bearish'}`,
+      ].join(' | ');
+
       const { data, error } = await supabase.functions.invoke('ai-stock-analysis', {
         body: {
           symbol: stock.symbol, is_chat: true, chat_message: userMsg,
           chat_history: chatHistory.slice(-10), 
-          context: `Price: ₹${stock.price}. Sector: ${stock.sector || 'N/A'}. Market Cap: ₹${stock.market_cap} Cr. Vol: ${stock.volume}. Score: ${analysis?.score}. Patterns: ${analysis?.patterns.join(',')}`
+          context: richContext,
+          ai_report_summary: geminiVerdict?.analysis?.slice(0, 1500) || '',
         }
       });
       
@@ -427,13 +471,37 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     } finally { setIsChatting(false); }
   };
 
-  const handleSampleQuestion = (q: string) => {
-    setChatInput(q);
-    // Use a small timeout to ensure the state update is reflected before submit
-    setTimeout(() => {
-      const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-      handleChatSubmit(fakeEvent);
-    }, 10);
+  const handleSampleQuestion = async (q: string) => {
+    if (isChatting) return;
+    setChatInput("");
+    setChatHistory(prev => [...prev, { role: 'user', text: q }]);
+    setIsChatting(true);
+    try {
+      const richContext = [
+        `Stock: ${stock.name} (${stock.symbol})`,
+        `Sector: ${stock.sector || 'N/A'}`,
+        `CMP: ₹${stock.price}`,
+        `Change: ${analysis?.changePct?.toFixed(2)}%`,
+        `52W High: ₹${analysis?.high52} | 52W Low: ₹${analysis?.low52}`,
+        `P/E: ${stock.pe || 'N/A'}`,
+        `Market Cap: ₹${stock.market_cap} Cr`,
+        `Patterns: ${analysis?.patterns?.join(', ')}`,
+        `Score: ${analysis?.score}/100`,
+      ].join(' | ');
+      const { data, error } = await supabase.functions.invoke('ai-stock-analysis', {
+        body: {
+          symbol: stock.symbol, is_chat: true, chat_message: q,
+          chat_history: chatHistory.slice(-10),
+          context: richContext,
+          ai_report_summary: geminiVerdict?.analysis?.slice(0, 1500) || '',
+        }
+      });
+      if (error) throw error;
+      setChatHistory(prev => [...prev, { role: 'ai', text: data.verdict || "I encountered an error." }]);
+    } catch (err) {
+      console.error("Chat Error:", err);
+      setChatHistory(prev => [...prev, { role: 'ai', text: "Failed to connect to the AI brain. Please try again." }]);
+    } finally { setIsChatting(false); }
   };
 
   const clearChat = () => {
@@ -457,7 +525,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               {stock.symbol} {stock.sector ? `· ${stock.sector}` : ""}
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/80 transition-colors">
+          <button onClick={onClose} aria-label="Close analysis" className="p-1.5 rounded-full hover:bg-muted/80 transition-colors">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -503,8 +571,8 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               <motion.div key="ready" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full">
                 {/* Tabs */}
                 <div className="px-5 border-b border-border/50 flex gap-6 bg-muted/20">
-                  <button onClick={() => setActiveTab('report')} className={`py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'report' ? 'border-brand-orange text-brand-orange' : 'border-transparent text-muted-foreground'}`}>Deep Analysis</button>
-                  <button onClick={() => setActiveTab('chat')} className={`py-3 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'chat' ? 'border-brand-orange text-brand-orange' : 'border-transparent text-muted-foreground'}`}><MessageSquare className="w-4 h-4" /> Ask AI Q&A</button>
+                  <button onClick={() => setActiveTab('report')} aria-label="View deep analysis report" className={`py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'report' ? 'border-brand-orange text-brand-orange' : 'border-transparent text-muted-foreground'}`}>Deep Analysis</button>
+                  <button onClick={() => setActiveTab('chat')} aria-label="Ask AI questions" className={`py-3 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'chat' ? 'border-brand-orange text-brand-orange' : 'border-transparent text-muted-foreground'}`}><MessageSquare className="w-4 h-4" /> Ask AI Q&A</button>
                 </div>
 
                 {/* Tab: Report */}
@@ -779,7 +847,36 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                       </div>
                       <div className="bg-muted/30 border border-border/50 rounded-xl p-5 prose prose-sm dark:prose-invert max-w-none shadow-inner prose-headings:text-brand-orange prose-h1:text-xl prose-h2:text-lg prose-table:border prose-table:border-border/50 prose-th:bg-muted/50 prose-th:p-2 prose-td:p-2">
                         {geminiVerdict ? (
-                          <Markdown>{geminiVerdict.analysis}</Markdown>
+                          <>
+                            <Markdown>{geminiVerdict.analysis}</Markdown>
+                            {geminiVerdict.model !== 'error' && (
+                              <div className="flex justify-end mt-4 not-prose">
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(geminiVerdict.analysis);
+                                  }}
+                                  aria-label="Copy report to clipboard"
+                                  className="text-[10px] font-medium text-muted-foreground hover:text-brand-orange transition-colors flex items-center gap-1 px-2 py-1 rounded-md hover:bg-muted/50"
+                                >
+                                  <Share2 className="w-3 h-3" /> Copy Report
+                                </button>
+                              </div>
+                            )}
+                            {geminiVerdict.model === 'error' && (
+                              <div className="flex justify-center mt-4 not-prose">
+                                <button
+                                  onClick={() => { 
+                                    setGeminiVerdict(null); 
+                                    setIsAnalyzing(true);
+                                    setLoadingStep(0);
+                                  }}
+                                  className="text-xs font-semibold text-brand-orange hover:text-brand-orange/80 transition-colors flex items-center gap-1.5 px-4 py-2 rounded-lg border border-brand-orange/30 hover:bg-brand-orange/5"
+                                >
+                                  <Zap className="w-3.5 h-3.5" /> Retry Analysis
+                                </button>
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="flex items-center gap-2 text-muted-foreground animate-pulse py-8 justify-center">
                             <Bot className="w-5 h-5" /> Generating deep markdown report...
@@ -794,6 +891,13 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                           This analysis is generated by Artificial Intelligence for informational purposes only. Investment in stocks involves high risk. Please consult with a certified financial advisor before making any investment decisions. Parasram India is not responsible for any financial losses.
                         </div>
                       </div>
+                      {geminiVerdict && (
+                        <div className="flex items-center justify-center gap-2 py-2 text-[9px] text-muted-foreground/60">
+                          <BrainCircuit className="w-3 h-3" />
+                          <span>Powered by <b className="text-muted-foreground/80">{geminiVerdict.model}</b></span>
+                          <span className="px-1.5 py-0.5 bg-brand-orange/10 text-brand-orange rounded-full font-bold">AI</span>
+                        </div>
+                      )}
                     </div>
 
                   </div>
