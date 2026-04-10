@@ -156,7 +156,10 @@ const Hero = () => {
   return (
     <section ref={sectionRef} onMouseMove={handleMouseMove} className="relative min-[85svh] lg:min-h-screen flex items-center overflow-hidden">
       {/* Video background */}
-      <div className="absolute inset-0">
+      <div 
+        className="absolute inset-0 pointer-events-none z-0" 
+        style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
+      >
         <video
           src="/video.mp4"
           poster="/hero-bg.jpg"
@@ -164,7 +167,9 @@ const Hero = () => {
           loop
           muted
           playsInline
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
         />
         {/* Brand overlay — keeps text legible */}
         <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/72 via-brand-navy/58 to-brand-green/40" />
@@ -302,7 +307,6 @@ const Hero = () => {
               <div
                 key={label}
                 className="bg-black/35 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2.5 flex items-center gap-2.5 shadow-xl"
-                style={{ animation: `float 3.5s ease-in-out infinite ${delay}s` }}
               >
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${data?.up !== false ? "bg-secondary/20" : "bg-destructive/20"}`}>
                   {data?.up !== false
@@ -332,7 +336,9 @@ const Hero = () => {
           <motion.img
             src={platformImg}
             alt="Parasram India Platform"
-            loading="lazy"
+            width={896}
+            height={560}
+            fetchPriority="high"
             className="w-full object-contain drop-shadow-2xl relative z-10 2xl:max-w-4xl"
             style={{ maxHeight: '75%', x: imgX, y: imgY }}
           />
@@ -343,9 +349,10 @@ const Hero = () => {
       {!isMobile && (
         <a
           href="#about"
+          aria-label="Scroll down to explore more content"
           className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-primary-foreground/60 hover:text-primary-foreground transition-colors cursor-pointer"
         >
-          <span className="text-sm font-medium tracking-wider uppercase">Explore</span>
+          <span className="text-sm font-medium tracking-wider uppercase">Scroll Down</span>
           <div className="w-6 h-10 rounded-full border-2 border-primary-foreground/40 flex justify-center pt-2">
             <div className="w-1.5 h-3 bg-secondary rounded-full" style={{ animation: 'scrollBounce 1.5s ease-in-out infinite' }} />
           </div>

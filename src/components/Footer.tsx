@@ -29,6 +29,8 @@ const Footer = () => {
             <motion.img
               src={logo}
               alt="Parasram"
+              width={120}
+              height={48}
               className="h-12 w-auto mb-4 brightness-0 invert"
               whileHover={{ scale: 1.05 }}
             />
@@ -48,6 +50,7 @@ const Footer = () => {
                   href={item.href}
                   target={item.href.startsWith("http") ? "_blank" : undefined}
                   rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  aria-label={item.label}
                   className="w-9 h-9 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-secondary hover:scale-110 hover:-translate-y-1 transition-all"
                 >
                   <item.icon className="w-4 h-4" />
@@ -256,6 +259,7 @@ const Footer = () => {
             </div>
             <button
               onClick={scrollToTop}
+              aria-label="Scroll to top"
               className="w-10 h-10 bg-secondary/20 hover:bg-secondary rounded-full flex items-center justify-center text-primary-foreground transition-all hover:scale-110 hover:-translate-y-1 active:scale-95"
               style={{ animation: "float 2s ease-in-out infinite" }}
             >

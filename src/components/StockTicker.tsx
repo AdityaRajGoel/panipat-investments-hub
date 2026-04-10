@@ -32,7 +32,7 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
 
   return (
     <span
-      className={`opacity-80 transition-all duration-300 ${
+      className={`opacity-80 transition-colors duration-300 ${
         flash === "up" ? "!text-secondary font-bold" :
         flash === "down" ? "!text-destructive font-bold" : ""
       }`}
@@ -71,7 +71,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
             <span className="font-bold tracking-wide text-white/90 group-hover:text-white transition-colors">{item.name}</span>
             {item.unit ? <span className="opacity-50 text-[10px] md:text-xs">{item.unit}</span> : null}
             <PriceCell item={item} />
-            <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
+            <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-secondary/25 text-secondary" : "bg-destructive/25 text-destructive"}`}>
               {item.up ? <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3" /> : <TrendingDown className="w-2.5 h-2.5 md:w-3 md:h-3" />}
               {item.change}
             </span>

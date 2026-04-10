@@ -19,13 +19,13 @@
     --primary: 210 100% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 50% 40%;
+    --secondary: 150 55% 42%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 30% 95%;
     --muted-foreground: 213 30% 40%;
 
-    --accent: 150 50% 40%;
+    --accent: 150 55% 42%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -77,7 +77,7 @@
     --primary: 150 50% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 50% 35%;
+    --secondary: 150 55% 38%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 50% 14%;

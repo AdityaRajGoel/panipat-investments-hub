@@ -69,6 +69,7 @@ const FloatingActions = () => {
         onClick={() => setExpanded(!expanded)}
         className="relative"
         whileTap={{ scale: 0.9 }}
+        aria-label={expanded ? "Close help menu" : "Open help menu"}
       >
         {/* Pulse ring when collapsed */}
         {!expanded && (

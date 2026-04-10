@@ -44,6 +44,7 @@ const Index = () => {
       <Header />
       <AnnouncementBar />
       <StockTicker />
+      <main id="main-content">
       <Hero />
       <Suspense fallback={<SectionSkeleton height="h-96" />}>
         <LiveChart />
@@ -78,6 +79,7 @@ const Index = () => {
       <Suspense fallback={<SectionSkeleton height="h-80" />}>
         <BecomePartner />
       </Suspense>
+      </main>
       <Suspense fallback={<SectionSkeleton height="h-48" />}>
         <Footer />
       </Suspense>

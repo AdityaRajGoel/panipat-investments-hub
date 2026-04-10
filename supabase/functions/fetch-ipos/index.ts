@@ -51,10 +51,6 @@ function parseIPOWatchHtml(html: string): IPOEntry[] | null {
       tables.push(match[1]);
     }
 
-    // Look for headings to determine table context
-    const headingMatches = html.match(/<h[23][^>]*>([\s\S]*?)<\/h[23]>/gi) || [];
-    const headings = headingMatches.map(h => cleanText(h).toLowerCase());
-
     for (let ti = 0; ti < tables.length; ti++) {
       const tableHtml = tables[ti];
       const rows = tableHtml.match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi);
@@ -62,89 +58,166 @@ function parseIPOWatchHtml(html: string): IPOEntry[] | null {
 
       // Check headers to determine table type
       const headerRow = cleanText(rows[0]).toLowerCase();
-      const isGMPTable = headerRow.includes('gmp') && headerRow.includes('ipo') && headerRow.includes('date');
+
+      // New format: IPO Name | IPO GMP | Trend | Price Band | Est. Listing | Date | Type | Status | Last Updated
+      const isNewGMPFormat = headerRow.includes('gmp') && headerRow.includes('trend') && headerRow.includes('status');
+      // Old format: IPO Name | GMP | Price | Date
+      const isOldGMPFormat = !isNewGMPFormat && headerRow.includes('gmp') && headerRow.includes('ipo') && headerRow.includes('date');
       const isPerformanceTable = headerRow.includes('listing price') || headerRow.includes('ipo price');
 
-      // Only process current GMP tables, skip historical performance tables
-      if (!isGMPTable || isPerformanceTable) continue;
-
-      // Determine if SME by checking heading content before table in HTML
-      const tablePos = html.indexOf(tableHtml);
-      const beforeTable = html.substring(Math.max(0, tablePos - 500), tablePos).toLowerCase();
-      const isSMESection = beforeTable.includes('sme ipo') || beforeTable.includes('sme gmp');
-      const isMainboardSection = beforeTable.includes('mainboard ipo') || beforeTable.includes('mainboard gmp');
+      if (isPerformanceTable) continue;
+      if (!isNewGMPFormat && !isOldGMPFormat) continue;
 
       for (let ri = 1; ri < rows.length; ri++) {
         const cells = rows[ri].match(/<td[^>]*>([\s\S]*?)<\/td>/gi);
-        if (!cells || cells.length < 4) continue;
+        if (!cells) continue;
 
-        const name = cleanText(cells[0])
-          .replace(/\s*(IPO|Limited|Ltd\.?)\s*/gi, '')
-          .trim();
-        if (!name || name.length < 2 || name === '--' || name === '-') continue;
+        if (isNewGMPFormat && cells.length >= 8) {
+          // New 9-column format
+          const name = cleanText(cells[0])
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\s*(IPO|Limited|Ltd\.?)\s*/gi, '')
+            .trim();
+          if (!name || name.length < 2 || name === '--' || name === '-') continue;
 
-        const gmpRaw = cleanText(cells[1]);
-        const priceRaw = cleanText(cells[2]);
-        const listingGainOrDate = cleanText(cells[3]);
-        const dateRaw = cells[4] ? cleanText(cells[4]) : '';
+          const gmpRaw = cleanText(cells[1]);
+          const priceBandRaw = cleanText(cells[3]).replace(/&nbsp;/g, ' ');
+          const estListingRaw = cleanText(cells[4]);
+          const dateRaw = cleanText(cells[5]);
+          const typeRaw = cleanText(cells[6]).toLowerCase();
+          const statusRaw = cleanText(cells[7]).toLowerCase();
 
-        // Parse GMP
-        const gmpMatch = gmpRaw.match(/₹\s*(-?\d+[\d.]*)/);
-        const gmpNum = gmpMatch ? parseFloat(gmpMatch[1]) : 0;
-        const isNegativeGMP = gmpRaw.includes('-') && gmpNum > 0;
-        const actualGmp = isNegativeGMP ? -gmpNum : gmpNum;
-        const gmpStr = `${actualGmp >= 0 ? '+' : ''}₹${Math.abs(actualGmp)}`;
+          // Parse GMP
+          const gmpMatch = gmpRaw.match(/₹\s*(-?\d+[\d.]*)/);
+          const gmpNum = gmpMatch ? parseFloat(gmpMatch[1]) : 0;
+          const isNegativeGMP = gmpRaw.includes('-') && gmpNum > 0;
+          const actualGmp = isNegativeGMP ? -gmpNum : gmpNum;
+          const gmpStr = `${actualGmp >= 0 ? '+' : ''}₹${Math.abs(actualGmp)}`;
 
-        // Parse date
-        const dateStr = dateRaw || listingGainOrDate || 'TBA';
-
-        // Parse date to determine status
-        const dateForStatus = dateRaw || dateStr;
-        let status: 'upcoming' | 'open' | 'listed' = 'upcoming';
-        const now = new Date();
-        const dateRange = dateForStatus.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
-        if (dateRange) {
-          const months: Record<string, number> = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
-          const monthNum = months[dateRange[3].toLowerCase()];
-          const startDay = parseInt(dateRange[1]);
-          const endDay = parseInt(dateRange[2]);
-          const year = now.getFullYear();
-          const startDate = new Date(year, monthNum, startDay);
-          const endDate = new Date(year, monthNum, endDay, 23, 59, 59);
-
-          if (now >= startDate && now <= endDate) {
+          // Use explicit status column
+          let status: 'upcoming' | 'open' | 'listed' = 'upcoming';
+          if (statusRaw.includes('open') || statusRaw.includes('live')) {
             status = 'open';
-          } else if (now > endDate) {
+          } else if (statusRaw.includes('listed') || statusRaw.includes('closed') || statusRaw.includes('allotment')) {
             status = 'listed';
-          } else {
+          } else if (statusRaw.includes('upcoming') || statusRaw.includes('soon')) {
             status = 'upcoming';
           }
-        }
 
-        // Parse listing gain if IPO is already listed
-        let listingGain: string | undefined;
-        let listingUp: boolean | undefined;
-        if (status === 'listed') {
-          const gainMatch = listingGainOrDate.match(/(-?\d+\.?\d*)%/);
-          if (gainMatch) {
-            const gainNum = parseFloat(gainMatch[1]);
-            listingGain = `${gainNum >= 0 ? '+' : ''}${gainNum}%`;
-            listingUp = gainNum >= 0;
+          // Parse listing gain from Est. Listing column
+          let listingGain: string | undefined;
+          let listingUp: boolean | undefined;
+          if (status === 'listed') {
+            const gainMatch = estListingRaw.match(/(-?\d+\.?\d*)%/);
+            if (gainMatch) {
+              const gainNum = parseFloat(gainMatch[1]);
+              listingGain = `${gainNum >= 0 ? '+' : ''}${gainNum}%`;
+              listingUp = gainNum >= 0;
+            }
           }
-        }
 
-        ipos.push({
-          name,
-          price: priceRaw.includes('₹') ? priceRaw : priceRaw ? `₹${priceRaw}` : 'TBA',
-          date: dateStr,
-          size: '-',
-          gmp: gmpStr,
-          gmpUp: actualGmp >= 0,
-          status,
-          type: isSMESection ? 'SME' : 'Mainboard',
-          listingGain,
-          listingUp,
-        });
+          // Determine type from explicit Type column
+          const isSME = typeRaw.includes('sme');
+
+          // Parse price band
+          const priceStr = priceBandRaw.includes('₹') ? priceBandRaw : priceBandRaw && priceBandRaw !== '-' ? `₹${priceBandRaw}` : 'TBA';
+
+          ipos.push({
+            name,
+            price: priceStr === '₹-' ? 'TBA' : priceStr,
+            date: dateRaw || 'TBA',
+            size: '-',
+            gmp: gmpStr,
+            gmpUp: actualGmp >= 0,
+            status,
+            type: isSME ? 'SME' : 'Mainboard',
+            listingGain,
+            listingUp,
+          });
+        } else if (isOldGMPFormat && cells.length >= 4) {
+          // Old 4-5 column format (fallback)
+          const name = cleanText(cells[0])
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\s*(IPO|Limited|Ltd\.?)\s*/gi, '')
+            .trim();
+          if (!name || name.length < 2 || name === '--' || name === '-') continue;
+
+          const gmpRaw = cleanText(cells[1]);
+          const priceRaw = cleanText(cells[2]);
+          const listingGainOrDate = cleanText(cells[3]);
+          const dateRaw = cells[4] ? cleanText(cells[4]) : '';
+
+          // Parse GMP
+          const gmpMatch = gmpRaw.match(/₹\s*(-?\d+[\d.]*)/);
+          const gmpNum = gmpMatch ? parseFloat(gmpMatch[1]) : 0;
+          const isNegativeGMP = gmpRaw.includes('-') && gmpNum > 0;
+          const actualGmp = isNegativeGMP ? -gmpNum : gmpNum;
+          const gmpStr = `${actualGmp >= 0 ? '+' : ''}₹${Math.abs(actualGmp)}`;
+
+          // Parse date
+          const dateStr = dateRaw || listingGainOrDate || 'TBA';
+
+          // Parse date to determine status
+          const dateForStatus = dateRaw || dateStr;
+          let status: 'upcoming' | 'open' | 'listed' = 'upcoming';
+          const now = new Date();
+          const months: Record<string, number> = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+
+          let dateRange = dateForStatus.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
+          if (!dateRange) {
+            const altRange = dateForStatus.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*[-–]\s*(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
+            if (altRange) {
+              dateRange = [altRange[0], altRange[1], altRange[3], altRange[4]];
+            }
+          }
+
+          if (dateRange) {
+            const monthNum = months[dateRange[3].toLowerCase()];
+            const startDay = parseInt(dateRange[1]);
+            const endDay = parseInt(dateRange[2]);
+            const year = now.getFullYear();
+            const startDate = new Date(year, monthNum, startDay);
+            const endDate = new Date(year, monthNum, endDay, 23, 59, 59);
+
+            if (now >= startDate && now <= endDate) {
+              status = 'open';
+            } else if (now > endDate) {
+              status = 'listed';
+            } else {
+              status = 'upcoming';
+            }
+          }
+
+          // Parse listing gain if IPO is already listed
+          let listingGain: string | undefined;
+          let listingUp: boolean | undefined;
+          if (status === 'listed') {
+            const gainMatch = listingGainOrDate.match(/(-?\d+\.?\d*)%/);
+            if (gainMatch) {
+              const gainNum = parseFloat(gainMatch[1]);
+              listingGain = `${gainNum >= 0 ? '+' : ''}${gainNum}%`;
+              listingUp = gainNum >= 0;
+            }
+          }
+
+          // Determine if SME by checking heading content before table in HTML
+          const tablePos = html.indexOf(tableHtml);
+          const beforeTable = html.substring(Math.max(0, tablePos - 500), tablePos).toLowerCase();
+          const isSMESection = beforeTable.includes('sme ipo') || beforeTable.includes('sme gmp');
+
+          ipos.push({
+            name,
+            price: priceRaw.includes('₹') ? priceRaw : priceRaw ? `₹${priceRaw}` : 'TBA',
+            date: dateStr,
+            size: '-',
+            gmp: gmpStr,
+            gmpUp: actualGmp >= 0,
+            status,
+            type: isSMESection ? 'SME' : 'Mainboard',
+            listingGain,
+            listingUp,
+          });
+        }
       }
     }
 
@@ -246,26 +319,27 @@ async function fetchFromInvestorGain(): Promise<IPOEntry[] | null> {
   }
 }
 
-// Curated fallback with REAL data (updated March 13, 2026)
+// Curated fallback with REAL data (updated April 10, 2026)
 function getCuratedIPOs(): IPOEntry[] {
   return [
-    // Upcoming Mainboard
-    { name: "GSP Crop Science", price: "₹320", date: "16-18 Mar", size: "-", status: "upcoming", gmp: "+₹0", gmpUp: true, type: "Mainboard" },
-    { name: "Raajmarg Infra Investment Trust", price: "₹100", date: "11-13 Mar", size: "₹6,000 Cr", status: "upcoming", gmp: "+₹0", gmpUp: true, type: "Mainboard" },
-    { name: "Innovision", price: "₹519", date: "10-17 Mar", size: "₹322.84 Cr", status: "open", gmp: "+₹4", gmpUp: true, type: "Mainboard" },
-    { name: "Rajputana Stainless", price: "₹122", date: "9-11 Mar", size: "₹254.98 Cr", status: "listed", gmp: "+₹3", gmpUp: true, type: "Mainboard", listingGain: "+2.46%", listingUp: true },
+    // Currently Open Mainboard
+    { name: "Propshare Celestia", price: "₹113", date: "10-16 Apr", size: "₹782 Cr", status: "open", gmp: "+₹0", gmpUp: true, type: "Mainboard", rating: 3 },
+    { name: "Om Power Transmission", price: "₹147", date: "10-14 Apr", size: "₹110 Cr", status: "open", gmp: "+₹0", gmpUp: true, type: "Mainboard", rating: 3 },
 
-    // SME
-    { name: "Novus Loyalty", price: "₹146", date: "17-20 Mar", size: "-", status: "upcoming", gmp: "+₹0", gmpUp: true, type: "SME" },
-    { name: "Apsis Aerocom", price: "₹110", date: "11-13 Mar", size: "₹33.95 Cr", status: "open", gmp: "+₹18", gmpUp: true, type: "SME" },
-    { name: "Srinibas Pradhan Constructions", price: "₹98", date: "6-10 Mar", size: "₹19.30 Cr", status: "listed", gmp: "+₹0", gmpUp: true, type: "SME" },
+    // Currently Open SME
+    { name: "Safety Controls", price: "₹88", date: "10-14 Apr", size: "₹26 Cr", status: "open", gmp: "+₹0", gmpUp: true, type: "SME" },
+    { name: "Emiac Technologies", price: "₹152", date: "10-14 Apr", size: "₹38 Cr", status: "open", gmp: "+₹0", gmpUp: true, type: "SME" },
+
+    // Upcoming
+    { name: "Citius Transnet InvIT", price: "₹100", date: "15-17 Apr", size: "₹750 Cr", status: "upcoming", gmp: "+₹0", gmpUp: true, type: "Mainboard" },
+    { name: "Leapfrog Engineering", price: "₹78", date: "14-16 Apr", size: "₹32 Cr", status: "upcoming", gmp: "+₹0", gmpUp: true, type: "SME" },
 
     // Recently Listed Mainboard
+    { name: "GSP Crop Science", price: "₹320", date: "16-18 Mar", size: "-", status: "listed", gmp: "+₹0", gmpUp: true, type: "Mainboard", listingGain: "+5.2%", listingUp: true },
     { name: "SEDEMAC Mechatronics", price: "₹1,352", date: "4-6 Mar", size: "₹1,087.45 Cr", status: "listed", gmp: "+₹18", gmpUp: true, type: "Mainboard", listingGain: "+13.54%", listingUp: true },
+    { name: "Rajputana Stainless", price: "₹122", date: "9-11 Mar", size: "₹254.98 Cr", status: "listed", gmp: "+₹3", gmpUp: true, type: "Mainboard", listingGain: "+2.46%", listingUp: true },
     { name: "PNGS Reva Diamond", price: "₹386", date: "24-26 Feb", size: "₹379.52 Cr", status: "listed", gmp: "-₹15", gmpUp: false, type: "Mainboard", listingGain: "-2.85%", listingUp: false },
     { name: "Clean Max Enviro", price: "₹1,053", date: "23-25 Feb", size: "₹3,079.88 Cr", status: "listed", gmp: "-₹37", gmpUp: false, type: "Mainboard", listingGain: "-8.83%", listingUp: false },
-    { name: "Fractal Analytics", price: "₹900", date: "9-11 Feb", size: "₹2,833.90 Cr", status: "listed", gmp: "+₹0", gmpUp: true, type: "Mainboard", listingGain: "-2.67%", listingUp: false },
-    { name: "Aye Finance", price: "₹129", date: "9-11 Feb", size: "₹1,010 Cr", status: "listed", gmp: "+₹0", gmpUp: true, type: "Mainboard", listingGain: "0%", listingUp: true },
   ];
 }
 

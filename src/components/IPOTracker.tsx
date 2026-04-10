@@ -6,7 +6,7 @@ import {
   RefreshCw, Loader2
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
+import { supabase } from "@/integrations/supabase/client";
 
 type IPO = {
   name: string;
@@ -116,7 +116,7 @@ const IPOTracker = () => {
   const fetchIPOs = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await lovableSupabase.functions.invoke('fetch-ipos');
+      const { data, error } = await supabase.functions.invoke('fetch-ipos');
       if (!error && data?.success && data.ipos?.length > 0) {
         setIpos(data.ipos);
         setSource(data.source || "");

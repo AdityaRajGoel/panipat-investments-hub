@@ -63,9 +63,9 @@ const NewsCard = ({ item, index }: { item: NewsItem; index: number }) => (
                 {item.timeAgo}
               </span>
             </div>
-            <h4 className="font-heading font-semibold text-sm text-foreground leading-snug group-hover:text-secondary transition-colors line-clamp-2">
+            <h3 className="font-heading font-semibold text-sm text-foreground leading-snug group-hover:text-secondary transition-colors line-clamp-2">
               {item.title}
-            </h4>
+            </h3>
             <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{item.summary}</p>
             <p className="text-[10px] text-muted-foreground/60 mt-2 font-medium">{item.source}</p>
           </div>
@@ -189,6 +189,7 @@ const MarketNews = () => {
             onClick={fetchNews}
             disabled={loading}
             className="ml-2"
+            aria-label="Refresh news"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </Button>

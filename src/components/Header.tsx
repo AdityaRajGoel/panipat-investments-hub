@@ -50,13 +50,13 @@ const Header = () => {
             <a href="mailto:parasrampnp@gmail.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
               <Mail className="w-3.5 h-3.5" /><span>parasrampnp@gmail.com</span>
             </a>
-            <a href="https://www.instagram.com/parasrampanipat/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
+            <a href="https://www.instagram.com/parasrampanipat/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="hover:text-secondary transition-colors">
               <Instagram className="w-3.5 h-3.5" />
             </a>
-            <a href="https://www.facebook.com/share/18B5W5rZaT/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
+            <a href="https://www.facebook.com/share/18B5W5rZaT/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" className="hover:text-secondary transition-colors">
               <Facebook className="w-3.5 h-3.5" />
             </a>
-            <a href="https://x.com/ParasramPanipat" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
+            <a href="https://x.com/ParasramPanipat" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X (Twitter)" className="hover:text-secondary transition-colors">
               <Twitter className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -71,7 +71,7 @@ const Header = () => {
       <div className="bg-card shadow-md relative">
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Parasram - Science of Investment" className="h-10 md:h-20 w-auto" />
+            <img src={logo} alt="Parasram - Science of Investment" width={200} height={80} className="h-10 md:h-20 w-auto" />
           </Link>
 
           {/* Desktop mega menu nav */}
@@ -125,7 +125,7 @@ const Header = () => {
                 className="relative"
                 title={`My Watchlist (${watchlist.length})`}
               >
-                <button className="p-2 rounded-md text-muted-foreground hover:text-yellow-500 hover:bg-yellow-500/10 transition-colors relative">
+                <button aria-label={`My Watchlist (${watchlist.length} items)`} className="p-2 rounded-md text-muted-foreground hover:text-yellow-500 hover:bg-yellow-500/10 transition-colors relative">
                   <Star className="w-4 h-4" />
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-yellow-500 text-[9px] text-black font-bold flex items-center justify-center">
                     {watchlist.length}
