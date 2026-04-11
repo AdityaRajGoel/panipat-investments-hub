@@ -27,12 +27,12 @@ type SEOProps = {
   author?: string;
 };
 
-const BASE_URL = "https://parasramindiapanipat.com";
+const BASE_URL = "https://www.sphpnp.com";
 
 const SEOHead = ({ title, description, canonical, ogImage, keywords, jsonLd, breadcrumbs, faqItems, noindex, type = "website", datePublished, dateModified, author }: SEOProps) => {
   const location = useLocation();
   const fullCanonical = canonical || `${BASE_URL}${location.pathname}`;
-  const fullTitle = title.length > 60 ? title : `${title} | Parasram India`;
+  const fullTitle = title.length > 60 || title === "Best Stock Broker in Panipat" ? title : `${title} | Parasram India`;
 
   useEffect(() => {
     // Title

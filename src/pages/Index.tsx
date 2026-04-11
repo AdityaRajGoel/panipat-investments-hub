@@ -35,7 +35,7 @@ const Index = () => {
     <PageTransition>
       <div className="min-h-screen bg-background">
       <SEOHead
-        title="Best Stock Broker in Panipat | Parasram India - Since 1970"
+        title="Best Stock Broker in Panipat"
         description="Parasram India Panipat - SEBI registered stock broker since 1970. Open free Demat account. Stocks, mutual funds, IPO, unlisted shares, F&O, commodities trading."
         keywords="best stock broker Panipat, demat account Panipat, stock trading Panipat, mutual funds Panipat, IPO Panipat, Parasram India, SEBI registered broker Haryana"
         ogImage="https://www.sphpnp.com/logo.png"
