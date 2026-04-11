@@ -165,7 +165,7 @@ const Hero = () => {
         {/* LCP: discoverable poster image with high fetch priority */}
         <img
           src="/hero-bg.jpg"
-          alt=""
+          alt="Parasram India - Stock Trading Platform and Investment Background"
           aria-hidden="true"
           fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover object-center"

@@ -20,8 +20,9 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg}'],
-        maximumFileSizeToCacheInBytes: 5000000 // 5MB limit
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,xml}'],
+        maximumFileSizeToCacheInBytes: 5000000, // 5MB limit
+        navigateFallbackDenylist: [/^\/.*\.xml$/]
       },
       manifest: {
         name: 'Parasram India - Panipat',
