@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
-import logo from "@/assets/logo.webp";
+import logo80 from "@/assets/logo-80.webp";
 
 // ---- Types & Constants ----
 type BannerMessage = {
@@ -474,7 +474,7 @@ const BannerManagerPage = () => {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/">
-              <img src={logo} alt="Parasram India" className="h-8" />
+              <img src={logo80} alt="Parasram India" className="h-8" />
             </Link>
             <div className="hidden sm:block h-6 w-px bg-border/50" />
             <h1 className="hidden sm:block font-heading text-lg font-semibold text-foreground">

@@ -9,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, TrendingUp } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import logo from "@/assets/logo.webp";
+import logo80 from "@/assets/logo-80.webp";
+import logo160 from "@/assets/logo-160.webp";
 
 type AuthMode = "login" | "signup" | "forgot";
 
@@ -116,7 +117,7 @@ const AuthPage = () => {
           className="relative z-10 text-center text-primary-foreground"
         >
           <Link to="/">
-            <img src={logo} alt="Parasram India" className="h-20 mx-auto mb-8" />
+            <img src={logo160} alt="Parasram India" className="h-20 mx-auto mb-8" />
           </Link>
           <h2 className="font-heading text-3xl font-bold mb-4">The Science of Investment</h2>
           <p className="text-primary-foreground/70 text-lg mb-8 max-w-md">
@@ -147,7 +148,7 @@ const AuthPage = () => {
           className="w-full max-w-md"
         >
           <Link to="/" className="lg:hidden flex justify-center mb-6">
-            <img src={logo} alt="Parasram India" className="h-12" />
+            <img src={logo80} alt="Parasram India" className="h-12" />
           </Link>
 
           <AnimatePresence mode="wait">

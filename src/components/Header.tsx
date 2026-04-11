@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import logo from "@/assets/logo.webp";
+import logo80 from "@/assets/logo-80.webp";
+import logo160 from "@/assets/logo-160.webp";
 import ThemeToggle from "@/components/ThemeToggle";
 import MegaDropdown from "@/components/header/MegaDropdown";
 import { megaMenuItems } from "@/components/header/megaMenuData";
@@ -71,7 +72,7 @@ const Header = () => {
       <div className="bg-card shadow-md relative">
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Parasram - Science of Investment" width={70} height={70} decoding="async" className="h-10 md:h-20 w-auto" />
+            <img src={logo80} srcSet={`${logo80} 80w, ${logo160} 160w`} sizes="(min-width: 768px) 80px, 40px" alt="Parasram - Science of Investment" width={80} height={80} decoding="async" className="h-10 md:h-20 w-auto" />
           </Link>
 
           {/* Desktop mega menu nav */}

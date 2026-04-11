@@ -1,7 +1,8 @@
 import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter, Shield, FileText, AlertCircle, Scale } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo.webp";
+import logo80 from "@/assets/logo-80.webp";
+import logo160 from "@/assets/logo-160.webp";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -27,10 +28,12 @@ const Footer = () => {
             transition={{ duration: 0.5 }}
           >
             <motion.img
-              src={logo}
+              src={logo80}
+              srcSet={`${logo80} 80w, ${logo160} 160w`}
+              sizes="48px"
               alt="Parasram"
-              width={120}
-              height={48}
+              width={80}
+              height={80}
               className="h-12 w-auto mb-4 brightness-0 invert"
               whileHover={{ scale: 1.05 }}
             />

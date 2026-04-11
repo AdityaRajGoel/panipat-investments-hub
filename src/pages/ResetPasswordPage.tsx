@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import SEOHead from "@/components/SEOHead";
-import logo from "@/assets/logo.webp";
+import logo80 from "@/assets/logo-80.webp";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
@@ -65,7 +65,7 @@ const ResetPasswordPage = () => {
       <SEOHead title="Reset Password | Parasram India" description="Set your new password" />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="text-center mb-6">
-          <img src={logo} alt="Parasram India" className="h-12 mx-auto mb-4" />
+          <img src={logo80} alt="Parasram India" className="h-12 mx-auto mb-4" />
           <h1 className="font-heading text-2xl font-bold text-foreground">Set New Password</h1>
           <p className="text-muted-foreground text-sm mt-1">Enter your new password below</p>
         </div>

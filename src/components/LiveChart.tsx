@@ -380,7 +380,7 @@ const LiveChart = () => {
               const isActive = activeIndexKey === idx.key;
               return (
                 <motion.button key={idx.key} onClick={() => setActiveIndexKey(idx.key)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border transition-all min-w-[180px] sm:min-w-[200px] lg:min-w-0 snap-start text-left ${isActive ? "bg-card border-brand-orange/40 shadow-lg shadow-brand-orange/10" : "bg-card/50 border-border/30 hover:border-border"}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition-colors min-w-[180px] sm:min-w-[200px] lg:min-w-0 snap-start text-left ${isActive ? "bg-card border-brand-orange/40 shadow-lg shadow-brand-orange/10" : "bg-card/50 border-border/30 hover:border-border"}`}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${idx.up ? "bg-secondary/10" : "bg-destructive/10"}`}>
                     {idx.up ? <TrendingUp className="w-4 h-4 text-secondary" /> : <TrendingDown className="w-4 h-4 text-destructive" />}
@@ -531,7 +531,7 @@ const LiveChart = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-secondary font-semibold">{buyPressure}% Buy</span>
                     <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden flex">
-                      <div className="bg-secondary/70 rounded-l-full transition-all" style={{ width: `${buyPressure}%` }} />
+                      <div className="bg-secondary/70 rounded-l-full" style={{ width: `${buyPressure}%` }} />
                       <div className="bg-destructive/70 rounded-r-full flex-1" />
                     </div>
                     <span className="text-[10px] text-destructive font-semibold">{100 - buyPressure}% Sell</span>

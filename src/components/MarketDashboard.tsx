@@ -100,7 +100,7 @@ const SectorHeatmap = memo(() => {
             const Icon = sectorIcons[sector.name] || Activity;
             return (
               <motion.div key={sector.name}
-                className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all cursor-pointer ${sector.up ? "bg-secondary/5 border-secondary/20 hover:bg-secondary/10" : "bg-destructive/5 border-destructive/20 hover:bg-destructive/10"}`}
+                className={`flex items-center gap-2 p-2.5 rounded-lg border transition-colors cursor-pointer ${sector.up ? "bg-secondary/5 border-secondary/20 hover:bg-secondary/10" : "bg-destructive/5 border-destructive/20 hover:bg-destructive/10"}`}
                 whileHover={{ scale: 1.02, y: -2 }}>
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${sector.up ? "bg-secondary/15" : "bg-destructive/15"}`}>
                   <Icon className={`w-3.5 h-3.5 ${sector.up ? "text-secondary" : "text-destructive"}`} />

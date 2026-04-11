@@ -209,7 +209,7 @@ const MiniSparkline = ({ up, onClick }: { up: boolean; onClick?: () => void }) =
 
 const StockRow = ({ stock, index, onChartClick }: { stock: Stock; index: number; onChartClick: (stock: Stock) => void }) => (
   <motion.div
-    className="flex items-center justify-between py-3 px-3 sm:px-4 rounded-xl hover:bg-muted/50 transition-all duration-200 cursor-pointer group border-b border-border/30 last:border-0"
+    className="flex items-center justify-between py-3 px-3 sm:px-4 rounded-xl hover:bg-muted/50 transition-colors duration-200 cursor-pointer group border-b border-border/30 last:border-0"
     initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }}
     whileHover={{ x: 4 }}
     onClick={() => onChartClick(stock)}
@@ -249,7 +249,7 @@ const StockRow = ({ stock, index, onChartClick }: { stock: Stock; index: number;
 
 const CalendarRow = ({ action, index }: { action: any; index: number }) => (
   <motion.div
-    className="flex items-center justify-between py-3 px-3 sm:px-4 rounded-xl hover:bg-muted/50 transition-all duration-200 cursor-default group border-b border-border/30 last:border-0"
+    className="flex items-center justify-between py-3 px-3 sm:px-4 rounded-xl hover:bg-muted/50 transition-colors duration-200 cursor-default group border-b border-border/30 last:border-0"
     initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }}
     whileHover={{ x: 4 }}
   >
@@ -389,7 +389,7 @@ const MarketOverview = () => {
               const Icon = tab.icon;
               return (
                 <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 min-h-[44px] min-w-[44px] justify-center rounded-lg text-[11px] sm:text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 min-h-[44px] min-w-[44px] shrink-0 justify-center rounded-lg text-[11px] sm:text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
                     activeTab === tab.key
                       ? tab.key === "losers" ? "bg-destructive/10 text-destructive shadow-sm" : "bg-secondary/10 text-secondary shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -453,9 +453,9 @@ const MarketOverview = () => {
           <div className="flex items-center gap-3 mb-2">
             <span className="text-xs font-bold text-secondary">{liveAdvances.toLocaleString()} Advances</span>
             <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden flex">
-              <div className="bg-secondary/80 rounded-l-full transition-all" style={{ width: `${totalStocks ? (liveAdvances / totalStocks * 100) : 62}%` }} />
+              <div className="bg-secondary/80 rounded-l-full" style={{ width: `${totalStocks ? (liveAdvances / totalStocks * 100) : 62}%` }} />
               <div className="bg-muted-foreground/30" style={{ width: `${totalStocks ? (liveUnchanged / totalStocks * 100) : 8}%` }} />
-              <div className="bg-destructive/80 rounded-r-full transition-all" style={{ width: `${totalStocks ? (liveDeclines / totalStocks * 100) : 30}%` }} />
+              <div className="bg-destructive/80 rounded-r-full" style={{ width: `${totalStocks ? (liveDeclines / totalStocks * 100) : 30}%` }} />
             </div>
             <span className="text-xs font-bold text-destructive">{liveDeclines.toLocaleString()} Declines</span>
           </div>

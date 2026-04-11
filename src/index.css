@@ -19,7 +19,7 @@
     --primary: 210 100% 20%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 60% 34%;
+    --secondary: 150 60% 32%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 30% 95%;
@@ -42,7 +42,7 @@
     --brand-green: 150 50% 40%;
     --brand-light-blue: 210 60% 96%;
     --brand-gold: 38 92% 50%;
-    --brand-orange: 24 95% 48%;
+    --brand-orange: 24 95% 42%;
     --brand-warm: 30 80% 96%;
     --brand-copper: 20 70% 45%;
     --brand-charcoal: 220 15% 20%;
@@ -77,16 +77,16 @@
     --primary: 150 50% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 60% 48%;
+    --secondary: 150 65% 55%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 50% 14%;
-    --muted-foreground: 215 25% 60%;
+    --muted-foreground: 215 25% 65%;
 
     --accent: 220 55% 18%;
     --accent-foreground: 210 40% 96%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 80% 60%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 220 50% 16%;
