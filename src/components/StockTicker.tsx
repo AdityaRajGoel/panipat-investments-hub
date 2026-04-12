@@ -44,7 +44,7 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
 
 const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", textClass = "text-primary-foreground", duration = 40 }: TickerRowProps) => {
   const [selectedItem, setSelectedItem] = useState<LiveStock | null>(null);
-  const duplicated = [...items, ...items];
+  const duplicated = [...items, ...items, ...items, ...items, ...items, ...items];
   const isReverse = direction === "right";
 
   return (
@@ -53,7 +53,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
       <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to right, hsl(220 20% 10%), transparent)` }} />
       <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to left, hsl(220 20% 10%), transparent)` }} />
       <div
-        className="inline-flex gap-4 md:gap-10"
+        className="inline-flex"
         style={{
           animation: `${isReverse ? 'ticker-right' : 'ticker-left'} ${duration}s linear infinite`,
           animationPlayState: selectedItem ? 'paused' : 'running',
@@ -65,7 +65,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
         {duplicated.map((item, i) => (
           <div
             key={i}
-            className="inline-flex items-center gap-1.5 md:gap-3 text-xs md:text-sm cursor-pointer select-none px-2 md:px-3 py-1 rounded-md hover:bg-white/10 transition-colors group"
+            className="inline-flex items-center gap-1.5 md:gap-3 text-xs md:text-sm cursor-pointer select-none px-2 md:px-3 py-1 rounded-md hover:bg-white/10 transition-colors group mr-4 md:mr-10"
             onClick={() => setSelectedItem(item)}
           >
             <span className="font-bold tracking-wide text-white/90 group-hover:text-white transition-colors">{item.name}</span>

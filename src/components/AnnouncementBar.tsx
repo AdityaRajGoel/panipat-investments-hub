@@ -53,15 +53,15 @@ const AnnouncementBar = () => {
           <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[hsl(145_70%_12%)] to-transparent z-10 pointer-events-none" />
 
           <div
-            className="flex items-center gap-0 whitespace-nowrap hover:[animation-play-state:paused]"
+            className="flex items-center whitespace-nowrap hover:[animation-play-state:paused]"
             style={{ 
-              animation: 'ticker-left 20s linear infinite',
+              animation: 'ticker-left 30s linear infinite',
               willChange: 'transform',
               transform: 'translate3d(0, 0, 0)',
               backfaceVisibility: 'hidden',
             }}
           >
-            {[...announcements, ...announcements].map((item, i) => (
+            {[...announcements, ...announcements, ...announcements, ...announcements, ...announcements, ...announcements].map((item, i) => (
               <div key={i} className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6">
                 <item.icon className={`w-3 h-3 md:w-3.5 md:h-3.5 shrink-0 ${item.color}`} />
                 <span className="text-white/75 text-[11px] md:text-xs font-medium">{item.text}</span>

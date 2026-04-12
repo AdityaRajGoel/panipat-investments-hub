@@ -10,36 +10,41 @@ import platformImg from "@/assets/parasram-india.webp";
 type IndexData = { name: string; price: string; change: string; up: boolean };
 
 // Lightweight count-up — requestAnimationFrame based
-function useCountUp(target: number, duration = 2) {
+function useCountUp(target: number, duration = 2, delay = 0) {
   const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (!started) return;
-    const startTime = performance.now();
     let raf: number;
-    const tick = (now: number) => {
-      const elapsed = (now - startTime) / 1000;
-      if (elapsed >= duration) { setCount(target); return; }
-      setCount(Math.floor((elapsed / duration) * target));
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [started, target, duration]);
+    let startTime: number;
 
-  return { count, start: () => setStarted(true) };
+    const timeout = setTimeout(() => {
+      startTime = performance.now();
+      const tick = (now: number) => {
+        const elapsed = (now - startTime) / 1000;
+        if (elapsed >= duration) { setCount(target); return; }
+        setCount(Math.floor((elapsed / duration) * target));
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }, delay * 1000);
+
+    return () => {
+      clearTimeout(timeout);
+      cancelAnimationFrame(raf);
+    };
+  }, [target, duration, delay]);
+
+  return count;
 }
 
 const StatCounter = memo(({ target, label, suffix = "", delay = 0 }: { target: number; label: string; suffix?: string; delay?: number }) => {
-  const { count, start } = useCountUp(target, 2);
+  const count = useCountUp(target, 2, delay);
   return (
     <motion.div
       className="text-center"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.6 }}
-      onAnimationComplete={start}
     >
       <div className="text-2xl md:text-4xl font-bold text-primary-foreground">
         {count.toLocaleString('en-IN')}{suffix}
