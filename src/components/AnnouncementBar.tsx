@@ -1,6 +1,7 @@
 import { Flame, TrendingUp, Shield, Zap, ArrowRight, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const announcements = [
   { icon: Flame, text: "Open a FREE Demat Account Today !", cta: "Start Now", href: "/open-account", color: "text-brand-gold" },
@@ -12,6 +13,7 @@ const announcements = [
 
 const AnnouncementBar = () => {
   const [hidden, setHidden] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -53,9 +55,9 @@ const AnnouncementBar = () => {
           <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[hsl(145_70%_12%)] to-transparent z-10 pointer-events-none" />
 
           <div
-            className="flex items-center whitespace-nowrap hover:[animation-play-state:paused]"
+            className="inline-flex w-max items-center whitespace-nowrap hover:[animation-play-state:paused]"
             style={{ 
-              animation: 'ticker-left 30s linear infinite',
+              animation: 'ticker-left 60s linear infinite',
               willChange: 'transform',
               transform: 'translate3d(0, 0, 0)',
               backfaceVisibility: 'hidden',
