@@ -292,7 +292,7 @@ const UnlistedShares = () => {
                 )}
 
                 <div className="flex gap-3">
-                  <Button asChild className="flex-1 bg-secondary hover:bg-secondary/90"><a href="#contact"><Phone className="w-4 h-4 mr-2" /> Contact to Buy</a></Button>
+                  <Button asChild className="flex-1 bg-secondary hover:bg-secondary/90"><a href="#contact" onClick={() => setSelectedStock(null)}><Phone className="w-4 h-4 mr-2" /> Contact to Buy</a></Button>
                   <Button asChild variant="outline" className="flex-1"><a href="tel:+919416400314"><Phone className="w-4 h-4 mr-2" /> Call Now</a></Button>
                 </div>
               </div>
