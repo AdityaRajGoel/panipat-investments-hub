@@ -183,6 +183,7 @@ const Hero = () => {
           loop
           muted
           playsInline
+          preload="none"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
@@ -247,7 +248,7 @@ const Hero = () => {
               <MarketBreadthBar />
             </div>
 
-            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1] 2xl:leading-[1.15]" style={{ minHeight: '2.2em' }}>
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1] 2xl:leading-[1.15]" style={{ minHeight: '2.6em' }}>
               Your Trusted Partner
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary pb-1 2xl:pb-2 block">

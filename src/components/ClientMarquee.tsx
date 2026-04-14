@@ -10,7 +10,7 @@ const quickTestimonials = [
 ];
 
 const ReviewCard = ({ t }: { t: typeof quickTestimonials[0] }) => (
-  <div className="inline-flex items-start gap-3 bg-card border border-border/50 rounded-xl px-5 py-4 min-w-[300px] max-w-[340px] shadow-sm flex-shrink-0">
+  <div className="inline-flex items-start gap-3 bg-card border border-border/50 rounded-xl px-5 py-4 min-w-[300px] max-w-[340px] shadow-sm flex-shrink-0 mr-6">
     <Quote className="w-5 h-5 text-secondary/40 flex-shrink-0 mt-0.5" />
     <div className="whitespace-normal">
       <p className="text-sm text-foreground leading-snug mb-2">"{t.text}"</p>
@@ -30,8 +30,8 @@ const ReviewCard = ({ t }: { t: typeof quickTestimonials[0] }) => (
 );
 
 const ClientMarquee = () => {
-  // Duplicate items for seamless loop
-  const items = [...quickTestimonials, ...quickTestimonials];
+  // Duplicate enough items so one set is wider than any screen
+  const items = [...quickTestimonials, ...quickTestimonials, ...quickTestimonials];
 
   return (
     <section className="py-8 bg-muted/30 border-y border-border/30 overflow-hidden">
@@ -47,22 +47,22 @@ const ClientMarquee = () => {
         </div>
       </div>
 
-      <div className="relative flex overflow-hidden">
+      <div className="relative overflow-hidden py-2 flex" style={{ maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)' }}>
         <div
-          className="flex gap-6 animate-marquee-scroll"
-          style={{ willChange: "transform" }}
+          className="flex shrink-0 animate-marquee-scroll"
+          style={{ willChange: "transform", animationDuration: "50s" }}
         >
           {items.map((t, i) => (
-            <ReviewCard key={`a-${i}`} t={t} />
+            <ReviewCard key={`primary-${i}`} t={t} />
           ))}
         </div>
         <div
-          className="flex gap-6 animate-marquee-scroll absolute left-full"
-          style={{ willChange: "transform" }}
+          className="flex shrink-0 animate-marquee-scroll"
+          style={{ willChange: "transform", animationDuration: "50s" }}
           aria-hidden="true"
         >
           {items.map((t, i) => (
-            <ReviewCard key={`b-${i}`} t={t} />
+            <ReviewCard key={`secondary-${i}`} t={t} />
           ))}
         </div>
       </div>

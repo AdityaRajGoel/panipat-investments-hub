@@ -32,7 +32,7 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
 
   return (
     <span
-      className={`opacity-80 ${
+      className={`opacity-80 font-tabular-nums ${
         flash === "up" ? "text-secondary font-bold" :
         flash === "down" ? "text-destructive font-bold" : ""
       }`}

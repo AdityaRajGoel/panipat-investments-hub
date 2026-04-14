@@ -87,7 +87,7 @@ const Header = () => {
                 {item.href && !item.subItems ? (
                   <Link
                     to={item.href}
-                    className={`px-3 py-2 text-sm font-medium transition-colors rounded-md flex items-center gap-1 ${
+                    className={`px-3 py-3 min-h-[48px] text-sm font-medium transition-colors rounded-md flex items-center gap-1 ${
                       item.highlight
                         ? "text-brand-green font-bold hover:bg-accent/50"
                         : isActive(item)
@@ -98,20 +98,20 @@ const Header = () => {
                     {item.label}
                   </Link>
                 ) : (
-                  <button
-                    className={`px-3 py-2 text-sm font-medium transition-colors rounded-md flex items-center gap-1 ${
+                  <div
+                    className={`px-3 py-3 min-h-[48px] text-sm font-medium transition-colors rounded-md flex items-center gap-1 ${
                       isActive(item)
                         ? "text-secondary"
-                        : "text-foreground hover:text-secondary hover:bg-accent/50"
+                        : "text-foreground hover:bg-accent/50"
                     }`}
                   >
                     {item.href ? (
-                      <Link to={item.href} className="hover:text-secondary">{item.label}</Link>
+                      <Link to={item.href} className="hover:text-secondary inset-0 flex items-center">{item.label}</Link>
                     ) : item.label}
                     {item.subItems && (
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeMenu === item.label ? "rotate-180" : ""}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 ml-0.5 transition-transform duration-200 ${activeMenu === item.label ? "rotate-180" : ""}`} />
                     )}
-                  </button>
+                  </div>
                 )}
               </div>
             ))}
@@ -221,7 +221,7 @@ const Header = () => {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="flex items-center gap-3 p-2 rounded-md hover:bg-accent/50 transition-colors"
+                                        className="flex items-center gap-3 p-2 min-h-[48px] rounded-md hover:bg-accent/50 transition-colors"
                                       >
                                         <Icon className="w-4 h-4 text-primary flex-shrink-0" />
                                         <div>
@@ -239,7 +239,7 @@ const Header = () => {
                                       key={sub.label}
                                       to={sub.href}
                                       onClick={() => setMobileMenuOpen(false)}
-                                      className="flex items-center gap-3 p-2 rounded-md hover:bg-accent/50 transition-colors"
+                                      className="flex items-center gap-3 p-2 min-h-[48px] rounded-md hover:bg-accent/50 transition-colors"
                                     >
                                       <Icon className="w-4 h-4 text-primary flex-shrink-0" />
                                       <div>
@@ -257,7 +257,7 @@ const Header = () => {
                     ) : (
                       <Link
                         to={item.href!}
-                        className={`block font-medium py-2.5 border-b border-border/30 transition-colors ${
+                        className={`block font-medium py-3 px-2 min-h-[48px] border-b border-border/30 transition-colors ${
                           item.highlight ? "text-brand-green font-bold" :
                           isActive(item) ? "text-secondary" : "text-foreground hover:text-secondary"
                         }`}
