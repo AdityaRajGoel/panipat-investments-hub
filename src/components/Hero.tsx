@@ -183,7 +183,7 @@ const Hero = () => {
           loop
           muted
           playsInline
-          preload="none"
+          preload="auto"
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
