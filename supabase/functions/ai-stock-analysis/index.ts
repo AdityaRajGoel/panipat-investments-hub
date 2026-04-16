@@ -558,7 +558,7 @@ serve(async (req) => {
 
   try {
     const payload = await req.json();
-    const { is_chat, chat_message, chat_history, context, ...stockData } = payload;
+    const { is_chat, chat_message, chat_history, context, use_web_search, ...stockData } = payload;
 
     // Enrich stock data with derived metrics
     const enriched = enrichStockData(stockData);
@@ -572,40 +572,54 @@ serve(async (req) => {
       finalPrompt = buildAnalysisPrompt(enriched);
     }
 
-    // Cascading fallback with timeout: OpenRouter (25s) → Groq (20s) → Gemini (15s)
     let result;
     const errors: string[] = [];
+    const webSearchEnabled = !!use_web_search;
 
-    if (OPENROUTER_API_KEY) {
+    if (webSearchEnabled) {
+      // If Web Search is explicitly requested, skip to Gemini directly, as it supports Google Grounding
+      console.log(`→ Web Search Requested. Routing natively to Gemini with Google Grounding...`);
+      if (!GEMINI_API_KEY) throw new Error("Web search requested but Gemini API key is missing.");
       try {
-        console.log(`→ OpenRouter (gemini-2.5-flash)...`);
-        result = await withTimeout(askOpenRouter(finalPrompt, !!is_chat), 45000, "OpenRouter");
+        result = await withTimeout(askGemini(finalPrompt, !!is_chat, true), 35000, "GeminiWeb");
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        console.error("✗ OpenRouter:", msg);
-        errors.push(`OpenRouter: ${msg}`);
+        console.error("✗ GeminiWeb:", msg);
+        errors.push(`Gemini Web Search Error: ${msg}`);
       }
-    }
-
-    if (!result && GROQ_API_KEY) {
-      try {
-        console.log("→ Groq (llama-3.3-70b)...");
-        result = await withTimeout(askGroq(finalPrompt, !!is_chat), 20000, "Groq");
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        console.error("✗ Groq:", msg);
-        errors.push(`Groq: ${msg}`);
+    } else {
+      // Standard Cascading fallback: OpenRouter → Groq → Gemini
+      if (OPENROUTER_API_KEY) {
+        try {
+          console.log(`→ OpenRouter (gemini-2.5-flash)...`);
+          result = await withTimeout(askOpenRouter(finalPrompt, !!is_chat), 45000, "OpenRouter");
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.error("✗ OpenRouter:", msg);
+          errors.push(`OpenRouter: ${msg}`);
+        }
       }
-    }
 
-    if (!result && GEMINI_API_KEY) {
-      try {
-        console.log("→ Gemini (gemini-2.0-flash)...");
-        result = await withTimeout(askGemini(finalPrompt, !!is_chat), 15000, "Gemini");
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        console.error("✗ Gemini:", msg);
-        errors.push(`Gemini: ${msg}`);
+      if (!result && GROQ_API_KEY) {
+        try {
+          console.log("→ Groq (llama-3.3-70b)...");
+          result = await withTimeout(askGroq(finalPrompt, !!is_chat), 20000, "Groq");
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.error("✗ Groq:", msg);
+          errors.push(`Groq: ${msg}`);
+        }
+      }
+
+      if (!result && GEMINI_API_KEY) {
+        try {
+          console.log("→ Gemini (gemini-2.0-flash)...");
+          result = await withTimeout(askGemini(finalPrompt, !!is_chat, false), 15000, "Gemini");
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.error("✗ Gemini:", msg);
+          errors.push(`Gemini: ${msg}`);
+        }
       }
     }
 
@@ -613,7 +627,7 @@ serve(async (req) => {
       throw new Error(`All AI providers failed. ${errors.join(' | ')}`);
     }
 
-    console.log(`✓ Analysis served by ${result.model}`);
+    console.log(`✓ Analysis served by ${result.model}${webSearchEnabled ? ' [Web Grounded]' : ''}`);
 
     return new Response(
       JSON.stringify({ success: true, verdict: result.result, model: result.model }),

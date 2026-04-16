@@ -267,6 +267,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   const [chatInput, setChatInput] = useState("");
   const [isChatting, setIsChatting] = useState(false);
   const [activeTab, setActiveTab] = useState<'report' | 'chat'>('report');
+  const [useWebSearch, setUseWebSearch] = useState(false);
   
   const sampleQuestions = [
     "What's the price target for 3 months?",
@@ -461,6 +462,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
           chat_history: chatHistory.slice(-10), 
           context: richContext,
           ai_report_summary: geminiVerdict?.analysis?.slice(0, 1500) || '',
+          use_web_search: useWebSearch
         }
       });
       
@@ -495,6 +497,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
           chat_history: chatHistory.slice(-10),
           context: richContext,
           ai_report_summary: geminiVerdict?.analysis?.slice(0, 1500) || '',
+          use_web_search: useWebSearch
         }
       });
       if (error) throw error;
@@ -970,11 +973,24 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                         ))}
                       </div>
 
-                      <form onSubmit={handleChatSubmit} className="flex gap-2 shrink-0">
-                        <Input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder={`Ask AI about ${stock.symbol}...`} className="bg-muted/40 rounded-full h-10 px-4" />
-                        <Button type="submit" disabled={isChatting || !chatInput.trim()} size="icon" className="h-10 w-10 shrink-0 rounded-full bg-brand-orange hover:bg-brand-orange/90">
-                          <Send className="w-4 h-4" />
-                        </Button>
+                      <form onSubmit={handleChatSubmit} className="flex flex-col gap-2 shrink-0">
+                        <div className="flex items-center gap-2 px-2">
+                          <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-semibold cursor-pointer hover:text-foreground transition-colors">
+                            <input 
+                              type="checkbox" 
+                              checked={useWebSearch} 
+                              onChange={(e) => setUseWebSearch(e.target.checked)}
+                              className="accent-brand-orange w-3.5 h-3.5"
+                            />
+                            Enable AI Live Web Search (News & Events)
+                          </label>
+                        </div>
+                        <div className="flex gap-2">
+                          <Input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder={`Ask AI about ${stock.symbol}...`} className="bg-muted/40 rounded-full h-10 px-4" />
+                          <Button type="submit" disabled={isChatting || !chatInput.trim()} size="icon" className="h-10 w-10 shrink-0 rounded-full bg-brand-orange hover:bg-brand-orange/90">
+                            <Send className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </form>
                     </div>
                   </div>
