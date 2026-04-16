@@ -32,9 +32,9 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
 
   return (
     <span
-      className={`opacity-80 font-tabular-nums ${
+      className={`font-tabular-nums ${
         flash === "up" ? "text-secondary font-bold" :
-        flash === "down" ? "text-destructive font-bold" : ""
+        flash === "down" ? "text-destructive font-bold" : "text-brand-orange font-semibold"
       }`}
     >
       {item.price}
@@ -48,7 +48,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
   const isReverse = direction === "right";
 
   return (
-    <div className={`${bgClass} ${textClass} py-1.5 md:py-2.5 overflow-hidden whitespace-nowrap relative border-b border-white/5`}>
+    <div className={`${bgClass} ${textClass} py-1 md:py-1.5 overflow-hidden whitespace-nowrap relative border-b border-white/5`}>
       {/* Edge fade masks */}
       <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to right, hsl(220 20% 10%), transparent)` }} />
       <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to left, hsl(220 20% 10%), transparent)` }} />
@@ -65,10 +65,10 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
         {duplicated.map((item, i) => (
           <div
             key={i}
-            className="inline-flex items-center gap-1.5 md:gap-3 text-xs md:text-sm cursor-pointer select-none px-2 md:px-3 py-1 rounded-md hover:bg-white/10 transition-colors group mr-4 md:mr-10"
+            className="inline-flex items-center gap-1.5 md:gap-2 text-xs md:text-sm cursor-pointer select-none px-1.5 md:px-2 py-0.5 rounded-md hover:bg-white/10 transition-colors group mr-3 md:mr-6"
             onClick={() => setSelectedItem(item)}
           >
-            <span className="font-bold tracking-wide text-white/90 group-hover:text-white transition-colors">{item.name}</span>
+            <span className="font-extrabold tracking-wide text-white group-hover:text-white transition-colors">{item.name}</span>
             {item.unit ? <span className="opacity-50 text-[10px] md:text-xs">{item.unit}</span> : null}
             <PriceCell item={item} />
             <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-secondary/30 text-[#4ade80]" : "bg-destructive/30 text-[#ff6b6b]"}`}>
@@ -187,11 +187,11 @@ const StockTicker = () => {
 
   return (
     <div className="border-b border-brand-orange/20 bg-brand-charcoal relative">
-      <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={60} />
+      <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={80} />
       {!isMobile && (
         <>
           <div className="h-px bg-brand-orange/15" />
-          <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={60} />
+          <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
         </>
       )}
       
