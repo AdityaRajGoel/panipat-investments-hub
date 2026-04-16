@@ -285,11 +285,27 @@ async function askGroq(prompt: string, isChat: boolean = false) {
 // ─────────────────────────────────────────────────────────────
 // Provider 3: Gemini Direct (Fallback 2)
 // ─────────────────────────────────────────────────────────────
-async function askGemini(prompt: string, isChat: boolean = false) {
+async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: boolean = false) {
   if (!GEMINI_API_KEY) throw new Error("Gemini API key not configured");
 
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+
+  const bodyData: any = {
+    system_instruction: { parts: { text: systemMsg } },
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 20000,
+      // Gemini JSON mode combined with tools can sometimes conflict; 
+      // but if supported, it stays. Otherwise text/plain.
+      responseMimeType: isChat ? "text/plain" : "application/json"
+    }
+  };
+
+  if (useWebSearch) {
+    bodyData.tools = [{ googleSearch: {} }];
+  }
 
   const response = await fetch(url, {
     method: "POST",
@@ -297,15 +313,7 @@ async function askGemini(prompt: string, isChat: boolean = false) {
       "Content-Type": "application/json",
       "X-goog-api-key": GEMINI_API_KEY
     },
-    body: JSON.stringify({
-      system_instruction: { parts: { text: systemMsg } },
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 20000,
-        responseMimeType: isChat ? "text/plain" : "application/json"
-      }
-    })
+    body: JSON.stringify(bodyData)
   });
 
   if (!response.ok) {
@@ -361,28 +369,74 @@ function enrichStockData(raw: any) {
   const mcap = raw.market_cap || 0;
   const mcapTier = mcap > 100000 ? "Large Cap" : mcap > 20000 ? "Mid Cap" : mcap > 5000 ? "Small Cap" : "Micro Cap";
 
-  // Approximate RSI from 52W position
-  const rsiApprox = pos52w;
+  // Improved Approximate RSI (14) modeling
+  let rsiApprox = 50 + (changePct * 2) + ((pos52w - 50) / 2);
+  rsiApprox = Math.max(15, Math.min(85, Math.round(rsiApprox))); // Clamp between 15 and 85
   const rsiSignal = rsiApprox > 70 ? "Overbought" : rsiApprox < 30 ? "Oversold" : "Neutral";
 
-  // Approximate MACD & Moving Averages for AI context
-  const macdSignal = (pos52w > 60 && changePct > 0) ? "Bullish Crossover" : (pos52w < 40 && changePct < 0) ? "Bearish Divergence" : "Neutral Trend";
-  const sma50Approx = Math.round(price * (pos52w > 50 ? 0.96 : 1.04));
-  const sma200Approx = Math.round(low52 + range52 * 0.45);
+  // Improved MACD & Moving Averages for AI context
+  let macdSignal = "Neutral Trend";
+  if (changePct > 1.5 && pos52w > 50) macdSignal = "Bullish Crossover / Strong Momentum";
+  else if (changePct < -1.5 && pos52w < 50) macdSignal = "Bearish Crossover / Weak Momentum";
+  else if (changePct > 0) macdSignal = "Slightly Bullish";
+  else if (changePct < 0) macdSignal = "Slightly Bearish";
 
-  // Approximate Sector Averages
-  const isFin = String(raw.sector).includes("Finance") || String(raw.sector).includes("Bank") || String(raw.symbol).includes("BANK");
-  const isTech = String(raw.sector).includes("IT") || String(raw.sector).includes("Tech");
-  const isEnergy = String(raw.sector).includes("Energy") || String(raw.symbol).includes("RELIANCE");
-  const secPE = isFin ? 16 : isTech ? 28 : isEnergy ? 20 : 22;
-  const secROE = isFin ? 14 : isTech ? 22 : isEnergy ? 12 : 15;
-  const secDE = isFin ? 4.0 : 0.4;
+  // SMA50: Dynamically scales based on 52W position (higher pos = price is above SMA50)
+  const trendMultiplier = (pos52w - 50) / 100;
+  const sma50Approx = Math.round(price * (1 - trendMultiplier * 0.12));
+  const sma200Approx = Math.round(low52 + range52 * 0.50);
+
+  // Enhanced Sector Averages matching Indian Markets
+  const sStr = String(raw.sector || "").toUpperCase() + " " + String(raw.name || "").toUpperCase() + " " + String(raw.symbol || "").toUpperCase();
+  const isFin = sStr.includes("FINAN") || sStr.includes("BANK") || sStr.includes("NBFC");
+  const isTech = sStr.includes("IT") || sStr.includes("TECH") || sStr.includes("SOFTWARE");
+  const isEnergy = sStr.includes("ENERGY") || sStr.includes("OIL") || sStr.includes("GAS") || sStr.includes("POWER");
+  const isFMCG = sStr.includes("FMCG") || sStr.includes("CONSUMER");
+  const isPharma = sStr.includes("PHARMA") || sStr.includes("HEALTH") || sStr.includes("MEDICAL");
+  const isAuto = sStr.includes("AUTO");
+  const isMetal = sStr.includes("METAL") || sStr.includes("STEEL");
+  
+  let secPE = 22, secROE = 15, secDE = 0.4;
+  if (isFin) { secPE = 18; secROE = 14; secDE = 4.0; }
+  else if (isTech) { secPE = 30; secROE = 22; secDE = 0.1; }
+  else if (isFMCG) { secPE = 45; secROE = 25; secDE = 0.2; }
+  else if (isPharma) { secPE = 35; secROE = 18; secDE = 0.3; }
+  else if (isAuto) { secPE = 25; secROE = 16; secDE = 0.5; }
+  else if (isMetal) { secPE = 12; secROE = 12; secDE = 1.0; }
+  else if (isEnergy) { secPE = 15; secROE = 12; secDE = 0.8; }
 
   // Support & resistance estimates from 52W
+  const fib236 = high52 - range52 * 0.236;
   const fib382 = high52 - range52 * 0.382;
+  const fib500 = high52 - range52 * 0.500;
   const fib618 = high52 - range52 * 0.618;
-  const nearestSupport = price > fib382 ? Math.round(fib382) : Math.round(fib618);
-  const nearestResistance = price < fib382 ? Math.round(fib382) : Math.round(high52 * 0.95);
+  const fib786 = high52 - range52 * 0.786;
+
+  const fibLevels = [low52, fib786, fib618, fib500, fib382, fib236, high52].sort((a, b) => a - b);
+  
+  let nearestSupport = low52;
+  let nearestResistance = high52;
+
+  // Find nearest fib levels below and above current price
+  for (const level of fibLevels) {
+    if (level < price) {
+      nearestSupport = level;
+    }
+  }
+  for (let i = fibLevels.length - 1; i >= 0; i--) {
+    const level = fibLevels[i];
+    if (level > price) {
+      nearestResistance = level;
+    }
+  }
+
+  // Ensure sensible fallback if price is exactly at or outside extremums or too close to a level
+  if (nearestSupport >= price || (price - nearestSupport) / price < 0.01) {
+    nearestSupport = price * 0.95;
+  }
+  if (nearestResistance <= price || (nearestResistance - price) / price < 0.01) {
+    nearestResistance = price * 1.05;
+  }
 
   return {
     ...raw,
