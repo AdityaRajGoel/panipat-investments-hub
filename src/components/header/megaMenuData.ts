@@ -28,7 +28,7 @@ export const megaMenuItems: MegaMenuItem[] = [
     subItems: [
       { label: "All Services Overview", href: "/services", icon: Briefcase, description: "View our complete range of services" },
       { label: "F&O Trading", href: "/fno", icon: Activity, description: "Futures & Options dashboard" },
-      { label: "Unlisted Shares", href: "/unlisted-zone", icon: Flame, description: "Pre-IPO & unlisted opportunities" },
+      { label: "Unlisted Shares", href: "/unlisted-space", icon: Flame, description: "Pre-IPO & unlisted opportunities" },
       { label: "Mutual Funds", href: "https://parasrammf.com/", icon: PieChart, description: "Invest in top-performing mutual funds", external: true },
       { label: "Fixed Deposits/Bonds", href: "/products", icon: Building2, description: "FDs, Bonds & Insurance" },
       { label: "Depository Services", href: "/depository-services", icon: ShieldCheck, description: "Demat & CDSL/NSDL" },
@@ -37,8 +37,8 @@ export const megaMenuItems: MegaMenuItem[] = [
     ],
   },
   {
-    label: "Unlisted Zone",
-    href: "/unlisted-zone",
+    label: "Unlisted Space",
+    href: "/unlisted-space",
     highlight: true,
   },
   {

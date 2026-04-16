@@ -9,7 +9,7 @@ const milestones = [
   { year: "2005", title: "MCX Membership", desc: "Added commodity trading capabilities with MCX membership, expanding our service portfolio.", icon: Globe, color: "from-brand-copper to-brand-orange" },
   { year: "2012", title: "Digital Transformation", desc: "Launched online trading platforms and mobile app access for clients across India.", icon: TrendingUp, color: "from-primary to-secondary" },
   { year: "2019", title: "10 Lakh+ Clients", desc: "Crossed the milestone of serving over 10 lakh happy clients across the nation.", icon: Users, color: "from-brand-gold to-secondary" },
-  { year: "2020", title: "Unlisted Zone Launch", desc: "Introduced pre-IPO and unlisted shares trading — opening new investment avenues for our clients.", icon: Sparkles, color: "from-brand-orange to-brand-gold" },
+  { year: "2020", title: "Unlisted Space Launch", desc: "Introduced pre-IPO and unlisted shares trading — opening new investment avenues for our clients.", icon: Sparkles, color: "from-brand-orange to-brand-gold" },
 ];
 
 const CompanyTimeline = () => {

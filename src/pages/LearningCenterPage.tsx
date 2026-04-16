@@ -177,7 +177,7 @@ const REAL_ARTICLES: Article[] = [
     id: "r19", title: "Unlisted Shares: How to Invest in Pre-IPO Companies", slug: "unlisted-shares",
     excerpt: "Access pre-IPO opportunities through the unlisted share market. How pricing works, risks, documents needed, and how Parasram facilitates these transactions.",
     content: "", category: "investing", cover_image: null, read_time: 7, published: true, created_at: "2025-10-04",
-    source: "Parasram India", source_url: "/unlisted-zone",
+    source: "Parasram India", source_url: "/unlisted-space",
     difficulty: "Intermediate",
   },
   {

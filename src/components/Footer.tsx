@@ -75,7 +75,7 @@ const Footer = () => {
                 { label: "Stock Screener", href: "/screener", internal: true },
                 { label: "52-Week Tracker", href: "/52-week-tracker", internal: true },
                 { label: "Holiday Calendar", href: "/holidays", internal: true },
-                { label: "Unlisted Shares", href: "/unlisted-zone", internal: true },
+                { label: "Unlisted Shares", href: "/unlisted-space", internal: true },
                 { label: "Brokerage Calculator", href: "/brokerage-calculator", internal: true },
                 { label: "Learning Center", href: "/learn", internal: true },
               ].map((link) => (

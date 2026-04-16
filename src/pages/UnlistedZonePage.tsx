@@ -19,17 +19,17 @@ const unlistedFAQs = [
   { q: "Are there any tax implications?", a: "Yes. Short-term capital gains (held < 2 years) on unlisted shares are taxed at your income tax slab rate. Long-term gains (held > 2 years) are taxed at 20% with indexation benefit." },
 ];
 
-const UnlistedZonePage = () => {
+const UnlistedSpacePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Buy Unlisted Shares in India | Pre-IPO Shares - Parasram India"
-        description="Buy and sell unlisted shares & pre-IPO stocks in India. NSE unlisted shares, CSK shares, and 50+ companies. SEBI registered broker. Minimum 1 share. Instant Demat transfer."
-        keywords="buy unlisted shares India, pre-IPO shares, unlisted shares dealer Panipat, NSE unlisted shares price, CSK unlisted shares, buy pre-IPO stocks India, unlisted shares broker, unlisted shares Haryana, pre-IPO investment India"
+        title="Unlisted Space | Buy Pre-IPO & Unlisted Shares in India - Parasram"
+        description="Access exclusive pre-IPO investments and unlisted shares via Parasram India's Unlisted Space. Secure, SEBI-registered framework with instant Demat transfers for top unlisted companies."
+        keywords="Unlisted Space, buy unlisted shares India, pre-IPO investment, Parasram unlisted space, unlisted shares broker Panipat, buy pre-IPO stocks, NSE unlisted shares, private equity India"
         jsonLd={{
           "@type": "Product",
-          "name": "Unlisted & Pre-IPO Shares",
-          "description": "Buy and sell unlisted shares and pre-IPO stocks from India's top companies. SEBI registered facilitator with instant Demat transfer.",
+          "name": "Unlisted Space - Pre-IPO Shares",
+          "description": "Discover high-growth pre-IPO opportunities and unlisted shares through Parasram India's Unlisted Space. SEBI registered facilitator offering seamless Demat transfers.",
           "brand": { "@type": "Brand", "name": "Parasram India" },
           "offers": {
             "@type": "AggregateOffer",
@@ -100,4 +100,4 @@ const UnlistedZonePage = () => {
   );
 };
 
-export default UnlistedZonePage;
+export default UnlistedSpacePage;

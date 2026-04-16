@@ -25,7 +25,7 @@ import Index from "./pages/Index";
 // Lazy load all other pages
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
-const UnlistedZonePage = lazy(() => import("./pages/UnlistedZonePage"));
+const UnlistedSpacePage = lazy(() => import("./pages/UnlistedZonePage"));
 const TeamPage = lazy(() => import("./pages/TeamPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
@@ -135,7 +135,7 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/services" element={<ServicesPage />} />
-        <Route path="/unlisted-zone" element={<UnlistedZonePage />} />
+        <Route path="/unlisted-space" element={<UnlistedSpacePage />} />
         <Route path="/team" element={<TeamPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPage />} />
