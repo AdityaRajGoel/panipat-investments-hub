@@ -1,10 +1,21 @@
-import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter, Shield, FileText, AlertCircle, Scale } from "lucide-react";
+import { useState } from "react";
+import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter, Shield, FileText, AlertCircle, Scale, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import logo80 from "@/assets/logo-80.webp";
 import logo160 from "@/assets/logo-160.webp";
 
 const Footer = () => {
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
+    quick: false,
+    important: false,
+    branch: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -17,9 +28,9 @@ const Footer = () => {
         style={{ backgroundSize: "200% 100%", animation: "ticker-left 6s linear infinite alternate" }}
       />
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Main 4-column grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-6 md:mb-10">
           {/* Column 1 — Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -69,8 +80,14 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h4 className="font-heading font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 
+              className="font-heading font-semibold mb-4 flex justify-between items-center cursor-pointer md:cursor-default"
+              onClick={() => toggleSection('quick')}
+            >
+              Quick Links
+              <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${openSections.quick ? 'rotate-180' : ''}`} />
+            </h4>
+            <ul className={`space-y-2 text-sm ${openSections.quick ? 'block' : 'hidden md:block'}`}>
               {[
                 { label: "Stock Screener", href: "/screener", internal: true },
                 { label: "52-Week Tracker", href: "/52-week-tracker", internal: true },
@@ -112,8 +129,14 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <h4 className="font-heading font-semibold mb-4">Important Links</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 
+              className="font-heading font-semibold mb-4 flex justify-between items-center cursor-pointer md:cursor-default"
+              onClick={() => toggleSection('important')}
+            >
+              Important Links
+              <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${openSections.important ? 'rotate-180' : ''}`} />
+            </h4>
+            <ul className={`space-y-2 text-sm ${openSections.important ? 'block' : 'hidden md:block'}`}>
               {[
                 { label: "About Company", href: "https://www.parasramindia.com/about-us/" },
                 { label: "Research", href: "https://www.parasramindia.com/tools-and-research/" },
@@ -149,23 +172,30 @@ const Footer = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h4 className="font-heading font-semibold mb-4">Panipat Branch</h4>
-            <p className="text-primary-foreground/70 text-sm mb-3">
-              Shri Parasram Holdings<br />
-              Shakuntala Complex, Palika Bazaar<br />
-              Panipat - 132103
-            </p>
-            <div className="flex flex-col gap-1 text-sm mb-3">
-              <a href="tel:+919416400314" className="hover:text-secondary transition-colors py-1.5 inline-block min-h-[44px] flex items-center">+91 9416400314</a>
-              <a href="tel:+919999790011" className="hover:text-secondary transition-colors py-1.5 inline-block min-h-[44px] flex items-center">+91 9999790011</a>
-              <a href="tel:+919416400277" className="hover:text-secondary transition-colors py-1.5 inline-block min-h-[44px] flex items-center">+91 9416400277</a>
-            </div>
-            <p className="text-primary-foreground/70 text-sm mb-4">
-              <a href="mailto:parasrampnp@gmail.com" className="hover:text-secondary transition-colors">parasrampnp@gmail.com</a>
-            </p>
+            <h4 
+              className="font-heading font-semibold mb-3 md:mb-4 flex justify-between items-center cursor-pointer md:cursor-default"
+              onClick={() => toggleSection('branch')}
+            >
+              Panipat Branch
+              <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${openSections.branch ? 'rotate-180' : ''}`} />
+            </h4>
+            <div className={`text-sm ${openSections.branch ? 'block' : 'hidden md:block'}`}>
+              <p className="text-primary-foreground/70 mb-3">
+                Shri Parasram Holdings<br />
+                Shakuntala Complex, Palika Bazaar<br />
+                Panipat - 132103
+              </p>
+              <div className="flex flex-col gap-1 mb-3">
+                <a href="tel:+919416400314" className="hover:text-secondary transition-colors py-1 inline-flex items-center min-h-[36px]">+91 9416400314</a>
+                <a href="tel:+919999790011" className="hover:text-secondary transition-colors py-1 inline-flex items-center min-h-[36px]">+91 9999790011</a>
+                <a href="tel:+919416400277" className="hover:text-secondary transition-colors py-1 inline-flex items-center min-h-[36px]">+91 9416400277</a>
+              </div>
+              <p className="text-primary-foreground/70 mb-4">
+                <a href="mailto:parasrampnp@gmail.com" className="hover:text-secondary transition-colors">parasrampnp@gmail.com</a>
+              </p>
 
-            {/* App Download */}
-            <div className="flex gap-2">
+              {/* App Download */}
+              <div className="flex gap-2">
               <a
                 href="https://play.google.com/store/apps/details?id=com.parasramindia.xts"
                 target="_blank"
@@ -183,6 +213,7 @@ const Footer = () => {
                  App Store
               </a>
             </div>
+          </div>
           </motion.div>
         </div>
 
@@ -202,9 +233,10 @@ const Footer = () => {
                 <h5 className="font-semibold text-sm">Compliance Officer</h5>
               </div>
               <p className="text-primary-foreground/60 text-xs leading-relaxed">
-                <strong className="text-primary-foreground/80">Mr. Pankaj Kumar Gupta</strong><br />
-                Email: <a href="mailto:compliance@parasramindia.com" className="hover:text-secondary transition-colors">compliance@parasramindia.com</a><br />
-                Phone: <a href="tel:+911৩055555" className="hover:text-secondary transition-colors">+91 130-4055555</a>
+                <strong className="text-primary-foreground/80">Mr. Vivek Sheel Aggarwal</strong><br />
+                Email: <a href="mailto:compliance@sphpl.com" className="hover:text-secondary transition-colors">compliance@sphpl.com</a><br />
+                Phone: <a href="tel:01147000044" className="hover:text-secondary transition-colors">011-47000044</a>, <a href="tel:+919999796260" className="hover:text-secondary transition-colors">9999796260</a> (Corporate Office)<br />
+                Hours: Mon – Sat, 9AM – 6PM
               </p>
             </div>
 

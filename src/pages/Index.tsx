@@ -78,9 +78,11 @@ const Index = () => {
       <Suspense fallback={<SectionSkeleton height="h-64" />}>
         <DailyResearch />
       </Suspense>
-      <Suspense fallback={<SectionSkeleton height="h-80" />}>
-        <BecomePartner />
-      </Suspense>
+      <div className="hidden md:block">
+        <Suspense fallback={<SectionSkeleton height="h-80" />}>
+          <BecomePartner />
+        </Suspense>
+      </div>
       </main>
       <Suspense fallback={<SectionSkeleton height="h-48" />}>
         <Footer />
