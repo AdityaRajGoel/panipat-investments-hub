@@ -64,18 +64,20 @@ const AnnouncementBar = () => {
             }}
           >
             {[...announcements, ...announcements, ...announcements, ...announcements, ...announcements, ...announcements].map((item, i) => (
-              <div key={i} className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6">
-                <item.icon className={`w-3 h-3 md:w-3.5 md:h-3.5 shrink-0 ${item.color}`} />
-                <span className="text-white/75 text-[11px] md:text-xs font-medium">{item.text}</span>
-                {item.cta && item.href && (
-                  <Link
-                    to={item.href}
-                    className={`inline-flex items-center gap-1 text-[11px] md:text-xs font-bold ${item.color} hover:underline transition-all`}
-                  >
-                    {item.cta} <ArrowRight className="w-2.5 h-2.5" />
-                  </Link>
-                )}
-                <span className="text-white/15 mx-2 text-lg">|</span>
+              <div key={i} className="inline-flex items-center">
+                <div className="inline-flex items-center gap-2 md:gap-3 px-2 md:px-4">
+                  <item.icon className={`w-3 h-3 md:w-3.5 md:h-3.5 shrink-0 ${item.color}`} />
+                  <span className="text-white/75 text-[11px] md:text-xs font-medium">{item.text}</span>
+                  {item.cta && item.href && (
+                    <Link
+                      to={item.href}
+                      className={`inline-flex items-center gap-1 text-[11px] md:text-xs font-bold ${item.color} hover:underline transition-all`}
+                    >
+                      {item.cta} <ArrowRight className="w-2.5 h-2.5" />
+                    </Link>
+                  )}
+                </div>
+                <span className="text-white/15 text-sm md:text-base">|</span>
               </div>
             ))}
           </div>
