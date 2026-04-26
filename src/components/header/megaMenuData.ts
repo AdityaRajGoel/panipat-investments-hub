@@ -3,7 +3,7 @@ import {
   Calculator, GitCompare, Calendar, ArrowUpDown, Activity,
   BookOpen, GraduationCap, Radio, Newspaper,
   Users, Building2, Phone, Mail, Award, ShieldCheck,
-  Search, Flame, Briefcase, Globe, KeyRound, Banknote
+  Search, Flame, Briefcase, Globe, KeyRound, Banknote, Percent
 } from "lucide-react";
 
 export type SubItem = {
@@ -55,6 +55,7 @@ export const megaMenuItems: MegaMenuItem[] = [
     label: "Tools",
     subItems: [
       { label: "Margin Calculator", href: "/margin-calculator", icon: Calculator, description: "Calculate margin requirements" },
+      { label: "F&O Margin Calculator", href: "https://webtrade.parasramindia.com/calculator#!/span", icon: Percent, description: "SPAN margin calculator for F&O trades", external: true },
       { label: "Brokerage Calculator", href: "/brokerage-calculator", icon: BarChart3, description: "Estimate trading charges & P&L" },
       { label: "Holiday Calendar", href: "/holidays", icon: Calendar, description: "Market holidays for 2026" },
     ],

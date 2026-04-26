@@ -94,6 +94,7 @@ const Footer = () => {
                 { label: "Holiday Calendar", href: "/holidays", internal: true },
                 { label: "Unlisted Shares", href: "/unlisted-space", internal: true },
                 { label: "Brokerage Calculator", href: "/brokerage-calculator", internal: true },
+                { label: "F&O Margin Calculator", href: "https://webtrade.parasramindia.com/calculator#!/span" },
                 { label: "Learning Center", href: "/learn", internal: true },
               ].map((link) => (
                 <li
