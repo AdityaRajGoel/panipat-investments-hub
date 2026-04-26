@@ -21,6 +21,7 @@ const ClientMarquee = lazy(() => import("@/components/ClientMarquee"));
 const MarketNews = lazy(() => import("@/components/MarketNews"));
 const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
 const DailyResearch = lazy(() => import("@/components/DailyResearch"));
+const TelegramChannel = lazy(() => import("@/components/TelegramChannel"));
 const BecomePartner = lazy(() => import("@/components/BecomePartner"));
 const Footer = lazy(() => import("@/components/Footer"));
 
@@ -77,6 +78,9 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-64" />}>
         <DailyResearch />
+      </Suspense>
+      <Suspense fallback={<SectionSkeleton height="h-80" />}>
+        <TelegramChannel />
       </Suspense>
       <div className="hidden md:block">
         <Suspense fallback={<SectionSkeleton height="h-80" />}>

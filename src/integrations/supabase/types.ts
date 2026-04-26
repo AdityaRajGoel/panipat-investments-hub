@@ -290,6 +290,42 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_updates: {
+        Row: {
+          id: string
+          telegram_message_id: number
+          message_text: string | null
+          message_date: string
+          has_photo: boolean
+          photo_url: string | null
+          is_forwarded: boolean
+          forward_from_title: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          telegram_message_id: number
+          message_text?: string | null
+          message_date: string
+          has_photo?: boolean
+          photo_url?: string | null
+          is_forwarded?: boolean
+          forward_from_title?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          telegram_message_id?: number
+          message_text?: string | null
+          message_date?: string
+          has_photo?: boolean
+          photo_url?: string | null
+          is_forwarded?: boolean
+          forward_from_title?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
