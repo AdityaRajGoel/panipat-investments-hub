@@ -64,6 +64,7 @@ export const megaMenuItems: MegaMenuItem[] = [
     label: "Learn",
     href: "/learn",
     subItems: [
+      { label: "Stock Recommendations", href: "/learn/recommendations", icon: TrendingUp, description: "Daily stock picks & analysis" },
       { label: "Articles & Guides", href: "/learn#articles", icon: GraduationCap, description: "Educational articles & tutorials" },
       { label: "Market News", href: "/learn#news", icon: Newspaper, description: "Latest business & market news" },
       { label: "Live TV", href: "/learn#live-tv", icon: Radio, description: "Zee Business & CNBC Awaaz live" },
