@@ -49,6 +49,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.sphpnp.com/learn/recommendations</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.sphpnp.com/52-week-tracker</loc>
     <lastmod>2026-04-10</lastmod>
     <changefreq>daily</changefreq>
