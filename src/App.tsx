@@ -46,6 +46,7 @@ const DepositoryServicesPage = lazy(() => import("./pages/DepositoryServicesPage
 const CareersPage = lazy(() => import("./pages/CareersPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const CookiePolicyPage = lazy(() => import("./pages/CookiePolicyPage"));
+const StockRecommendationsPage = lazy(() => import("./pages/StockRecommendationsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
@@ -156,6 +157,7 @@ const AnimatedRoutes = () => {
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+        <Route path="/learn/recommendations" element={<StockRecommendationsPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

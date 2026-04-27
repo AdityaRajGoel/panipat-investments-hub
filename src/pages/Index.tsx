@@ -80,7 +80,7 @@ const Index = () => {
         <DailyResearch />
       </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-80" />}>
-        <TelegramChannel />
+        <TelegramChannel limit={4} showViewAll={true} />
       </Suspense>
       <div className="hidden md:block">
         <Suspense fallback={<SectionSkeleton height="h-80" />}>

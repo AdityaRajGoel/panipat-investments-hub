@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 
 type TelegramMessage = {
   id: string;
@@ -245,7 +246,12 @@ const MessageSkeleton = () => (
   </Card>
 );
 
-const TelegramChannel = () => {
+interface TelegramChannelProps {
+  limit?: number;
+  showViewAll?: boolean;
+}
+
+const TelegramChannel = ({ limit = 10, showViewAll = false }: TelegramChannelProps) => {
   const [messages, setMessages] = useState<TelegramMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -257,7 +263,7 @@ const TelegramChannel = () => {
         .from("telegram_updates")
         .select("*")
         .order("message_date", { ascending: false })
-        .limit(10);
+        .limit(limit);
 
       if (!error && data) {
         setMessages(data as TelegramMessage[]);
@@ -389,6 +395,23 @@ const TelegramChannel = () => {
               ))}
             </div>
           </AnimatePresence>
+        )}
+
+        {showViewAll && messages.length > 0 && (
+          <motion.div
+            className="mt-8 flex justify-center"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <Button asChild variant="outline" className="gap-2 text-[#229ED9] border-[#229ED9]/30 hover:bg-[#229ED9]/10">
+              <Link to="/learn/recommendations">
+                View All Recommendations
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          </motion.div>
         )}
 
         {/* Auto-refresh indicator */}
