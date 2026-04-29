@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,xml}'],
         maximumFileSizeToCacheInBytes: 5000000, // 5MB limit
-        navigateFallbackDenylist: [/^\/.*\.xml$/]
+        navigateFallbackDenylist: [/^\/.*\.xml$/, /^\/.*\.txt$/]
       },
       manifest: {
         name: 'Parasram India - Panipat',
