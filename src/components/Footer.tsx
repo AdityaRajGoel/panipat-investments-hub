@@ -8,6 +8,7 @@ import logo160 from "@/assets/logo-160.webp";
 const Footer = () => {
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     quick: false,
+    company: false,
     important: false,
     branch: false,
   });
@@ -29,8 +30,8 @@ const Footer = () => {
       />
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Main 4-column grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-6 md:mb-10">
+        {/* Main 5-column grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-10">
           {/* Column 1 — Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -73,7 +74,7 @@ const Footer = () => {
             </div>
           </motion.div>
 
-          {/* Column 2 — Quick Links */}
+          {/* Column 2 — Company & Services */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -82,20 +83,22 @@ const Footer = () => {
           >
             <h4 
               className="font-heading font-semibold mb-4 flex justify-between items-center cursor-pointer md:cursor-default"
-              onClick={() => toggleSection('quick')}
+              onClick={() => toggleSection('company')}
             >
-              Quick Links
-              <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${openSections.quick ? 'rotate-180' : ''}`} />
+              Company
+              <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${openSections.company ? 'rotate-180' : ''}`} />
             </h4>
-            <ul className={`space-y-2 text-sm ${openSections.quick ? 'block' : 'hidden md:block'}`}>
+            <ul className={`space-y-2 text-sm ${openSections.company ? 'block' : 'hidden md:block'}`}>
               {[
-                { label: "Stock Screener", href: "/screener", internal: true },
-                { label: "52-Week Tracker", href: "/52-week-tracker", internal: true },
-                { label: "Holiday Calendar", href: "/holidays", internal: true },
+                { label: "About Us", href: "/about", internal: true },
+                { label: "Services", href: "/services", internal: true },
                 { label: "Unlisted Shares", href: "/unlisted-space", internal: true },
-                { label: "Brokerage Calculator", href: "/brokerage-calculator", internal: true },
-                { label: "F&O Margin Calculator", href: "https://webtrade.parasramindia.com/calculator#!/span" },
-                { label: "Learning Center", href: "/learn", internal: true },
+                { label: "Products & FDs", href: "/products", internal: true },
+                { label: "Depository Services", href: "/depository-services", internal: true },
+                { label: "Our Team", href: "/team", internal: true },
+                { label: "Careers", href: "/careers", internal: true },
+                { label: "Contact Us", href: "/contact", internal: true },
+                { label: "Open Account", href: "/open-account", internal: true },
               ].map((link) => (
                 <li
                   key={link.label}
@@ -123,12 +126,64 @@ const Footer = () => {
             </ul>
           </motion.div>
 
-          {/* Column 3 — Important Links (NEW) */}
+          {/* Column 3 — Markets & Tools */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <h4 
+              className="font-heading font-semibold mb-4 flex justify-between items-center cursor-pointer md:cursor-default"
+              onClick={() => toggleSection('quick')}
+            >
+              Markets & Tools
+              <ChevronDown className={`w-4 h-4 md:hidden transition-transform ${openSections.quick ? 'rotate-180' : ''}`} />
+            </h4>
+            <ul className={`space-y-2 text-sm ${openSections.quick ? 'block' : 'hidden md:block'}`}>
+              {[
+                { label: "Stock Screener", href: "/screener", internal: true },
+                { label: "52-Week Tracker", href: "/52-week-tracker", internal: true },
+                { label: "F&O Dashboard", href: "/fno", internal: true },
+                { label: "Stock Comparison", href: "/compare", internal: true },
+                { label: "Learning Center", href: "/learn", internal: true },
+                { label: "Stock Recommendations", href: "/learn/recommendations", internal: true },
+                { label: "Margin Calculator", href: "/margin-calculator", internal: true },
+                { label: "Brokerage Calculator", href: "/brokerage-calculator", internal: true },
+                { label: "Holiday Calendar", href: "/holidays", internal: true },
+              ].map((link) => (
+                <li
+                  key={link.label}
+                  className="hover:translate-x-1 transition-transform"
+                >
+                  {(link as any).internal ? (
+                    <Link
+                      to={link.href}
+                      className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-foreground/70 hover:text-secondary transition-colors inline-flex items-center gap-1"
+                    >
+                      {link.label}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Column 4 — Important Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             <h4 
               className="font-heading font-semibold mb-4 flex justify-between items-center cursor-pointer md:cursor-default"
@@ -166,12 +221,12 @@ const Footer = () => {
             </ul>
           </motion.div>
 
-          {/* Column 4 — Panipat Branch */}
+          {/* Column 5 — Panipat Branch */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
           >
             <h4 
               className="font-heading font-semibold mb-3 md:mb-4 flex justify-between items-center cursor-pointer md:cursor-default"
@@ -281,6 +336,8 @@ const Footer = () => {
                 <Link to="/privacy-policy" className="hover:text-secondary hover:underline transition-colors">Privacy Policy</Link>
                 <span className="mx-2">|</span>
                 <Link to="/cookie-policy" className="hover:text-secondary hover:underline transition-colors">Cookie Policy</Link>
+                <span className="mx-2">|</span>
+                <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Sitemap</a>
                 <span className="mx-2">|</span>
                 <a href="https://parasramindia.com/investor-charter" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Investor Charter</a>
                 <span className="mx-2">|</span>
