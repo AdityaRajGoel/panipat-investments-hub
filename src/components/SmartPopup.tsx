@@ -32,6 +32,17 @@ const SmartPopup = () => {
     setIsVisible(false);
   };
 
+  // Escape key to close
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsVisible(false);
+    };
+    if (isVisible) {
+      document.addEventListener("keydown", handleKey);
+      return () => document.removeEventListener("keydown", handleKey);
+    }
+  }, [isVisible]);
+
   // Skip rendering on some paths (admin, auth, lead generation paths)
   if (['/admin', '/auth', '/reset-password', '/banner-manager', '/open-account'].includes(location.pathname)) {
     return null;

@@ -161,7 +161,7 @@ const Hero = () => {
   };
 
   return (
-    <section ref={sectionRef} onMouseMove={handleMouseMove} className="relative min-[85svh] lg:min-h-screen flex items-center overflow-hidden">
+    <section ref={sectionRef} onMouseMove={handleMouseMove} className="relative min-h-[85svh] lg:min-h-screen flex items-center overflow-hidden">
       {/* Video background */}
       <div 
         className="absolute inset-0 pointer-events-none z-0" 

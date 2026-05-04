@@ -62,7 +62,7 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <SEOHead title="Reset Password | Parasram India" description="Set your new password" />
+      <SEOHead title="Reset Password | Parasram India" description="Set your new password" noindex />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
         <div className="text-center mb-6">
           <img src={logo80} alt="Parasram India" className="h-12 mx-auto mb-4" />

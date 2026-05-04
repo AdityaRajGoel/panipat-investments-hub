@@ -12,12 +12,14 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import useScrollToHash from "@/hooks/useScrollToHash";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useLocation } from "react-router-dom";
 import SmartPopup from "@/components/SmartPopup";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const PageTracker = () => { usePageTracking(); return null; };
 const ScrollToHash = () => { useScrollToHash(); return null; };
+const KeyboardShortcuts = () => { useKeyboardShortcuts(); return null; };
 
 // Eagerly load the home page for fastest FCP
 import Index from "./pages/Index";
@@ -179,6 +181,7 @@ const App = () => (
           <AuthProvider>
             <PageTracker />
             <ScrollToHash />
+            <KeyboardShortcuts />
             <SmartPopup />
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>

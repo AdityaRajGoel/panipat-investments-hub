@@ -44,7 +44,7 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
 
 const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", textClass = "text-primary-foreground", duration = 40 }: TickerRowProps) => {
   const [selectedItem, setSelectedItem] = useState<LiveStock | null>(null);
-  const duplicated = [...items, ...items, ...items, ...items, ...items, ...items];
+  const duplicated = [...items, ...items, ...items];
   const isReverse = direction === "right";
 
   return (

@@ -80,7 +80,7 @@ const AuthPage = () => {
   if (emailSent) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <SEOHead title="Check Your Email | Parasram India" description="Verify your email to continue" />
+        <SEOHead title="Check Your Email | Parasram India" description="Verify your email to continue" noindex />
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-md">
           <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-secondary" />
@@ -104,6 +104,7 @@ const AuthPage = () => {
       <SEOHead
         title={mode === "login" ? "Login | Parasram India" : mode === "signup" ? "Sign Up | Parasram India" : "Reset Password | Parasram India"}
         description="Access your Parasram India account"
+        noindex
       />
 
       {/* Left panel - branding (hidden on mobile) */}

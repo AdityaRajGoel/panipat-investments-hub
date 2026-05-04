@@ -39,7 +39,7 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
-      <SEOHead title="Page Not Found" description="The page you are looking for does not exist on Parasram India Panipat." />
+      <SEOHead title="Page Not Found" description="The page you are looking for does not exist on Parasram India Panipat." noindex />
       {/* Background grid pattern */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
         backgroundImage: "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",

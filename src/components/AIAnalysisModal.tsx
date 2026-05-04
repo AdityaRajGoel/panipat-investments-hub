@@ -38,13 +38,13 @@ interface AIAnalysisModalProps {
 }
 
 const analysisSteps = [
-  { text: "Connecting to AI Engine..."},
-  { text: "Fetching fundamentals (ROE, Debt/Eq)..."},
-  { text: "Scanning complex chart patterns..."},
-  { text: "Running deep reasoning model..."},
-  { text: "Benchmarking against sector peers..."},
-  { text: "Generating investment-grade report..." },
-  { text: "Finalizing Intelligence Report..."},
+  { text: "Connecting to AI Engine...", icon: "🔌" },
+  { text: "Fetching fundamentals (ROE, Debt/Eq)...", icon: "📊" },
+  { text: "Scanning complex chart patterns...", icon: "📈" },
+  { text: "Running deep reasoning model...", icon: "🧠" },
+  { text: "Benchmarking against sector peers...", icon: "⚖️" },
+  { text: "Generating investment-grade report...", icon: "📝" },
+  { text: "Finalizing Intelligence Report...", icon: "✨" },
 ];
 
 function useTypewriter(text: string, speed = 10, start = false) {
@@ -545,9 +545,53 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               {stock.symbol} {stock.sector ? `· ${stock.sector}` : ""}
             </div>
           </div>
-          <button onClick={onClose} aria-label="Close analysis" className="p-1.5 rounded-full hover:bg-muted/80 transition-colors">
-            <X className="w-4 h-4 text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-1">
+            {/* Share buttons — only show after analysis is complete */}
+            {!isAnalyzing && geminiVerdict && (
+              <>
+                <button
+                  onClick={() => {
+                    const text = `📊 *${stock.symbol} AI Analysis* by Parasram Intelligence\n\n` +
+                      `💰 Price: ₹${analysis.priceNum.toLocaleString("en-IN")}\n` +
+                      `📈 Signal: ${geminiVerdict?.structured?.signal || analysis.signalLabel}\n` +
+                      `🎯 Confidence: ${geminiVerdict?.structured?.confidence || analysis.confidence}%\n\n` +
+                      `${geminiVerdict?.structured?.one_liner || ""}\n\n` +
+                      `🔗 Analyse more stocks at sphpnp.com/screener`;
+                    const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                    window.open(waUrl, "_blank");
+                  }}
+                  aria-label="Share on WhatsApp"
+                  className="p-1.5 rounded-full hover:bg-green-500/10 text-muted-foreground hover:text-green-500 transition-colors"
+                  title="Share on WhatsApp"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    const text = `${stock.symbol} AI Analysis by Parasram Intelligence\n\n` +
+                      `Price: ₹${analysis.priceNum.toLocaleString("en-IN")}\n` +
+                      `Signal: ${geminiVerdict?.structured?.signal || analysis.signalLabel}\n` +
+                      `Confidence: ${geminiVerdict?.structured?.confidence || analysis.confidence}%\n\n` +
+                      `${geminiVerdict?.structured?.one_liner || ""}\n\n` +
+                      `Analyse more stocks at https://sphpnp.com/screener`;
+                    navigator.clipboard.writeText(text);
+                    // Brief visual feedback
+                    const btn = document.getElementById("copy-analysis-btn");
+                    if (btn) { btn.textContent = "✓"; setTimeout(() => { btn.textContent = ""; }, 1500); }
+                  }}
+                  aria-label="Copy analysis"
+                  id="copy-analysis-btn"
+                  className="p-1.5 rounded-full hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+                  title="Copy to clipboard"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </>
+            )}
+            <button onClick={onClose} aria-label="Close analysis" className="p-1.5 rounded-full hover:bg-muted/80 transition-colors">
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
         </div>
 
         {/* Content Area */}

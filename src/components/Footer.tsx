@@ -43,7 +43,7 @@ const Footer = () => {
               src={logo80}
               srcSet={`${logo80} 80w, ${logo160} 160w`}
               sizes="48px"
-              alt="Parasram"
+              alt="Parasram India - Stock Broker Since 1970"
               width={80}
               height={80}
               className="h-12 w-auto mb-4 brightness-0 invert"

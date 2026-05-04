@@ -1,6 +1,6 @@
 import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3, ChevronDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import logo80 from "@/assets/logo-80.webp";
@@ -17,6 +17,12 @@ const Header = () => {
   const location = useLocation();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { watchlist } = useWatchlist();
+
+  // Auto-close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setExpandedMobileSection(null);
+  }, [location.pathname]);
 
   const handleMouseEnter = useCallback((label: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -129,12 +135,12 @@ const Header = () => {
                 className="relative"
                 title={`My Watchlist (${watchlist.length})`}
               >
-                <button aria-label={`My Watchlist (${watchlist.length} items)`} className="p-2 rounded-md text-muted-foreground hover:text-yellow-500 hover:bg-yellow-500/10 transition-colors relative">
+                <Link to="/screener" aria-label={`My Watchlist (${watchlist.length} items)`} className="p-2 rounded-md text-muted-foreground hover:text-yellow-500 hover:bg-yellow-500/10 transition-colors relative inline-flex">
                   <Star className="w-4 h-4" />
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-yellow-500 text-[9px] text-black font-bold flex items-center justify-center">
                     {watchlist.length}
                   </span>
-                </button>
+                </Link>
               </motion.div>
             )}
             <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold">

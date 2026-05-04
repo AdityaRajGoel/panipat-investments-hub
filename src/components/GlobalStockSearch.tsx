@@ -370,8 +370,13 @@ const GlobalStockSearch = ({ className }: Props) => {
             value={query}
             onChange={e => { setQuery(e.target.value); setShowDropdown(true); }}
             onFocus={() => { if (results.length > 0 || exchangeResults.length > 0) setShowDropdown(true); }}
-            className="pl-9 pr-9"
+            className="pl-9 pr-20"
           />
+          {!query && (
+            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-muted/60 border border-border/50 rounded text-[10px] font-mono text-muted-foreground pointer-events-none">
+              ⌘K
+            </kbd>
+          )}
           {query && (
             <button onClick={() => { setQuery(""); setResults([]); setExchangeResults([]); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               <X className="w-4 h-4" />

@@ -306,7 +306,9 @@ const StockScreenerPage = () => {
             <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
-                  {filtered.length} stocks matching criteria
+                  {filtered.length > 0
+                    ? `${filtered.length} stocks matching criteria`
+                    : "No stocks match your filters — try clearing search or changing the sector"}
                   {bgRefreshing && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-orange animate-pulse">
                       <Loader2 className="w-3 h-3 animate-spin" /> Refreshing prices...

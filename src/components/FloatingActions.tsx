@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, PhoneCall, Download, X, HelpCircle } from "lucide-react";
+import { MessageCircle, PhoneCall, Download, X, HelpCircle, ArrowUp } from "lucide-react";
 
 const FloatingActions = () => {
   const [expanded, setExpanded] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const phoneNumber = "919416400314";
   const whatsappMessage = "Hello! I'm interested in learning more about your investment services at Parasram Panipat.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
   const callbackMessage = "Hi, I would like to request a callback from Parasram Panipat branch.";
   const callbackUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(callbackMessage)}`;
+
+  // Show back-to-top after scrolling 400px
+  useEffect(() => {
+    const onScroll = () => setShowBackToTop(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const actions = [
     {
@@ -33,6 +41,22 @@ const FloatingActions = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pb-[env(safe-area-inset-bottom)]">
+      {/* Back to top button */}
+      <AnimatePresence>
+        {showBackToTop && !expanded && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Scroll to top"
+            className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-md border border-border/50 text-muted-foreground hover:text-foreground hover:bg-accent shadow-lg flex items-center justify-center transition-colors"
+          >
+            <ArrowUp className="w-4 h-4" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       {/* Expanded action buttons */}
       <AnimatePresence>
         {expanded && (
