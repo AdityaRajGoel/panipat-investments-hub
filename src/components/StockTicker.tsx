@@ -33,8 +33,8 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
   return (
     <span
       className={`font-tabular-nums ${
-        flash === "up" ? "text-secondary font-bold" :
-        flash === "down" ? "text-destructive font-bold" : "text-brand-orange font-semibold"
+        flash === "up" ? "text-[#00e5ff] font-bold" :
+        flash === "down" ? "text-[#ffab40] font-bold" : "text-white/80 font-semibold"
       }`}
     >
       {item.price}
@@ -48,10 +48,10 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
   const isReverse = direction === "right";
 
   return (
-    <div className={`${bgClass} ${textClass} py-1 md:py-1.5 overflow-hidden whitespace-nowrap relative border-b border-white/5`}>
+    <div className={`${bgClass} ${textClass} py-1 md:py-1.5 overflow-hidden whitespace-nowrap relative border-b border-black/5 dark:border-white/5`}>
       {/* Edge fade masks */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to right, hsl(220 20% 10%), transparent)` }} />
-      <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none" style={{ background: `linear-gradient(to left, hsl(220 20% 10%), transparent)` }} />
+      <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-[#1a1f2e] dark:from-[hsl(220,20%,10%)] to-transparent" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-[#1a1f2e] dark:from-[hsl(220,20%,10%)] to-transparent" />
       <div
         className="inline-flex"
         style={{
@@ -65,17 +65,17 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
         {duplicated.map((item, i) => (
           <div
             key={i}
-            className="inline-flex items-center gap-1.5 md:gap-2 text-xs md:text-sm cursor-pointer select-none px-1.5 md:px-2 py-0.5 rounded-md hover:bg-white/10 transition-colors group mr-3 md:mr-6"
+            className="inline-flex items-center gap-1.5 md:gap-2 text-xs md:text-sm cursor-pointer select-none px-1.5 md:px-2 py-0.5 rounded-md hover:bg-white/10 transition-colors group mr-0.5 md:mr-1"
             onClick={() => setSelectedItem(item)}
           >
-            <span className="font-extrabold tracking-wide text-white group-hover:text-white transition-colors">{item.name}</span>
+            <span className={`font-extrabold tracking-wide transition-colors ${item.up ? "text-[#00c853] dark:text-[#00e676]" : "text-[#d50000] dark:text-[#ff1744]"}`}>{item.name}</span>
             {item.unit ? <span className="opacity-50 text-[10px] md:text-xs">{item.unit}</span> : null}
             <PriceCell item={item} />
-            <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-secondary/30 text-[#4ade80]" : "bg-destructive/30 text-[#ff6b6b]"}`}>
+            <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-[#00e5ff]/15 text-[#00e5ff]" : "bg-[#ffab40]/15 text-[#ffab40]"}`}>
               {item.up ? <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3" /> : <TrendingDown className="w-2.5 h-2.5 md:w-3 md:h-3" />}
               {item.change}
             </span>
-            <span className="text-white/10 text-lg mx-1">·</span>
+            <span className="text-white/10 dark:text-white/10 text-lg mx-1">·</span>
           </div>
         ))}
       </div>
@@ -186,12 +186,12 @@ const StockTicker = () => {
   const closeCountdown = useCountdown(marketClose);
 
   return (
-    <div className="border-b border-brand-orange/20 bg-brand-charcoal relative">
-      <TickerRow items={stocks} direction="left" bgClass="bg-brand-charcoal" textClass="text-primary-foreground" duration={80} />
+    <div className="border-b border-[#1a1f2e]/20 dark:border-brand-orange/20 bg-[#1a1f2e] dark:bg-brand-charcoal relative">
+      <TickerRow items={stocks} direction="left" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal" textClass="text-white" duration={120} />
       {!isMobile && (
         <>
-          <div className="h-px bg-brand-orange/15" />
-          <TickerRow items={commodities} direction="right" bgClass="bg-brand-charcoal/95" textClass="text-primary-foreground" duration={80} />
+          <div className="h-px bg-white/5 dark:bg-brand-orange/15" />
+          <TickerRow items={commodities} direction="right" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal/95" textClass="text-white" duration={120} />
         </>
       )}
       

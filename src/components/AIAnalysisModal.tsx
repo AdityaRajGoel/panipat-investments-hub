@@ -237,6 +237,8 @@ const NeuralNetworkAnimation = () => {
 export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps) => {
   const [loadingStep, setLoadingStep] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(true);
+  const [animationDone, setAnimationDone] = useState(false);
+  const [aiResponseReady, setAiResponseReady] = useState(false);
   const [geminiVerdict, setGeminiVerdict] = useState<{ 
     analysis: string, 
     model: string,
@@ -290,16 +292,18 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     if (isOpen) {
       setIsAnalyzing(true); setLoadingStep(0); setGeminiVerdict(null); 
       setChatHistory([]); setActiveTab('report');
+      setAnimationDone(false); setAiResponseReady(false);
     }
   }, [isOpen, stock]);
 
+  // Animation step progression — marks animationDone when all steps complete
   useEffect(() => {
     if (!isOpen || !isAnalyzing) return;
     const interval = setInterval(() => {
       setLoadingStep(p => {
         if (p >= analysisSteps.length - 1) {
           clearInterval(interval);
-          setTimeout(() => setIsAnalyzing(false), 900);
+          setTimeout(() => setAnimationDone(true), 900);
           return p;
         } return p + 1;
       });
@@ -307,11 +311,18 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     return () => clearInterval(interval);
   }, [isOpen, isAnalyzing]);
 
+  // Dismiss loading screen only when BOTH animation and AI response are ready
+  useEffect(() => {
+    if (animationDone && aiResponseReady) {
+      setIsAnalyzing(false);
+    }
+  }, [animationDone, aiResponseReady]);
+
   const analysis = stock ? computeAnalysis(stock) : null;
   
-  // Fetch Deep AI Report
+  // Fetch Deep AI Report — fires immediately when modal opens (in parallel with animation)
   useEffect(() => {
-    if (isAnalyzing || !stock || !analysis || geminiVerdict) return;
+    if (!isOpen || !stock || !analysis || geminiVerdict) return;
 
     const priceNum = analysis.priceNum;
     const isFinancial = stock.sector === "Financial Services" || stock.symbol.includes("BANK");
@@ -347,6 +358,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
             analysis: "⚠️ AI analysis is temporarily unavailable. Please try again in a moment.", 
             model: "error" 
           });
+          setAiResponseReady(true);
           return;
         }
         if (data?.verdict) {
@@ -409,17 +421,20 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               model: data.model || 'AI Analysis',
               structured: verdict.structured_data || null
             });
+            setAiResponseReady(true);
           } else {
             setGeminiVerdict({ 
               analysis: typeof verdict === 'string' ? verdict.replace(/\\n/g, '\n') : "Unable to parse AI response.", 
               model: data.model || 'AI Analysis' 
             });
+            setAiResponseReady(true);
           }
         } else {
           setGeminiVerdict({ 
             analysis: "⚠️ The AI returned an empty response. Please try again.", 
             model: "error" 
           });
+          setAiResponseReady(true);
         }
       }).catch(err => {
         console.error("AI Analysis Fetch Error:", err);
@@ -427,8 +442,9 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
           analysis: "⚠️ Could not connect to the AI engine. Please check your connection and try again.", 
           model: "error" 
         });
+        setAiResponseReady(true);
       });
-  }, [isAnalyzing, stock, analysis, geminiVerdict]);
+  }, [isOpen, stock, analysis, geminiVerdict]);
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
