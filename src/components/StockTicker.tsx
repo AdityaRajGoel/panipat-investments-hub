@@ -33,8 +33,8 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
   return (
     <span
       className={`font-tabular-nums ${
-        flash === "up" ? "text-[#00e5ff] font-bold" :
-        flash === "down" ? "text-[#ffab40] font-bold" : "text-white/80 font-semibold"
+        flash === "up" ? "text-brand-gold font-bold" :
+        flash === "down" ? "text-brand-orange font-bold" : "text-white/80 font-semibold"
       }`}
     >
       {item.price}
@@ -65,17 +65,17 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
         {duplicated.map((item, i) => (
           <div
             key={i}
-            className="inline-flex items-center gap-1.5 md:gap-2 text-xs md:text-sm cursor-pointer select-none px-1.5 md:px-2 py-0.5 rounded-md hover:bg-white/10 transition-colors group mr-0.5 md:mr-1"
+            className="inline-flex items-center gap-1 md:gap-1.5 text-xs md:text-sm cursor-pointer select-none px-1 md:px-1.5 py-0.5 rounded-md hover:bg-white/10 transition-colors group"
             onClick={() => setSelectedItem(item)}
           >
             <span className={`font-extrabold tracking-wide transition-colors ${item.up ? "text-[#00c853] dark:text-[#00e676]" : "text-[#d50000] dark:text-[#ff1744]"}`}>{item.name}</span>
             {item.unit ? <span className="opacity-50 text-[10px] md:text-xs">{item.unit}</span> : null}
             <PriceCell item={item} />
-            <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-[#00e5ff]/15 text-[#00e5ff]" : "bg-[#ffab40]/15 text-[#ffab40]"}`}>
+            <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-brand-gold/15 text-brand-gold" : "bg-brand-orange/15 text-brand-orange"}`}>
               {item.up ? <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3" /> : <TrendingDown className="w-2.5 h-2.5 md:w-3 md:h-3" />}
               {item.change}
             </span>
-            <span className="text-white/10 dark:text-white/10 text-lg mx-1">·</span>
+            <span className="text-white/20 text-sm mx-0.5">·</span>
           </div>
         ))}
       </div>
