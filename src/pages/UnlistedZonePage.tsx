@@ -26,6 +26,11 @@ const UnlistedSpacePage = () => {
         title="Unlisted Space | Buy Pre-IPO & Unlisted Shares in India - Parasram"
         description="Access exclusive pre-IPO investments and unlisted shares via Parasram India's Unlisted Space. Secure, SEBI-registered framework with instant Demat transfers for top unlisted companies."
         keywords="Unlisted Space, buy unlisted shares India, pre-IPO investment, Parasram unlisted space, unlisted shares broker Panipat, buy pre-IPO stocks, NSE unlisted shares, private equity India"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Unlisted Space" },
+        ]}
+        faqItems={unlistedFAQs.map(f => ({ question: f.q, answer: f.a }))}
         jsonLd={{
           "@type": "Product",
           "name": "Unlisted Space - Pre-IPO Shares",
