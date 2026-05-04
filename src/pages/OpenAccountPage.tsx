@@ -257,7 +257,7 @@ const OpenAccountPage = () => {
                   </div>
                 </div>
                 <div className="mt-6 pt-5 border-t border-white/10">
-                  <a href="https://maps.app.goo.gl/g9hDv9cKfdz28Hhx6" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-primary-foreground text-xs font-bold px-4 py-2.5 rounded-lg transition-colors">
+                  <a href="https://maps.app.goo.gl/dvR1a5LPc5xAq4Va8" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-primary-foreground text-xs font-bold px-4 py-2.5 rounded-lg transition-colors">
                     <MapPin className="w-3.5 h-3.5" /> Open in Google Maps
                   </a>
                 </div>

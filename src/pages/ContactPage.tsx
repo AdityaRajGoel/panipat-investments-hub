@@ -19,7 +19,7 @@ const contactFAQs = [
 ];
 
 const quickContacts = [
-  { icon: MapPin, label: "Visit Us", value: "Shakuntala Complex, Palika Bazaar, Panipat - 132103", href: "https://maps.app.goo.gl/g9hDv9cKfdz28Hhx6" },
+  { icon: MapPin, label: "Visit Us", value: "Shakuntala Complex, Palika Bazaar, Panipat - 132103", href: "https://maps.app.goo.gl/dvR1a5LPc5xAq4Va8" },
   { icon: Phone, label: "Call Us", value: "+91 9416400314", href: "tel:+919416400314" },
   { icon: Mail, label: "Email Us", value: "parasrampnp@gmail.com", href: "mailto:parasrampnp@gmail.com" },
   { icon: Clock, label: "Working Hours", value: "Mon–Fri 9AM–6PM, Sat 9AM–2PM", href: undefined },
@@ -200,7 +200,7 @@ const ContactPage = () => {
             viewport={{ once: true }}
           >
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3469.037453247!2d76.96786!3d29.38917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390dda2a2b0e82e1%3A0x8a8a8a8a8a8a8a8a!2sShakuntala%20Complex%2C%20Palika%20Bazaar%2C%20Panipat%2C%20Haryana%20132103!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              src="https://maps.google.com/maps?q=29.394309972550538,76.96980579867602&t=m&z=17&output=embed&iwloc=near"
               width="100%"
               height="350"
               style={{ border: 0 }}
@@ -216,7 +216,7 @@ const ContactPage = () => {
                 Shakuntala Complex, Palika Bazaar, Panipat - 132103
               </div>
               <Button asChild variant="outline" size="sm" className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground">
-                <a href="https://maps.app.goo.gl/g9hDv9cKfdz28Hhx6" target="_blank" rel="noopener noreferrer">
+                <a href="https://maps.app.goo.gl/dvR1a5LPc5xAq4Va8" target="_blank" rel="noopener noreferrer">
                   Open in Maps <ExternalLink className="ml-2 w-4 h-4" />
                 </a>
               </Button>
