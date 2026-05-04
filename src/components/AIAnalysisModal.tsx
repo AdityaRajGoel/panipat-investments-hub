@@ -446,6 +446,22 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       });
   }, [isOpen, stock, analysis, geminiVerdict]);
 
+  // Shared context builder for chat — avoids duplicated code
+  const buildChatContext = () => [
+    `Stock: ${stock?.name} (${stock?.symbol})`,
+    `Sector: ${stock?.sector || 'N/A'}`,
+    `CMP: ₹${stock?.price}`,
+    `Change: ${analysis?.changePct?.toFixed(2)}%`,
+    `Day Range: ₹${stock?.day_low} – ₹${stock?.day_high}`,
+    `52W High: ₹${analysis?.high52} | 52W Low: ₹${analysis?.low52}`,
+    `P/E: ${stock?.pe || 'N/A'}`,
+    `Market Cap: ₹${stock?.market_cap} Cr`,
+    `Volume: ${stock?.volume}`,
+    `Patterns: ${analysis?.patterns?.join(', ')}`,
+    `Score: ${analysis?.score}/100`,
+    `Momentum: ${analysis?.isBullish ? 'Bullish' : 'Bearish'}`,
+  ].join(' | ');
+
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || !stock || isChatting) return;
@@ -456,21 +472,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     setIsChatting(true);
 
     try {
-      // Build rich context for the chat AI
-      const richContext = [
-        `Stock: ${stock.name} (${stock.symbol})`,
-        `Sector: ${stock.sector || 'N/A'}`,
-        `CMP: ₹${stock.price}`,
-        `Change: ${analysis?.changePct?.toFixed(2)}%`,
-        `Day Range: ₹${stock.day_low} – ₹${stock.day_high}`,
-        `52W High: ₹${analysis?.high52} | 52W Low: ₹${analysis?.low52}`,
-        `P/E: ${stock.pe || 'N/A'}`,
-        `Market Cap: ₹${stock.market_cap} Cr`,
-        `Volume: ${stock.volume}`,
-        `Patterns: ${analysis?.patterns?.join(', ')}`,
-        `Score: ${analysis?.score}/100`,
-        `Momentum: ${analysis?.isBullish ? 'Bullish' : 'Bearish'}`,
-      ].join(' | ');
+      const richContext = buildChatContext();
 
       const { data, error } = await supabase.functions.invoke('ai-stock-analysis', {
         body: {
@@ -496,17 +498,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     setChatHistory(prev => [...prev, { role: 'user', text: q }]);
     setIsChatting(true);
     try {
-      const richContext = [
-        `Stock: ${stock.name} (${stock.symbol})`,
-        `Sector: ${stock.sector || 'N/A'}`,
-        `CMP: ₹${stock.price}`,
-        `Change: ${analysis?.changePct?.toFixed(2)}%`,
-        `52W High: ₹${analysis?.high52} | 52W Low: ₹${analysis?.low52}`,
-        `P/E: ${stock.pe || 'N/A'}`,
-        `Market Cap: ₹${stock.market_cap} Cr`,
-        `Patterns: ${analysis?.patterns?.join(', ')}`,
-        `Score: ${analysis?.score}/100`,
-      ].join(' | ');
+      const richContext = buildChatContext();
       const { data, error } = await supabase.functions.invoke('ai-stock-analysis', {
         body: {
           symbol: stock.symbol, is_chat: true, chat_message: q,
@@ -789,7 +781,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                               {geminiVerdict.structured.action_verdict}
                             </div>
                             <div className="flex flex-wrap gap-1 justify-center">
-                              {geminiVerdict.structured.technical_signals.slice(0, 2).map((tag, i) => (
+                              {(geminiVerdict.structured.technical_signals || []).slice(0, 2).map((tag, i) => (
                                 <span key={i} className="text-[8px] font-bold bg-muted px-1.5 py-0.5 rounded border border-border/50 uppercase tracking-tighter">
                                   {tag}
                                 </span>
@@ -863,7 +855,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                               <TrendingUp className="w-4 h-4" /> Strong Positives
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {geminiVerdict.structured.bullish_signals.map((s, i) => (
+                              {(geminiVerdict.structured.bullish_signals || []).map((s, i) => (
                                 <span key={i} className="bg-secondary/10 text-secondary text-[10px] px-2 py-1 rounded-md border border-secondary/20 flex items-center gap-1">
                                   <CheckCircle2 className="w-3 h-3" /> {s}
                                 </span>
@@ -875,7 +867,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                               <TrendingDown className="w-4 h-4" /> Risk Factors
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {geminiVerdict.structured.bearish_signals.map((s, i) => (
+                              {(geminiVerdict.structured.bearish_signals || []).map((s, i) => (
                                 <span key={i} className="bg-destructive/10 text-destructive text-[10px] px-2 py-1 rounded-md border border-destructive/20 flex items-center gap-1">
                                   <AlertTriangle className="w-3 h-3" /> {s}
                                 </span>
@@ -933,6 +925,8 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                                     setGeminiVerdict(null); 
                                     setIsAnalyzing(true);
                                     setLoadingStep(0);
+                                    setAnimationDone(false);
+                                    setAiResponseReady(false);
                                   }}
                                   className="text-xs font-semibold text-brand-orange hover:text-brand-orange/80 transition-colors flex items-center gap-1.5 px-4 py-2 rounded-lg border border-brand-orange/30 hover:bg-brand-orange/5"
                                 >

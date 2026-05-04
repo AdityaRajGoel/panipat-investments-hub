@@ -171,7 +171,7 @@ async function askOpenRouter(prompt: string, isChat: boolean = false) {
 
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
   const model = isChat
-    ? "google/gemini-2.5-flash"
+    ? "google/gemini-2.0-flash-lite-001"
     : "google/gemini-2.5-flash";
 
   const messages = [
@@ -184,7 +184,7 @@ async function askOpenRouter(prompt: string, isChat: boolean = false) {
     headers: {
       "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://parasramindiapanipat.com",
+      "HTTP-Referer": "https://www.sphpnp.com",
       "X-Title": "Parasram Intelligence"
     },
     body: JSON.stringify({
@@ -289,7 +289,7 @@ async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: 
   if (!GEMINI_API_KEY) throw new Error("Gemini API key not configured");
 
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
 
   const bodyData: any = {
     system_instruction: { parts: { text: systemMsg } },
@@ -338,7 +338,7 @@ async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: 
     }
   }
 
-  return { result: text, model: "gemini-2.0-flash" };
+  return { result: text, model: "gemini-2.5-flash" };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -519,7 +519,10 @@ For structured_data price_targets: support ≈ ₹${s.nearestSupport}, resistanc
 }
 
 function buildChatPrompt(s: any, context: string, chatHistory: any[], chatMessage: string): string {
-  let prompt = `## Stock Context\n${context}\n\n`;
+  let prompt = `## Stock Context
+${context}
+
+`;
 
   // Include the AI report context if available
   if (s.ai_report_summary) {
@@ -527,10 +530,16 @@ function buildChatPrompt(s: any, context: string, chatHistory: any[], chatMessag
   }
 
   if (chatHistory && chatHistory.length > 0) {
-    prompt += `## Conversation History\n${chatHistory.map((m: any) => `**${m.role === 'user' ? 'CLIENT' : 'ANALYST'}:** ${m.text}`).join('\n\n')}\n\n`;
+    prompt += `## Conversation History
+${chatHistory.map((m: any) => `**${m.role === 'user' ? 'CLIENT' : 'ANALYST'}:** ${m.text}`).join('\n\n')}
+
+`;
   }
 
-  prompt += `## Client's Question\n${chatMessage}\n\nProvide a direct, actionable answer. Reference specific price levels and data from the context above.`;
+  prompt += `## Client's Question
+${chatMessage}
+
+Provide a direct, actionable answer. Reference specific price levels and data from the context above.`;
   return prompt;
 }
 
@@ -613,8 +622,8 @@ serve(async (req) => {
 
       if (!result && GEMINI_API_KEY) {
         try {
-          console.log("→ Gemini (gemini-2.0-flash)...");
-          result = await withTimeout(askGemini(finalPrompt, !!is_chat, false), 15000, "Gemini");
+          console.log("→ Gemini (gemini-2.5-flash)...");
+          result = await withTimeout(askGemini(finalPrompt, !!is_chat, false), 25000, "Gemini");
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error("✗ Gemini:", msg);
