@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { Briefcase, Building2, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 
 const products = [
   {
@@ -49,8 +51,13 @@ const ProductsPage = () => {
       <SEOHead 
         title="Fixed Deposits, Bonds & Insurance | Parasram India Panipat" 
         description="Explore fixed deposits, corporate bonds, and insurance services with Parasram India Panipat. Diversify beyond equities."
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Products" },
+        ]}
       />
       <div className="min-h-screen bg-background flex flex-col">
+        <ScrollProgress />
         <Header />
         
         {/* Hero Section */}
@@ -123,6 +130,7 @@ const ProductsPage = () => {
         </section>
 
         <Footer />
+        <WhatsAppButton />
       </div>
     </PageTransition>
   );

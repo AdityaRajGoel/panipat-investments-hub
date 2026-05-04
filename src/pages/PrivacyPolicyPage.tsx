@@ -2,6 +2,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import PageTransition from "@/components/PageTransition";
+import ScrollProgress from "@/components/ScrollProgress";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { ShieldCheck } from "lucide-react";
 
 const PrivacyPolicyPage = () => {
@@ -10,7 +12,12 @@ const PrivacyPolicyPage = () => {
       <SEOHead 
         title="Privacy Policy | Parasram India Panipat" 
         description="Read the privacy policy of Parasram India Panipat Branch to understand how we manage, protect, and use your personal and financial data."
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Privacy Policy" },
+        ]}
       />
+      <ScrollProgress />
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
         
@@ -70,6 +77,7 @@ const PrivacyPolicyPage = () => {
         </main>
 
         <Footer />
+        <WhatsAppButton />
       </div>
     </PageTransition>
   );

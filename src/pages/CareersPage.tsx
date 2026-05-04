@@ -5,6 +5,8 @@ import PageTransition from "@/components/PageTransition";
 import { motion } from "framer-motion";
 import { Briefcase, MapPin, Users, TrendingUp, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 
 
 
@@ -14,13 +16,17 @@ const CareersPage = () => {
       <SEOHead 
         title="Careers | Parasram India Panipat" 
         description="Join the Parasram India Panipat branch. We are hiring Relationship Managers and Equity Dealers to empower regional wealth creation."
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Careers" },
+        ]}
       />
       <div className="min-h-screen bg-background flex flex-col">
+        <ScrollProgress />
         <Header />
         
         {/* Hero Section */}
         <section className="pt-16 pb-10 md:pt-24 md:pb-20 bg-hero text-primary-foreground text-center relative overflow-hidden">
-          <div className="absolute inset-0 z-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
           <div className="container mx-auto px-4 z-10 relative">
             <motion.div 
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-gold/20 text-brand-gold text-sm font-semibold mb-6"
@@ -92,6 +98,7 @@ const CareersPage = () => {
         </section>
 
         <Footer />
+        <WhatsAppButton />
       </div>
     </PageTransition>
   );

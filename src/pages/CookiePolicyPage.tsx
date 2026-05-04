@@ -2,6 +2,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import PageTransition from "@/components/PageTransition";
+import ScrollProgress from "@/components/ScrollProgress";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { ShieldCheck } from "lucide-react";
 
 const CookiePolicyPage = () => {
@@ -10,7 +12,12 @@ const CookiePolicyPage = () => {
       <SEOHead 
         title="Cookie Policy | Parasram India Panipat" 
         description="Learn how Parasram India Panipat uses cookies and tracking technologies to enhance your browsing and trading experience."
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Cookie Policy" },
+        ]}
       />
+      <ScrollProgress />
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
         
@@ -62,6 +69,7 @@ const CookiePolicyPage = () => {
         </main>
 
         <Footer />
+        <WhatsAppButton />
       </div>
     </PageTransition>
   );

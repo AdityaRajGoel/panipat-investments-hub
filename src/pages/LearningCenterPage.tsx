@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -378,7 +379,16 @@ const LearningCenterPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Learning Center | Parasram India" description="Learn about stock market investing, trading strategies, technical analysis, and personal finance. Free educational resources, live market news, and business TV." keywords="stock market learning, trading guide, investing basics, technical analysis, mutual funds guide, live market news" />
+      <SEOHead 
+        title="Learning Center | Parasram India" 
+        description="Learn about stock market investing, trading strategies, technical analysis, and personal finance. Free educational resources, live market news, and business TV." 
+        keywords="stock market learning, trading guide, investing basics, technical analysis, mutual funds guide, live market news" 
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Learning Center" },
+        ]}
+      />
+      <ScrollProgress />
       <Header />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">

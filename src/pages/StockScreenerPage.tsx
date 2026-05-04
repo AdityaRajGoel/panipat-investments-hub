@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar } from "lucide-react";
@@ -163,7 +164,16 @@ const StockScreenerPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Stock Screener | Live NSE BSE Stocks" description="Screen and filter live Indian stocks by sector, market cap, P/E ratio, 52-week range. Real-time prices from Yahoo Finance." keywords="stock screener India, NSE stock filter, BSE stocks, PE ratio filter, live stock prices" />
+      <SEOHead 
+        title="Stock Screener | Live NSE BSE Stocks" 
+        description="Screen and filter live Indian stocks by sector, market cap, P/E ratio, 52-week range. Real-time prices from Yahoo Finance." 
+        keywords="stock screener India, NSE stock filter, BSE stocks, PE ratio filter, live stock prices" 
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Stock Screener" },
+        ]}
+      />
+      <ScrollProgress />
       <Header />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">

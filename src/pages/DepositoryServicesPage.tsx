@@ -4,6 +4,8 @@ import SEOHead from "@/components/SEOHead";
 import PageTransition from "@/components/PageTransition";
 import { motion } from "framer-motion";
 import { Vault, Share2, FileDigit, Link as LinkIcon, ShieldAlert } from "lucide-react";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 
 const features = [
   { icon: Vault, title: "Secure Account Maintenance", desc: "Safe keeping of your securities in electronic form fully backed by CDSL/NSDL." },
@@ -19,8 +21,13 @@ const DepositoryServicesPage = () => {
       <SEOHead 
         title="Depository Services | NSDL & CDSL | Parasram India Panipat" 
         description="Open your secure Demat account. Enjoy seamless transfers, pledge for margin, and automated corporate actions with Parasram India."
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Depository Services" },
+        ]}
       />
       <div className="min-h-screen bg-background flex flex-col">
+        <ScrollProgress />
         <Header />
         
         {/* Hero Section */}
@@ -96,6 +103,7 @@ const DepositoryServicesPage = () => {
         </section>
 
         <Footer />
+        <WhatsAppButton />
       </div>
     </PageTransition>
   );

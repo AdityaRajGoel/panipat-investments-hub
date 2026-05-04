@@ -23,6 +23,7 @@ const KeyboardShortcuts = () => { useKeyboardShortcuts(); return null; };
 
 // Eagerly load the home page for fastest FCP
 import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
 
 // Lazy load all other pages
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -49,7 +50,6 @@ const CareersPage = lazy(() => import("./pages/CareersPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const CookiePolicyPage = lazy(() => import("./pages/CookiePolicyPage"));
 const StockRecommendationsPage = lazy(() => import("./pages/StockRecommendationsPage"));
-const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Professional branded loading screen ---
 const candleVariants = {

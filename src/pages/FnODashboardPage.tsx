@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -189,7 +190,16 @@ const FnODashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="F&O Dashboard | Options Chain, PCR & Max Pain" description="Live F&O dashboard with options chain viewer, Put-Call ratio trends, and max pain calculator for NIFTY and BANKNIFTY." keywords="options chain India, PCR ratio, max pain calculator, NIFTY options, F&O dashboard" />
+      <SEOHead 
+        title="F&O Dashboard | Options Chain, PCR & Max Pain" 
+        description="Live F&O dashboard with options chain viewer, Put-Call ratio trends, and max pain calculator for NIFTY and BANKNIFTY." 
+        keywords="options chain India, PCR ratio, max pain calculator, NIFTY options, F&O dashboard" 
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "F&O Dashboard" },
+        ]}
+      />
+      <ScrollProgress />
       <Header />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">

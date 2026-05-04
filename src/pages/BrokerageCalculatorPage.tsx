@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -216,7 +217,12 @@ const BrokerageCalculatorPage = () => {
         title="Brokerage Calculator | Parasram India — Panipat"
         description="Calculate Parasram brokerage, STT, GST, exchange charges, and net P&L for equity, F&O, commodity, and currency trades. Updated for April 2026 STT rates."
         keywords="brokerage calculator, Parasram brokerage, STT calculator, trading charges, equity brokerage, F&O charges, options brokerage, stamp duty"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Brokerage Calculator" },
+        ]}
       />
+      <ScrollProgress />
       <Header />
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-5xl">

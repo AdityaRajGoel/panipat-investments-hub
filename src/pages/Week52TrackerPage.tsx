@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
@@ -93,7 +94,16 @@ const Week52TrackerPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="52-Week High Low Tracker | NSE Stocks" description="Track stocks near their 52-week highs and lows. Identify breakout and reversal opportunities with live data." keywords="52 week high stocks, 52 week low stocks, NSE stock tracker, breakout stocks" />
+      <SEOHead 
+        title="52-Week High Low Tracker | NSE Stocks" 
+        description="Track stocks near their 52-week highs and lows. Identify breakout and reversal opportunities with live data." 
+        keywords="52 week high stocks, 52 week low stocks, NSE stock tracker, breakout stocks" 
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "52-Week High/Low Tracker" },
+        ]}
+      />
+      <ScrollProgress />
       <Header />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">

@@ -32,6 +32,11 @@ const ContactPage = () => {
         title="Contact Parasram India Panipat | Stock Broker Office"
         description="Contact Parasram India Panipat branch at Shakuntala Complex, Palika Bazaar. Call +91 9416400314. Open Mon-Sat. Free Demat account opening & investment consultation."
         keywords="contact Parasram India Panipat, stock broker office Panipat, Shakuntala Complex Panipat, financial advisor Panipat contact"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Contact" },
+        ]}
+        faqItems={contactFAQs.map(f => ({ question: f.q, answer: f.a }))}
         jsonLd={{
           "@type": "LocalBusiness",
           "name": "Parasram India - Panipat Branch",

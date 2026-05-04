@@ -177,6 +177,10 @@ const TeamPage = () => {
         title="Our Team | Financial Advisors Panipat - Parasram India"
         description="Meet the experienced financial advisors at Parasram India Panipat. 35+ years of combined expertise in equity, mutual funds, IPOs, and wealth management."
         keywords="financial advisors Panipat, stock broker team Panipat, investment consultant Panipat, Parasram India team"
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Our Team" },
+        ]}
       />
       <ScrollProgress />
       <Header />

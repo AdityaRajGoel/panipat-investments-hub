@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -195,7 +196,16 @@ const StockComparisonPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Stock Comparison Tool | Parasram India" description="Compare NSE/BSE stocks side-by-side with live metrics, visual stat bars, and AI analysis." keywords="stock comparison, compare stocks India, NSE BSE comparison, PE ratio comparison" />
+      <SEOHead 
+        title="Stock Comparison Tool | Parasram India" 
+        description="Compare NSE/BSE stocks side-by-side with live metrics, visual stat bars, and AI analysis." 
+        keywords="stock comparison, compare stocks India, NSE BSE comparison, PE ratio comparison" 
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Compare Stocks" },
+        ]}
+      />
+      <ScrollProgress />
       <Header />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">

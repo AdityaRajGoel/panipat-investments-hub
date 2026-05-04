@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -63,7 +64,16 @@ const MarginCalculatorPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Margin Calculator | Parasram India" description="Calculate F&O and equity margins, leverage, and required capital for your trades." keywords="margin calculator, F&O margin, equity margin, intraday margin, NIFTY margin" />
+      <SEOHead 
+        title="Margin Calculator | Parasram India" 
+        description="Calculate F&O and equity margins, leverage, and required capital for your trades." 
+        keywords="margin calculator, F&O margin, equity margin, intraday margin, NIFTY margin" 
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Margin Calculator" },
+        ]}
+      />
+      <ScrollProgress />
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
