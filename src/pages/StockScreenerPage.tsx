@@ -270,17 +270,17 @@ const StockScreenerPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Search stock..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+              <Input aria-label="Search stock" placeholder="Search stock..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
             </div>
             <Select value={sector} onValueChange={setSector}>
-              <SelectTrigger><SelectValue placeholder="Sector" /></SelectTrigger>
+              <SelectTrigger aria-label="Select Sector"><SelectValue placeholder="Sector" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Sectors</SelectItem>
                 {sectors.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={peRange} onValueChange={setPeRange}>
-              <SelectTrigger><SelectValue placeholder="P/E Ratio" /></SelectTrigger>
+              <SelectTrigger aria-label="Select P/E Ratio"><SelectValue placeholder="P/E Ratio" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All P/E</SelectItem>
                 <SelectItem value="low">Low (&lt;20)</SelectItem>
@@ -289,7 +289,7 @@ const StockScreenerPage = () => {
               </SelectContent>
             </Select>
             <Select value={capRange} onValueChange={setCapRange}>
-              <SelectTrigger><SelectValue placeholder="Market Cap" /></SelectTrigger>
+              <SelectTrigger aria-label="Select Market Cap"><SelectValue placeholder="Market Cap" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Caps</SelectItem>
                 <SelectItem value="large">Large Cap (₹50K+ Cr)</SelectItem>

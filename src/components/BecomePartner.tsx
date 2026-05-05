@@ -178,6 +178,7 @@ const BecomePartner = () => {
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/40" />
                       <Input
                         name="name"
+                        aria-label="Your Name"
                         placeholder="Your Name *"
                         value={form.name}
                         onChange={handleChange}
@@ -193,6 +194,7 @@ const BecomePartner = () => {
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/40" />
                       <Input
                         name="phone"
+                        aria-label="Phone Number"
                         placeholder="Phone *"
                         value={form.phone}
                         onChange={handleChange}
@@ -212,6 +214,7 @@ const BecomePartner = () => {
                       <Input
                         name="email"
                         type="email"
+                        aria-label="Email Address"
                         placeholder="Email"
                         value={form.email}
                         onChange={handleChange}
@@ -226,6 +229,7 @@ const BecomePartner = () => {
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/40" />
                       <Input
                         name="city"
+                        aria-label="City or District"
                         placeholder="City / District *"
                         value={form.city}
                         onChange={handleChange}

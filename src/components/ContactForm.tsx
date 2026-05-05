@@ -115,14 +115,14 @@ const ContactForm = () => {
         <div>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input name="name" placeholder="Your Name *" value={form.name} onChange={handleChange} className="pl-10" maxLength={100} required />
+            <Input name="name" aria-label="Your Name" placeholder="Your Name *" value={form.name} onChange={handleChange} className="pl-10" maxLength={100} required />
           </div>
           {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
         </div>
         <div>
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input name="phone" placeholder="Phone Number *" value={form.phone} onChange={handleChange} className="pl-10" maxLength={15} required />
+            <Input name="phone" aria-label="Phone Number" placeholder="Phone Number *" value={form.phone} onChange={handleChange} className="pl-10" maxLength={15} required />
           </div>
           {errors.phone && <p className="text-destructive text-xs mt-1">{errors.phone}</p>}
         </div>
@@ -131,7 +131,7 @@ const ContactForm = () => {
       <div>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input name="email" type="email" placeholder="Email (optional)" value={form.email} onChange={handleChange} className="pl-10" maxLength={255} />
+          <Input name="email" aria-label="Email Address" type="email" placeholder="Email (optional)" value={form.email} onChange={handleChange} className="pl-10" maxLength={255} />
         </div>
         {errors.email && <p className="text-destructive text-xs mt-1">{errors.email}</p>}
       </div>
@@ -139,7 +139,7 @@ const ContactForm = () => {
       <div>
         <div className="relative">
           <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-          <Textarea name="message" placeholder="Your message..." value={form.message} onChange={handleChange} className="pl-10 min-h-[100px]" maxLength={1000} />
+          <Textarea name="message" aria-label="Your Message" placeholder="Your message..." value={form.message} onChange={handleChange} className="pl-10 min-h-[100px]" maxLength={1000} />
         </div>
         {errors.message && <p className="text-destructive text-xs mt-1">{errors.message}</p>}
         <p className="text-muted-foreground text-[10px] mt-1 text-right">{form.message.length}/1000</p>

@@ -53,7 +53,9 @@ const ClientMarquee = () => {
           style={{ willChange: "transform", animationDuration: "50s" }}
         >
           {items.map((t, i) => (
-            <ReviewCard key={`primary-${i}`} t={t} />
+            <div key={`primary-${i}`} aria-hidden={i >= quickTestimonials.length ? "true" : "false"}>
+              <ReviewCard t={t} />
+            </div>
           ))}
         </div>
         <div

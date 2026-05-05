@@ -221,7 +221,7 @@ const FnODashboardPage = () => {
 
           {data?.expiries && data.expiries.length > 0 && (
             <Select value={expiry} onValueChange={handleExpiryChange}>
-              <SelectTrigger className="w-44"><SelectValue placeholder="Select expiry" /></SelectTrigger>
+              <SelectTrigger className="w-44" aria-label="Select expiry"><SelectValue placeholder="Select expiry" /></SelectTrigger>
               <SelectContent>
                 {data.expiries.map(e => (
                   <SelectItem key={e.timestamp} value={String(e.timestamp)}>{e.label}</SelectItem>

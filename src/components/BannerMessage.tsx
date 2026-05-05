@@ -146,7 +146,7 @@ const BannerMessage = () => {
             <div className={`relative ${hasContentArea ? "w-full border-b border-border/10" : "w-full flex-1 flex items-center justify-center p-4 md:p-8"}`}>
                <img 
                  src={activeBanner.image_url} 
-                 alt={activeBanner.title || "Banner Image"} 
+                 alt={activeBanner.title || `Promotional ${activeBanner.type} Banner`} 
                  className={`block mx-auto w-full md:w-auto h-auto max-h-[55vh] md:max-h-[85vh] object-contain rounded-none`}
                  loading="eager"
                  fetchPriority="high"

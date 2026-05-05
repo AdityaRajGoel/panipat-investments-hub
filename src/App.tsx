@@ -17,6 +17,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useLocation } from "react-router-dom";
 import SmartPopup from "@/components/SmartPopup";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import CookieConsent from "@/components/CookieConsent";
 
 const PageTracker = () => { usePageTracking(); return null; };
 const ScrollToHash = () => { useScrollToHash(); return null; };
@@ -185,6 +186,7 @@ const App = () => (
             <ScrollToHash />
             <KeyboardShortcuts />
             <SmartPopup />
+            <CookieConsent />
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>
                 <AnimatedRoutes />

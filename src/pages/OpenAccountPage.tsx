@@ -190,14 +190,14 @@ const OpenAccountPage = () => {
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">Full Name *</label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="name" value={form.name} onChange={handleChange} placeholder="Enter your name" className="pl-10" required maxLength={100} />
+                      <Input name="name" aria-label="Your Name" value={form.name} onChange={handleChange} placeholder="Enter your name" className="pl-10" required maxLength={100} />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">Phone Number *</label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="phone" value={form.phone} onChange={handleChange} placeholder="+91 XXXXX XXXXX" className="pl-10" required maxLength={20} />
+                      <Input name="phone" aria-label="Phone Number" value={form.phone} onChange={handleChange} placeholder="+91 XXXXX XXXXX" className="pl-10" required maxLength={20} />
                     </div>
                   </div>
                 </div>
@@ -206,20 +206,20 @@ const OpenAccountPage = () => {
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">Email</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="email" value={form.email} onChange={handleChange} placeholder="your@email.com" className="pl-10" type="email" maxLength={255} />
+                      <Input name="email" aria-label="Email Address" value={form.email} onChange={handleChange} placeholder="your@email.com" className="pl-10" type="email" maxLength={255} />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-foreground mb-1.5 block">City</label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input name="city" value={form.city} onChange={handleChange} placeholder="Panipat" className="pl-10" maxLength={100} />
+                      <Input name="city" aria-label="City" value={form.city} onChange={handleChange} placeholder="Panipat" className="pl-10" maxLength={100} />
                     </div>
                   </div>
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-foreground mb-1.5 block">Message (Optional)</label>
-                  <Textarea name="message" value={form.message} onChange={handleChange} placeholder="Any specific requirements or questions..." rows={4} maxLength={1000} />
+                  <Textarea name="message" aria-label="Message" value={form.message} onChange={handleChange} placeholder="Any specific requirements or questions..." rows={4} maxLength={1000} />
                 </div>
                 <Button type="submit" disabled={loading} className="w-full sm:w-auto bg-gradient-to-r from-brand-orange to-brand-gold text-white font-bold text-base px-10 py-6 shadow-lg shadow-brand-orange/20 hover:opacity-90 transition-opacity">
                   {loading ? "Submitting..." : "Submit Request"}

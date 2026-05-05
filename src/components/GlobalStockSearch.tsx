@@ -366,6 +366,7 @@ const GlobalStockSearch = ({ className }: Props) => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             ref={inputRef}
+            aria-label="Search any NSE/BSE stock"
             placeholder="Search any NSE/BSE stock..."
             value={query}
             onChange={e => { setQuery(e.target.value); setShowDropdown(true); }}
