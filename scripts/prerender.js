@@ -2,8 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, '../dist');
 
@@ -48,13 +46,26 @@ async function prerender() {
     console.log(`Static server running on port ${port}`);
 
     try {
-      // 2. Launch Puppeteer
-      const browser = await puppeteer.launch({
-        args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      });
+      // 2. Launch Puppeteer dynamically based on environment
+      let browser;
+      if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+        console.log('Running on Vercel/Lambda, using @sparticuz/chromium');
+        const puppeteer = (await import('puppeteer-core')).default;
+        const chromium = (await import('@sparticuz/chromium')).default;
+        browser = await puppeteer.launch({
+          args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+        });
+      } else {
+        console.log('Running locally, using standard puppeteer');
+        const puppeteer = (await import('puppeteer')).default;
+        browser = await puppeteer.launch({
+          headless: "new",
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+      }
 
       for (const route of routes) {
         console.log(`Prerendering ${route}...`);
