@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import ContactForm from "@/components/ContactForm";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -31,7 +32,6 @@ const ContactPage = () => {
       <SEOHead
         title="Contact Parasram India Panipat | Stock Broker Office"
         description="Contact Parasram India Panipat branch at Shakuntala Complex, Palika Bazaar. Call +91 9416400314. Open Mon-Sat. Free Demat account opening & investment consultation."
-        keywords="contact Parasram India Panipat, stock broker office Panipat, Shakuntala Complex Panipat, financial advisor Panipat contact"
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Contact" },
@@ -49,6 +49,7 @@ const ContactPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Contact" }]} />
 
       {/* Hero banner */}
       <section className="py-8 md:py-20 bg-hero text-primary-foreground relative overflow-hidden">

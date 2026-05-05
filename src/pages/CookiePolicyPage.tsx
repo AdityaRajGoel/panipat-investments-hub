@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import PageTransition from "@/components/PageTransition";
 import ScrollProgress from "@/components/ScrollProgress";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -20,6 +21,7 @@ const CookiePolicyPage = () => {
       <ScrollProgress />
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
+        <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Cookie Policy" }]} />
         
         <main className="flex-1 py-8 md:py-16">
           <div className="container mx-auto px-4 max-w-4xl">

@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { motion } from "framer-motion";
@@ -69,7 +70,6 @@ const HolidayCalendarPage = () => {
       <SEOHead 
         title="NSE BSE Holiday Calendar 2026" 
         description="Complete list of NSE, BSE, and MCX trading holidays for 2026. Plan your trades around market closures." 
-        keywords="NSE holidays 2026, BSE holidays, MCX holidays, stock market holidays India" 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Holiday Calendar" },
@@ -77,6 +77,7 @@ const HolidayCalendarPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Holiday Calendar" }]} />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-2">

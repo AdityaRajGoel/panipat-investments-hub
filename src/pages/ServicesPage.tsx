@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import Services from "@/components/Services";
 import InvestmentTools from "@/components/InvestmentTools";
 import SIPCalculator from "@/components/SIPCalculator";
@@ -15,7 +16,6 @@ const ServicesPage = () => {
       <SEOHead
         title="Services | Stocks, Mutual Funds, IPO, F&O - Parasram India Panipat"
         description="Complete financial services in Panipat - equity trading, mutual funds, SIP, IPO applications, F&O, commodities, unlisted shares. SEBI registered broker since 1970."
-        keywords="stock trading services Panipat, mutual fund advisor Panipat, SIP investment Panipat, IPO application Panipat, F&O trading Panipat, commodities trading Panipat"
         ogImage="https://www.sphpnp.com/logo.png"
         breadcrumbs={[
           { name: "Home", url: "/" },
@@ -24,6 +24,7 @@ const ServicesPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Services" }]} />
       <Services />
       <InvestmentTools />
       <SIPCalculator />

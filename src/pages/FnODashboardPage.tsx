@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -193,7 +194,6 @@ const FnODashboardPage = () => {
       <SEOHead 
         title="F&O Dashboard | Options Chain, PCR & Max Pain" 
         description="Live F&O dashboard with options chain viewer, Put-Call ratio trends, and max pain calculator for NIFTY and BANKNIFTY." 
-        keywords="options chain India, PCR ratio, max pain calculator, NIFTY options, F&O dashboard" 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "F&O Dashboard" },
@@ -201,6 +201,7 @@ const FnODashboardPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "F&O Dashboard" }]} />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">F&O Dashboard</h1>

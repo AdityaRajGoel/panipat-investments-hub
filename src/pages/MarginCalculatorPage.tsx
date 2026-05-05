@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useMemo } from "react";
@@ -67,7 +68,6 @@ const MarginCalculatorPage = () => {
       <SEOHead 
         title="Margin Calculator | Parasram India" 
         description="Calculate F&O and equity margins, leverage, and required capital for your trades." 
-        keywords="margin calculator, F&O margin, equity margin, intraday margin, NIFTY margin" 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Margin Calculator" },
@@ -75,6 +75,7 @@ const MarginCalculatorPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Margin Calculator" }]} />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-2">

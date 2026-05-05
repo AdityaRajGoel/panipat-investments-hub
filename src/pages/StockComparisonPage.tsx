@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -199,7 +200,6 @@ const StockComparisonPage = () => {
       <SEOHead 
         title="Stock Comparison Tool | Parasram India" 
         description="Compare NSE/BSE stocks side-by-side with live metrics, visual stat bars, and AI analysis." 
-        keywords="stock comparison, compare stocks India, NSE BSE comparison, PE ratio comparison" 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Compare Stocks" },
@@ -207,6 +207,7 @@ const StockComparisonPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Compare Stocks" }]} />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-2">

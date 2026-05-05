@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -167,7 +168,6 @@ const StockScreenerPage = () => {
       <SEOHead 
         title="Stock Screener | Live NSE BSE Stocks" 
         description="Screen and filter live Indian stocks by sector, market cap, P/E ratio, 52-week range. Real-time prices from Yahoo Finance." 
-        keywords="stock screener India, NSE stock filter, BSE stocks, PE ratio filter, live stock prices" 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Stock Screener" },
@@ -175,6 +175,7 @@ const StockScreenerPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Stock Screener" }]} />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>

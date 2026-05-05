@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import PageTransition from "@/components/PageTransition";
 import { motion } from "framer-motion";
@@ -24,6 +25,7 @@ const CareersPage = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <ScrollProgress />
         <Header />
+        <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Careers" }]} />
         
         {/* Hero Section */}
         <section className="pt-16 pb-10 md:pt-24 md:pb-20 bg-hero text-primary-foreground text-center relative overflow-hidden">

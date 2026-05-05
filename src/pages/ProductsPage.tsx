@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import PageTransition from "@/components/PageTransition";
 import { motion } from "framer-motion";
 import { Briefcase, Building2, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
@@ -59,6 +60,7 @@ const ProductsPage = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <ScrollProgress />
         <Header />
+        <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Products" }]} />
         
         {/* Hero Section */}
         <section className="pt-16 pb-8 md:pt-24 md:pb-16 relative overflow-hidden bg-hero text-primary-foreground">

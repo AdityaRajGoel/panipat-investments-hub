@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import UnlistedShares from "@/components/UnlistedShares";
 import ContactForm from "@/components/ContactForm";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -25,7 +26,6 @@ const UnlistedSpacePage = () => {
       <SEOHead
         title="Unlisted Space | Buy Pre-IPO & Unlisted Shares in India - Parasram"
         description="Access exclusive pre-IPO investments and unlisted shares via Parasram India's Unlisted Space. Secure, SEBI-registered framework with instant Demat transfers for top unlisted companies."
-        keywords="Unlisted Space, buy unlisted shares India, pre-IPO investment, Parasram unlisted space, unlisted shares broker Panipat, buy pre-IPO stocks, NSE unlisted shares, private equity India"
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Unlisted Space" },
@@ -51,6 +51,7 @@ const UnlistedSpacePage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Unlisted Space" }]} />
       <UnlistedShares />
 
       {/* Inquiry section */}

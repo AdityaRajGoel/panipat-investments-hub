@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -97,7 +98,6 @@ const Week52TrackerPage = () => {
       <SEOHead 
         title="52-Week High Low Tracker | NSE Stocks" 
         description="Track stocks near their 52-week highs and lows. Identify breakout and reversal opportunities with live data." 
-        keywords="52 week high stocks, 52 week low stocks, NSE stock tracker, breakout stocks" 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "52-Week High/Low Tracker" },
@@ -105,6 +105,7 @@ const Week52TrackerPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "52-Week Tracker" }]} />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>

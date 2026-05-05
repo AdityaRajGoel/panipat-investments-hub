@@ -20,6 +20,10 @@ type SEOProps = {
   datePublished?: string;
   dateModified?: string;
   author?: string;
+  jsonLd?: Record<string, unknown>;
+  breadcrumbs?: BreadcrumbItem[];
+  faqItems?: FAQItem[];
+  noindex?: boolean;
 };
 
 const BASE_URL = "https://www.sphpnp.com";

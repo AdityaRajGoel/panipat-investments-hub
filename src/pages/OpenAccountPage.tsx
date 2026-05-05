@@ -13,6 +13,7 @@ import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import PageTransition from "@/components/PageTransition";
 import ScrollProgress from "@/components/ScrollProgress";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -96,7 +97,6 @@ const OpenAccountPage = () => {
         <SEOHead
           title="Open Free Demat Account in Panipat | Parasram India"
           description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
-          keywords="open demat account Panipat, free demat account, trading account Panipat, Parasram India account opening"
           breadcrumbs={[
             { name: "Home", url: "/" },
             { name: "Open Demat Account" },
@@ -133,7 +133,6 @@ const OpenAccountPage = () => {
       <SEOHead
         title="Open Free Demat Account in Panipat | Parasram India"
         description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
-        keywords="open demat account Panipat, free demat account, trading account Panipat, Parasram India account opening"
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Open Demat Account" },
@@ -141,6 +140,7 @@ const OpenAccountPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Open Demat Account" }]} />
 
       <section className="relative py-10 md:py-28 overflow-hidden" style={{ background: `linear-gradient(135deg, hsl(213 80% 12% / 0.95), hsl(213 80% 22% / 0.9), hsl(145 70% 25% / 0.88))` }}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden">

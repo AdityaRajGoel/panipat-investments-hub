@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -382,7 +383,6 @@ const LearningCenterPage = () => {
       <SEOHead 
         title="Learning Center | Parasram India" 
         description="Learn about stock market investing, trading strategies, technical analysis, and personal finance. Free educational resources, live market news, and business TV." 
-        keywords="stock market learning, trading guide, investing basics, technical analysis, mutual funds guide, live market news" 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Learning Center" },
@@ -390,6 +390,7 @@ const LearningCenterPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Learning Center" }]} />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-2">

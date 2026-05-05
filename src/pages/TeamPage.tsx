@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import ScrollProgress from "@/components/ScrollProgress";
 import CompanyValues from "@/components/CompanyValues";
 import FAQ from "@/components/FAQ";
@@ -176,7 +177,6 @@ const TeamPage = () => {
       <SEOHead
         title="Our Team | Financial Advisors Panipat - Parasram India"
         description="Meet the experienced financial advisors at Parasram India Panipat. 35+ years of combined expertise in equity, mutual funds, IPOs, and wealth management."
-        keywords="financial advisors Panipat, stock broker team Panipat, investment consultant Panipat, Parasram India team"
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Our Team" },
@@ -184,6 +184,7 @@ const TeamPage = () => {
       />
       <ScrollProgress />
       <Header />
+      <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Our Team" }]} />
 
       {/* Hero Section */}
       <motion.section ref={heroRef} style={{ opacity: heroOpacity }} className="py-10 md:py-28 bg-background relative overflow-hidden">
