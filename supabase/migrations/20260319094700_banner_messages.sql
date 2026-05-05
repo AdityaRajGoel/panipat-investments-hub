@@ -16,29 +16,34 @@ create table if not exists banner_messages (
 alter table banner_messages enable row level security;
 
 -- Anyone can read active banners (public display)
+DROP POLICY IF EXISTS "Public can view active banners" ON banner_messages;
 create policy "Public can view active banners"
   on banner_messages for select
   using (is_active = true);
 
 -- Authenticated users can read ALL banners (admin view)
+DROP POLICY IF EXISTS "Authenticated users can view all banners" ON banner_messages;
 create policy "Authenticated users can view all banners"
   on banner_messages for select
   to authenticated
   using (true);
 
 -- Authenticated users can insert banners
+DROP POLICY IF EXISTS "Authenticated users can insert banners" ON banner_messages;
 create policy "Authenticated users can insert banners"
   on banner_messages for insert
   to authenticated
   with check (true);
 
 -- Authenticated users can update banners
+DROP POLICY IF EXISTS "Authenticated users can update banners" ON banner_messages;
 create policy "Authenticated users can update banners"
   on banner_messages for update
   to authenticated
   using (true);
 
 -- Authenticated users can delete banners
+DROP POLICY IF EXISTS "Authenticated users can delete banners" ON banner_messages;
 create policy "Authenticated users can delete banners"
   on banner_messages for delete
   to authenticated

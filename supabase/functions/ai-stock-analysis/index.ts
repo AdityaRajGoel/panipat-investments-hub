@@ -620,16 +620,7 @@ serve(async (req) => {
         }
       }
 
-      if (!result && GEMINI_API_KEY) {
-        try {
-          console.log("→ Gemini (gemini-2.5-flash)...");
-          result = await withTimeout(askGemini(finalPrompt, !!is_chat, false), 25000, "Gemini");
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          console.error("✗ Gemini:", msg);
-          errors.push(`Gemini: ${msg}`);
-        }
-      }
+      // Gemini fallback removed as per user request
     }
 
     if (!result) {
