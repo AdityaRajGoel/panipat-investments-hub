@@ -16,11 +16,6 @@ type SEOProps = {
   description: string;
   canonical?: string;
   ogImage?: string;
-  keywords?: string;
-  jsonLd?: Record<string, any>;
-  breadcrumbs?: BreadcrumbItem[];
-  faqItems?: FAQItem[];
-  noindex?: boolean;
   type?: "website" | "article" | "profile" | "product";
   datePublished?: string;
   dateModified?: string;
@@ -34,7 +29,6 @@ const SEOHead = ({
   description, 
   canonical, 
   ogImage, 
-  keywords, 
   jsonLd, 
   breadcrumbs, 
   faqItems, 
@@ -47,9 +41,50 @@ const SEOHead = ({
   const location = useLocation();
   const fullCanonical = canonical || `${BASE_URL}${location.pathname}`;
   const fullTitle = title.length > 60 || title === "Best Stock Broker in Panipat" ? title : `${title} | Parasram India`;
+  const finalOgImage = ogImage || "https://www.sphpnp.com/logo.png";
   
   // Combine all JSON-LD scripts
   const schemaScripts = [];
+
+  // Default LocalBusiness / FinancialService Schema
+  schemaScripts.push({
+    "@context": "https://schema.org",
+    "@type": ["FinancialService", "LocalBusiness"],
+    "name": "Parasram India - Panipat Branch",
+    "image": "https://www.sphpnp.com/logo.png",
+    "url": BASE_URL,
+    "telephone": "+919416400314",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Shakuntala Complex, Palika Bazaar",
+      "addressLocality": "Panipat",
+      "addressRegion": "Haryana",
+      "postalCode": "132103",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 29.3909,
+      "longitude": 76.9635
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+      ],
+      "opens": "09:00",
+      "closes": "18:00"
+    },
+    "sameAs": [
+      "https://www.facebook.com/parasramindia",
+      "https://twitter.com/parasramindia",
+      "https://www.linkedin.com/company/parasramindia"
+    ]
+  });
 
   // Custom JSON-LD from props
   if (jsonLd) {
@@ -60,7 +95,7 @@ const SEOHead = ({
       "@type": "Article",
       "headline": title,
       "description": description,
-      "image": ogImage || "https://www.sphpnp.com/logo.png",
+      "image": finalOgImage,
       "datePublished": datePublished || new Date().toISOString(),
       "dateModified": dateModified || datePublished || new Date().toISOString(),
       "author": {
@@ -79,18 +114,21 @@ const SEOHead = ({
   }
 
   // BreadcrumbList schema
-  if (breadcrumbs && breadcrumbs.length > 0) {
-    schemaScripts.push({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": breadcrumbs.map((item, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "name": item.name,
-        ...(item.url ? { "item": item.url.startsWith("http") ? item.url : `${BASE_URL}${item.url}` } : {}),
-      })),
-    });
-  }
+  const activeBreadcrumbs = breadcrumbs && breadcrumbs.length > 0 ? breadcrumbs : [
+    { name: "Home", url: "/" },
+    { name: fullTitle.split(" |")[0] }
+  ];
+
+  schemaScripts.push({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": activeBreadcrumbs.map((item, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": item.name,
+      ...(item.url ? { "item": item.url.startsWith("http") ? item.url : `${BASE_URL}${item.url}` } : {}),
+    })),
+  });
 
   // FAQPage schema
   if (faqItems && faqItems.length > 0) {
@@ -112,7 +150,6 @@ const SEOHead = ({
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
-      {keywords && <meta name="keywords" content={keywords} />}
       <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
       
       <link rel="canonical" href={fullCanonical} />
@@ -123,7 +160,7 @@ const SEOHead = ({
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content="Parasram India - Panipat Branch" />
       <meta property="og:locale" content="en_IN" />
-      {ogImage && <meta property="og:image" content={ogImage} />}
+      <meta property="og:image" content={finalOgImage} />
 
       {type === "article" && datePublished && <meta property="article:published_time" content={datePublished} />}
       {type === "article" && dateModified && <meta property="article:modified_time" content={dateModified} />}
@@ -132,7 +169,7 @@ const SEOHead = ({
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      {ogImage && <meta name="twitter:image" content={ogImage} />}
+      <meta name="twitter:image" content={finalOgImage} />
 
       {schemaScripts.map((schema, index) => (
         <script type="application/ld+json" key={index}>
