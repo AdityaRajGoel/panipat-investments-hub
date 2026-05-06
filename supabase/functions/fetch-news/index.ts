@@ -51,6 +51,7 @@ async function fetchRss(url: string, sourceName: string, defaultCategory: string
         summary,
         category: defaultCategory,
         timeAgo,
+        timestamp: date.toISOString(),
         source: sourceName
       };
     }).filter(i => i.title !== "Market Update");

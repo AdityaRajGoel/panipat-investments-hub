@@ -11,6 +11,7 @@ type NewsItem = {
   summary: string;
   category: string;
   timeAgo: string;
+  timestamp?: string;
   source: string;
 };
 
@@ -43,38 +44,62 @@ const categoryColors: Record<string, string> = {
   Commodities: "bg-brand-green/20 text-brand-green",
 };
 
-const NewsCard = ({ item, index }: { item: NewsItem; index: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ delay: index * 0.08, duration: 0.4 }}
-  >
-    <Card className="bg-card hover:shadow-lg hover:border-secondary/30 transition-all duration-300 group cursor-pointer border-border/50">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${categoryColors[item.category] || "bg-muted text-muted-foreground"}`}>
-                {item.category}
-              </span>
-              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                <Clock className="w-2.5 h-2.5" />
-                {item.timeAgo}
-              </span>
+const NewsCard = ({ item, index }: { item: NewsItem; index: number }) => {
+  const [displayTime, setDisplayTime] = useState(item.timeAgo);
+
+  useEffect(() => {
+    if (!item.timestamp) return;
+    
+    const updateTime = () => {
+      const diffMs = new Date().getTime() - new Date(item.timestamp!).getTime();
+      const diffHrs = diffMs / (1000 * 60 * 60);
+      if (diffHrs < 1) {
+        setDisplayTime(`${Math.floor(diffHrs * 60)}m ago`);
+      } else if (diffHrs < 24) {
+        setDisplayTime(`${Math.floor(diffHrs)}h ago`);
+      } else {
+        setDisplayTime(`${Math.floor(diffHrs / 24)}d ago`);
+      }
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 60000); // update every minute
+    return () => clearInterval(interval);
+  }, [item.timestamp, item.timeAgo]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.08, duration: 0.4 }}
+    >
+      <Card className="bg-card hover:shadow-lg hover:border-secondary/30 transition-all duration-300 group cursor-pointer border-border/50">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${categoryColors[item.category] || "bg-muted text-muted-foreground"}`}>
+                  {item.category}
+                </span>
+                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Clock className="w-2.5 h-2.5" />
+                  {displayTime}
+                </span>
+              </div>
+              <h3 className="font-heading font-semibold text-sm text-foreground leading-snug group-hover:text-secondary transition-colors line-clamp-2">
+                {item.title}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{item.summary}</p>
+              <p className="text-[10px] text-muted-foreground/60 mt-2 font-medium">{item.source}</p>
             </div>
-            <h3 className="font-heading font-semibold text-sm text-foreground leading-snug group-hover:text-secondary transition-colors line-clamp-2">
-              {item.title}
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{item.summary}</p>
-            <p className="text-[10px] text-muted-foreground/60 mt-2 font-medium">{item.source}</p>
+            <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-secondary transition-colors flex-shrink-0 mt-1" />
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-secondary transition-colors flex-shrink-0 mt-1" />
-        </div>
-      </CardContent>
-    </Card>
-  </motion.div>
-);
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
 
 const MarketNews = () => {
   const [activeTab, setActiveTab] = useState<"indian" | "world">("indian");

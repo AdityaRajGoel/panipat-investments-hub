@@ -173,8 +173,8 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
         if (data.commodities?.length > 0) {
           const processedCommodities = data.commodities.map((c: any) => {
             if (c.name.toLowerCase().includes('aluminium') && c.price) {
-              const rawPrice = parseFloat(c.price.replace(/,/g, ''));
-              if (rawPrice > 10000) {
+              const rawPrice = parseFloat(c.price.replace(/[^\d.-]/g, ''));
+              if (!isNaN(rawPrice) && rawPrice > 10000) {
                 // MCX Aluminium is usually ~₹250/kg, but API might return ₹250,000/tonne
                 const scaledPrice = rawPrice / 1000;
                 return { ...c, price: `₹${scaledPrice.toFixed(2)}` };

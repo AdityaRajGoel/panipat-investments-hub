@@ -190,7 +190,7 @@ const MessageCard = ({ message, index }: { message: TelegramMessage; index: numb
                   )}
                   {parsed.upside && (
                     <span className={`text-sm font-bold ${config.color} bg-background/60 px-2 py-0.5 rounded-md`}>
-                      ↑ {parsed.upside}
+                      {category === "sell" ? `↓ ${parsed.upside} Downside` : `↑ ${parsed.upside}`}
                     </span>
                   )}
                 </div>

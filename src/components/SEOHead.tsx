@@ -42,8 +42,8 @@ const SEOHead = ({
   dateModified, 
   author 
 }: SEOProps) => {
-  const location = useLocation();
-  const fullCanonical = canonical || `${BASE_URL}${location.pathname}`;
+  const pathname = location.pathname.endsWith('/') && location.pathname !== '/' ? location.pathname.slice(0, -1) : location.pathname;
+  const fullCanonical = canonical || `${BASE_URL}${pathname}`;
   const fullTitle = title.length > 60 || title === "Best Stock Broker in Panipat" ? title : `${title} | Parasram India`;
   const finalOgImage = ogImage || "https://www.sphpnp.com/logo.png";
   
@@ -85,7 +85,7 @@ const SEOHead = ({
     },
     "sameAs": [
       "https://www.facebook.com/parasramindia",
-      "https://twitter.com/parasramindia",
+      "https://twitter.com/ParasramPanipat",
       "https://www.linkedin.com/company/parasramindia"
     ]
   });
@@ -171,14 +171,13 @@ const SEOHead = ({
       {type === "article" && author && <meta property="article:author" content={author} />}
 
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@ParasramPanipat" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={finalOgImage} />
 
       {schemaScripts.map((schema, index) => (
-        <script type="application/ld+json" key={index}>
-          {JSON.stringify(schema)}
-        </script>
+        <script type="application/ld+json" key={index} dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       ))}
     </Helmet>
   );

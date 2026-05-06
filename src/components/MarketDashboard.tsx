@@ -126,10 +126,24 @@ const FIIDIIFlow = memo(() => {
   const declines = marketOverview?.declines ?? 8;
   const bullish = advances > declines;
 
+  const fiiBuy = 6000 + advances * 120;
+  const fiiSell = 5000 + declines * 180;
+  const fiiNet = fiiBuy - fiiSell;
+
+  const diiBuy = 5500 + declines * 100;
+  const diiSell = 3500 + advances * 70;
+  const diiNet = diiBuy - diiSell;
+
+  const fiiFnoBuy = 35000 + advances * 500;
+  const fiiFnoSell = 38000 + declines * 600;
+  const fiiFnoNet = fiiFnoBuy - fiiFnoSell;
+
+  const formatNet = (net: number) => net > 0 ? `+₹${net.toLocaleString('en-IN')} Cr` : `-₹${Math.abs(net).toLocaleString('en-IN')} Cr`;
+
   const fiiDiiData = [
-    { label: "FII (Cash)", buy: `₹${(6000 + advances * 120).toLocaleString('en-IN')} Cr`, sell: `₹${(5000 + declines * 180).toLocaleString('en-IN')} Cr`, net: bullish ? `+₹${((advances - declines) * 95).toLocaleString('en-IN')} Cr` : `-₹${((declines - advances) * 95).toLocaleString('en-IN')} Cr`, up: bullish },
-    { label: "DII (Cash)", buy: `₹${(5500 + declines * 100).toLocaleString('en-IN')} Cr`, sell: `₹${(3500 + advances * 70).toLocaleString('en-IN')} Cr`, net: !bullish ? `+₹${((declines - advances) * 85).toLocaleString('en-IN')} Cr` : `+₹${(advances * 50).toLocaleString('en-IN')} Cr`, up: true },
-    { label: "FII (F&O)", buy: `₹${(35000 + advances * 500).toLocaleString('en-IN')} Cr`, sell: `₹${(38000 + declines * 600).toLocaleString('en-IN')} Cr`, net: `-₹${(3000 + Math.abs(advances - declines) * 200).toLocaleString('en-IN')} Cr`, up: false },
+    { label: "FII (Cash)", buy: `₹${fiiBuy.toLocaleString('en-IN')} Cr`, sell: `₹${fiiSell.toLocaleString('en-IN')} Cr`, net: formatNet(fiiNet), up: fiiNet > 0 },
+    { label: "DII (Cash)", buy: `₹${diiBuy.toLocaleString('en-IN')} Cr`, sell: `₹${diiSell.toLocaleString('en-IN')} Cr`, net: formatNet(diiNet), up: diiNet > 0 },
+    { label: "FII (F&O)", buy: `₹${fiiFnoBuy.toLocaleString('en-IN')} Cr`, sell: `₹${fiiFnoSell.toLocaleString('en-IN')} Cr`, net: formatNet(fiiFnoNet), up: fiiFnoNet > 0 },
   ];
 
   return (
@@ -584,7 +598,7 @@ const MarketDashboard = () => {
                           <div className="text-[9px] text-muted-foreground">per {unit}</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm font-bold text-foreground">{val ? `₹${d.price}` : (d as any).price}</div>
+                          <div className="text-sm font-bold text-foreground">{d.price}</div>
                           <div className={`text-[10px] font-bold flex items-center justify-end gap-0.5 ${d.up ? "text-secondary" : "text-destructive"}`}>
                             {d.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
                             {d.change}

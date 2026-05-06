@@ -123,6 +123,11 @@ const formatTradingDate = (dateStr: string) => {
 
 const useCountdown = (targetISO: string | null) => {
   const [remaining, setRemaining] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!targetISO) { setRemaining(""); return; }
@@ -149,11 +154,16 @@ const useCountdown = (targetISO: string | null) => {
     return () => clearInterval(timer);
   }, [targetISO]);
 
-  return remaining;
+  return isMounted ? remaining : "";
 };
 
 const CountdownTimer = ({ fetchedAt, marketOpen }: { fetchedAt: string | null, marketOpen: boolean }) => {
   const [countdown, setCountdown] = useState(60);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!fetchedAt) return;
@@ -170,7 +180,7 @@ const CountdownTimer = ({ fetchedAt, marketOpen }: { fetchedAt: string | null, m
     return () => clearInterval(timer);
   }, [fetchedAt, marketOpen]);
 
-  if (!marketOpen) return null;
+  if (!isMounted || !marketOpen) return null;
 
   return (
     <span className="text-[9px] text-primary-foreground/40 font-medium">
