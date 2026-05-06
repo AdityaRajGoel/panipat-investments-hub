@@ -83,16 +83,20 @@ async function prerender() {
         const html = await page.content();
         
         // 3. Save to file
-        let filePath = path.join(DIST_DIR, route);
+        let filePath;
         
         if (route === '/') {
           filePath = path.join(DIST_DIR, 'index.html');
         } else {
+          // e.g., '/about' -> 'about.html', '/learn/recommendations' -> 'learn/recommendations.html'
+          const routePath = route.startsWith('/') ? route.substring(1) : route;
+          filePath = path.join(DIST_DIR, `${routePath}.html`);
+          
           // Create directory if it doesn't exist
-          if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(filePath, { recursive: true });
+          const dir = path.dirname(filePath);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
           }
-          filePath = path.join(filePath, 'index.html');
         }
 
         fs.writeFileSync(filePath, html);

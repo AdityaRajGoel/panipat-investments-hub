@@ -12,6 +12,8 @@ interface TickerRowProps {
   duration?: number;
 }
 
+import Marquee from "react-fast-marquee";
+
 const PriceCell = ({ item }: { item: LiveStock }) => {
   const [flash, setFlash] = useState<"up" | "down" | null>(null);
   const prevPrice = useRef(item.price);
@@ -44,7 +46,6 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
 
 const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", textClass = "text-primary-foreground", duration = 40 }: TickerRowProps) => {
   const [selectedItem, setSelectedItem] = useState<LiveStock | null>(null);
-  const duplicated = [...items, ...items, ...items];
   const isReverse = direction === "right";
 
   return (
@@ -52,17 +53,16 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
       {/* Edge fade masks */}
       <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-[#1a1f2e] dark:from-[hsl(220,20%,10%)] to-transparent" />
       <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-[#1a1f2e] dark:from-[hsl(220,20%,10%)] to-transparent" />
-      <div
-        className="inline-flex"
-        style={{
-          animation: `${isReverse ? 'ticker-right' : 'ticker-left'} ${duration}s linear infinite`,
-          animationPlayState: selectedItem ? 'paused' : 'running',
-          willChange: 'transform',
-          transform: 'translate3d(0, 0, 0)',
-          backfaceVisibility: 'hidden',
-        }}
+      
+      <Marquee 
+        speed={100} 
+        gradient={false} 
+        pauseOnHover={true}
+        direction={direction}
+        play={!selectedItem}
+        className="flex items-center"
       >
-        {duplicated.map((item, i) => (
+        {items.map((item, i) => (
           <div
             key={i}
             className="inline-flex items-center gap-1 md:gap-1.5 text-xs md:text-sm cursor-pointer select-none px-1 md:px-1.5 py-0.5 rounded-md hover:bg-white/10 transition-colors group"
@@ -78,7 +78,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
             <span className="text-white/20 text-sm mx-0.5">·</span>
           </div>
         ))}
-      </div>
+      </Marquee>
 
       <AnimatePresence>
         {selectedItem && (

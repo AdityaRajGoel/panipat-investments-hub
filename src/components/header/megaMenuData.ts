@@ -53,6 +53,7 @@ export const megaMenuItems: MegaMenuItem[] = [
   },
   {
     label: "Tools",
+    href: "/screener",
     subItems: [
       { label: "Margin Calculator", href: "/margin-calculator", icon: Calculator, description: "Calculate margin requirements" },
       { label: "F&O Margin Calculator", href: "https://webtrade.parasramindia.com/calculator#!/span", icon: Percent, description: "SPAN margin calculator for F&O trades", external: true },

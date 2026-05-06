@@ -571,10 +571,10 @@ const MarketDashboard = () => {
                 </div>
                 <div className="space-y-3">
                   {[
-                    { name: "GOLD", unit: "10g", val: commodities.find(c => c.name === "GOLD"), fallback: { price: "₹72,450", change: "+0.8%", up: true } },
-                    { name: "SILVER", unit: "kg", val: commodities.find(c => c.name === "SILVER"), fallback: { price: "₹86,200", change: "+1.2%", up: true } },
-                    { name: "CRUDE OIL", unit: "bbl", val: commodities.find(c => c.name === "CRUDE"), fallback: { price: "₹6,820", change: "-0.5%", up: false } },
-                    { name: "NAT GAS", unit: "mmBtu", val: commodities.find(c => c.name === "NATURAL GAS"), fallback: { price: "₹210", change: "+2.1%", up: true } },
+                    { name: "GOLD", unit: "10g", val: commodities.find(c => c.name.toUpperCase().includes("GOLD")), fallback: { price: "₹72,450", change: "+0.8%", up: true } },
+                    { name: "SILVER", unit: "kg", val: commodities.find(c => c.name.toUpperCase().includes("SILVER")), fallback: { price: "₹86,200", change: "+1.2%", up: true } },
+                    { name: "CRUDE OIL", unit: "bbl", val: commodities.find(c => c.name.toUpperCase().includes("CRUDE")), fallback: { price: "₹6,820", change: "-0.5%", up: false } },
+                    { name: "NAT GAS", unit: "mmBtu", val: commodities.find(c => c.name.toUpperCase().includes("NAT")), fallback: { price: "₹210", change: "+2.1%", up: true } },
                   ].map(({ name, unit, val, fallback }) => {
                     const d = val || fallback;
                     return (

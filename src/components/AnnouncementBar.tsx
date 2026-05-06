@@ -1,6 +1,7 @@
 import { Flame, TrendingUp, Shield, Zap, ArrowRight, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import Marquee from "react-fast-marquee";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const announcements = [
@@ -49,21 +50,18 @@ const AnnouncementBar = () => {
         </div>
 
         {/* Scrolling announcements */}
-        <div className="overflow-hidden flex-1 relative">
+        <div className="overflow-hidden flex-1 relative h-full flex items-center">
           {/* Fade masks */}
           <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[hsl(213_80%_10%)] to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[hsl(145_70%_12%)] to-transparent z-10 pointer-events-none" />
 
-          <div
-            className="inline-flex w-max items-center whitespace-nowrap hover:[animation-play-state:paused]"
-            style={{ 
-              animation: 'ticker-left 60s linear infinite',
-              willChange: 'transform',
-              transform: 'translate3d(0, 0, 0)',
-              backfaceVisibility: 'hidden',
-            }}
+          <Marquee 
+            speed={40} 
+            gradient={false} 
+            pauseOnHover={true}
+            className="flex items-center"
           >
-            {[...announcements, ...announcements, ...announcements, ...announcements, ...announcements, ...announcements].map((item, i) => (
+            {announcements.map((item, i) => (
               <div key={i} className="inline-flex items-center">
                 <div className="inline-flex items-center gap-2 md:gap-3 px-2 md:px-4">
                   <item.icon className={`w-3 h-3 md:w-3.5 md:h-3.5 shrink-0 ${item.color}`} />
@@ -80,7 +78,7 @@ const AnnouncementBar = () => {
                 <span className="text-white/15 text-sm md:text-base">|</span>
               </div>
             ))}
-          </div>
+          </Marquee>
         </div>
       </div>
 

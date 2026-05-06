@@ -118,7 +118,45 @@ const IPOTracker = () => {
     try {
       const { data, error } = await supabase.functions.invoke('fetch-ipos');
       if (!error && data?.success && data.ipos?.length > 0) {
-        setIpos(data.ipos);
+        // Dynamically recalculate status based on current date
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const months: Record<string, number> = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+        
+        const processedIpos = data.ipos.map((ipo: IPO) => {
+          let calculatedStatus = ipo.status;
+          
+          if (ipo.date && ipo.date !== 'TBA') {
+            let dateRange = ipo.date.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
+            if (!dateRange) {
+              const altRange = ipo.date.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*[-–]\s*(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
+              if (altRange) {
+                dateRange = [altRange[0], altRange[1], altRange[3], altRange[4]];
+              }
+            }
+
+            if (dateRange) {
+              const monthNum = months[dateRange[3].toLowerCase()];
+              const startDay = parseInt(dateRange[1]);
+              const endDay = parseInt(dateRange[2]);
+              
+              const startDate = new Date(currentYear, monthNum, startDay);
+              const endDate = new Date(currentYear, monthNum, endDay, 23, 59, 59);
+
+              if (now >= startDate && now <= endDate) {
+                calculatedStatus = 'open';
+              } else if (now > endDate) {
+                calculatedStatus = 'listed';
+              } else {
+                calculatedStatus = 'upcoming';
+              }
+            }
+          }
+          
+          return { ...ipo, status: calculatedStatus };
+        });
+
+        setIpos(processedIpos);
         setSource(data.source || "");
         setFetchedAt(data.fetchedAt || "");
       }

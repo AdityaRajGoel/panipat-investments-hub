@@ -288,14 +288,13 @@ const MarketOverview = () => {
   const [chartData] = useState(() => new Map<string, number[]>());
   const { marketOverview: liveData, commodities: liveCommodities, vix, fetchedAt } = useLiveMarket();
 
-  // Convert live commodities to Stock format
   const liveCommodityStocks: Stock[] = useMemo(() => {
     if (!liveCommodities?.length) return fallbackCommodities;
     return liveCommodities
       .filter(c => c.name !== "INDIA VIX")
       .map(c => ({
         name: c.name,
-        price: c.unit ? `$${c.price}/${c.unit.replace("USD/", "")}` : `₹${c.price}`,
+        price: c.unit ? `${c.price}/${c.unit.replace("₹/", "").replace("USD/", "")}` : c.price,
         change: c.change,
         up: c.up,
         volume: "-",
