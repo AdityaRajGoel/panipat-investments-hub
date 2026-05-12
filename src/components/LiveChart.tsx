@@ -3,6 +3,7 @@ import { useState, useMemo, useCallback, useEffect, memo } from "react";
 import { TrendingUp, TrendingDown, BarChart3, Activity, ArrowUpRight, ArrowDownRight, Clock, Layers, Gauge, LineChart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
+import { supabase } from "@/integrations/supabase/client";
 
 const generateChartData = (trend: "up" | "down" | "mixed", points = 60, seed = 0, timeframe = "1D") => {
   const data: number[] = [];
@@ -71,7 +72,14 @@ const calcRSI = (data: number[], period = 14): (number | null)[] => {
 const timeframePoints: Record<string, number> = { "1D": 60, "1W": 90, "1M": 120, "3M": 180, "1Y": 250 };
 const timeframeSeed: Record<string, number> = { "1D": 1, "1W": 2, "1M": 3, "3M": 4, "1Y": 5 };
 
-const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndicators = false }: { data: number[]; volumeData?: number[]; up: boolean; large?: boolean; showIndicators?: boolean }) => {
+function formatVol(v: number) {
+  if (v >= 10000000) return `${(v / 10000000).toFixed(2)}Cr`;
+  if (v >= 100000) return `${(v / 100000).toFixed(2)}L`;
+  if (v >= 1000) return `${(v / 1000).toFixed(2)}K`;
+  return v.toString();
+}
+
+const InteractiveChart = memo(({ data, volumeData, timestamps, up, large = false, showIndicators = false }: { data: number[]; volumeData?: number[]; timestamps?: number[]; up: boolean; large?: boolean; showIndicators?: boolean }) => {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -153,15 +161,18 @@ const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndica
         {large && showIndicators && sma50Pts && (
           <polyline points={sma50Pts} fill="none" stroke="hsl(210, 80%, 60%)" strokeWidth="1.2" strokeDasharray="5 3" opacity="0.6" />
         )}
-        {large && volumeData && volumeData.map((v, i) => {
-          const barW = w / volumeData.length;
-          const barH = (v / 100) * volH;
-          return (
-            <rect key={i} x={i * barW} y={h + volH - barH} width={barW * 0.7} height={barH}
-              fill={data[i] >= (data[i - 1] || data[i]) ? "hsl(145, 70%, 40%)" : "hsl(0, 84%, 60%)"}
-              opacity={hoverIdx === i ? 0.8 : 0.25} rx="1" />
-          );
-        })}
+        {large && volumeData && volumeData.length > 0 && (() => {
+          const maxVol = Math.max(...volumeData, 1);
+          return volumeData.map((v, i) => {
+            const barW = w / volumeData.length;
+            const barH = (v / maxVol) * volH;
+            return (
+              <rect key={i} x={i * barW} y={h + volH - barH} width={barW * 0.7} height={barH}
+                fill={data[i] >= (data[i - 1] || data[i]) ? "hsl(145, 70%, 40%)" : "hsl(0, 84%, 60%)"}
+                opacity={hoverIdx === i ? 0.8 : 0.25} rx="1" />
+            );
+          });
+        })()}
         {large && hoverIdx !== null && coords[hoverIdx] && (
           <>
             <line x1={coords[hoverIdx].x} y1={0} x2={coords[hoverIdx].x} y2={h + volH} stroke={warmAccent} strokeWidth="1" strokeDasharray="4 3" opacity="0.6" />
@@ -175,9 +186,13 @@ const InteractiveChart = memo(({ data, volumeData, up, large = false, showIndica
           className="absolute top-0 bg-card border border-brand-orange/30 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 shadow-xl pointer-events-none text-xs z-10 max-w-[150px] sm:max-w-none"
           style={{ left: `clamp(40px, ${(coords[hoverIdx].x / w) * 100}%, calc(100% - 40px))`, transform: "translateX(-50%)" }}
         >
-          <div className="font-bold text-foreground text-sm truncate">₹{(coords[hoverIdx].val * 220).toFixed(2)}</div>
-          <div className="text-muted-foreground">{`${9 + Math.floor(hoverIdx / 10)}:${String((hoverIdx % 10) * 6).padStart(2, "0")}`}</div>
-          {volumeData && <div className="text-brand-orange text-[10px]">Vol: {(volumeData[hoverIdx] * 1.2).toFixed(0)}K</div>}
+          <div className="font-bold text-foreground text-sm truncate">₹{coords[hoverIdx].val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div className="text-muted-foreground">
+            {timestamps && timestamps[hoverIdx] 
+              ? new Date(timestamps[hoverIdx]).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) 
+              : `${9 + Math.floor(hoverIdx / 10)}:${String((hoverIdx % 10) * 6).padStart(2, "0")}`}
+          </div>
+          {volumeData && <div className="text-brand-orange text-[10px]">Vol: {formatVol(volumeData[hoverIdx])}</div>}
         </div>
       )}
     </div>
@@ -287,18 +302,59 @@ const LiveChart = () => {
   const currentUp = activeIndex?.up ?? true;
   const idxPosition = indices.findIndex(i => i.key === activeIndexKey);
 
-  const chartData = useMemo(() => {
-    const trend = currentUp ? "up" : "down";
-    const points = timeframePoints[activeTimeframe] || 60;
-    const seed = timeframeSeed[activeTimeframe] + idxPosition * 7;
-    return generateChartData(trend, points, seed, activeTimeframe);
-  }, [activeIndexKey, activeTimeframe, currentUp, idxPosition]);
+  const [chartData, setChartData] = useState<number[]>([]);
+  const [volumeData, setVolumeData] = useState<number[]>([]);
+  const [timestamps, setTimestamps] = useState<number[]>([]);
+  const [loadingChart, setLoadingChart] = useState(false);
 
-  const volumeData = useMemo(() => {
-    const points = timeframePoints[activeTimeframe] || 60;
-    const seed = timeframeSeed[activeTimeframe] * 31 + idxPosition * 11;
-    return generateVolumeData(points, seed);
-  }, [activeIndexKey, activeTimeframe, idxPosition]);
+  useEffect(() => {
+    let active = true;
+    const fetchChart = async () => {
+      setLoadingChart(true);
+      try {
+        const rangeMap: Record<string, string> = {
+          "1D": "1d",
+          "1W": "5d",
+          "1M": "1mo",
+          "3M": "3mo",
+          "1Y": "1y",
+        };
+        const range = rangeMap[activeTimeframe] || "1d";
+        
+        const { data, error } = await supabase.functions.invoke('fetch-stock-chart', {
+          body: { symbol: activeIndexKey, range }
+        });
+        
+        if (active && data?.success && data.dataPoints && data.dataPoints.length > 0) {
+          setChartData(data.dataPoints.map((dp: any) => dp.c));
+          setVolumeData(data.dataPoints.map((dp: any) => dp.v));
+          setTimestamps(data.dataPoints.map((dp: any) => dp.t));
+        } else if (active) {
+          // fallback to generate if no data
+          const trend = currentUp ? "up" : "down";
+          const points = timeframePoints[activeTimeframe] || 60;
+          const seed = timeframeSeed[activeTimeframe] + idxPosition * 7;
+          setChartData(generateChartData(trend, points, seed, activeTimeframe));
+          setVolumeData(generateVolumeData(points, seed * 31));
+          setTimestamps([]);
+        }
+      } catch (err) {
+        if (active) {
+          // fallback to generate on error
+          const trend = currentUp ? "up" : "down";
+          const points = timeframePoints[activeTimeframe] || 60;
+          const seed = timeframeSeed[activeTimeframe] + idxPosition * 7;
+          setChartData(generateChartData(trend, points, seed, activeTimeframe));
+          setVolumeData(generateVolumeData(points, seed * 31));
+          setTimestamps([]);
+        }
+      } finally {
+        if (active) setLoadingChart(false);
+      }
+    };
+    fetchChart();
+    return () => { active = false; };
+  }, [activeIndexKey, activeTimeframe, currentUp, idxPosition]);
 
   // Parse prices for range bars
   const parsePrice = (p?: string) => p ? parseFloat(p.replace(/,/g, '')) : 0;
@@ -425,8 +481,14 @@ const LiveChart = () => {
                     </div>
                   </div>
                 </div>
-                <motion.div key={`${activeIndexKey}-${activeTimeframe}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                  <InteractiveChart data={chartData} volumeData={volumeData} up={currentUp} large showIndicators={showIndicators} />
+                <motion.div key={`${activeIndexKey}-${activeTimeframe}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="relative min-h-[160px]">
+                  {loadingChart || chartData.length === 0 ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-card/50 z-10 backdrop-blur-[2px] rounded-lg">
+                      <div className="w-8 h-8 rounded-full border-2 border-brand-orange border-t-transparent animate-spin mb-2"></div>
+                      <div className="text-xs text-muted-foreground font-medium animate-pulse">Fetching live data...</div>
+                    </div>
+                  ) : null}
+                  <InteractiveChart data={chartData.length > 0 ? chartData : [100, 100]} volumeData={volumeData.length > 0 ? volumeData : [0, 0]} timestamps={timestamps} up={currentUp} large showIndicators={showIndicators} />
                 </motion.div>
                 <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
                   {(timeLabels[activeTimeframe] || timeLabels["1D"]).map((label, i) => (
@@ -468,7 +530,7 @@ const LiveChart = () => {
             {/* RSI Indicator */}
             {showIndicators && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                <RSIChart data={chartData} />
+                <RSIChart data={chartData.length > 0 ? chartData : [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]} />
               </motion.div>
             )}
 

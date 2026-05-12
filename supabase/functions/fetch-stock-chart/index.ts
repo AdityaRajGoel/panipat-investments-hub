@@ -8,6 +8,12 @@ const corsHeaders = {
 
 // Map NSE symbols to Yahoo Finance symbols
 function toYahoo(symbol: string): string {
+  if (symbol === "NIFTY" || symbol === "NIFTY 50") return "^NSEI";
+  if (symbol === "BANKNIFTY" || symbol === "BANK NIFTY") return "^NSEBANK";
+  if (symbol === "SENSEX") return "^BSESN";
+  if (symbol === "NIFTYIT" || symbol === "NIFTY IT") return "^CNXIT";
+  if (symbol === "FINNIFTY" || symbol === "NIFTY FIN" || symbol === "NIFTYFIN") return "NIFTY_FIN_SERVICE.NS";
+  
   // Handle special characters
   const cleaned = symbol.replace("&", "%26");
   return `${cleaned}.NS`;
