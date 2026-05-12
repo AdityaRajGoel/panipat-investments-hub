@@ -191,7 +191,7 @@ async function askOpenRouter(prompt: string, isChat: boolean = false) {
       model,
       messages,
       temperature: isChat ? 0.35 : 0.1,
-      max_tokens: isChat ? 1024 : 2500,
+      max_tokens: isChat ? 1024 : 4096,
       ...(isChat ? {} : { response_format: { type: "json_object" } })
     })
   });
@@ -254,7 +254,7 @@ async function askGroq(prompt: string, isChat: boolean = false) {
       ],
       response_format: { type: isChat ? "text" : "json_object" },
       temperature: 0.1,
-      max_tokens: isChat ? 2000 : 4000
+      max_tokens: isChat ? 2000 : 6000
     })
   });
 
@@ -342,9 +342,97 @@ async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: 
 }
 
 // ─────────────────────────────────────────────────────────────
-// Pre-compute derived metrics on the server for richer prompts
+// Real historical data from Yahoo Finance
 // ─────────────────────────────────────────────────────────────
-function enrichStockData(raw: any) {
+async function fetchHistoricalData(symbol: string) {
+  try {
+    let ySymbol = symbol;
+    if (!symbol.includes('.') && !symbol.startsWith('^') && !symbol.includes('=')) {
+      ySymbol = `${symbol}.NS`;
+    }
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ySymbol)}?range=1y&interval=1d`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const result = json?.chart?.result?.[0];
+    if (!result) return null;
+    const q = result.indicators?.quote?.[0] || {};
+    const closes: number[] = (q.close || []).filter((v: any) => v != null);
+    const highs: number[] = (q.high || []).filter((v: any) => v != null);
+    const lows: number[] = (q.low || []).filter((v: any) => v != null);
+    const volumes: number[] = (q.volume || []).filter((v: any) => v != null);
+    if (closes.length < 20) return null;
+    return { closes, highs, lows, volumes };
+  } catch { return null; }
+}
+
+// ── Real Technical Indicator Calculations ──
+function _calcEMA(data: number[], period: number): number[] {
+  const k = 2 / (period + 1);
+  const ema = [data[0]];
+  for (let i = 1; i < data.length; i++) ema.push(data[i] * k + ema[i - 1] * (1 - k));
+  return ema;
+}
+
+function realRSI(closes: number[], period = 14): number {
+  if (closes.length < period + 1) return 50;
+  let gains = 0, losses = 0;
+  for (let i = closes.length - period; i < closes.length; i++) {
+    const d = closes[i] - closes[i - 1];
+    if (d > 0) gains += d; else losses -= d;
+  }
+  if (losses === 0) return 100;
+  const rs = (gains / period) / (losses / period);
+  return +(100 - 100 / (1 + rs)).toFixed(1);
+}
+
+function realSMA(data: number[], period: number): number {
+  if (data.length < period) return data[data.length - 1] || 0;
+  return +(data.slice(-period).reduce((a, b) => a + b, 0) / period).toFixed(2);
+}
+
+function realMACD(closes: number[]) {
+  if (closes.length < 26) return { value: 0, signal: 0, histogram: 0, trend: "Insufficient data" };
+  const ema12 = _calcEMA(closes, 12);
+  const ema26 = _calcEMA(closes, 26);
+  const macdLine = ema12.map((v, i) => v - ema26[i]);
+  const sigLine = _calcEMA(macdLine.slice(-35), 9);
+  const m = macdLine[macdLine.length - 1];
+  const s = sigLine[sigLine.length - 1];
+  const h = m - s;
+  const prevH = macdLine[macdLine.length - 2] - sigLine[sigLine.length - 2];
+  let trend = "Neutral";
+  if (h > 0 && prevH <= 0) trend = "Bullish Crossover";
+  else if (h < 0 && prevH >= 0) trend = "Bearish Crossover";
+  else if (h > 0) trend = "Bullish — Above Signal";
+  else trend = "Bearish — Below Signal";
+  return { value: +m.toFixed(2), signal: +s.toFixed(2), histogram: +h.toFixed(2), trend };
+}
+
+function realADX(highs: number[], lows: number[], closes: number[], period = 14): number {
+  const len = Math.min(highs.length, lows.length, closes.length);
+  if (len < period + 1) return 25;
+  let sumDX = 0, count = 0;
+  for (let i = len - period; i < len; i++) {
+    const tr = Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i - 1]), Math.abs(lows[i] - closes[i - 1]));
+    const pDM = Math.max(0, highs[i] - highs[i - 1]);
+    const mDM = Math.max(0, lows[i - 1] - lows[i]);
+    if (tr > 0) { const s = (pDM / tr) * 100 + (mDM / tr) * 100; if (s > 0) { sumDX += Math.abs((pDM / tr) * 100 - (mDM / tr) * 100) / s * 100; count++; } }
+  }
+  return count > 0 ? +((sumDX / count).toFixed(1)) : 25;
+}
+
+function avgVolume(volumes: number[], period = 20): number {
+  if (volumes.length < period) return volumes.reduce((a, b) => a + b, 0) / (volumes.length || 1);
+  return volumes.slice(-period).reduce((a, b) => a + b, 0) / period;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Enrich stock data — uses REAL historical data when available
+// ─────────────────────────────────────────────────────────────
+async function enrichStockData(raw: any) {
   const price = parseFloat(String(raw.price).replace(/[₹,]/g, '')) || 0;
   const high52 = raw.high_52 || price * 1.15;
   const low52 = raw.low_52 || price * 0.85;
@@ -369,24 +457,39 @@ function enrichStockData(raw: any) {
   const mcap = raw.market_cap || 0;
   const mcapTier = mcap > 100000 ? "Large Cap" : mcap > 20000 ? "Mid Cap" : mcap > 5000 ? "Small Cap" : "Micro Cap";
 
-  // Improved Approximate RSI (14) modeling
-  let rsiApprox = 50 + (changePct * 2) + ((pos52w - 50) / 2);
-  rsiApprox = Math.max(15, Math.min(85, Math.round(rsiApprox))); // Clamp between 15 and 85
-  const rsiSignal = rsiApprox > 70 ? "Overbought" : rsiApprox < 30 ? "Oversold" : "Neutral";
+  // ── Fetch REAL historical data ──
+  const hist = await fetchHistoricalData(raw.symbol);
+  let rsiVal = 50, rsiSignal = "N/A";
+  let sma20 = 0, sma50 = 0, sma200 = 0;
+  let macd = { value: 0, signal: 0, histogram: 0, trend: "N/A" };
+  let adxVal = 25;
+  let volAvg20 = 0, volSignal = "Normal";
+  let dataSource = "Approximated";
 
-  // Improved MACD & Moving Averages for AI context
-  let macdSignal = "Neutral Trend";
-  if (changePct > 1.5 && pos52w > 50) macdSignal = "Bullish Crossover / Strong Momentum";
-  else if (changePct < -1.5 && pos52w < 50) macdSignal = "Bearish Crossover / Weak Momentum";
-  else if (changePct > 0) macdSignal = "Slightly Bullish";
-  else if (changePct < 0) macdSignal = "Slightly Bearish";
+  if (hist) {
+    dataSource = "Real (Yahoo Finance 1Y Daily)";
+    const { closes, highs, lows, volumes } = hist;
+    rsiVal = realRSI(closes);
+    rsiSignal = rsiVal > 70 ? "Overbought" : rsiVal < 30 ? "Oversold" : rsiVal > 60 ? "Mildly Bullish" : rsiVal < 40 ? "Mildly Bearish" : "Neutral";
+    sma20 = realSMA(closes, 20);
+    sma50 = realSMA(closes, 50);
+    sma200 = closes.length >= 200 ? realSMA(closes, 200) : realSMA(closes, Math.min(closes.length, 100));
+    macd = realMACD(closes);
+    adxVal = realADX(highs, lows, closes);
+    volAvg20 = avgVolume(volumes, 20);
+    const volRatio = volAvg20 > 0 ? vol / volAvg20 : 1;
+    volSignal = volRatio > 1.5 ? "High (abnormal)" : volRatio < 0.6 ? "Low (quiet)" : "Normal";
+  } else {
+    // Fallback approximations only when Yahoo is unreachable
+    rsiVal = Math.max(15, Math.min(85, Math.round(50 + changePct * 2 + (pos52w - 50) / 2)));
+    rsiSignal = rsiVal > 70 ? "Overbought" : rsiVal < 30 ? "Oversold" : "Neutral";
+    sma20 = Math.round(price * (1 - changePct / 100 * 0.3));
+    sma50 = Math.round(price * (1 - (pos52w - 50) / 100 * 0.12));
+    sma200 = Math.round(low52 + range52 * 0.50);
+    macd = { value: 0, signal: 0, histogram: 0, trend: changePct > 1 ? "Slightly Bullish" : changePct < -1 ? "Slightly Bearish" : "Neutral" };
+  }
 
-  // SMA50: Dynamically scales based on 52W position (higher pos = price is above SMA50)
-  const trendMultiplier = (pos52w - 50) / 100;
-  const sma50Approx = Math.round(price * (1 - trendMultiplier * 0.12));
-  const sma200Approx = Math.round(low52 + range52 * 0.50);
-
-  // Enhanced Sector Averages matching Indian Markets
+  // Sector averages
   const sStr = String(raw.sector || "").toUpperCase() + " " + String(raw.name || "").toUpperCase() + " " + String(raw.symbol || "").toUpperCase();
   const isFin = sStr.includes("FINAN") || sStr.includes("BANK") || sStr.includes("NBFC");
   const isTech = sStr.includes("IT") || sStr.includes("TECH") || sStr.includes("SOFTWARE");
@@ -395,7 +498,6 @@ function enrichStockData(raw: any) {
   const isPharma = sStr.includes("PHARMA") || sStr.includes("HEALTH") || sStr.includes("MEDICAL");
   const isAuto = sStr.includes("AUTO");
   const isMetal = sStr.includes("METAL") || sStr.includes("STEEL");
-  
   let secPE = 22, secROE = 15, secDE = 0.4;
   if (isFin) { secPE = 18; secROE = 14; secDE = 4.0; }
   else if (isTech) { secPE = 30; secROE = 22; secDE = 0.1; }
@@ -405,55 +507,28 @@ function enrichStockData(raw: any) {
   else if (isMetal) { secPE = 12; secROE = 12; secDE = 1.0; }
   else if (isEnergy) { secPE = 15; secROE = 12; secDE = 0.8; }
 
-  // Support & resistance estimates from 52W
-  const fib236 = high52 - range52 * 0.236;
-  const fib382 = high52 - range52 * 0.382;
-  const fib500 = high52 - range52 * 0.500;
-  const fib618 = high52 - range52 * 0.618;
-  const fib786 = high52 - range52 * 0.786;
-
-  const fibLevels = [low52, fib786, fib618, fib500, fib382, fib236, high52].sort((a, b) => a - b);
-  
-  let nearestSupport = low52;
-  let nearestResistance = high52;
-
-  // Find nearest fib levels below and above current price
-  for (const level of fibLevels) {
-    if (level < price) {
-      nearestSupport = level;
-    }
-  }
-  for (let i = fibLevels.length - 1; i >= 0; i--) {
-    const level = fibLevels[i];
-    if (level > price) {
-      nearestResistance = level;
-    }
-  }
-
-  // Ensure sensible fallback if price is exactly at or outside extremums or too close to a level
-  if (nearestSupport >= price || (price - nearestSupport) / price < 0.01) {
-    nearestSupport = price * 0.95;
-  }
-  if (nearestResistance <= price || (nearestResistance - price) / price < 0.01) {
-    nearestResistance = price * 1.05;
-  }
+  // Fibonacci levels from 52W
+  const fib382 = Math.round(high52 - range52 * 0.382);
+  const fib618 = Math.round(high52 - range52 * 0.618);
+  const fibLevels = [low52, high52 - range52 * 0.786, fib618, high52 - range52 * 0.5, fib382, high52 - range52 * 0.236, high52].sort((a, b) => a - b);
+  let nearestSupport = low52, nearestResistance = high52;
+  for (const l of fibLevels) { if (l < price) nearestSupport = l; }
+  for (let i = fibLevels.length - 1; i >= 0; i--) { if (fibLevels[i] > price) nearestResistance = fibLevels[i]; }
+  if (nearestSupport >= price) nearestSupport = price * 0.95;
+  if (nearestResistance <= price) nearestResistance = price * 1.05;
 
   return {
-    ...raw,
-    price,
-    high52, low52, pos52w,
-    dayHigh, dayLow, dayPos,
-    prevClose, openPrice,
-    gapVsPrevClose, gapVsOpen,
-    vol, volInMillions,
-    mcap, mcapTier,
-    changePct,
-    rsiApprox, rsiSignal,
-    macdSignal, sma50Approx, sma200Approx,
+    ...raw, price, high52, low52, pos52w,
+    dayHigh, dayLow, dayPos, prevClose, openPrice,
+    gapVsPrevClose, gapVsOpen, vol, volInMillions,
+    mcap, mcapTier, changePct, dataSource,
+    rsiVal, rsiSignal,
+    macd, adxVal, volSignal,
+    sma20, sma50, sma200,
     secPE, secROE, secDE,
-    nearestSupport, nearestResistance,
-    fib382: Math.round(fib382),
-    fib618: Math.round(fib618),
+    nearestSupport: Math.round(nearestSupport),
+    nearestResistance: Math.round(nearestResistance),
+    fib382, fib618,
   };
 }
 
@@ -462,6 +537,8 @@ function enrichStockData(raw: any) {
 // ─────────────────────────────────────────────────────────────
 function buildAnalysisPrompt(s: any): string {
   return `Analyze this LIVE NSE/BSE stock for an Indian retail investor:
+
+**Data Source: ${s.dataSource}**
 
 ## Stock Data
 | Metric | Value |
@@ -481,35 +558,38 @@ function buildAnalysisPrompt(s: any): string {
 | **52W Position** | ${s.pos52w}% (0%=at Low, 100%=at High) |
 | **P/E Ratio** | ${s.pe || "N/A"} |
 | **Volume** | ${s.volInMillions}M shares |
+| **Volume Signal** | ${s.volSignal} |
 | **ROE** | ${s.roe || "N/A"} |
 | **Debt/Equity** | ${s.debt_equity || "N/A"} |
 
-## Real-Time Fundamental Approximations
+## Fundamental Comparison
 | Metric | Stock Value | Sector/Peer Avg |
 |--------|-------------|-----------------|
 | **P/E Ratio** | ${s.pe || "N/A"} | ${s.secPE} |
 | **ROE** | ${s.roe ? s.roe + "%" : "N/A"} | ${s.secROE}% |
 | **Debt/Equity** | ${s.debt_equity || "N/A"} | ${s.secDE} |
 
-## Pre-Computed Technical Hints
+## Technical Indicators (Computed from Real 1Y Daily Data)
 | Indicator | Value |
 |-----------|-------|
-| **RSI (14)** | ${s.rsiApprox} (${s.rsiSignal}) |
-| **MACD Bias** | ${s.macdSignal} |
-| **SMA 50** | ₹${s.sma50Approx} (Price is ${s.price > s.sma50Approx ? 'Above' : 'Below'}) |
-| **SMA 200** | ₹${s.sma200Approx} (Price is ${s.price > s.sma200Approx ? 'Above' : 'Below'}) |
-| **Fibonacci 38.2% Retracement** | ₹${s.fib382} |
-| **Fibonacci 61.8% Retracement** | ₹${s.fib618} |
-| **Estimated Support** | ₹${s.nearestSupport} |
-| **Estimated Resistance** | ₹${s.nearestResistance} |
+| **RSI (14)** | ${s.rsiVal} (${s.rsiSignal}) |
+| **MACD** | Value: ${s.macd.value}, Signal: ${s.macd.signal}, Histogram: ${s.macd.histogram} — ${s.macd.trend} |
+| **ADX (14)** | ${s.adxVal} (${s.adxVal > 25 ? 'Strong Trend' : 'Weak/Range-bound'}) |
+| **SMA 20** | ₹${s.sma20} (Price is ${s.price > s.sma20 ? 'Above ✅' : 'Below ❌'}) |
+| **SMA 50** | ₹${s.sma50} (Price is ${s.price > s.sma50 ? 'Above ✅' : 'Below ❌'}) |
+| **SMA 200** | ₹${s.sma200} (Price is ${s.price > s.sma200 ? 'Above ✅' : 'Below ❌'}) |
+| **Fibonacci 38.2%** | ₹${s.fib382} |
+| **Fibonacci 61.8%** | ₹${s.fib618} |
+| **Support** | ₹${s.nearestSupport} |
+| **Resistance** | ₹${s.nearestResistance} |
 | **Detected Pattern** | ${s.patterns?.join(', ') || "N/A"} |
 | **Momentum** | ${s.isBullish ? "Bullish" : "Bearish"} |
 
 Provide a comprehensive professional analysis. The markdown_report must include:
 1. **Executive Summary** — 2-line verdict with conviction level
 2. **Financial Overview** — table of key metrics with sector comparison
-3. **Price Action & Volume** — gap analysis, intraday positioning (${s.dayPos}% of day range), volume assessment
-4. **Technical Analysis** — RSI (${s.rsiApprox}), MACD (${s.macdSignal}), key moving averages (SMA 50: ₹${s.sma50Approx}, SMA 200: ₹${s.sma200Approx}), support ₹${s.nearestSupport} / resistance ₹${s.nearestResistance}, chart pattern implications
+3. **Price Action & Volume** — gap analysis, intraday positioning (${s.dayPos}% of day range), volume assessment (${s.volSignal})
+4. **Technical Analysis** — RSI (${s.rsiVal}), MACD (${s.macd.trend}), ADX (${s.adxVal}), key moving averages (SMA 20: ₹${s.sma20}, SMA 50: ₹${s.sma50}, SMA 200: ₹${s.sma200}), support ₹${s.nearestSupport} / resistance ₹${s.nearestResistance}
 5. **Fundamental Assessment** — P/E vs Sector Avg (${s.secPE}), ROE quality vs peers (${s.secROE}%), debt health vs peers (${s.secDE}), ${s.mcapTier} considerations
 6. **Risk Factors** — 3 specific risks with estimated % impact
 7. **Trade Setup** — table with Entry Zone, Stop-Loss, Target 1, Target 2, Risk-Reward Ratio
@@ -569,15 +649,15 @@ serve(async (req) => {
     const payload = await req.json();
     const { is_chat, chat_message, chat_history, context, use_web_search, ...stockData } = payload;
 
-    // Enrich stock data with derived metrics
-    const enriched = enrichStockData(stockData);
+    // Enrich stock data with REAL historical indicators from Yahoo Finance
+    const enriched = await enrichStockData(stockData);
     let finalPrompt = "";
 
     if (is_chat) {
       console.log(`[AI Chat] ${stockData.symbol || 'unknown'}: "${chat_message?.slice(0, 50)}..."`);
       finalPrompt = buildChatPrompt(enriched, context || "", chat_history, chat_message);
     } else {
-      console.log(`[AI Report] ${stockData.symbol} @ ₹${enriched.price} (${enriched.changePct}%)`);
+      console.log(`[AI Report] ${stockData.symbol} @ ₹${enriched.price} (${enriched.changePct}%) | Data: ${enriched.dataSource} | RSI: ${enriched.rsiVal} | MACD: ${enriched.macd.trend}`);
       finalPrompt = buildAnalysisPrompt(enriched);
     }
 
@@ -620,7 +700,17 @@ serve(async (req) => {
         }
       }
 
-      // Gemini fallback removed as per user request
+      // Gemini fallback — ensures at least one provider can respond
+      if (!result && GEMINI_API_KEY) {
+        try {
+          console.log("→ Gemini Direct (fallback)...");
+          result = await withTimeout(askGemini(finalPrompt, !!is_chat, false), 35000, "GeminiDirect");
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.error("✗ Gemini Direct:", msg);
+          errors.push(`Gemini: ${msg}`);
+        }
+      }
     }
 
     if (!result) {

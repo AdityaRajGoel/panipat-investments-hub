@@ -124,25 +124,12 @@ function IndicatorCard({ label, signal, desc, icon: Icon, delay }:
   );
 }
 
-// Generates a mock 30-day sparkline specifically for the UI enhancement
-function generateMockTrendData(currentPrice: number, changePct: number) {
-  const data = [];
-  let p = currentPrice * (1 - changePct/100); // Approximate price 30 days ago
-  for (let i = 0; i < 30; i++) {
-    p = p * (1 + (Math.random() - 0.45) * 0.02); // 2% random walk
-    data.push({ day: i, price: p });
-  }
-  data.push({ day: 30, price: currentPrice }); // End at exactly current price
-  return data;
-}
-
 function computeAnalysis(stock: StockForAnalysis) {
   const priceNum = typeof stock.price === "string" ? parseFloat(stock.price.replace(/,/g, "")) : (stock.price ?? 0);
   const high52 = stock.high_52 ?? priceNum * 1.15;
   const low52 = stock.low_52 ?? priceNum * 0.85;
   const changePct = stock.change_pct ?? 0;
   
-  // Calculate mock or real ROE & Debt/Equity if not provided (for demonstration)
   const isFinancial = stock.sector === "Financial Services" || stock.symbol.includes("BANK");
   const roe = stock.roe ?? (isFinancial ? 14.5 : stock.pe && stock.pe > 0 ? 100 / stock.pe * 1.5 : 12.0);
   const debtEquity = stock.debt_equity ?? (isFinancial ? 3.5 : 0.4);
@@ -153,23 +140,13 @@ function computeAnalysis(stock: StockForAnalysis) {
   let deSignal = debtEquity > (isFinancial ? 5 : 1) ? "High Risk" : "Strong";
   let deDesc = `D/E Ratio: ${debtEquity.toFixed(2)}. ${deSignal === "Strong" ? "Healthy balance sheet." : "Highly leveraged."}`;
 
-  const rsiApprox = high52 === low52 ? 50 : ((priceNum - low52) / (high52 - low52)) * 100;
-
-  // Pattern detection logic (mocked based on RSI and change)
-  const patterns = [];
-  let isBullish = true;
-  if (changePct > 2 && rsiApprox < 40) { patterns.push("Double Bottom Reversal"); }
-  else if (changePct > 1 && rsiApprox > 70) { patterns.push("Bull Flag Breakout"); }
-  else if (changePct < -2 && rsiApprox > 60) { patterns.push("Head & Shoulders"); isBullish = false; }
-  else if (changePct < 0 && rsiApprox < 30) { patterns.push("Falling Wedge"); }
-  else { patterns.push("Consolidation Range"); }
-
+  const isBullish = changePct >= 0;
+  const patterns: string[] = []; // Pattern detection is now done server-side with real data
   const score = Math.min(98, Math.max(10, 50 + changePct * 10 + (roe > 15 ? 10 : 0) - (debtEquity > 1 && !isFinancial ? 10 : 0)));
 
   return { 
     priceNum, high52, low52, changePct, score, isBullish,
     roeSignal, roeDesc, deSignal, deDesc, patterns,
-    trendData: generateMockTrendData(priceNum, changePct)
   };
 }
 
@@ -283,18 +260,24 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   ];
   
   const endOfChatRef = useRef<HTMLDivElement>(null);
+  
+  // Ref to track the current request — prevents stale responses from overwriting
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     if (activeTab === 'chat') endOfChatRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, activeTab]);
 
+  // Full state reset when modal opens or stock changes
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && stock) {
+      // Invalidate any in-flight request immediately
+      requestIdRef.current++;
       setIsAnalyzing(true); setLoadingStep(0); setGeminiVerdict(null); 
       setChatHistory([]); setActiveTab('report');
       setAnimationDone(false); setAiResponseReady(false);
     }
-  }, [isOpen, stock]);
+  }, [isOpen, stock?.symbol]);
 
   // Animation step progression — marks animationDone when all steps complete
   useEffect(() => {
@@ -319,132 +302,163 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   }, [animationDone, aiResponseReady]);
 
   const analysis = stock ? computeAnalysis(stock) : null;
-  
-  // Fetch Deep AI Report — fires immediately when modal opens (in parallel with animation)
+
+  // Fetch real sparkline data for the header chart
+  const [sparklineData, setSparklineData] = useState<{day: number, price: number}[]>([]);
   useEffect(() => {
-    if (!isOpen || !stock || !analysis || geminiVerdict) return;
-
-    const priceNum = analysis.priceNum;
-    const isFinancial = stock.sector === "Financial Services" || stock.symbol.includes("BANK");
-    const roeValue = stock.roe ?? (isFinancial ? 14.5 : stock.pe && stock.pe > 0 ? 100 / stock.pe * 1.5 : 12.0);
-    const deValue = stock.debt_equity ?? (isFinancial ? 3.5 : 0.4);
-
-    supabase.functions.invoke('ai-stock-analysis', {
-      body: {
-        symbol: stock.symbol, 
-        name: stock.name, 
-        price: priceNum,
-        change_pct: analysis.changePct, 
-        pe: stock.pe, 
-        high_52: analysis.high52, 
-        low_52: analysis.low52,
-        market_cap: stock.market_cap, 
-        volume: stock.volume, 
-        sector: stock.sector,
-        day_high: stock.day_high, 
-        day_low: stock.day_low,
-        roe: roeValue,
-        debt_equity: deValue,
-        patterns: analysis.patterns,
-        score: analysis.score, 
-        isBullish: analysis.isBullish, 
-        deep_report: true 
+    if (!isOpen || !stock) { setSparklineData([]); return; }
+    supabase.functions.invoke('fetch-stock-chart', {
+      body: { symbol: stock.symbol, range: '1mo' }
+    }).then(({ data }) => {
+      if (data?.success && data.dataPoints?.length > 0) {
+        setSparklineData(data.dataPoints.map((dp: any, i: number) => ({ day: i, price: dp.c })));
       }
-    })
-      .then(({ data, error }) => {
-        if (error) {
-          console.error("AI Analysis Error:", error);
-          setGeminiVerdict({ 
-            analysis: "⚠️ AI analysis is temporarily unavailable. Please try again in a moment.", 
-            model: "error" 
-          });
-          setAiResponseReady(true);
-          return;
+    }).catch(() => {});
+  }, [isOpen, stock?.symbol]);
+
+  // Fetch Deep AI Report — fires when modal opens with a stock
+  // Uses a requestId to discard stale responses when user switches stocks quickly
+  useEffect(() => {
+    if (!isOpen || !stock || !analysis) return;
+
+    // Capture request ID AFTER the reset effect has incremented it
+    const thisRequestId = requestIdRef.current;
+    
+    // Small delay to ensure state reset has propagated
+    const fetchTimer = setTimeout(() => {
+      const priceNum = analysis.priceNum;
+      const isFinancial = stock.sector === "Financial Services" || stock.symbol.includes("BANK");
+      const roeValue = stock.roe ?? (isFinancial ? 14.5 : stock.pe && stock.pe > 0 ? 100 / stock.pe * 1.5 : 12.0);
+      const deValue = stock.debt_equity ?? (isFinancial ? 3.5 : 0.4);
+
+      supabase.functions.invoke('ai-stock-analysis', {
+        body: {
+          symbol: stock.symbol, 
+          name: stock.name, 
+          price: priceNum,
+          change_pct: analysis.changePct, 
+          pe: stock.pe, 
+          high_52: analysis.high52, 
+          low_52: analysis.low52,
+          market_cap: stock.market_cap, 
+          volume: stock.volume, 
+          sector: stock.sector,
+          day_high: stock.day_high, 
+          day_low: stock.day_low,
+          roe: roeValue,
+          debt_equity: deValue,
+          patterns: analysis.patterns,
+          score: analysis.score, 
+          isBullish: analysis.isBullish, 
+          deep_report: true 
         }
-        if (data?.verdict) {
-          let verdict = data.verdict;
-          // Safety & Robustness: Handle truncated or malformed JSON responses
-          if (typeof verdict === 'string') {
-            try {
-              // Attempt 1: Regular valid JSON cleanup and parse
-              const cleaned = verdict.replace(/```json/g, "").replace(/```/g, "").trim();
-              verdict = JSON.parse(cleaned);
-            } catch (e) {
-              console.warn("Standard JSON parse failed, attempting regex extraction...");
-              
-              // Attempt 2: Regex extraction for markdown_report even if truncated
-              const mdMatch = verdict.match(/"markdown_report":\s*"([\s\S]*?)(?=",\s*"structured_data"|",\s*"|"}|\z)/);
-              const structuredMatch = verdict.match(/"structured_data":\s*({[\s\S]*?)(?=\s*,\s*"|}$|\z)/);
-              
-              let extractedMd = mdMatch ? mdMatch[1] : null;
-              if (extractedMd) {
-                extractedMd = extractedMd
-                  .replace(/\\n/g, '\n')
-                  .replace(/\\r/g, '')
-                  .replace(/\\"/g, '"')
-                  .replace(/\\t/g, '  ')
-                  .trim();
-              }
-              
-              let extractedStructured = null;
-              if (structuredMatch) {
-                try {
-                  let structStr = structuredMatch[1].trim();
-                  if (!structStr.endsWith('}')) {
-                    const openBraces = (structStr.match(/{/g) || []).length;
-                    const closeBraces = (structStr.match(/}/g) || []).length;
-                    structStr += '}'.repeat(Math.max(0, openBraces - closeBraces));
+      })
+        .then(({ data, error }) => {
+          // CRITICAL: Discard if this response belongs to a stale request
+          if (thisRequestId !== requestIdRef.current) {
+            console.log(`[AI] Discarding stale response for old stock (req ${thisRequestId}, current ${requestIdRef.current})`);
+            return;
+          }
+
+          if (error) {
+            console.error("AI Analysis Error:", error);
+            setGeminiVerdict({ 
+              analysis: "⚠️ AI analysis is temporarily unavailable. Please try again in a moment.", 
+              model: "error" 
+            });
+            setAiResponseReady(true);
+            return;
+          }
+          if (data?.verdict) {
+            let verdict = data.verdict;
+            // Safety & Robustness: Handle truncated or malformed JSON responses
+            if (typeof verdict === 'string') {
+              try {
+                // Attempt 1: Regular valid JSON cleanup and parse
+                const cleaned = verdict.replace(/```json/g, "").replace(/```/g, "").trim();
+                verdict = JSON.parse(cleaned);
+              } catch (e) {
+                console.warn("Standard JSON parse failed, attempting regex extraction...");
+                
+                // Attempt 2: Regex extraction for markdown_report even if truncated
+                const mdMatch = verdict.match(/"markdown_report":\s*"([\s\S]*?)(?=",\s*"structured_data"|",\s*"|\"}|\z)/);
+                const structuredMatch = verdict.match(/"structured_data":\s*({[\s\S]*?)(?=\s*,\s*"|}$|\z)/);
+                
+                let extractedMd = mdMatch ? mdMatch[1] : null;
+                if (extractedMd) {
+                  extractedMd = extractedMd
+                    .replace(/\\n/g, '\n')
+                    .replace(/\\r/g, '')
+                    .replace(/\\"/g, '"')
+                    .replace(/\\t/g, '  ')
+                    .trim();
+                }
+                
+                let extractedStructured = null;
+                if (structuredMatch) {
+                  try {
+                    let structStr = structuredMatch[1].trim();
+                    if (!structStr.endsWith('}')) {
+                      const openBraces = (structStr.match(/{/g) || []).length;
+                      const closeBraces = (structStr.match(/}/g) || []).length;
+                      structStr += '}'.repeat(Math.max(0, openBraces - closeBraces));
+                    }
+                    extractedStructured = JSON.parse(structStr);
+                  } catch (err) {
+                    console.warn("Regex-based structured data parse failed");
                   }
-                  extractedStructured = JSON.parse(structStr);
-                } catch (err) {
-                  console.warn("Regex-based structured data parse failed");
+                }
+
+                if (extractedMd) {
+                  verdict = {
+                    markdown_report: extractedMd,
+                    structured_data: extractedStructured?.structured_data || extractedStructured
+                  };
                 }
               }
+            }
 
-              if (extractedMd) {
-                verdict = {
-                  markdown_report: extractedMd,
-                  structured_data: extractedStructured?.structured_data || extractedStructured
-                };
+            if (typeof verdict === 'object' && verdict !== null) {
+              let finalMd = verdict.markdown_report || "Report content missing.";
+              if (finalMd.startsWith('"') && finalMd.endsWith('"')) {
+                finalMd = finalMd.slice(1, -1).replace(/\\n/g, '\n').replace(/\\"/g, '"');
               }
-            }
-          }
 
-          if (typeof verdict === 'object' && verdict !== null) {
-            let finalMd = verdict.markdown_report || "Report content missing.";
-            if (finalMd.startsWith('"') && finalMd.endsWith('"')) {
-              finalMd = finalMd.slice(1, -1).replace(/\\n/g, '\n').replace(/\\"/g, '"');
+              setGeminiVerdict({ 
+                analysis: finalMd, 
+                model: data.model || 'AI Analysis',
+                structured: verdict.structured_data || null
+              });
+              setAiResponseReady(true);
+            } else {
+              setGeminiVerdict({ 
+                analysis: typeof verdict === 'string' ? verdict.replace(/\\n/g, '\n') : "Unable to parse AI response.", 
+                model: data.model || 'AI Analysis' 
+              });
+              setAiResponseReady(true);
             }
-
-            setGeminiVerdict({ 
-              analysis: finalMd, 
-              model: data.model || 'AI Analysis',
-              structured: verdict.structured_data || null
-            });
-            setAiResponseReady(true);
           } else {
             setGeminiVerdict({ 
-              analysis: typeof verdict === 'string' ? verdict.replace(/\\n/g, '\n') : "Unable to parse AI response.", 
-              model: data.model || 'AI Analysis' 
+              analysis: "⚠️ The AI returned an empty response. Please try again.", 
+              model: "error" 
             });
             setAiResponseReady(true);
           }
-        } else {
+        }).catch(err => {
+          // CRITICAL: Discard if this response belongs to a stale request
+          if (thisRequestId !== requestIdRef.current) return;
+          
+          console.error("AI Analysis Fetch Error:", err);
           setGeminiVerdict({ 
-            analysis: "⚠️ The AI returned an empty response. Please try again.", 
+            analysis: "⚠️ Could not connect to the AI engine. Please check your connection and try again.", 
             model: "error" 
           });
           setAiResponseReady(true);
-        }
-      }).catch(err => {
-        console.error("AI Analysis Fetch Error:", err);
-        setGeminiVerdict({ 
-          analysis: "⚠️ Could not connect to the AI engine. Please check your connection and try again.", 
-          model: "error" 
         });
-        setAiResponseReady(true);
-      });
-  }, [isOpen, stock, analysis, geminiVerdict]);
+    }, 50); // Small delay to let state reset propagate
+
+    return () => clearTimeout(fetchTimer);
+  }, [isOpen, stock?.symbol]);
 
   // Shared context builder for chat — avoids duplicated code
   const buildChatContext = () => [
@@ -657,8 +671,9 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                         </div>
                       </div>
                       <div className="w-32 h-16 pointer-events-none">
+                        {sparklineData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={analysis.trendData}>
+                          <AreaChart data={sparklineData}>
                             <defs>
                               <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor={analysis.isBullish ? "#10b981" : "#ef4444"} stopOpacity={0.3}/>
@@ -668,6 +683,11 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                             <Area type="monotone" dataKey="price" stroke={analysis.isBullish ? "#10b981" : "#ef4444"} fill="url(#colorPrice)" strokeWidth={2} />
                           </AreaChart>
                         </ResponsiveContainer>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
+                            <Activity className="w-6 h-6 animate-pulse" />
+                          </div>
+                        )}
                       </div>
                     </div>
 
