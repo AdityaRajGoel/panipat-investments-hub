@@ -74,10 +74,14 @@ async function prerender() {
         // Suppress console logs from the page
         page.on('console', () => {});
         
-        await page.goto(`http://localhost:${port}${route}`, {
-          waitUntil: 'networkidle0', // Wait until network is fully idle (all JS loaded)
-          timeout: 30000,
-        });
+        try {
+          await page.goto(`http://localhost:${port}${route}`, {
+            waitUntil: 'networkidle2', // More resilient than networkidle0
+            timeout: 15000,
+          });
+        } catch (e) {
+          console.warn(`Timeout or error on ${route}, proceeding to capture current DOM...`);
+        }
 
         // Get the fully rendered HTML
         const html = await page.content();

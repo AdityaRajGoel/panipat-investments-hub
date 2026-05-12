@@ -166,8 +166,15 @@ const FnODashboardPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetchData(symbol);
-  }, [symbol, fetchData]);
+    fetchData(symbol, expiry || undefined);
+    
+    // Refresh F&O data every 30 seconds
+    const interval = setInterval(() => {
+      fetchData(symbol, expiry || undefined);
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [symbol, expiry, fetchData]);
 
   const handleExpiryChange = (val: string) => {
     setExpiry(val);
