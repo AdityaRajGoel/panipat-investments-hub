@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Newspaper, Globe, TrendingUp, Clock, ChevronRight, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 import { supabase } from "@/integrations/supabase/client";
 
 type NewsItem = {
@@ -110,7 +109,7 @@ const MarketNews = () => {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-news'); // Changed lovableSupabase to supabase
+      const { data, error } = await supabase.functions.invoke('fetch-news'); // Changed supabase to supabase
       if (!error && data?.success) {
         if (data.indian?.length > 0) setIndianNews(data.indian);
         if (data.world?.length > 0) setWorldNews(data.world);

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
+import { supabase } from "@/integrations/supabase/client";
 
 const PHONE_REGEX = /^(\+?91)?[6-9]\d{9}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,7 +51,7 @@ const ContactForm = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await lovableSupabase.functions.invoke("submit-lead", {
+      const { data, error } = await supabase.functions.invoke("submit-lead", {
         body: {
           name: form.name.trim().slice(0, 100),
           phone: form.phone.trim().slice(0, 20),

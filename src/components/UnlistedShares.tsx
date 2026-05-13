@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 
 type StockItem = {
   name: string; short: string; tag: string; tagColor: string; price: string;
@@ -68,7 +67,7 @@ const UnlistedShares = () => {
   useEffect(() => {
     const fetchShares = async () => {
       try {
-        const { data, error } = await lovableSupabase.functions.invoke("manage-unlisted-shares", {
+        const { data, error } = await supabase.functions.invoke("manage-unlisted-shares", {
           body: { action: "list" }
         });
         

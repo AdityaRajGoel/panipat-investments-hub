@@ -4,7 +4,7 @@ import { Send, Loader2, CheckCircle2, User, Phone, Mail, MapPin, Building, Brief
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
+import { supabase } from "@/integrations/supabase/client";
 
 const PHONE_REGEX = /^(\+?91)?[6-9]\d{9}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,7 +52,7 @@ const BecomePartner = () => {
 
     setLoading(true);
     try {
-      const { error } = await lovableSupabase.functions.invoke("submit-lead", {
+      const { error } = await supabase.functions.invoke("submit-lead", {
         body: {
           name: form.name.trim().slice(0, 100),
           phone: form.phone.trim().slice(0, 20),

@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, memo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -242,7 +241,7 @@ const LeadsPanel = ({ password }: { password: string }) => {
   const fetchLeads = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await lovableSupabase.functions.invoke("manage-unlisted-shares", {
+      const { data, error } = await supabase.functions.invoke("manage-unlisted-shares", {
         body: { action: "list_leads", password },
       });
       if (!error && data?.success) setLeads(data.leads || []);
@@ -256,7 +255,7 @@ const LeadsPanel = ({ password }: { password: string }) => {
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
   const updateLeadStatus = async (id: string, status: string) => {
-    const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", {
+    const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
       body: { action: "update_lead", password, data: { id, status } },
     });
     if (data?.success) {
@@ -271,7 +270,7 @@ const LeadsPanel = ({ password }: { password: string }) => {
     if (selectedIds.size === 0) return;
     let successCount = 0;
     for (const id of selectedIds) {
-      const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", {
+      const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
         body: { action: "update_lead", password, data: { id, status } },
       });
       if (data?.success) successCount++;
@@ -283,7 +282,7 @@ const LeadsPanel = ({ password }: { password: string }) => {
 
   const deleteLead = async (id: string) => {
     if (!confirm("Delete this lead?")) return;
-    const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", {
+    const { data } = await supabase.functions.invoke("manage-unlisted-shares", {
       body: { action: "delete_lead", password, data: { id } },
     });
     if (data?.success) {
@@ -524,7 +523,7 @@ const AnalyticsPanel = ({ password }: { password: string }) => {
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: res, error } = await lovableSupabase.functions.invoke("fetch-analytics", {
+      const { data: res, error } = await supabase.functions.invoke("fetch-analytics", {
         body: { password, period },
       });
       if (!error && res?.success) setData(res);
@@ -680,7 +679,7 @@ const AdminPage = () => {
   const fetchShares = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", { body: { action: "list" } });
+      const { data } = await supabase.functions.invoke("manage-unlisted-shares", { body: { action: "list" } });
       if (data?.success) setShares(data.data);
     } catch { toast({ title: "Failed to load shares", variant: "destructive" }); }
     setLoading(false);
@@ -691,7 +690,7 @@ const AdminPage = () => {
     if (lockoutUntil && Date.now() < lockoutUntil) { toast({ title: "Too many attempts", variant: "destructive" }); return; }
     setLoginLoading(true);
     try {
-      const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", { body: { action: "verify", password } });
+      const { data } = await supabase.functions.invoke("manage-unlisted-shares", { body: { action: "verify", password } });
       if (data?.success === true) { setAuthenticated(true); setFailedAttempts(0); setLockoutUntil(null); fetchShares(); }
       else {
         const newAttempts = failedAttempts + 1; setFailedAttempts(newAttempts);
@@ -703,21 +702,21 @@ const AdminPage = () => {
   }, [password, fetchShares, failedAttempts, lockoutUntil]);
 
   const handleUpdate = useCallback(async (share: UnlistedShare) => {
-    const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", { body: { action: "update", password, data: { ...share, ...editForm } } });
+    const { data } = await supabase.functions.invoke("manage-unlisted-shares", { body: { action: "update", password, data: { ...share, ...editForm } } });
     if (data?.success) { toast({ title: "Share updated" }); setEditingId(null); fetchShares(); }
     else toast({ title: "Error updating", description: data?.error, variant: "destructive" });
   }, [password, editForm, fetchShares]);
 
   const handleCreate = useCallback(async () => {
     if (!newForm.name.trim() || !newForm.price.trim() || !newForm.short_code.trim()) { toast({ title: "Fill name, short code, and price", variant: "destructive" }); return; }
-    const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", { body: { action: "create", password, data: { ...newForm, display_order: shares.length + 1 } } });
+    const { data } = await supabase.functions.invoke("manage-unlisted-shares", { body: { action: "create", password, data: { ...newForm, display_order: shares.length + 1 } } });
     if (data?.success) { toast({ title: "Share created" }); setCreating(false); setNewForm(emptyShare); fetchShares(); }
     else toast({ title: "Error creating", description: data?.error, variant: "destructive" });
   }, [password, newForm, shares.length, fetchShares]);
 
   const handleDelete = useCallback(async (id: string) => {
     if (!confirm("Delete this share?")) return;
-    const { data } = await lovableSupabase.functions.invoke("manage-unlisted-shares", { body: { action: "delete", password, data: { id } } });
+    const { data } = await supabase.functions.invoke("manage-unlisted-shares", { body: { action: "delete", password, data: { id } } });
     if (data?.success) { toast({ title: "Share deleted" }); fetchShares(); }
   }, [password, fetchShares]);
 

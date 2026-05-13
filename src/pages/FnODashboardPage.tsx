@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, Activity, Target, BarChart3, RefreshCw, Loader2 } from "lucide-react";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
+import { supabase } from "@/integrations/supabase/client";
 
 type OptionRow = {
   strike: number;
@@ -146,7 +146,7 @@ const FnODashboardPage = () => {
       const body: Record<string, unknown> = { symbol: sym };
       if (exp) body.expiry = exp;
 
-      const { data: res, error: fnError } = await lovableSupabase.functions.invoke("fetch-fno-data", { body });
+      const { data: res, error: fnError } = await supabase.functions.invoke("fetch-fno-data", { body });
 
       if (fnError) throw new Error(fnError.message);
       if (!res?.success) throw new Error(res?.error || "Failed to fetch data");

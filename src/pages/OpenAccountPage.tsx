@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -66,7 +66,7 @@ const OpenAccountPage = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await lovableSupabase.functions.invoke('submit-lead', {
+      const { data, error } = await supabase.functions.invoke('submit-lead', {
         body: {
           ...trimmed,
           _website: "", // honeypot

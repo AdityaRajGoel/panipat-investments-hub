@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 import AIAnalysisModal from "@/components/AIAnalysisModal";
 
 type StockResult = {

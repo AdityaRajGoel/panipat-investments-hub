@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Search, Clock, ChevronRight, TrendingUp, GraduationCap, BarChart3, Shield, ExternalLink, Newspaper, Radio, RefreshCw, Globe, IndianRupee, AlertTriangle, Star, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
 
 type Article = {
   id: string;
@@ -303,7 +302,7 @@ const LearningCenterPage = () => {
   const fetchLiveBroadcasts = async () => {
     setLiveLoading(true);
     try {
-      const { data, error } = await lovableSupabase.functions.invoke('fetch-live-broadcasts');
+      const { data, error } = await supabase.functions.invoke('fetch-live-broadcasts');
       if (!error && data?.success && Array.isArray(data.channels)) {
         const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>, channel: any) => {
           acc[channel.channelId] = {

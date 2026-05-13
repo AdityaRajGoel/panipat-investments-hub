@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GitCompareArrows, Search, X, TrendingUp, TrendingDown, Star, Bot, Share2, Zap } from "lucide-react";
-import { lovableSupabase } from "@/integrations/supabase/lovable-client";
+import { supabase } from "@/integrations/supabase/client";
 import AIAnalysisModal, { type StockForAnalysis } from "@/components/AIAnalysisModal";
 
 type Stock = {
@@ -71,7 +71,7 @@ const StockComparisonPage = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await lovableSupabase.from("screener_stocks").select("*").order("market_cap", { ascending: false });
+      const { data } = await supabase.from("screener_stocks").select("*").order("market_cap", { ascending: false });
       if (data) setAllStocks(data as Stock[]);
     };
     load();
