@@ -52,16 +52,14 @@ const MARKET_SYMBOLS = [
   { symbol: "LT.NS", name: "L&T" },
 ];
 
-// Commodities: fetched in USD, converted to INR using live USD/INR rate
-// Conversion factors to MCX-standard units
 const COMMODITY_SYMBOLS = [
-  { symbol: "GC=F", name: "GOLD", unit: "₹/10g", convert: true, factor: 0.32151 }, // 1 oz = 31.1035g → 10g = 10/31.1035 oz
-  { symbol: "SI=F", name: "SILVER", unit: "₹/kg", convert: true, factor: 32.1507 }, // 1 oz = 31.1035g → 1kg = 1000/31.1035 oz
+  { symbol: "GC=F", name: "GOLD", unit: "₹/10g", convert: true, factor: (10 / 31.1035) * 1.06 }, 
+  { symbol: "SI=F", name: "SILVER", unit: "₹/kg", convert: true, factor: (1000 / 31.1035) * 1.06 }, 
   { symbol: "CL=F", name: "CRUDE OIL", unit: "₹/bbl", convert: true, factor: 1 },
   { symbol: "NG=F", name: "NAT GAS", unit: "₹/MMBtu", convert: true, factor: 1 },
-  { symbol: "HG=F", name: "COPPER", unit: "₹/kg", convert: true, factor: 2.20462 }, // 1 lb = 0.4536kg → 1kg = 2.20462 lb
+  { symbol: "HG=F", name: "COPPER", unit: "₹/kg", convert: true, factor: 2.20462 }, 
   { symbol: "ALI=F", name: "ALUMINIUM", unit: "₹/kg", convert: true, factor: 2.20462 },
-  { symbol: "ZW=F", name: "WHEAT", unit: "₹/quintal", convert: true, factor: 3.67437 }, // 1 bushel = ~27.216kg → 1 quintal = 100/27.216 bu
+  { symbol: "ZW=F", name: "WHEAT", unit: "₹/quintal", convert: true, factor: 3.67437 },
   { symbol: "USDINR=X", name: "USD/INR", unit: "", convert: false, factor: 1 },
   { symbol: "EURINR=X", name: "EUR/INR", unit: "", convert: false, factor: 1 },
   { symbol: "GBPINR=X", name: "GBP/INR", unit: "", convert: false, factor: 1 },
@@ -317,7 +315,6 @@ Deno.serve(async (req) => {
 
           let displayPrice = q.price;
           if (item.convert && item.factor) {
-            // Convert: USD price × factor × USD/INR rate = INR price
             displayPrice = q.price * item.factor * usdInrRate;
           }
 
