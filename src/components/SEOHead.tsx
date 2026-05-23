@@ -177,7 +177,9 @@ const SEOHead = ({
       <meta name="twitter:image" content={finalOgImage} />
 
       {schemaScripts.map((schema, index) => (
-        <script type="application/ld+json" key={index} dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+        <script type="application/ld+json" key={index}>
+          {JSON.stringify(schema)}
+        </script>
       ))}
     </Helmet>
   );
