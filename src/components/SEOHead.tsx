@@ -93,6 +93,17 @@ const SEOHead = ({
         "closes": "14:00"
       }
     ],
+    "priceRange": "₹₹",
+    "email": "parasrampnp@gmail.com",
+    "currenciesAccepted": "INR",
+    "paymentAccepted": "Bank Transfer, UPI, Cheque",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "200",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
     "sameAs": [
       "https://www.facebook.com/parasramindia",
       "https://twitter.com/ParasramPanipat",

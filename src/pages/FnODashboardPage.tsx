@@ -205,6 +205,37 @@ const FnODashboardPage = () => {
           { name: "Home", url: "/" },
           { name: "F&O Dashboard" },
         ]}
+        jsonLd={{
+          "@type": "WebApplication",
+          "name": "F&O Options Chain Dashboard - Parasram India",
+          "description": "Live NIFTY, BANKNIFTY, and FINNIFTY options chain viewer with Put-Call Ratio (PCR) analysis, max pain calculator, and real-time open interest data.",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web Browser",
+          "url": "https://www.sphpnp.com/fno",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+          "provider": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com"
+          },
+          "featureList": [
+            "Live NIFTY options chain",
+            "Live BANKNIFTY options chain",
+            "Live FINNIFTY options chain",
+            "Put-Call Ratio (PCR) analysis",
+            "Max Pain calculator",
+            "Call and Put Open Interest by strike",
+            "ATM strike highlighting",
+            "OI analysis charts",
+            "Auto-refresh every 30 seconds"
+          ]
+        }}
+        faqItems={[
+          { question: "What is Put-Call Ratio (PCR) in F&O?", answer: "PCR is the ratio of total put open interest to total call open interest. A PCR above 1 indicates more put buying (bearish sentiment), while below 0.8 suggests more call buying (bullish sentiment)." },
+          { question: "What is Max Pain in options trading?", answer: "Max Pain is the strike price at which the maximum number of options (both calls and puts) expire worthless. It is the price at which option sellers gain the most, and is often used as a price target indicator." },
+          { question: "How often is the F&O data updated?", answer: "The options chain data refreshes automatically every 30 seconds. You can also manually refresh using the Refresh button." },
+          { question: "Which indices are available in the F&O dashboard?", answer: "Currently NIFTY 50, BANK NIFTY, and FIN NIFTY are available. You can switch between them using the dropdown selector." },
+        ]}
       />
       <ScrollProgress />
       <Header />

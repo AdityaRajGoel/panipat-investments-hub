@@ -204,6 +204,29 @@ const StockComparisonPage = () => {
           { name: "Home", url: "/" },
           { name: "Compare Stocks" },
         ]}
+        jsonLd={{
+          "@type": "WebApplication",
+          "name": "Stock Comparison Tool - Parasram India",
+          "description": "Free tool to compare up to 3 NSE/BSE stocks side-by-side with live price, P/E ratio, market cap, volume, 52-week range, and AI-powered analysis.",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web Browser",
+          "url": "https://www.sphpnp.com/compare",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+          "provider": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com"
+          },
+          "featureList": [
+            "Side-by-side comparison of up to 3 stocks",
+            "Live NSE/BSE price data",
+            "P/E ratio, market cap, volume comparison",
+            "52-week high/low range visualizer",
+            "Winner determination by composite score",
+            "AI-powered stock analysis per stock",
+            "Quick preset comparisons for Banking, IT, Auto sectors"
+          ]
+        }}
       />
       <ScrollProgress />
       <Header />
