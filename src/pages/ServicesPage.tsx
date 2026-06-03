@@ -21,6 +21,110 @@ const ServicesPage = () => {
           { name: "Home", url: "/" },
           { name: "Services" },
         ]}
+        jsonLd={{
+          "@type": "ItemList",
+          "name": "Financial Services by Parasram India Panipat",
+          "description": "Complete range of SEBI-registered financial services offered by Shri Parasram Holdings Pvt. Ltd. in Panipat, Haryana since 1970.",
+          "numberOfItems": 8,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "item": {
+                "@type": "Service",
+                "name": "Equity Trading",
+                "description": "Buy and sell stocks on NSE and BSE with competitive brokerage rates.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "Equity Trading",
+                "areaServed": "Panipat, Haryana"
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "item": {
+                "@type": "Service",
+                "name": "Mutual Fund Investments",
+                "description": "Invest in direct and regular mutual funds with SIP options starting from ₹500/month.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "Mutual Fund Distribution",
+                "areaServed": "Panipat, Haryana"
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "item": {
+                "@type": "Service",
+                "name": "IPO Applications",
+                "description": "Apply for upcoming IPOs with ASBA/UPI block mechanism directly through your bank account.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "IPO Application Services",
+                "areaServed": "Panipat, Haryana"
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "item": {
+                "@type": "Service",
+                "name": "F&O Trading",
+                "description": "Trade futures and options on NSE with advanced risk management tools.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "Derivatives Trading",
+                "areaServed": "Panipat, Haryana"
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "item": {
+                "@type": "Service",
+                "name": "Commodities Trading",
+                "description": "Trade gold, silver, crude oil, and agricultural commodities on MCX and NCDEX.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "Commodity Trading",
+                "areaServed": "Panipat, Haryana"
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 6,
+              "item": {
+                "@type": "Service",
+                "name": "Unlisted Shares",
+                "description": "Buy and sell pre-IPO and unlisted company shares through Parasram India's Unlisted Space.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "Unlisted Securities Trading",
+                "areaServed": "India"
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 7,
+              "item": {
+                "@type": "Service",
+                "name": "Demat Account Opening",
+                "description": "Open a free Demat and trading account backed by CDSL/NSDL with zero AMC for first year.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "Depository Participant Services",
+                "areaServed": "Panipat, Haryana"
+              }
+            },
+            {
+              "@type": "ListItem",
+              "position": 8,
+              "item": {
+                "@type": "Service",
+                "name": "Portfolio Management & Research",
+                "description": "Daily stock recommendations, portfolio advisory and market research by certified analysts.",
+                "provider": { "@type": "Organization", "name": "Parasram India - Panipat Branch" },
+                "serviceType": "Investment Advisory",
+                "areaServed": "Panipat, Haryana"
+              }
+            }
+          ]
+        }}
       />
       <ScrollProgress />
       <Header />

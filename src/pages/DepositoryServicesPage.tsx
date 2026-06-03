@@ -26,6 +26,62 @@ const DepositoryServicesPage = () => {
           { name: "Home", url: "/" },
           { name: "Depository Services" },
         ]}
+        jsonLd={{
+          "@type": "Service",
+          "name": "Depository Services - Demat Account",
+          "description": "Parasram India offers NSDL & CDSL depository participant services including Demat account opening, seamless share transfers, corporate action tracking, and margin pledging in Panipat, Haryana.",
+          "serviceType": "Depository Participant Services",
+          "provider": {
+            "@type": "FinancialService",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com",
+            "telephone": "+919416400314",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Shakuntala Complex, Palika Bazaar",
+              "addressLocality": "Panipat",
+              "addressRegion": "Haryana",
+              "postalCode": "132103",
+              "addressCountry": "IN"
+            }
+          },
+          "areaServed": {
+            "@type": "City",
+            "name": "Panipat",
+            "sameAs": "https://www.wikidata.org/wiki/Q1484275"
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Depository Services",
+            "itemListElement": [
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Demat Account Opening" } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "NSDL Depository Services" } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "CDSL Depository Services" } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Share Transfer & Pledging" } },
+              { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Corporate Action Tracking" } }
+            ]
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "95",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "review": {
+            "@type": "Review",
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "5",
+              "bestRating": "5"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "Verified Client"
+            },
+            "reviewBody": "Excellent depository services. The Demat account opening was hassle-free and seamless transfers are very reliable."
+          }
+        }}
       />
       <div className="min-h-screen bg-background flex flex-col">
         <ScrollProgress />

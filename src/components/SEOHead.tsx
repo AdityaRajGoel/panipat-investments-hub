@@ -42,8 +42,10 @@ const SEOHead = ({
   dateModified, 
   author 
 }: SEOProps) => {
-  const pathname = location.pathname.endsWith('/') && location.pathname !== '/' ? location.pathname.slice(0, -1) : location.pathname;
+  const routerLocation = useLocation();
+  const pathname = routerLocation.pathname.endsWith('/') && routerLocation.pathname !== '/' ? routerLocation.pathname.slice(0, -1) : routerLocation.pathname;
   const fullCanonical = canonical || `${BASE_URL}${pathname}`;
+  const isHomepage = pathname === '/';
   const fullTitle = title.length > 60 || title === "Best Stock Broker in Panipat" ? title : `${title} | Parasram India`;
   const finalOgImage = ogImage || "https://www.sphpnp.com/logo.png";
   
@@ -89,6 +91,32 @@ const SEOHead = ({
       "https://www.linkedin.com/company/parasramindia"
     ]
   });
+
+  // WebSite schema (homepage only) — signals Google to generate Sitelinks
+  if (isHomepage) {
+    schemaScripts.push({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Parasram India - Panipat Branch",
+      "alternateName": "Shri Parasram Holdings Pvt. Ltd.",
+      "url": BASE_URL,
+      "description": "Best stock broker in Panipat, Haryana. SEBI registered since 1970. Stocks, Mutual Funds, IPO, F&O, Commodities, Unlisted Shares.",
+      "inLanguage": "en-IN",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": `${BASE_URL}/screener?q={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
+      },
+      "sameAs": [
+        "https://www.facebook.com/parasramindia",
+        "https://twitter.com/ParasramPanipat",
+        "https://www.linkedin.com/company/parasramindia"
+      ]
+    });
+  }
 
   // Custom JSON-LD from props
   if (jsonLd) {
