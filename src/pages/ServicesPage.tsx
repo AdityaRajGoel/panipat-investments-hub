@@ -21,6 +21,13 @@ const ServicesPage = () => {
           { name: "Home", url: "/" },
           { name: "Services" },
         ]}
+        faqItems={[
+          { question: "What financial services does Parasram India Panipat offer?", answer: "Parasram India Panipat offers equity trading, mutual funds & SIPs, IPO applications, F&O trading, commodities (MCX), currency trading, unlisted shares, and depository (Demat) services." },
+          { question: "Is Parasram India a SEBI-registered broker?", answer: "Yes, Parasram India is a fully SEBI-registered stockbroker and depository participant, operating through NSE and BSE since 1970." },
+          { question: "Can I start a SIP with a small amount?", answer: "Yes, you can start a Systematic Investment Plan (SIP) with as little as ₹500 per month through Parasram India." },
+          { question: "Do you offer F&O trading services?", answer: "Yes, we offer Futures & Options trading on NSE with competitive brokerage rates and risk management support from our experienced team." },
+          { question: "How do I apply for an IPO through Parasram India?", answer: "You can apply for IPOs using the ASBA/UPI block mechanism through your linked bank account. Our team guides you through the entire process." },
+        ]}
         jsonLd={{
           "@type": "ItemList",
           "name": "Financial Services by Parasram India Panipat",

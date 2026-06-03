@@ -46,7 +46,7 @@ const SEOHead = ({
   const pathname = routerLocation.pathname.endsWith('/') && routerLocation.pathname !== '/' ? routerLocation.pathname.slice(0, -1) : routerLocation.pathname;
   const fullCanonical = canonical || `${BASE_URL}${pathname}`;
   const isHomepage = pathname === '/';
-  const fullTitle = title.length > 60 || title === "Best Stock Broker in Panipat" ? title : `${title} | Parasram India`;
+  const fullTitle = title.includes("| Parasram") || title.length > 60 ? title : `${title} | Parasram India`;
   const finalOgImage = ogImage || "https://www.sphpnp.com/logo.png";
   
   // Combine all JSON-LD scripts
@@ -73,18 +73,26 @@ const SEOHead = ({
       "latitude": 29.3909,
       "longitude": 76.9635
     },
-    "openingHoursSpecification": {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday"
-      ],
-      "opens": "09:00",
-      "closes": "18:00"
-    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday"
+        ],
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Saturday",
+        "opens": "09:00",
+        "closes": "14:00"
+      }
+    ],
     "sameAs": [
       "https://www.facebook.com/parasramindia",
       "https://twitter.com/ParasramPanipat",

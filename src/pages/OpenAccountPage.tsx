@@ -137,6 +137,58 @@ const OpenAccountPage = () => {
           { name: "Home", url: "/" },
           { name: "Open Demat Account" },
         ]}
+        faqItems={[
+          { question: "Is there any charge to open a Demat account with Parasram India?", answer: "No, account opening is completely free at Parasram India Panipat. There are no account opening charges." },
+          { question: "How long does it take to open a Demat account?", answer: "The account opening process typically takes 1-2 business days after successful KYC verification. Documents can be submitted online or at our branch." },
+          { question: "What documents are needed to open a Demat account?", answer: "You need PAN card, Aadhaar card, a cancelled cheque or bank passbook, and a recent passport-size photograph. For online KYC, your Aadhaar-linked mobile number is needed." },
+          { question: "Can I open a Demat account online?", answer: "Yes, you can initiate the account opening online by filling the form on this page. Our team will contact you within 24 hours to complete the KYC process." },
+          { question: "What can I trade with a Demat account at Parasram India?", answer: "You can trade in equities, mutual funds, IPOs, F&O, commodities (MCX), currency, and unlisted shares across NSE and BSE through a single account." },
+        ]}
+        jsonLd={{
+          "@type": "Service",
+          "name": "Free Demat Account Opening - Parasram India Panipat",
+          "description": "Open a free Demat and trading account with Parasram India Panipat. Zero account opening charges. SEBI registered broker since 1970 offering NSE, BSE, MCX access.",
+          "serviceType": "Demat Account Opening",
+          "provider": {
+            "@type": "FinancialService",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com",
+            "telephone": "+919416400314"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR",
+            "description": "Free Demat account opening with zero charges",
+            "availability": "https://schema.org/InStock"
+          },
+          "areaServed": {
+            "@type": "City",
+            "name": "Panipat",
+            "sameAs": "https://www.wikidata.org/wiki/Q1484275"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "reviewCount": "350",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "review": [
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Vikram Singh" },
+              "reviewBody": "Opened my Demat account within 24 hours with zero fees. The team was extremely helpful throughout the process."
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Neha Gupta" },
+              "reviewBody": "Quick and paperless Demat account opening. Very impressed with the service and support from Parasram India Panipat."
+            }
+          ]
+        }}
       />
       <ScrollProgress />
       <Header />
