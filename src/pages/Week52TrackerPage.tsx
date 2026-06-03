@@ -102,6 +102,27 @@ const Week52TrackerPage = () => {
           { name: "Home", url: "/" },
           { name: "52-Week High/Low Tracker" },
         ]}
+        jsonLd={{
+          "@type": "WebApplication",
+          "name": "52-Week High/Low Tracker - Parasram India",
+          "description": "Free live tracker showing NSE stocks near their 52-week highs and lows. Spot breakout and reversal candidates with real-time data.",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web Browser",
+          "url": "https://www.sphpnp.com/52-week-tracker",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+          "provider": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com"
+          },
+          "featureList": [
+            "Live 52-week high tracker",
+            "Live 52-week low tracker",
+            "52-week price range bar for each stock",
+            "% distance from 52-week high and low",
+            "Auto-refresh every 5 minutes"
+          ]
+        }}
       />
       <ScrollProgress />
       <Header />

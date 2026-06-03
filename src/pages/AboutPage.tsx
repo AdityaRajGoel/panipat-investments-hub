@@ -35,6 +35,39 @@ const AboutPage = () => {
           { name: "About Us" },
         ]}
         faqItems={aboutFAQs.map(f => ({ question: f.q, answer: f.a }))}
+        jsonLd={{
+          "@type": "AboutPage",
+          "name": "About Parasram India - Panipat Branch",
+          "description": "Parasram India is one of the oldest and most trusted SEBI-registered stock brokers in Panipat, Haryana, serving investors since 1970.",
+          "about": {
+            "@type": "Organization",
+            "name": "Shri Parasram Holdings Pvt. Ltd.",
+            "alternateName": "Parasram India - Panipat Branch",
+            "foundingDate": "1970",
+            "numberOfEmployees": { "@type": "QuantitativeValue", "value": 10 },
+            "legalName": "Shri Parasram Holdings Pvt. Ltd.",
+            "url": "https://www.sphpnp.com",
+            "logo": "https://www.sphpnp.com/logo.png",
+            "telephone": "+919416400314",
+            "email": "parasrampnp@gmail.com",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Shakuntala Complex, Palika Bazaar",
+              "addressLocality": "Panipat",
+              "addressRegion": "Haryana",
+              "postalCode": "132103",
+              "addressCountry": "IN"
+            },
+            "areaServed": "Panipat, Haryana",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "reviewCount": "200",
+              "bestRating": "5",
+              "worstRating": "1"
+            }
+          }
+        }}
       />
       <ScrollProgress />
       <Header />

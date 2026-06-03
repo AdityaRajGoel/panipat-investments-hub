@@ -72,6 +72,31 @@ const MarginCalculatorPage = () => {
           { name: "Home", url: "/" },
           { name: "Margin Calculator" },
         ]}
+        jsonLd={{
+          "@type": "WebApplication",
+          "name": "F&O Margin Calculator - Parasram India",
+          "description": "Free online margin calculator for Futures & Options and equity trades. Calculate SPAN margin, exposure margin, leverage and required capital for NIFTY, BANKNIFTY, FINNIFTY trades.",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web Browser",
+          "url": "https://www.sphpnp.com/margin-calculator",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+          },
+          "provider": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com"
+          },
+          "featureList": [
+            "NIFTY futures margin calculation",
+            "BANKNIFTY margin calculation",
+            "Equity delivery and intraday margin",
+            "Leverage calculation",
+            "SPAN and exposure margin breakdown"
+          ]
+        }}
       />
       <ScrollProgress />
       <Header />

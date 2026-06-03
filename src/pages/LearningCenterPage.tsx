@@ -386,6 +386,27 @@ const LearningCenterPage = () => {
           { name: "Home", url: "/" },
           { name: "Learning Center" },
         ]}
+        jsonLd={{
+          "@type": "EducationalOrganization",
+          "name": "Parasram India Learning Center",
+          "description": "Free stock market educational resources covering investing basics, trading strategies, technical analysis, mutual funds, F&O, and tax on capital gains.",
+          "url": "https://www.sphpnp.com/learn",
+          "provider": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com"
+          },
+          "hasCourse": REAL_ARTICLES.slice(0, 10).map(a => ({
+            "@type": "Course",
+            "name": a.title,
+            "description": a.excerpt,
+            "educationalLevel": a.difficulty || "Beginner",
+            "provider": {
+              "@type": "Organization",
+              "name": "Parasram India - Panipat Branch"
+            }
+          }))
+        }}
       />
       <ScrollProgress />
       <Header />

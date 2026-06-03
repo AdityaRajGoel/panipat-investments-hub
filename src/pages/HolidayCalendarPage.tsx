@@ -74,6 +74,24 @@ const HolidayCalendarPage = () => {
           { name: "Home", url: "/" },
           { name: "Holiday Calendar" },
         ]}
+        jsonLd={{
+          "@type": "ItemList",
+          "name": "NSE BSE MCX Trading Holidays 2026",
+          "description": "Complete list of stock market trading holidays for NSE, BSE, and MCX exchanges in 2026.",
+          "numberOfItems": HOLIDAYS_2026.length,
+          "itemListElement": HOLIDAYS_2026.map((h, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "item": {
+              "@type": "Event",
+              "name": h.name,
+              "startDate": `2026-${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1 < 10 ? "0" + (["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1) : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1}-${h.date.split(" ")[1].padStart(2,"0")}`,
+              "description": `${h.name} - Market holiday for ${h.exchanges.join(", ")}`,
+              "eventStatus": "https://schema.org/EventScheduled",
+              "organizer": { "@type": "Organization", "name": "NSE/BSE" }
+            }
+          }))
+        }}
       />
       <ScrollProgress />
       <Header />

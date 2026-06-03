@@ -221,6 +221,32 @@ const BrokerageCalculatorPage = () => {
           { name: "Home", url: "/" },
           { name: "Brokerage Calculator" },
         ]}
+        jsonLd={{
+          "@type": "WebApplication",
+          "name": "Brokerage Calculator - Parasram India",
+          "description": "Free online brokerage calculator for Indian stock market trades. Calculates Parasram brokerage, STT, GST, exchange charges, SEBI fees, stamp duty, and net P&L.",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web Browser",
+          "url": "https://www.sphpnp.com/brokerage-calculator",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+          },
+          "provider": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com"
+          },
+          "featureList": [
+            "Equity Delivery brokerage calculation",
+            "Equity Intraday brokerage calculation",
+            "F&O Futures and Options charges",
+            "Commodity trading charges",
+            "Currency segment charges",
+            "STT, GST, Stamp Duty, SEBI fee breakdown"
+          ]
+        }}
       />
       <ScrollProgress />
       <Header />

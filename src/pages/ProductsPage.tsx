@@ -56,6 +56,26 @@ const ProductsPage = () => {
           { name: "Home", url: "/" },
           { name: "Products" },
         ]}
+        jsonLd={{
+          "@type": "ItemList",
+          "name": "Fixed Income & Insurance Products by Parasram India",
+          "description": "Diversified wealth products including fixed deposits, corporate bonds, and insurance from Parasram India Panipat.",
+          "numberOfItems": 3,
+          "itemListElement": products.map((p, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "item": {
+              "@type": "FinancialProduct",
+              "name": p.title,
+              "description": p.desc,
+              "provider": {
+                "@type": "FinancialService",
+                "name": "Parasram India - Panipat Branch",
+                "url": "https://www.sphpnp.com"
+              }
+            }
+          }))
+        }}
       />
       <div className="min-h-screen bg-background flex flex-col">
         <ScrollProgress />

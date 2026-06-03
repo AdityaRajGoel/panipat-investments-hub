@@ -21,6 +21,48 @@ const CareersPage = () => {
           { name: "Home", url: "/" },
           { name: "Careers" },
         ]}
+        jsonLd={{
+          "@type": "JobPosting",
+          "title": "Financial Services Professional",
+          "description": "Parasram India Panipat branch is looking for motivated individuals to join our growing team. Roles available in relationship management, equity dealing, and client advisory.",
+          "datePosted": "2026-06-03",
+          "validThrough": "2026-12-31",
+          "employmentType": "FULL_TIME",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com",
+            "logo": "https://www.sphpnp.com/logo.png"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Shakuntala Complex, Palika Bazaar",
+              "addressLocality": "Panipat",
+              "addressRegion": "Haryana",
+              "postalCode": "132103",
+              "addressCountry": "IN"
+            }
+          },
+          "baseSalary": {
+            "@type": "MonetaryAmount",
+            "currency": "INR",
+            "value": {
+              "@type": "QuantitativeValue",
+              "minValue": 15000,
+              "maxValue": 50000,
+              "unitText": "MONTH"
+            }
+          },
+          "skills": "Stock market knowledge, client relationship management, NISM certification",
+          "industry": "Financial Services",
+          "applicationContact": {
+            "@type": "ContactPoint",
+            "email": "parasrampnp@gmail.com",
+            "contactType": "hiring"
+          }
+        }}
       />
       <div className="min-h-screen bg-background flex flex-col">
         <ScrollProgress />

@@ -181,6 +181,31 @@ const TeamPage = () => {
           { name: "Home", url: "/" },
           { name: "Our Team" },
         ]}
+        jsonLd={{
+          "@type": "Organization",
+          "name": "Parasram India - Panipat Branch",
+          "url": "https://www.sphpnp.com",
+          "description": "Trusted stock brokerage firm in Panipat since 1970 with 2,000+ active clients and ₹250Cr+ AUM managed.",
+          "employee": teamMembers.map(m => ({
+            "@type": "Person",
+            "name": m.name,
+            "jobTitle": m.role,
+            "telephone": m.phone,
+            "email": m.email,
+            "description": m.description,
+            "worksFor": {
+              "@type": "Organization",
+              "name": "Parasram India - Panipat Branch"
+            }
+          })),
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "reviewCount": "200",
+            "bestRating": "5",
+            "worstRating": "1"
+          }
+        }}
       />
       <ScrollProgress />
       <Header />

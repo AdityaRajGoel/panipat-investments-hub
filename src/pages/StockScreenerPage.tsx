@@ -172,6 +172,29 @@ const StockScreenerPage = () => {
           { name: "Home", url: "/" },
           { name: "Stock Screener" },
         ]}
+        jsonLd={{
+          "@type": "WebApplication",
+          "name": "Stock Screener - Parasram India",
+          "description": "Free live Indian stock screener. Filter NSE/BSE stocks by sector, market cap, P/E ratio, and 52-week range with real-time Yahoo Finance prices.",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web Browser",
+          "url": "https://www.sphpnp.com/screener",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+          "provider": {
+            "@type": "Organization",
+            "name": "Parasram India - Panipat Branch",
+            "url": "https://www.sphpnp.com"
+          },
+          "featureList": [
+            "Live NSE/BSE stock prices",
+            "Filter by sector, market cap, P/E ratio",
+            "52-week high/low range display",
+            "Thematic baskets — Banking, IT, Auto, PSU, FMCG",
+            "Technical scanners — Volume Shockers, Momentum, Value Buys",
+            "Stock heatmap view",
+            "AI-powered stock analysis"
+          ]
+        }}
       />
       <ScrollProgress />
       <Header />
