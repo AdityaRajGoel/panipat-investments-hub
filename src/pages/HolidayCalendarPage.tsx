@@ -79,22 +79,41 @@ const HolidayCalendarPage = () => {
           "name": "NSE BSE MCX Trading Holidays 2026",
           "description": "Complete list of stock market trading holidays for NSE, BSE, and MCX exchanges in 2026.",
           "numberOfItems": HOLIDAYS_2026.length,
-          "itemListElement": HOLIDAYS_2026.map((h, idx) => ({
-            "@type": "ListItem",
-            "position": idx + 1,
-            "item": {
-              "@type": "Event",
-              "name": h.name,
-              "startDate": `2026-${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1 < 10 ? "0" + (["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1) : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1}-${h.date.split(" ")[1].padStart(2,"0")}`,
-              "description": `${h.name} - Market holiday for ${h.exchanges.join(", ")}`,
-              "eventStatus": "https://schema.org/EventScheduled",
-              "location": {
-                "@type": "Place",
-                "name": "India"
-              },
-              "organizer": { "@type": "Organization", "name": "NSE/BSE" }
-            }
-          }))
+          "itemListElement": HOLIDAYS_2026.map((h, idx) => {
+            const formattedDate = `2026-${String(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1).padStart(2, "0")}-${h.date.split(" ")[1].padStart(2,"0")}`;
+            return {
+              "@type": "ListItem",
+              "position": idx + 1,
+              "item": {
+                "@type": "Event",
+                "name": h.name,
+                "startDate": formattedDate,
+                "endDate": formattedDate,
+                "image": "https://www.sphpnp.com/logo.png",
+                "description": `${h.name} - Market holiday for ${h.exchanges.join(", ")}`,
+                "eventStatus": "https://schema.org/EventScheduled",
+                "location": {
+                  "@type": "Place",
+                  "name": "India"
+                },
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "INR",
+                  "url": "https://www.sphpnp.com/holidays"
+                },
+                "performer": {
+                  "@type": "Organization",
+                  "name": "Market Participants"
+                },
+                "organizer": { 
+                  "@type": "Organization", 
+                  "name": "NSE/BSE",
+                  "url": "https://www.nseindia.com/"
+                }
+              }
+            };
+          })
         }}
       />
       <ScrollProgress />
