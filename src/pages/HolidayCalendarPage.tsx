@@ -88,6 +88,10 @@ const HolidayCalendarPage = () => {
               "startDate": `2026-${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1 < 10 ? "0" + (["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1) : ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1}-${h.date.split(" ")[1].padStart(2,"0")}`,
               "description": `${h.name} - Market holiday for ${h.exchanges.join(", ")}`,
               "eventStatus": "https://schema.org/EventScheduled",
+              "location": {
+                "@type": "Place",
+                "name": "India"
+              },
               "organizer": { "@type": "Organization", "name": "NSE/BSE" }
             }
           }))
