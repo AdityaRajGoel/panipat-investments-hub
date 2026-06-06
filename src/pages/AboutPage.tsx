@@ -61,21 +61,21 @@ const AboutPage = () => {
             "areaServed": "Panipat, Haryana",
             "aggregateRating": {
               "@type": "AggregateRating",
-              "ratingValue": "4.9",
-              "reviewCount": "200",
-              "bestRating": "5",
-              "worstRating": "1"
+              "ratingValue": 4.9,
+              "reviewCount": 200,
+              "bestRating": 5,
+              "worstRating": 1
             },
             "review": [
               {
                 "@type": "Review",
-                "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+                "reviewRating": { "@type": "Rating", "ratingValue": 5, "bestRating": 5 },
                 "author": { "@type": "Person", "name": "Amit Bansal" },
                 "reviewBody": "Parasram India Panipat is the most trusted broker I've worked with. 20 years of relationship and they've always been transparent and reliable."
               },
               {
                 "@type": "Review",
-                "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+                "reviewRating": { "@type": "Rating", "ratingValue": 5, "bestRating": 5 },
                 "author": { "@type": "Person", "name": "Priya Arora" },
                 "reviewBody": "Excellent financial guidance for over a decade. The team genuinely cares about growing client wealth responsibly."
               }

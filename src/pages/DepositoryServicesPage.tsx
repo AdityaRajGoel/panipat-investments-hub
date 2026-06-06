@@ -53,17 +53,17 @@ const DepositoryServicesPage = () => {
             },
             "aggregateRating": {
               "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "95",
-              "bestRating": "5",
-              "worstRating": "1"
+              "ratingValue": 4.8,
+              "reviewCount": 95,
+              "bestRating": 5,
+              "worstRating": 1
             },
             "review": {
               "@type": "Review",
               "reviewRating": {
                 "@type": "Rating",
-                "ratingValue": "5",
-                "bestRating": "5"
+                "ratingValue": 5,
+                "bestRating": 5
               },
               "author": {
                 "@type": "Person",

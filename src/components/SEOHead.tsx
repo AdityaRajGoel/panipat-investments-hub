@@ -99,10 +99,10 @@ const SEOHead = ({
     "paymentAccepted": "Bank Transfer, UPI, Cheque",
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "200",
-      "bestRating": "5",
-      "worstRating": "1"
+      "ratingValue": 4.9,
+      "reviewCount": 200,
+      "bestRating": 5,
+      "worstRating": 1
     },
     "sameAs": [
       "https://www.facebook.com/parasramindia",

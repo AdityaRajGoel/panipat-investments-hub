@@ -156,21 +156,21 @@ const OpenAccountPage = () => {
             "telephone": "+919416400314",
             "aggregateRating": {
               "@type": "AggregateRating",
-              "ratingValue": "4.9",
-              "reviewCount": "350",
-              "bestRating": "5",
-              "worstRating": "1"
+              "ratingValue": 4.9,
+              "reviewCount": 350,
+              "bestRating": 5,
+              "worstRating": 1
             },
             "review": [
               {
                 "@type": "Review",
-                "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+                "reviewRating": { "@type": "Rating", "ratingValue": 5, "bestRating": 5 },
                 "author": { "@type": "Person", "name": "Vikram Singh" },
                 "reviewBody": "Opened my Demat account within 24 hours with zero fees. The team was extremely helpful throughout the process."
               },
               {
                 "@type": "Review",
-                "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+                "reviewRating": { "@type": "Rating", "ratingValue": 5, "bestRating": 5 },
                 "author": { "@type": "Person", "name": "Neha Gupta" },
                 "reviewBody": "Quick and paperless Demat account opening. Very impressed with the service and support from Parasram India Panipat."
               }
