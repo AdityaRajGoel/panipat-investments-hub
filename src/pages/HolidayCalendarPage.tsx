@@ -94,13 +94,19 @@ const HolidayCalendarPage = () => {
                 "eventStatus": "https://schema.org/EventScheduled",
                 "location": {
                   "@type": "Place",
-                  "name": "India"
+                  "name": "India",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "addressCountry": "IN"
+                  }
                 },
                 "offers": {
                   "@type": "Offer",
                   "price": "0",
                   "priceCurrency": "INR",
-                  "url": "https://www.sphpnp.com/holidays"
+                  "url": "https://www.sphpnp.com/holidays",
+                  "availability": "https://schema.org/InStock",
+                  "validFrom": "2026-01-01"
                 },
                 "performer": {
                   "@type": "Organization",
