@@ -135,6 +135,26 @@ const SEOHead = ({
         "https://www.linkedin.com/company/parasramindia"
       ]
     });
+
+    // SiteNavigationElement — helps Google understand the site structure for sitelinks
+    schemaScripts.push({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": [
+        { "@type": "SiteNavigationElement", "position": 1, "name": "About Us", "url": `${BASE_URL}/about` },
+        { "@type": "SiteNavigationElement", "position": 2, "name": "Services", "url": `${BASE_URL}/services` },
+        { "@type": "SiteNavigationElement", "position": 3, "name": "Unlisted Space", "url": `${BASE_URL}/unlisted-space` },
+        { "@type": "SiteNavigationElement", "position": 4, "name": "Open Account", "url": `${BASE_URL}/open-account` },
+        { "@type": "SiteNavigationElement", "position": 5, "name": "Products", "url": `${BASE_URL}/products` },
+        { "@type": "SiteNavigationElement", "position": 6, "name": "Depository Services", "url": `${BASE_URL}/depository-services` },
+        { "@type": "SiteNavigationElement", "position": 7, "name": "Stock Screener", "url": `${BASE_URL}/screener` },
+        { "@type": "SiteNavigationElement", "position": 8, "name": "F&O Dashboard", "url": `${BASE_URL}/fno` },
+        { "@type": "SiteNavigationElement", "position": 9, "name": "Learning Center", "url": `${BASE_URL}/learn` },
+        { "@type": "SiteNavigationElement", "position": 10, "name": "Contact", "url": `${BASE_URL}/contact` },
+        { "@type": "SiteNavigationElement", "position": 11, "name": "Our Team", "url": `${BASE_URL}/team` },
+        { "@type": "SiteNavigationElement", "position": 12, "name": "Careers", "url": `${BASE_URL}/careers` },
+      ],
+    });
   }
 
   // Custom JSON-LD from props
