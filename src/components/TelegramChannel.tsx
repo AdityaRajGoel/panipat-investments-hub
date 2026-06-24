@@ -126,15 +126,33 @@ function parseStockInfo(text: string | null): {
   return { stockName, action, upside, targetPeriod, cta: null };
 }
 
-/** Format message text: clean up, highlight key parts */
-function formatMessageText(text: string): string {
-  let formatted = text
-    // Convert URLs to clickable links
-    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-secondary hover:underline inline-flex items-center gap-0.5">Link ↗</a>')
-    // Preserve newlines
-    .replace(/\n/g, '<br/>');
-
-  return formatted;
+/** Safely render message text as React nodes — no dangerouslySetInnerHTML */
+function SafeMessageText({ text }: { text: string }) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  while ((match = urlRegex.exec(text)) !== null) {
+    if (match.index > last) {
+      parts.push(...text.slice(last, match.index).split('\n').flatMap((line, i, arr) =>
+        i < arr.length - 1 ? [line, <br key={`br-${key++}`} />] : [line]
+      ));
+    }
+    parts.push(
+      <a key={`url-${key++}`} href={match[1]} target="_blank" rel="noopener noreferrer"
+        className="text-secondary hover:underline inline-flex items-center gap-0.5">
+        Link ↗
+      </a>
+    );
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) {
+    parts.push(...text.slice(last).split('\n').flatMap((line, i, arr) =>
+      i < arr.length - 1 ? [line, <br key={`br-${key++}`} />] : [line]
+    ));
+  }
+  return <>{parts}</>;
 }
 
 const MessageCard = ({ message, index }: { message: TelegramMessage; index: number }) => {
@@ -204,10 +222,9 @@ const MessageCard = ({ message, index }: { message: TelegramMessage; index: numb
 
             {/* Message text */}
             {message.message_text && (
-              <div
-                className="text-[13px] text-foreground/85 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: formatMessageText(message.message_text) }}
-              />
+              <div className="text-[13px] text-foreground/85 leading-relaxed">
+                <SafeMessageText text={message.message_text} />
+              </div>
             )}
 
             {/* Photo */}

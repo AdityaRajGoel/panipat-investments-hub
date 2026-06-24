@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,xml}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,xml}'],
         maximumFileSizeToCacheInBytes: 5000000, // 5MB limit
         navigateFallbackDenylist: [/^\/.*\.xml$/, /^\/.*\.txt$/, /^\/yandex_.*\.html$/]
       },
@@ -33,16 +33,22 @@ export default defineConfig(({ mode }) => ({
         display: 'standalone',
         icons: [
           {
-            src: '/logo.png',
+            src: '/android-chrome-192x192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           },
           {
-            src: '/logo.png',
+            src: '/android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/android-chrome-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

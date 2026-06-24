@@ -1,6 +1,6 @@
 import { ArrowRight, TrendingUp, TrendingDown, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring, useReducedMotion } from "framer-motion";
 import { useEffect, useState, useRef, useMemo, memo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { Link } from "react-router-dom";
@@ -100,6 +100,7 @@ const MarketBreadthBar = memo(() => {
 
 const Hero = () => {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
   const { indices: liveIndices, commodities, marketOverview } = useLiveMarket();
 
   const heroIndices = useMemo(() =>
@@ -176,18 +177,20 @@ const Hero = () => {
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
         />
-        <video
-          src="/video.mp4"
-          poster="/hero-bg.jpg"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
-        />
+        {!prefersReducedMotion && (
+          <video
+            src="/video.mp4"
+            poster="/hero-bg.jpg"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="none"
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
+          />
+        )}
         {/* Brand overlay — keeps text legible */}
         <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/72 via-brand-navy/58 to-brand-green/40" />
         {/* Original solid gradient as mid-layer */}
