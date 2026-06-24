@@ -93,8 +93,8 @@ const LogoUpload = memo(({ form, setForm, shareId, password }: {
       formData.append("password", password);
       formData.append("file", file);
       if (shareId) formData.append("share_id", shareId);
-      const response = await fetch(`${import.meta.env.VITE_LOVABLE_SUPABASE_URL}/functions/v1/manage-unlisted-shares`, {
-        method: "POST", headers: { Authorization: `Bearer ${import.meta.env.VITE_LOVABLE_SUPABASE_PUBLISHABLE_KEY}` }, body: formData,
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-unlisted-shares`, {
+        method: "POST", headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` }, body: formData,
       });
       const result = await response.json();
       if (result.success && result.url) { toast({ title: "Logo uploaded" }); setForm({ ...form, image_url: result.url }); }
