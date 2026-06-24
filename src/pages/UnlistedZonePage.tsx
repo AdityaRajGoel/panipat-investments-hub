@@ -24,8 +24,8 @@ const UnlistedSpacePage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Unlisted Space | Buy Pre-IPO & Unlisted Shares in India - Parasram"
-        description="Access exclusive pre-IPO investments and unlisted shares via Parasram India's Unlisted Space. Secure, SEBI-registered framework with instant Demat transfers for top unlisted companies."
+        title="Buy Pre-IPO & Unlisted Shares in India | Parasram India"
+        description="Buy pre-IPO and unlisted shares via Parasram India. Secure SEBI-registered framework, instant Demat transfers, verified companies. Invest before the IPO."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Unlisted Space" },

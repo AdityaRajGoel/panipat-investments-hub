@@ -12,7 +12,7 @@ const StockRecommendationsPage = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <SEOHead
           title="Stock Recommendations | Parasram India Panipat"
-          description="Get the latest stock recommendations and market updates from our expert research team."
+          description="Latest SEBI-compliant stock recommendations and daily market updates from Parasram India Panipat. Expert equity research for informed investment decisions."
           breadcrumbs={[
             { name: "Home", url: "/" },
             { name: "Learning Center", url: "/learn" },

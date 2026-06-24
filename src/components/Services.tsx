@@ -139,9 +139,9 @@ const Services = () => {
           >
             What We Offer
           </motion.span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Our Services
-          </h2>
+          </h1>
           <motion.div
             className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full mb-4"
             initial={{ width: 0 }}

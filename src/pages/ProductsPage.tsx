@@ -51,7 +51,7 @@ const ProductsPage = () => {
     <PageTransition>
       <SEOHead 
         title="Fixed Deposits, Bonds & Insurance | Parasram India Panipat" 
-        description="Explore fixed deposits, corporate bonds, and insurance services with Parasram India Panipat. Diversify beyond equities."
+        description="Explore fixed deposits, corporate bonds and insurance services with Parasram India Panipat. Diversify your portfolio beyond equities with safer instruments."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Products" },

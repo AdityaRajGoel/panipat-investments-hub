@@ -129,6 +129,7 @@ const Contact = () => {
             <img
               src={brandImage}
               alt="Parasram - Science of Investment"
+              loading="lazy"
               className="w-full h-auto"
             />
           </motion.div>

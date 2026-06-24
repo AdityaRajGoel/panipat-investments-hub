@@ -109,7 +109,7 @@ const About = () => {
             viewport={{ once: true, margin: "-100px" }}
             variants={containerVariants}
           >
-            <motion.h2
+            <motion.h1
               className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6"
               variants={itemVariants}
             >
@@ -123,7 +123,7 @@ const About = () => {
               >
                Panipat Branch Since 1997
               </motion.span>
-            </motion.h2>
+            </motion.h1>
 
             <motion.p className="text-muted-foreground text-lg mb-6" variants={itemVariants}>
               Parasram India is one of India's most trusted stock broking firms with over

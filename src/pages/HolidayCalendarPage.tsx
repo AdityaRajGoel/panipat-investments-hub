@@ -40,8 +40,10 @@ const getMonth = (dateStr: string) => dateStr.split(" ")[0];
 const parseHolidayDate = (dateStr: string): Date => {
   const [mon, day] = dateStr.split(" ");
   const monthMap: Record<string, number> = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
-  return new Date(2026, monthMap[mon] ?? 0, parseInt(day));
+  return new Date(CALENDAR_YEAR, monthMap[mon] ?? 0, parseInt(day));
 };
+
+const CALENDAR_YEAR = 2026;
 
 const HolidayCalendarPage = () => {
   const months = [...new Set(HOLIDAYS_2026.map(h => getMonth(h.date)))];
@@ -67,20 +69,20 @@ const HolidayCalendarPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead 
-        title="NSE BSE Holiday Calendar 2026" 
-        description="Complete list of NSE, BSE, and MCX trading holidays for 2026. Plan your trades around market closures." 
+      <SEOHead
+        title={`NSE BSE Market Holiday Calendar ${CALENDAR_YEAR} | Parasram India`}
+        description={`Complete list of NSE, BSE and MCX stock market trading holidays for ${CALENDAR_YEAR}. Plan your trades around market closures and avoid missed opportunities.`}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Holiday Calendar" },
         ]}
         jsonLd={{
           "@type": "ItemList",
-          "name": "NSE BSE MCX Trading Holidays 2026",
-          "description": "Complete list of stock market trading holidays for NSE, BSE, and MCX exchanges in 2026.",
+          "name": `NSE BSE MCX Trading Holidays ${CALENDAR_YEAR}`,
+          "description": `Complete list of stock market trading holidays for NSE, BSE, and MCX exchanges in ${CALENDAR_YEAR}.`,
           "numberOfItems": HOLIDAYS_2026.length,
           "itemListElement": HOLIDAYS_2026.map((h, idx) => {
-            const formattedDate = `2026-${String(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1).padStart(2, "0")}-${h.date.split(" ")[1].padStart(2,"0")}`;
+            const formattedDate = `${CALENDAR_YEAR}-${String(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(h.date.split(" ")[0]) + 1).padStart(2, "0")}-${h.date.split(" ")[1].padStart(2,"0")}`;
             return {
               "@type": "ListItem",
               "position": idx + 1,
@@ -106,7 +108,7 @@ const HolidayCalendarPage = () => {
                   "priceCurrency": "INR",
                   "url": "https://www.sphpnp.com/holidays",
                   "availability": "https://schema.org/InStock",
-                  "validFrom": "2026-01-01"
+                  "validFrom": `${CALENDAR_YEAR}-01-01`
                 },
                 "performer": {
                   "@type": "Organization",
@@ -129,7 +131,7 @@ const HolidayCalendarPage = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <CalendarDays className="w-8 h-8 text-secondary" />
-            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground">Market Holiday Calendar 2026</h1>
+            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground">Market Holiday Calendar {CALENDAR_YEAR}</h1>
           </div>
           <p className="text-muted-foreground">NSE, BSE & MCX trading holidays — plan your trades in advance</p>
         </motion.div>
@@ -188,7 +190,7 @@ const HolidayCalendarPage = () => {
                 transition={{ delay: mIdx * 0.03 }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <h2 className="text-lg font-heading font-semibold text-foreground">{month} 2026</h2>
+                  <h2 className="text-lg font-heading font-semibold text-foreground">{month} {CALENDAR_YEAR}</h2>
                   {isCurrent && <Badge className="bg-secondary/20 text-secondary text-xs">Current Month</Badge>}
                   <span className="text-xs text-muted-foreground ml-auto">{holidays.length} holiday{holidays.length > 1 ? "s" : ""}</span>
                 </div>

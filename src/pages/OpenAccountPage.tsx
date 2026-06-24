@@ -96,7 +96,7 @@ const OpenAccountPage = () => {
         <div className="min-h-screen bg-background">
         <SEOHead
           title="Open Free Demat Account in Panipat | Parasram India"
-          description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
+          description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds and IPOs. SEBI registered."
           breadcrumbs={[
             { name: "Home", url: "/" },
             { name: "Open Demat Account" },
@@ -132,7 +132,7 @@ const OpenAccountPage = () => {
       <div className="min-h-screen bg-background">
       <SEOHead
         title="Open Free Demat Account in Panipat | Parasram India"
-        description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds, IPOs today. SEBI registered."
+        description="Open a free Demat & trading account with Parasram India Panipat. Zero account opening charges. Start investing in stocks, mutual funds and IPOs. SEBI registered."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Open Demat Account" },

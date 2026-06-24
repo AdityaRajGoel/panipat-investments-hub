@@ -53,7 +53,7 @@ const ResetPasswordPage = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
           <CheckCircle className="w-16 h-16 text-secondary mx-auto mb-4" />
-          <h1 className="font-heading text-2xl font-bold text-foreground mb-2">Password Updated</h1>
+          <h2 className="font-heading text-2xl font-bold text-foreground mb-2">Password Updated</h2>
           <p className="text-muted-foreground">Redirecting to login...</p>
         </motion.div>
       </div>

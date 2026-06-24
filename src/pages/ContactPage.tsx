@@ -31,7 +31,7 @@ const ContactPage = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Parasram India Panipat | Stock Broker Office"
-        description="Contact Parasram India Panipat branch at Shakuntala Complex, Palika Bazaar. Call +91 9416400314. Open Mon-Sat. Free Demat account opening & investment consultation."
+        description="Contact Parasram India Panipat at Shakuntala Complex, Palika Bazaar. Call +91 9416400314. Open Mon-Sat. Free Demat account opening and investment consultation."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Contact" },

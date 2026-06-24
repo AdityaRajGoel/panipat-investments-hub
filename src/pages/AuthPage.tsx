@@ -85,7 +85,7 @@ const AuthPage = () => {
           <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-secondary" />
           </div>
-          <h1 className="font-heading text-2xl font-bold text-foreground mb-2">Check Your Email</h1>
+          <h2 className="font-heading text-2xl font-bold text-foreground mb-2">Check Your Email</h2>
           <p className="text-muted-foreground mb-6">
             {mode === "signup"
               ? "We've sent a verification link to your email. Please verify to continue."

@@ -97,7 +97,7 @@ const Week52TrackerPage = () => {
     <div className="min-h-screen bg-background">
       <SEOHead 
         title="52-Week High Low Tracker | NSE Stocks" 
-        description="Track stocks near their 52-week highs and lows. Identify breakout and reversal opportunities with live data." 
+        description="Live NSE tracker for stocks near 52-week highs and lows. Spot breakout and reversal candidates with real-time data. Updated throughout the trading day." 
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "52-Week High/Low Tracker" },

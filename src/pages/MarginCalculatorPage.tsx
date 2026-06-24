@@ -67,7 +67,7 @@ const MarginCalculatorPage = () => {
     <div className="min-h-screen bg-background">
       <SEOHead 
         title="Margin Calculator | Parasram India" 
-        description="Calculate F&O and equity margins, leverage, and required capital for your trades." 
+        description="Free margin calculator for F&O and equity trades. Calculate SPAN margin, exposure margin, leverage and required capital for NIFTY, BANKNIFTY and stock futures."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Margin Calculator" },

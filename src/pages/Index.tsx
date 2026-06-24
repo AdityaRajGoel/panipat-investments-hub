@@ -36,8 +36,8 @@ const Index = () => {
     <PageTransition>
       <div className="min-h-screen bg-background">
       <SEOHead
-        title="Best Stock Broker in Panipat | Shri Parasram Holdings Pvt. Ltd."
-        description="Shri Parasram Holdings Pvt. Ltd. is one of the oldest and most trusted stock broker in Panipat, Haryana. Open free Demat account. Stocks, mutual funds, IPO, unlisted shares, F&O, commodities trading."
+        title="Best Stock Broker in Panipat | Parasram India"
+        description="SEBI-registered stock broker in Panipat since 1970. Open a free Demat account. Trade stocks, mutual funds, IPO, F&O, commodities and unlisted shares with expert guidance."
         ogImage="https://www.sphpnp.com/logo.png"
         breadcrumbs={[{ name: "Home", url: "/" }]}
       />
