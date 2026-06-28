@@ -31,6 +31,10 @@ const routes = [
 ];
 
 async function prerender() {
+  if (process.env.VERCEL) {
+    console.log('Skipping prerender on Vercel build environment.');
+    return;
+  }
   console.log('Starting prerendering process...');
   
   // 1. Start a local static server to serve the built SPA
