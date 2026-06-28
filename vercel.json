@@ -56,7 +56,7 @@
     ],
     "rewrites": [
         {
-            "source": "/(.*)",
+            "source": "/((?!about|services|unlisted-space|open-account|screener|fno|learn/recommendations|learn|52-week-tracker|compare|products|depository-services|brokerage-calculator|margin-calculator|team|contact|holidays|careers|privacy-policy|cookie-policy).*)",
             "destination": "/index.html"
         }
     ]
