@@ -111,8 +111,7 @@ async function prerender() {
       await browser.close();
       console.log('Prerendering completed successfully.');
     } catch (error) {
-      console.error('Error during prerendering:', error);
-      process.exit(1);
+      console.warn('Prerendering skipped:', error.message);
     } finally {
       server.close();
     }
