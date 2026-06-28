@@ -31,12 +31,8 @@ const routes = [
 ];
 
 async function prerender() {
-  if (process.env.VERCEL) {
-    console.log('Skipping prerender on Vercel build environment.');
-    return;
-  }
   console.log('Starting prerendering process...');
-  
+
   // 1. Start a local static server to serve the built SPA
   const app = express();
   app.use(express.static(DIST_DIR));
@@ -74,10 +70,10 @@ async function prerender() {
       for (const route of routes) {
         console.log(`Prerendering ${route}...`);
         const page = await browser.newPage();
-        
+
         // Suppress console logs from the page
         page.on('console', () => {});
-        
+
         try {
           await page.goto(`http://localhost:${port}${route}`, {
             waitUntil: 'networkidle2', // More resilient than networkidle0
@@ -89,17 +85,17 @@ async function prerender() {
 
         // Get the fully rendered HTML
         const html = await page.content();
-        
+
         // 3. Save to file
         let filePath;
-        
+
         if (route === '/') {
           filePath = path.join(DIST_DIR, 'index.html');
         } else {
           // e.g., '/about' -> 'about.html', '/learn/recommendations' -> 'learn/recommendations.html'
           const routePath = route.startsWith('/') ? route.substring(1) : route;
           filePath = path.join(DIST_DIR, `${routePath}.html`);
-          
+
           // Create directory if it doesn't exist
           const dir = path.dirname(filePath);
           if (!fs.existsSync(dir)) {
@@ -115,7 +111,8 @@ async function prerender() {
       await browser.close();
       console.log('Prerendering completed successfully.');
     } catch (error) {
-      console.warn('Prerendering skipped:', error.message);
+      console.error('Error during prerendering:', error);
+      process.exit(1);
     } finally {
       server.close();
     }
