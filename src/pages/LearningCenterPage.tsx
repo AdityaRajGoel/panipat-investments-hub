@@ -380,7 +380,7 @@ const LearningCenterPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="Learning Center | Parasram India" 
+        title="Stock Market Learning Center | Invest Smarter | Parasram India"
         description="Learn about stock market investing, trading strategies, technical analysis, and personal finance. Free educational resources, live market news, and business TV." 
         breadcrumbs={[
           { name: "Home", url: "/" },

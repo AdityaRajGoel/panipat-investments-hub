@@ -15,8 +15,8 @@ const CareersPage = () => {
   return (
     <PageTransition>
       <SEOHead 
-        title="Careers | Parasram India Panipat" 
-        description="Join the Parasram India Panipat branch. We are hiring Relationship Managers and Equity Dealers to empower regional wealth creation."
+        title="Stock Broker Jobs in Panipat | Careers at Parasram India"
+        description="Join our SEBI-registered stock broking firm in Panipat. We're hiring Relationship Managers and Equity Dealers. Build your career in financial services."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Careers" },

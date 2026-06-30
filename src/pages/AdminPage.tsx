@@ -20,6 +20,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell
 } from "recharts";
+import SEOHead from "@/components/SEOHead";
 
 // ---- Types ----
 type UnlistedShare = {
@@ -748,6 +749,7 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Admin Panel | Parasram India" description="Admin panel" noindex />
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-5xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div>

@@ -14,7 +14,7 @@ const ServicesPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Financial Services in Panipat | Stocks, MF, IPO & F&O"
+        title="Financial Services in Panipat | Stocks, MF, IPO & F&O | Parasram India"
         description="Equity trading, mutual funds, SIP, IPO applications, F&O, commodities and unlisted shares in Panipat. SEBI-registered broker since 1970 with 10L+ happy clients."
         ogImage="https://www.sphpnp.com/logo.png"
         breadcrumbs={[

@@ -232,7 +232,9 @@ const MessageCard = ({ message, index }: { message: TelegramMessage; index: numb
               <div className="mt-3 rounded-lg overflow-hidden border border-border/30">
                 <img
                   src={message.photo_url}
-                  alt="Chart or analysis"
+                  alt={message.message_text ? `${message.message_text.slice(0, 60).trim()}…` : "Stock chart or market analysis from Parasram India"}
+                  width={600}
+                  height={400}
                   className="w-full h-auto max-h-64 object-cover"
                   loading="lazy"
                 />

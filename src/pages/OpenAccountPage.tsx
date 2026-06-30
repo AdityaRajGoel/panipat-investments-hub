@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -190,6 +191,22 @@ const OpenAccountPage = () => {
           }
         }}
       />
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "How to Open a Free Demat Account with Parasram India Panipat",
+          "description": "Step-by-step guide to opening a free Demat and trading account with Parasram India, Panipat's SEBI-registered stock broker since 1970.",
+          "totalTime": "PT2D",
+          "estimatedCost": { "@type": "MonetaryAmount", "currency": "INR", "value": "0" },
+          "step": [
+            { "@type": "HowToStep", "position": 1, "name": "Fill the online form", "text": "Enter your name, phone number and email in the account opening form on this page." },
+            { "@type": "HowToStep", "position": 2, "name": "Team contacts you", "text": "Our team calls you within 24 hours to guide you through the KYC process." },
+            { "@type": "HowToStep", "position": 3, "name": "Submit KYC documents", "text": "Provide PAN card, Aadhaar card, a cancelled cheque, and a passport-size photo — online or at our Panipat branch." },
+            { "@type": "HowToStep", "position": 4, "name": "Account activated", "text": "Your Demat and trading account is activated within 1-2 business days after successful KYC verification." }
+          ]
+        })}</script>
+      </Helmet>
       <ScrollProgress />
       <Header />
       <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Open Demat Account" }]} />

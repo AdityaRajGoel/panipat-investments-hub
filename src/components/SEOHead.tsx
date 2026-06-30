@@ -46,7 +46,7 @@ const SEOHead = ({
   const pathname = routerLocation.pathname.endsWith('/') && routerLocation.pathname !== '/' ? routerLocation.pathname.slice(0, -1) : routerLocation.pathname;
   const fullCanonical = canonical || `${BASE_URL}${pathname}`;
   const isHomepage = pathname === '/';
-  const fullTitle = title.includes("| Parasram") || title.length > 60 ? title : `${title} | Parasram India`;
+  const fullTitle = title.includes("Parasram") || title.length > 60 ? title : `${title} | Parasram India`;
   const finalOgImage = ogImage || "https://www.sphpnp.com/logo.png";
   
   // Combine all JSON-LD scripts
@@ -224,6 +224,8 @@ const SEOHead = ({
       <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
       
       <link rel="canonical" href={fullCanonical} />
+      <link rel="alternate" hreflang="en-IN" href={fullCanonical} />
+      <link rel="alternate" hreflang="x-default" href={fullCanonical} />
 
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />

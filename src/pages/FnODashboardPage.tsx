@@ -199,8 +199,8 @@ const FnODashboardPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="F&O Dashboard | Options Chain, PCR & Max Pain" 
-        description="Live F&O dashboard with options chain, Put-Call ratio trends and max pain calculator for NIFTY, BANKNIFTY and FINNIFTY. Real-time open interest data." 
+        title="F&O Dashboard | Options Chain, PCR & Max Pain | Parasram India"
+        description="Live F&O dashboard with options chain, Put-Call ratio and max pain for NIFTY, BANKNIFTY and FINNIFTY. Free real-time open interest data. Parasram India Panipat."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "F&O Dashboard" },

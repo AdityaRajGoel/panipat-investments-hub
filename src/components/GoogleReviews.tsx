@@ -160,7 +160,7 @@ const GoogleReviews = () => {
             </div>
             <img
               src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
-              alt="Google"
+              alt="Google Reviews logo"
               loading="lazy"
               className="h-6 ml-2 opacity-70"
             />

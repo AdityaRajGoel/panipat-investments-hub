@@ -169,14 +169,20 @@ const Hero = () => {
         style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
       >
         {/* LCP: discoverable poster image with high fetch priority */}
-        <img
-          src="/hero-bg.jpg"
-          alt="Parasram India - Stock Trading Platform and Investment Background"
-          aria-hidden="true"
-          fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
-        />
+        <picture>
+          <source srcSet="/hero-bg.webp" type="image/webp" />
+          <img
+            src="/hero-bg.jpg"
+            alt="Parasram India - Stock Trading Platform and Investment Background"
+            aria-hidden="true"
+            fetchPriority="high"
+            loading="eager"
+            width={2940}
+            height={1678}
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
+          />
+        </picture>
         {!prefersReducedMotion && (
           <video
             src="/video.mp4"

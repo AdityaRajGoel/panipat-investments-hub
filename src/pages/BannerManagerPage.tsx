@@ -252,7 +252,7 @@ const BannerManagerPage = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <SEOHead title="Login | Banner Manager" description="Login to manage banners" />
+        <SEOHead title="Login | Banner Manager" description="Login to manage banners" noindex />
         <Card className="w-full max-w-sm shadow-xl border-secondary/20">
           <CardHeader className="text-center pb-2">
             <div className="mx-auto bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
@@ -467,7 +467,7 @@ const BannerManagerPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-12">
-      <SEOHead title="Banner Manager | Parasram India" description="Manage website popup banners" />
+      <SEOHead title="Banner Manager | Parasram India" description="Manage website popup banners" noindex />
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">

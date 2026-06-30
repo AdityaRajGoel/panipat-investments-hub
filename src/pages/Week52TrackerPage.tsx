@@ -96,8 +96,8 @@ const Week52TrackerPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="52-Week High Low Tracker | NSE Stocks" 
-        description="Live NSE tracker for stocks near 52-week highs and lows. Spot breakout and reversal candidates with real-time data. Updated throughout the trading day." 
+        title="52-Week High Low Tracker | NSE Stocks | Parasram India Panipat"
+        description="Live NSE tracker for stocks near 52-week highs and lows. Spot breakout and reversal candidates with real-time data. Free tool by Parasram India Panipat."
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "52-Week High/Low Tracker" },
