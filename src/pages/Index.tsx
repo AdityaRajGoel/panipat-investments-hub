@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PageTransition from "@/components/PageTransition";
 
 // Lazy load below-fold heavy components
+const InvestmentProducts = lazy(() => import("@/components/InvestmentProducts"));
 const LiveChart = lazy(() => import("@/components/LiveChart"));
 const MarketDashboard = lazy(() => import("@/components/MarketDashboard"));
 const TrustBadges = lazy(() => import("@/components/TrustBadges"));
@@ -61,6 +62,9 @@ const Index = () => {
       <StockTicker />
       <main id="main-content">
       <Hero />
+      <Suspense fallback={<SectionSkeleton height="h-96" />}>
+        <InvestmentProducts />
+      </Suspense>
       <Suspense fallback={<SectionSkeleton height="h-96" />}>
         <LiveChart />
       </Suspense>
