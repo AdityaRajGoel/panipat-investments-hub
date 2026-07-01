@@ -214,7 +214,8 @@ const NeuralNetworkAnimation = () => {
 export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps) => {
   const [loadingStep, setLoadingStep] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(true);
-  const [animationDone, setAnimationDone] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [aiResponseReady, setAiResponseReady] = useState(false);
   const [geminiVerdict, setGeminiVerdict] = useState<{ 
     analysis: string, 
@@ -286,33 +287,33 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     if (isOpen && stock) {
       // Invalidate any in-flight request immediately
       requestIdRef.current++;
-      setIsAnalyzing(true); setLoadingStep(0); setGeminiVerdict(null); 
+      setIsAnalyzing(true); setLoadingStep(0); setGeminiVerdict(null);
       setChatHistory([]); setActiveTab('report');
-      setAnimationDone(false); setAiResponseReady(false);
+      setMinTimeElapsed(false); setAiResponseReady(false);
     }
   }, [isOpen, stock?.symbol]);
 
-  // Animation step progression — marks animationDone when all steps complete
+  // Step animation — purely visual progress; does NOT gate dismissal
   useEffect(() => {
     if (!isOpen || !isAnalyzing) return;
     const interval = setInterval(() => {
-      setLoadingStep(p => {
-        if (p >= analysisSteps.length - 1) {
-          clearInterval(interval);
-          setTimeout(() => setAnimationDone(true), 900);
-          return p;
-        } return p + 1;
-      });
-    }, 800);
+      setLoadingStep(p => (p >= analysisSteps.length - 1 ? p : p + 1));
+    }, 550);
     return () => clearInterval(interval);
   }, [isOpen, isAnalyzing]);
 
-  // Dismiss loading screen only when BOTH animation and AI response are ready
+  // Short minimum on-screen time so the loader doesn't flash if the AI is instant
   useEffect(() => {
-    if (animationDone && aiResponseReady) {
-      setIsAnalyzing(false);
-    }
-  }, [animationDone, aiResponseReady]);
+    if (!isOpen || !isAnalyzing) return;
+    const t = setTimeout(() => setMinTimeElapsed(true), 1200);
+    return () => clearTimeout(t);
+  }, [isOpen, isAnalyzing, stock?.symbol]);
+
+  // Dismiss as soon as the real AI response is ready (past the brief minimum) —
+  // no longer waits out the full decorative animation sequence.
+  useEffect(() => {
+    if (aiResponseReady && minTimeElapsed) setIsAnalyzing(false);
+  }, [aiResponseReady, minTimeElapsed]);
 
   const analysis = stock ? computeAnalysis(stock) : null;
 
@@ -471,7 +472,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     }, 50); // Small delay to let state reset propagate
 
     return () => clearTimeout(fetchTimer);
-  }, [isOpen, stock?.symbol]);
+  }, [isOpen, stock?.symbol, retryNonce]);
 
   // Shared context builder for chat — avoids duplicated code
   const buildChatContext = () => [
@@ -1028,12 +1029,14 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                             {geminiVerdict.model === 'error' && (
                               <div className="flex justify-center mt-4 not-prose">
                                 <button
-                                  onClick={() => { 
-                                    setGeminiVerdict(null); 
+                                  onClick={() => {
+                                    requestIdRef.current++;
+                                    setGeminiVerdict(null);
                                     setIsAnalyzing(true);
                                     setLoadingStep(0);
-                                    setAnimationDone(false);
+                                    setMinTimeElapsed(false);
                                     setAiResponseReady(false);
+                                    setRetryNonce(n => n + 1);
                                   }}
                                   className="text-xs font-semibold text-brand-orange hover:text-brand-orange/80 transition-colors flex items-center gap-1.5 px-4 py-2 rounded-lg border border-brand-orange/30 hover:bg-brand-orange/5"
                                 >

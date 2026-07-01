@@ -8,7 +8,7 @@ import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -174,6 +174,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
+      <MotionConfig reducedMotion="user">
       <TooltipProvider>
         <LiveMarketProvider>
         <Toaster />
@@ -196,6 +197,7 @@ const App = () => (
         </BrowserRouter>
       </LiveMarketProvider>
     </TooltipProvider>
+      </MotionConfig>
   </QueryClientProvider>
   </HelmetProvider>
 );
