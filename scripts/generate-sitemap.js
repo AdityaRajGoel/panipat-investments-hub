@@ -16,6 +16,13 @@ const urls = [
   { loc: '/screener',            changefreq: 'daily',   priority: '0.8',  lastmod: today },
   { loc: '/learn',               changefreq: 'weekly',  priority: '0.8',  lastmod: today },
   { loc: '/learn/recommendations', changefreq: 'daily', priority: '0.8',  lastmod: today },
+  // Learning Center articles (original content)
+  { loc: '/learn/demat-account',       changefreq: 'monthly', priority: '0.7', lastmod: today },
+  { loc: '/learn/pe-ratio',            changefreq: 'monthly', priority: '0.7', lastmod: today },
+  { loc: '/learn/sip-vs-lumpsum',      changefreq: 'monthly', priority: '0.7', lastmod: today },
+  { loc: '/learn/power-of-compounding', changefreq: 'monthly', priority: '0.7', lastmod: today },
+  { loc: '/learn/mutual-funds-guide',  changefreq: 'monthly', priority: '0.7', lastmod: today },
+  { loc: '/learn/ipo-guide',           changefreq: 'monthly', priority: '0.7', lastmod: today },
   { loc: '/52-week-tracker',     changefreq: 'daily',   priority: '0.8',  lastmod: today },
   { loc: '/compare',             changefreq: 'weekly',  priority: '0.7',  lastmod: today },
   { loc: '/products',            changefreq: 'monthly', priority: '0.7',  lastmod: today },

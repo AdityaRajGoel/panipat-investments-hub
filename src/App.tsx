@@ -52,6 +52,7 @@ const CareersPage = lazy(() => import("./pages/CareersPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const CookiePolicyPage = lazy(() => import("./pages/CookiePolicyPage"));
 const StockRecommendationsPage = lazy(() => import("./pages/StockRecommendationsPage"));
+const ArticlePage = lazy(() => import("./pages/ArticlePage"));
 
 // --- Professional branded loading screen ---
 const candleVariants = {
@@ -162,6 +163,7 @@ const AnimatedRoutes = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/cookie-policy" element={<CookiePolicyPage />} />
         <Route path="/learn/recommendations" element={<StockRecommendationsPage />} />
+        <Route path="/learn/:slug" element={<ArticlePage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

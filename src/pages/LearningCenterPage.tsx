@@ -5,7 +5,8 @@ import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { LEARN_ARTICLES } from "@/data/learnContent";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -225,6 +226,7 @@ const LIVE_CHANNELS = [
 
 const LearningCenterPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>(REAL_ARTICLES);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -244,6 +246,17 @@ const LearningCenterPage = () => {
       try { localStorage.setItem("pnp_read_articles", JSON.stringify([...next])); } catch {}
       return next;
     });
+  };
+
+  // Internal content pages (/learn/:slug) take priority; otherwise open the source.
+  const openArticle = (article: Article) => {
+    markRead(article.id);
+    if (LEARN_ARTICLES[article.slug]) {
+      navigate(`/learn/${article.slug}`);
+    } else if (article.source_url) {
+      if (article.source_url.startsWith("/")) navigate(article.source_url);
+      else window.open(article.source_url, "_blank", "noopener,noreferrer");
+    }
   };
 
   // Map hash to section
@@ -509,10 +522,7 @@ const LearningCenterPage = () => {
                                 basics: "border-t-primary", trading: "border-t-brand-orange",
                                 analysis: "border-t-secondary", investing: "border-t-brand-gold",
                               }[article.category] || "border-t-border"} ${isRead ? "opacity-75" : ""}`}
-                                onClick={() => {
-                                  markRead(article.id);
-                                  if (article.source_url) window.open(article.source_url, '_blank', 'noopener,noreferrer');
-                                }}>
+                                onClick={() => openArticle(article)}>
                                 <div className="flex items-center justify-between mb-3">
                                   <div className="flex items-center gap-2">
                                     <Badge className={`text-xs ${CATEGORY_COLORS[article.category] || ""}`} variant="outline">
@@ -535,7 +545,11 @@ const LearningCenterPage = () => {
                                 <p className="text-sm text-muted-foreground flex-1 line-clamp-3 mb-4">{article.excerpt}</p>
                                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                                   <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{article.read_time} min read</span>
-                                  <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3.5 h-3.5" /></span>
+                                  {LEARN_ARTICLES[article.slug] ? (
+                                    <Link to={`/learn/${article.slug}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 text-primary font-medium hover:gap-2 transition-all">Read guide <ChevronRight className="w-3.5 h-3.5" /></Link>
+                                  ) : (
+                                    <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3.5 h-3.5" /></span>
+                                  )}
                                 </div>
                               </Card>
                             </motion.div>
@@ -565,10 +579,7 @@ const LearningCenterPage = () => {
                                 basics: "border-l-primary/40", trading: "border-l-brand-orange/40",
                                 analysis: "border-l-secondary/40", investing: "border-l-brand-gold/40",
                               }[article.category] || "border-l-border"} ${isRead ? "opacity-70" : "hover:shadow-md"} transition-all`}
-                                onClick={() => {
-                                  markRead(article.id);
-                                  if (article.source_url) window.open(article.source_url, '_blank', 'noopener,noreferrer');
-                                }}>
+                                onClick={() => openArticle(article)}>
                                 <div className="flex items-center justify-between mb-2.5">
                                   <div className="flex items-center gap-1.5">
                                     <Badge className={`text-xs ${CATEGORY_COLORS[article.category] || ""}`} variant="outline">
@@ -591,7 +602,11 @@ const LearningCenterPage = () => {
                                 <p className="text-xs text-muted-foreground flex-1 line-clamp-3 mb-3">{article.excerpt}</p>
                                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{article.read_time} min</span>
-                                  <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3 h-3" /></span>
+                                  {LEARN_ARTICLES[article.slug] ? (
+                                    <Link to={`/learn/${article.slug}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 text-primary font-medium hover:gap-2 transition-all">Read guide <ChevronRight className="w-3 h-3" /></Link>
+                                  ) : (
+                                    <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3 h-3" /></span>
+                                  )}
                                 </div>
                               </Card>
                             </motion.div>
