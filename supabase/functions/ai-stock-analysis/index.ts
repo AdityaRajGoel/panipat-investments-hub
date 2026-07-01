@@ -1,5 +1,12 @@
 /// <reference lib="deno.ns" />
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// Cached AI reports are served for this long before recomputing.
+const REPORT_CACHE_TTL_MS = 15 * 60 * 1000;
+// Recompute early if the live price has drifted more than this from the
+// cached report's price (keeps the verdict aligned with current price).
+const REPORT_CACHE_PRICE_DRIFT = 0.02;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -861,6 +868,39 @@ serve(async (req) => {
     const payload = await req.json();
     const { is_chat, chat_message, chat_history, context, use_web_search, ...stockData } = payload;
 
+    // Supabase client (service role) for the report cache
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const currentPrice = parseFloat(String(stockData.price).replace(/[₹,]/g, "")) || 0;
+
+    // ── Serve a fresh cached report if one exists and the price hasn't
+    //    drifted materially. One computation serves every viewer for the TTL. ──
+    if (!is_chat && stockData.symbol) {
+      try {
+        const { data: cached } = await sb
+          .from("ai_stock_reports")
+          .select("report, model, price, created_at")
+          .eq("symbol", stockData.symbol)
+          .gte("created_at", new Date(Date.now() - REPORT_CACHE_TTL_MS).toISOString())
+          .maybeSingle();
+        if (cached) {
+          const drift = cached.price > 0 ? Math.abs(currentPrice - cached.price) / cached.price : 1;
+          if (drift <= REPORT_CACHE_PRICE_DRIFT) {
+            const ageS = Math.round((Date.now() - new Date(cached.created_at).getTime()) / 1000);
+            console.log(`✓ Cache hit ${stockData.symbol} (age ${ageS}s, drift ${(drift * 100).toFixed(1)}%)`);
+            return new Response(
+              JSON.stringify({ success: true, verdict: cached.report, model: cached.model, cached: true }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+        }
+      } catch (e) {
+        console.warn("Cache read failed (non-fatal):", e instanceof Error ? e.message : e);
+      }
+    }
+
     // Enrich stock data with REAL historical indicators from Yahoo Finance
     const enriched = await enrichStockData(stockData, { withFundamentals: !is_chat });
     let finalPrompt = "";
@@ -969,6 +1009,21 @@ serve(async (req) => {
     }
 
     console.log(`✓ Analysis served by ${result.model}${webSearchEnabled ? ' [Web Grounded]' : ''} | Verdict ${enriched.quant?.verdictUI} (${enriched.quant?.composite}/100)`);
+
+    // Persist to cache so subsequent viewers of this symbol are served instantly
+    if (!is_chat && stockData.symbol && result.result && typeof result.result === "object") {
+      try {
+        await sb.from("ai_stock_reports").upsert({
+          symbol: stockData.symbol,
+          report: result.result,
+          model: result.model,
+          price: enriched.price ?? currentPrice,
+          created_at: new Date().toISOString(),
+        }, { onConflict: "symbol" });
+      } catch (e) {
+        console.warn("Cache write failed (non-fatal):", e instanceof Error ? e.message : e);
+      }
+    }
 
     return new Response(
       JSON.stringify({ success: true, verdict: result.result, model: result.model }),
