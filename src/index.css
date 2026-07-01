@@ -41,10 +41,13 @@
     --brand-navy: 210 100% 20%;
     --brand-green: 150 50% 40%;
     --brand-light-blue: 210 60% 96%;
-    --brand-gold: 38 92% 50%;
-    --brand-orange: 24 95% 42%;
+    /* Darkened for WCAG: gold/orange are used as accent text on light
+       surfaces — these lightness values keep the hue but lift contrast
+       above 3:1 (large/bold) and near 4.5:1 (small text). */
+    --brand-gold: 40 96% 40%;
+    --brand-orange: 22 95% 38%;
     --brand-warm: 30 80% 96%;
-    --brand-copper: 20 70% 45%;
+    --brand-copper: 20 70% 42%;
     --brand-charcoal: 220 15% 20%;
     
     /* Gradients */
@@ -96,6 +99,10 @@
     /* Brand overrides for dark */
     --brand-navy: 210 60% 12%;
     --brand-charcoal: 220 50% 8%;
+    /* Brighter gold/orange on dark surfaces for legible accent text */
+    --brand-gold: 42 96% 58%;
+    --brand-orange: 24 95% 58%;
+    --brand-copper: 20 80% 60%;
 
     --gradient-hero: linear-gradient(135deg, hsl(220 60% 5%) 0%, hsl(220 55% 12%) 50%, hsl(220 40% 18%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(220 55% 10%) 0%, hsl(220 50% 8%) 100%);

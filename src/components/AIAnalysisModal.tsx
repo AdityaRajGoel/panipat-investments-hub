@@ -584,7 +584,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                     window.open(waUrl, "_blank");
                   }}
                   aria-label="Share on WhatsApp"
-                  className="p-1.5 rounded-full hover:bg-green-500/10 text-muted-foreground hover:text-green-500 transition-colors"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-green-500/10 text-muted-foreground hover:text-green-500 transition-colors"
                   title="Share on WhatsApp"
                 >
                   <MessageSquare className="w-4 h-4" />
@@ -606,14 +606,14 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                     setTimeout(() => setCopied(false), 1500);
                   }}
                   aria-label="Copy analysis"
-                  className="p-1.5 rounded-full hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
                   title="Copy to clipboard"
                 >
                   {copied ? <CheckCircle2 className="w-4 h-4 text-secondary" /> : <Share2 className="w-4 h-4" />}
                 </button>
               </>
             )}
-            <button onClick={onClose} aria-label="Close analysis" className="p-1.5 rounded-full hover:bg-muted/80 transition-colors">
+            <button onClick={onClose} aria-label="Close analysis" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-muted/80 transition-colors">
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
