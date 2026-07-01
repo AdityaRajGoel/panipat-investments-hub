@@ -368,6 +368,67 @@ async function fetchHistoricalData(symbol: string) {
   } catch { return null; }
 }
 
+// ─────────────────────────────────────────────────────────────
+// Real fundamentals + Wall Street analyst consensus
+// (Yahoo quoteSummary — crumb-gated; fails gracefully → null)
+// ─────────────────────────────────────────────────────────────
+const YAHOO_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
+let _crumbCache: { crumb: string; cookie: string; ts: number } | null = null;
+
+async function getYahooCrumb(): Promise<{ crumb: string; cookie: string } | null> {
+  try {
+    if (_crumbCache && Date.now() - _crumbCache.ts < 30 * 60 * 1000) {
+      return { crumb: _crumbCache.crumb, cookie: _crumbCache.cookie };
+    }
+    const cookieRes = await fetch("https://fc.yahoo.com/", { headers: { "User-Agent": YAHOO_UA } });
+    const cookie = (cookieRes.headers.get("set-cookie") || "").split(";")[0];
+    if (!cookie) return null;
+    const crumbRes = await fetch("https://query1.finance.yahoo.com/v1/test/getcrumb", {
+      headers: { "User-Agent": YAHOO_UA, "Cookie": cookie },
+    });
+    const crumb = (await crumbRes.text()).trim();
+    if (!crumb || crumb.includes("<") || crumb.length > 40) return null;
+    _crumbCache = { crumb, cookie, ts: Date.now() };
+    return { crumb, cookie };
+  } catch { return null; }
+}
+
+async function fetchYahooFundamentals(symbol: string) {
+  try {
+    let ySymbol = symbol;
+    if (!symbol.includes('.') && !symbol.startsWith('^') && !symbol.includes('=')) ySymbol = `${symbol}.NS`;
+    const cc = await getYahooCrumb();
+    const modules = "financialData,defaultKeyStatistics,summaryDetail";
+    const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(ySymbol)}?modules=${modules}${cc ? `&crumb=${encodeURIComponent(cc.crumb)}` : ""}`;
+    const res = await fetch(url, { headers: { "User-Agent": YAHOO_UA, ...(cc ? { Cookie: cc.cookie } : {}) } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const r = json?.quoteSummary?.result?.[0];
+    if (!r) return null;
+    const fd = r.financialData || {}, ks = r.defaultKeyStatistics || {}, sd = r.summaryDetail || {};
+    const n = (x: any) => (typeof x?.raw === "number" ? x.raw : null);
+    const pct = (x: any) => { const v = n(x); return v != null ? +(v * 100).toFixed(1) : null; };
+    return {
+      roe: pct(fd.returnOnEquity),
+      debtToEquity: n(fd.debtToEquity) != null ? +(n(fd.debtToEquity)! / 100).toFixed(2) : null,
+      profitMargin: pct(fd.profitMargins),
+      revenueGrowth: pct(fd.revenueGrowth),
+      earningsGrowth: pct(fd.earningsGrowth),
+      trailingPE: n(sd.trailingPE),
+      forwardPE: n(ks.forwardPE),
+      pegRatio: n(ks.pegRatio),
+      beta: n(ks.beta) ?? n(sd.beta),
+      dividendYield: pct(sd.dividendYield),
+      analystRecMean: n(fd.recommendationMean),   // 1 = Strong Buy … 5 = Sell
+      analystRecKey: fd.recommendationKey || null,
+      targetMean: n(fd.targetMeanPrice),
+      targetHigh: n(fd.targetHighPrice),
+      targetLow: n(fd.targetLowPrice),
+      numAnalysts: n(fd.numberOfAnalystOpinions),
+    };
+  } catch { return null; }
+}
+
 // ── Real Technical Indicator Calculations ──
 function _calcEMA(data: number[], period: number): number[] {
   const k = 2 / (period + 1);
@@ -429,10 +490,119 @@ function avgVolume(volumes: number[], period = 20): number {
   return volumes.slice(-period).reduce((a, b) => a + b, 0) / period;
 }
 
+function realATR(highs: number[], lows: number[], closes: number[], period = 14): number {
+  const len = Math.min(highs.length, lows.length, closes.length);
+  if (len < period + 1) return 0;
+  let sum = 0;
+  for (let i = len - period; i < len; i++) {
+    sum += Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i - 1]), Math.abs(lows[i] - closes[i - 1]));
+  }
+  return +(sum / period).toFixed(2);
+}
+
+const _clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
+
+// ─────────────────────────────────────────────────────────────
+// Deterministic quant engine — grounds the rating/verdict/targets
+// in REAL data so they are consistent & defensible (not LLM-invented).
+// ─────────────────────────────────────────────────────────────
+function computeQuant(s: any, f: any) {
+  // ── Technical sub-score (always available from 1Y daily OHLCV) ──
+  let tech = 50;
+  if (s.price > s.sma200) tech += 8; else tech -= 8;
+  if (s.price > s.sma50) tech += 6; else tech -= 6;
+  if (s.price > s.sma20) tech += 4; else tech -= 4;
+  tech += s.sma50 > s.sma200 ? 5 : -3;                 // golden / death cross alignment
+  const rsi = s.rsiVal;
+  if (rsi >= 45 && rsi <= 65) tech += 6;                // healthy momentum band
+  else if (rsi > 70) tech -= 6;                         // overbought
+  else if (rsi > 65) tech += 2;
+  else if (rsi < 30) tech -= 2;                         // oversold (mild — may bounce)
+  if (/Bullish Crossover/i.test(s.macd.trend)) tech += 8;
+  else if (/Bullish/i.test(s.macd.trend)) tech += 4;
+  else if (/Bearish Crossover/i.test(s.macd.trend)) tech -= 8;
+  else if (/Bearish/i.test(s.macd.trend)) tech -= 4;
+  const dir = tech >= 50 ? 1 : -1;
+  if (s.adxVal > 25) tech += dir * Math.min(8, (s.adxVal - 25) / 3); // strong trend amplifies direction
+  tech += (s.pos52w - 50) * 0.10;                       // 52W positioning context
+  if (/High/i.test(s.volSignal)) tech += s.changePct >= 0 ? 3 : -3; // volume confirmation
+  tech = _clamp(tech);
+
+  // ── Fundamental sub-score (only when real data available) ──
+  let fund = 50; let fundAvail = false;
+  if (f) {
+    fundAvail = true;
+    if (f.roe != null) fund += _clamp((f.roe - s.secROE) * 1.2, -12, 15);
+    if (f.debtToEquity != null && !s.isFinancial)
+      fund += f.debtToEquity < s.secDE ? 8 : -Math.min(12, (f.debtToEquity - s.secDE) * 6);
+    const pe = f.trailingPE ?? s.pe;
+    if (pe && pe > 0) fund += _clamp((s.secPE - pe) / s.secPE * 20, -12, 12);
+    if (f.earningsGrowth != null) fund += _clamp(f.earningsGrowth * 0.4, -10, 12);
+    if (f.revenueGrowth != null) fund += _clamp(f.revenueGrowth * 0.3, -6, 8);
+    if (f.pegRatio != null && f.pegRatio > 0) fund += f.pegRatio < 1 ? 6 : f.pegRatio > 2 ? -6 : 0;
+    fund = _clamp(fund);
+  }
+
+  // ── Analyst consensus overlay (recMean 1..5 → 100..0) ──
+  let analyst: number | null = null;
+  if (f?.analystRecMean != null && f.numAnalysts > 0) analyst = _clamp((5 - f.analystRecMean) / 4 * 100);
+
+  // ── Composite (weights shift by data availability) ──
+  let composite: number;
+  if (fundAvail && analyst != null) composite = tech * 0.45 + fund * 0.30 + analyst * 0.25;
+  else if (fundAvail) composite = tech * 0.6 + fund * 0.4;
+  else composite = tech;
+  composite = Math.round(_clamp(composite));
+
+  const rating_label = composite >= 68 ? "BUY" : composite >= 55 ? "ACCUMULATE"
+    : composite >= 45 ? "HOLD" : composite >= 32 ? "REDUCE" : "SELL";
+  const verdictUI = composite >= 62 ? "BUY" : composite >= 45 ? "HOLD" : composite <= 32 ? "SELL" : "WATCH";
+
+  // ── Confidence: trend strength + data breadth + tech/fundamental agreement ──
+  let confidence = 55;
+  if (s.adxVal > 25) confidence += 10;
+  if (fundAvail) confidence += 10;
+  if (analyst != null) confidence += 10;
+  if (fundAvail) confidence += Math.abs(tech - fund) < 15 ? 8 : -5;
+  confidence = Math.round(_clamp(confidence, 30, 95));
+
+  const insights = {
+    quality: Math.round(_clamp(fundAvail ? (f.roe ?? s.secROE) * 2 + (f.profitMargin ?? 10) : 50 + (s.price > s.sma200 ? 15 : -15))),
+    valuation: Math.round(_clamp(fundAvail ? ((s.secPE - (f.trailingPE ?? s.pe ?? s.secPE)) / s.secPE) * 40 + 50 : 60 - (s.pos52w - 50) * 0.4)),
+    growth: Math.round(_clamp(fundAvail ? 50 + (f.earningsGrowth ?? 0) * 0.8 + (f.revenueGrowth ?? 0) * 0.5 : 50 + s.changePct * 3)),
+  };
+  const momentum_score = Math.round(_clamp(50 + (rsi - 50) * 0.6 + (s.pos52w - 50) * 0.3 + (/Bullish/i.test(s.macd.trend) ? 10 : -10)));
+
+  return {
+    tech: Math.round(tech), fund: Math.round(fund), analyst: analyst != null ? Math.round(analyst) : null,
+    composite, rating_label, verdictUI, confidence, insights, momentum_score, fundAvail,
+  };
+}
+
+// ATR-based targets, anchored to analyst consensus when available
+function computeTargets(s: any, atr: number, f: any, verdictUI: string) {
+  const price = s.price;
+  const a = atr > 0 ? atr : price * 0.03;
+  const bull = verdictUI === "BUY", bear = verdictUI === "SELL";
+  let target_1m = bull ? price + 2 * a : bear ? price - 2 * a : price + a * 0.5;
+  let target_3m = bull ? price + 4 * a : bear ? price - 4 * a : price + a;
+  if (f?.targetMean && f.numAnalysts > 0) {
+    target_3m = (target_3m + f.targetMean) / 2;
+    target_1m = (target_1m + (price + (f.targetMean - price) * 0.4)) / 2;
+  }
+  return {
+    support: Math.round(s.nearestSupport),
+    resistance: Math.round(s.nearestResistance),
+    target_1m: Math.round(target_1m),
+    target_3m: Math.round(target_3m),
+    atr: a,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────
 // Enrich stock data — uses REAL historical data when available
 // ─────────────────────────────────────────────────────────────
-async function enrichStockData(raw: any) {
+async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = {}) {
   const price = parseFloat(String(raw.price).replace(/[₹,]/g, '')) || 0;
   const high52 = raw.high_52 || price * 1.15;
   const low52 = raw.low_52 || price * 0.85;
@@ -457,13 +627,17 @@ async function enrichStockData(raw: any) {
   const mcap = raw.market_cap || 0;
   const mcapTier = mcap > 100000 ? "Large Cap" : mcap > 20000 ? "Mid Cap" : mcap > 5000 ? "Small Cap" : "Micro Cap";
 
-  // ── Fetch REAL historical data ──
-  const hist = await fetchHistoricalData(raw.symbol);
+  // ── Fetch REAL historical data + real fundamentals in parallel ──
+  const [hist, fundamentals] = await Promise.all([
+    fetchHistoricalData(raw.symbol),
+    opts.withFundamentals ? fetchYahooFundamentals(raw.symbol) : Promise.resolve(null),
+  ]);
   let rsiVal = 50, rsiSignal = "N/A";
   let sma20 = 0, sma50 = 0, sma200 = 0;
   let macd = { value: 0, signal: 0, histogram: 0, trend: "N/A" };
   let adxVal = 25;
   let volAvg20 = 0, volSignal = "Normal";
+  let atr = 0;
   let dataSource = "Approximated";
 
   if (hist) {
@@ -476,6 +650,7 @@ async function enrichStockData(raw: any) {
     sma200 = closes.length >= 200 ? realSMA(closes, 200) : realSMA(closes, Math.min(closes.length, 100));
     macd = realMACD(closes);
     adxVal = realADX(highs, lows, closes);
+    atr = realATR(highs, lows, closes);
     volAvg20 = avgVolume(volumes, 20);
     const volRatio = volAvg20 > 0 ? vol / volAvg20 : 1;
     volSignal = volRatio > 1.5 ? "High (abnormal)" : volRatio < 0.6 ? "Low (quiet)" : "Normal";
@@ -517,19 +692,30 @@ async function enrichStockData(raw: any) {
   if (nearestSupport >= price) nearestSupport = price * 0.95;
   if (nearestResistance <= price) nearestResistance = price * 1.05;
 
-  return {
+  const base = {
     ...raw, price, high52, low52, pos52w,
     dayHigh, dayLow, dayPos, prevClose, openPrice,
     gapVsPrevClose, gapVsOpen, vol, volInMillions,
     mcap, mcapTier, changePct, dataSource,
     rsiVal, rsiSignal,
-    macd, adxVal, volSignal,
+    macd, adxVal, volSignal, atr,
     sma20, sma50, sma200,
     secPE, secROE, secDE,
     nearestSupport: Math.round(nearestSupport),
     nearestResistance: Math.round(nearestResistance),
     fib382, fib618,
+    isFinancial: isFin,
+    // Prefer REAL fundamentals from Yahoo; fall back to whatever the client sent
+    roe: fundamentals?.roe ?? raw.roe ?? null,
+    debt_equity: fundamentals?.debtToEquity ?? raw.debt_equity ?? null,
+    fundamentals,
   };
+
+  // Deterministic quant engine — authoritative score/verdict/targets
+  const quant = computeQuant(base, fundamentals);
+  const targets = computeTargets(base, atr, fundamentals, quant.verdictUI);
+
+  return { ...base, quant, targets };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -582,8 +768,34 @@ function buildAnalysisPrompt(s: any): string {
 | **Fibonacci 61.8%** | ₹${s.fib618} |
 | **Support** | ₹${s.nearestSupport} |
 | **Resistance** | ₹${s.nearestResistance} |
+| **ATR (14)** | ₹${s.atr} (volatility) |
 | **Detected Pattern** | ${s.patterns?.join(', ') || "N/A"} |
 | **Momentum** | ${s.isBullish ? "Bullish" : "Bearish"} |
+
+${s.fundamentals ? `## Real Fundamentals (Yahoo Finance)
+| Metric | Value |
+|--------|-------|
+| **ROE** | ${s.fundamentals.roe ?? "N/A"}% |
+| **Debt/Equity** | ${s.fundamentals.debtToEquity ?? "N/A"} |
+| **Profit Margin** | ${s.fundamentals.profitMargin ?? "N/A"}% |
+| **Revenue Growth (YoY)** | ${s.fundamentals.revenueGrowth ?? "N/A"}% |
+| **Earnings Growth (YoY)** | ${s.fundamentals.earningsGrowth ?? "N/A"}% |
+| **Trailing P/E** | ${s.fundamentals.trailingPE ?? "N/A"} |
+| **Forward P/E** | ${s.fundamentals.forwardPE ?? "N/A"} |
+| **PEG** | ${s.fundamentals.pegRatio ?? "N/A"} |
+| **Beta** | ${s.fundamentals.beta ?? "N/A"} |
+| **Dividend Yield** | ${s.fundamentals.dividendYield ?? "N/A"}% |` : "## Fundamentals\nReal fundamentals unavailable — base your assessment on technicals, valuation (P/E) and price action."}
+
+${s.fundamentals?.numAnalysts ? `## Wall Street Analyst Consensus (${s.fundamentals.numAnalysts} analysts)
+- Recommendation: **${(s.fundamentals.analystRecKey || "N/A").toUpperCase()}** (mean ${s.fundamentals.analystRecMean}/5 — 1=Strong Buy, 5=Sell)
+- Price Targets → Mean ₹${s.fundamentals.targetMean ?? "N/A"} · High ₹${s.fundamentals.targetHigh ?? "N/A"} · Low ₹${s.fundamentals.targetLow ?? "N/A"}` : ""}
+
+## ⚙️ QUANT ENGINE OUTPUT — AUTHORITATIVE (computed deterministically from the real data above)
+- **Composite Score: ${s.quant.composite}/100** — Technical ${s.quant.tech} · Fundamental ${s.quant.fundAvail ? s.quant.fund : "N/A"} · Analyst ${s.quant.analyst ?? "N/A"}
+- **Rating: ${s.quant.rating_label}** → Verdict: **${s.quant.verdictUI}** · Confidence ${s.quant.confidence}%
+- **Computed levels** → Support ₹${s.targets.support} · Resistance ₹${s.targets.resistance} · 1M Target ₹${s.targets.target_1m} · 3M Target ₹${s.targets.target_3m}
+
+⚠️ CRITICAL: The QUANT ENGINE score, rating, verdict and price targets above are computed from real market data and are AUTHORITATIVE. Your report MUST explain and justify these numbers. Do NOT invent a different verdict, score, or targets that contradict them. Build your Trade Setup around the computed support/resistance/targets.
 
 Provide a comprehensive professional analysis. The markdown_report must include:
 1. **Executive Summary** — 2-line verdict with conviction level
@@ -650,7 +862,7 @@ serve(async (req) => {
     const { is_chat, chat_message, chat_history, context, use_web_search, ...stockData } = payload;
 
     // Enrich stock data with REAL historical indicators from Yahoo Finance
-    const enriched = await enrichStockData(stockData);
+    const enriched = await enrichStockData(stockData, { withFundamentals: !is_chat });
     let finalPrompt = "";
 
     if (is_chat) {
@@ -717,7 +929,46 @@ serve(async (req) => {
       throw new Error(`All AI providers failed. ${errors.join(' | ')}`);
     }
 
-    console.log(`✓ Analysis served by ${result.model}${webSearchEnabled ? ' [Web Grounded]' : ''}`);
+    // ── Reconcile: override LLM-invented numbers with the deterministic
+    //    quant engine so the displayed rating/verdict/targets are grounded
+    //    in real data and consistent across runs. The LLM keeps ownership of
+    //    the narrative, signal lists and indicator commentary. ──
+    if (!is_chat && result.result && typeof result.result === "object") {
+      const q = enriched.quant;
+      const t = enriched.targets;
+      const f = enriched.fundamentals;
+      const sd = validateAndFixStructuredData((result.result as any).structured_data || {}) || {};
+
+      sd.sentiment_score = q.composite;
+      sd.action_verdict = q.verdictUI;
+      sd.rating_label = q.rating_label;
+      sd.confidence = q.confidence;
+      sd.momentum_score = q.momentum_score;
+      sd.insights = q.insights;
+      sd.score_breakdown = { technical: q.tech, fundamental: q.fundAvail ? q.fund : null, analyst: q.analyst };
+      sd.price_targets = { support: t.support, resistance: t.resistance, target_1m: t.target_1m, target_3m: t.target_3m };
+      sd.volume_signal = /High/i.test(enriched.volSignal) ? "High" : /Low/i.test(enriched.volSignal) ? "Low" : "Normal";
+      sd.sector_comparison = {
+        pe_avg: enriched.secPE,
+        roe_avg: enriched.secROE,
+        valuation_status: (() => {
+          const pe = f?.trailingPE ?? enriched.pe;
+          if (!pe || !enriched.secPE) return "In-line with sector";
+          const d = (pe - enriched.secPE) / enriched.secPE * 100;
+          return d > 8 ? `${Math.round(d)}% Premium to sector` : d < -8 ? `${Math.round(-d)}% Discount to peers` : "In-line with sector";
+        })(),
+      };
+      if (f?.numAnalysts > 0) {
+        sd.analyst_consensus = {
+          rating: f.analystRecKey, mean: f.analystRecMean, count: f.numAnalysts,
+          target_mean: f.targetMean, target_high: f.targetHigh, target_low: f.targetLow,
+        };
+      }
+      sd.data_source = enriched.dataSource;
+      (result.result as any).structured_data = sd;
+    }
+
+    console.log(`✓ Analysis served by ${result.model}${webSearchEnabled ? ' [Web Grounded]' : ''} | Verdict ${enriched.quant?.verdictUI} (${enriched.quant?.composite}/100)`);
 
     return new Response(
       JSON.stringify({ success: true, verdict: result.result, model: result.model }),

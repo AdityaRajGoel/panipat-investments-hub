@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import {
   X, BrainCircuit, TrendingUp, TrendingDown, Activity, AlertTriangle,
-  CheckCircle2, Bot, Info, Star, Share2, BarChart2, Zap, Sparkles, MessageSquare, Send
+  CheckCircle2, Bot, Info, Star, Share2, BarChart2, Zap, Sparkles, MessageSquare, Send, Users
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -240,6 +240,18 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       };
       momentum_score?: number;
       volume_signal?: string;
+      confidence?: number;
+      rating_label?: string;
+      score_breakdown?: { technical: number; fundamental: number | null; analyst: number | null };
+      analyst_consensus?: {
+        rating: string | null;
+        mean: number | null;
+        count: number | null;
+        target_mean: number | null;
+        target_high: number | null;
+        target_low: number | null;
+      };
+      data_source?: string;
     }
   } | null>(null);
   const [chatHistory, setChatHistory] = useState<{role: 'user' | 'ai', text: string}[]>([]);
@@ -835,6 +847,75 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                             </div>
                           )}
                         </div>
+
+                        {/* Analyst Consensus — real Wall Street data from Yahoo */}
+                        {geminiVerdict.structured.analyst_consensus && geminiVerdict.structured.analyst_consensus.count ? (
+                          <div className="bg-gradient-to-r from-secondary/5 to-brand-orange/5 border border-secondary/20 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-2">
+                                <Users className="w-3 h-3" /> Analyst Consensus
+                                <span className="text-[9px] font-normal normal-case">({geminiVerdict.structured.analyst_consensus.count} analysts)</span>
+                              </div>
+                              {geminiVerdict.structured.analyst_consensus.rating && (
+                                <span className="text-[11px] font-black uppercase px-2.5 py-0.5 rounded-full bg-secondary/15 text-secondary border border-secondary/30">
+                                  {geminiVerdict.structured.analyst_consensus.rating.replace(/_/g, " ")}
+                                </span>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              {[
+                                { label: "Low", value: geminiVerdict.structured.analyst_consensus.target_low, color: "text-destructive" },
+                                { label: "Mean Target", value: geminiVerdict.structured.analyst_consensus.target_mean, color: "text-brand-orange" },
+                                { label: "High", value: geminiVerdict.structured.analyst_consensus.target_high, color: "text-secondary" },
+                              ].map(({ label, value, color }) => (
+                                <div key={label} className="bg-card/60 rounded-lg p-2">
+                                  <p className="text-[8px] font-bold text-muted-foreground uppercase mb-0.5">{label}</p>
+                                  <p className={`text-sm font-black font-mono ${color}`}>{value ? `₹${value.toLocaleString("en-IN")}` : "—"}</p>
+                                  {value && analysis.priceNum > 0 && label === "Mean Target" && (
+                                    <p className={`text-[8px] font-medium mt-0.5 ${value >= analysis.priceNum ? "text-secondary" : "text-destructive"}`}>
+                                      {value >= analysis.priceNum ? "+" : ""}{(((value - analysis.priceNum) / analysis.priceNum) * 100).toFixed(1)}% upside
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {/* Quant Score Breakdown — shows how the composite rating was built */}
+                        {geminiVerdict.structured.score_breakdown && (
+                          <div className="bg-muted/30 border border-border/50 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-2">
+                                <BarChart2 className="w-3 h-3" /> Quant Score Breakdown
+                              </div>
+                              {geminiVerdict.structured.confidence != null && (
+                                <span className="text-[9px] font-bold text-muted-foreground">Confidence {geminiVerdict.structured.confidence}%</span>
+                              )}
+                            </div>
+                            <div className="space-y-2">
+                              {[
+                                { label: "Technical", value: geminiVerdict.structured.score_breakdown.technical, color: "bg-brand-orange" },
+                                { label: "Fundamental", value: geminiVerdict.structured.score_breakdown.fundamental, color: "bg-secondary" },
+                                { label: "Analyst", value: geminiVerdict.structured.score_breakdown.analyst, color: "bg-brand-gold" },
+                              ].map(({ label, value, color }) => (
+                                <div key={label} className="flex items-center gap-2">
+                                  <span className="text-[10px] text-muted-foreground w-20 shrink-0">{label}</span>
+                                  {value != null ? (
+                                    <>
+                                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                                        <motion.div className={`h-full ${color} rounded-full`} initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.7 }} />
+                                      </div>
+                                      <span className="text-[10px] font-bold font-mono w-8 text-right">{value}</span>
+                                    </>
+                                  ) : (
+                                    <span className="flex-1 text-[9px] text-muted-foreground/60 italic">not available</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                         {/* Sector Comparison Widget */}
                         {geminiVerdict.structured.sector_comparison && typeof geminiVerdict.structured.sector_comparison.pe_avg === 'number' && (
