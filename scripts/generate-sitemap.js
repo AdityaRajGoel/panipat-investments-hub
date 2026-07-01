@@ -42,6 +42,12 @@ ${urls.map(u => `  <url>
 </urlset>
 `;
 
-const out = path.resolve(__dirname, '../public/sitemap.xml');
-fs.writeFileSync(out, xml);
+// Write to public/ (source of truth for next build) and dist/ (already-copied
+// build output — Vite copies public/ into dist/ *before* this postbuild script
+// runs, so dist/sitemap.xml must be written directly or the deploy ships stale dates).
+fs.writeFileSync(path.resolve(__dirname, '../public/sitemap.xml'), xml);
+const distDir = path.resolve(__dirname, '../dist');
+if (fs.existsSync(distDir)) {
+  fs.writeFileSync(path.join(distDir, 'sitemap.xml'), xml);
+}
 console.log(`Sitemap generated with lastmod=${today} for ${urls.length} URLs.`);
