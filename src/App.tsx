@@ -18,6 +18,7 @@ import { useLocation } from "react-router-dom";
 import SmartPopup from "@/components/SmartPopup";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import CookieConsent from "@/components/CookieConsent";
+import StickyMobileCTA from "@/components/StickyMobileCTA";
 
 const PageTracker = () => { usePageTracking(); return null; };
 const ScrollToHash = () => { useScrollToHash(); return null; };
@@ -190,6 +191,7 @@ const App = () => (
             <KeyboardShortcuts />
             <SmartPopup />
             <CookieConsent />
+            <StickyMobileCTA />
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>
                 <AnimatedRoutes />
