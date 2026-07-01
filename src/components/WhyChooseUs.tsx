@@ -18,7 +18,7 @@ const usps = [
   {
     icon: MapPin,
     title: "Local Panipat Office",
-    description: "Walk-in support at our Palika Bazaar branch — personal service, not a call center",
+    description: "Walk-in support at our Palika Bazaar branch - personal service, not a call center",
   },
   {
     icon: Smartphone,
@@ -43,7 +43,7 @@ const usps = [
   {
     icon: Briefcase,
     title: "Complete Services",
-    description: "Equity, F&O, Commodity, Currency, Mutual Funds, IPO, Insurance — all under one roof",
+    description: "Equity, F&O, Commodity, Currency, Mutual Funds, IPO, Insurance - all under one roof",
   },
 ];
 
@@ -110,7 +110,7 @@ const WhyChooseUs = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
           />
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Panipat's most trusted investment partner — combining national-level expertise with personal, local service.
+            Panipat's most trusted investment partner - combining national-level expertise with personal, local service.
           </p>
         </motion.div>
 

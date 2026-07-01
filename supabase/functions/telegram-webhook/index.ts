@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
     );
   }
 
-  // POST: Telegram webhook callback — receives new channel posts
+  // POST: Telegram webhook callback - receives new channel posts
   if (req.method === 'POST') {
     try {
       const update = await req.json();
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
         || post.forward_from_chat?.title
         || null;
 
-      // Handle photos — get the largest resolution
+      // Handle photos - get the largest resolution
       let hasPhoto = false;
       let photoUrl: string | null = null;
 

@@ -106,7 +106,7 @@ const ContactForm = () => {
       <h3 className="font-heading text-xl font-bold text-foreground mb-1">Send Us a Message</h3>
       <p className="text-muted-foreground text-sm mb-4">Fill out the form and we'll get back to you within a business day.</p>
 
-      {/* Honeypot field — hidden from humans, visible to bots */}
+      {/* Honeypot field - hidden from humans, visible to bots */}
       <div className="absolute opacity-0 -z-10" style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true">
         <Input name="_website" tabIndex={-1} autoComplete="off" />
       </div>

@@ -4,7 +4,7 @@ import { Heart, Shield, Target, Lightbulb, Handshake, Scale } from "lucide-react
 const values = [
   { icon: Shield, title: "Trust & Integrity", desc: "Transparent dealings with every client. No hidden charges, no misleading advice.", color: "bg-primary/10 text-primary" },
   { icon: Heart, title: "Client First", desc: "Your financial goals drive every recommendation we make. We succeed when you succeed.", color: "bg-destructive/10 text-destructive" },
-  { icon: Target, title: "Disciplined Investing", desc: "We believe in research-backed, long-term wealth creation — not speculation.", color: "bg-secondary/10 text-secondary" },
+  { icon: Target, title: "Disciplined Investing", desc: "We believe in research-backed, long-term wealth creation - not speculation.", color: "bg-secondary/10 text-secondary" },
   { icon: Lightbulb, title: "Financial Literacy", desc: "We educate our clients to make informed decisions, not just dependent ones.", color: "bg-brand-gold/10 text-brand-gold" },
   { icon: Handshake, title: "Personal Relationships", desc: "Face-to-face guidance from advisors who know you and your family.", color: "bg-brand-orange/10 text-brand-orange" },
   { icon: Scale, title: "Regulatory Compliance", desc: "Fully SEBI-registered and compliant with all exchange regulations.", color: "bg-primary/10 text-primary" },

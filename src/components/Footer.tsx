@@ -32,7 +32,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Main 5-column grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-10">
-          {/* Column 1 — Brand */}
+          {/* Column 1 - Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -74,7 +74,7 @@ const Footer = () => {
             </div>
           </motion.div>
 
-          {/* Column 2 — Company & Services */}
+          {/* Column 2 - Company & Services */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -126,7 +126,7 @@ const Footer = () => {
             </ul>
           </motion.div>
 
-          {/* Column 3 — Markets & Tools */}
+          {/* Column 3 - Markets & Tools */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -178,7 +178,7 @@ const Footer = () => {
             </ul>
           </motion.div>
 
-          {/* Column 4 — Important Links */}
+          {/* Column 4 - Important Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -221,7 +221,7 @@ const Footer = () => {
             </ul>
           </motion.div>
 
-          {/* Column 5 — Panipat Branch */}
+          {/* Column 5 - Panipat Branch */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -9,7 +9,7 @@ import platformImg from "@/assets/parasram-india.webp";
 
 type IndexData = { name: string; price: string; change: string; up: boolean };
 
-// Lightweight count-up — requestAnimationFrame based
+// Lightweight count-up - requestAnimationFrame based
 function useCountUp(target: number, duration = 2, delay = 0) {
   const [count, setCount] = useState(0);
 
@@ -54,7 +54,7 @@ const StatCounter = memo(({ target, label, suffix = "", delay = 0 }: { target: n
   );
 });
 
-// Market Summary Bar — advances/declines/unchanged
+// Market Summary Bar - advances/declines/unchanged
 const MarketBreadthBar = memo(() => {
   const { marketOverview, marketOpen, marketStatusText } = useLiveMarket();
   const advances = marketOverview?.advances ?? 0;
@@ -120,13 +120,13 @@ const Hero = () => {
       "🛡️ Never invest money you can't afford to lose",
       "🔍 Research before you invest",
     ];
-    if (niftyData?.up) tips.unshift(`📈 NIFTY 50 is up ${niftyData.change} — markets looking bullish today`);
-    else if (niftyData) tips.unshift(`📉 NIFTY 50 is down ${niftyData.change} — consider buying the dip wisely`);
-    if (goldData?.up) tips.push(`✨ Gold is up ${goldData.change} — a safe haven in volatile markets`);
+    if (niftyData?.up) tips.unshift(`📈 NIFTY 50 is up ${niftyData.change} - markets looking bullish today`);
+    else if (niftyData) tips.unshift(`📉 NIFTY 50 is down ${niftyData.change} - consider buying the dip wisely`);
+    if (goldData?.up) tips.push(`✨ Gold is up ${goldData.change} - a safe haven in volatile markets`);
     if (marketOverview) {
       const { advances = 0, declines = 0 } = marketOverview;
-      if (advances > declines) tips.push(`🟢 ${advances} advances vs ${declines} declines — broad market strength`);
-      else if (declines > advances) tips.push(`🔴 ${declines} declines vs ${advances} advances — stay cautious`);
+      if (advances > declines) tips.push(`🟢 ${advances} advances vs ${declines} declines - broad market strength`);
+      else if (declines > advances) tips.push(`🔴 ${declines} declines vs ${advances} advances - stay cautious`);
     }
     return tips;
   }, [niftyData, goldData, marketOverview]);
@@ -175,7 +175,7 @@ const Hero = () => {
             src="/hero-bg.jpg"
             alt="Parasram India - Stock Trading Platform and Investment Background"
             aria-hidden="true"
-            fetchPriority="high"
+            fetchpriority="high"
             loading="eager"
             width={2940}
             height={1678}
@@ -197,7 +197,7 @@ const Hero = () => {
             style={{ transform: 'translate3d(0,0,0)', backfaceVisibility: 'hidden' }}
           />
         )}
-        {/* Brand overlay — keeps text legible */}
+        {/* Brand overlay - keeps text legible */}
         <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/72 via-brand-navy/58 to-brand-green/40" />
         {/* Original solid gradient as mid-layer */}
         <div
@@ -252,7 +252,7 @@ const Hero = () => {
               ))}
             </div>
 
-            {/* Market Breadth Bar — NEW */}
+            {/* Market Breadth Bar - NEW */}
             <div className="w-full hidden md:block">
               <MarketBreadthBar />
             </div>
@@ -315,7 +315,7 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Platform image + floating cards — absolutely positioned right half */}
+      {/* Platform image + floating cards - absolutely positioned right half */}
       {!isMobile && (
         <motion.div
           className="absolute inset-y-0 right-0 w-[45%] lg:w-1/2 hidden md:flex flex-col items-center justify-center z-10 pointer-events-none px-6 2xl:px-12"
@@ -364,14 +364,14 @@ const Hero = () => {
             alt="Parasram India Platform"
             width={896}
             height={560}
-            fetchPriority="high"
+            fetchpriority="high"
             className="w-full object-contain drop-shadow-2xl relative z-10 2xl:max-w-4xl"
             style={{ maxHeight: '75%', x: imgX, y: imgY }}
           />
         </motion.div>
       )}
 
-      {/* Scroll indicator — desktop only */}
+      {/* Scroll indicator - desktop only */}
       {!isMobile && (
         <a
           href="#about"

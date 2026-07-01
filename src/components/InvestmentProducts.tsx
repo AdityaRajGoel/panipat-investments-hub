@@ -5,7 +5,7 @@ import {
   Gem, Landmark, Vault, ArrowRight, BadgeCheck,
 } from "lucide-react";
 
-// Segmented product menu — the pattern both Motilal Oswal & Angel One lead
+// Segmented product menu - the pattern both Motilal Oswal & Angel One lead
 // with. Each card links to an existing route and maps to the parent
 // company's product line (equity, F&O, MF, IPO, commodities, unlisted,
 // bonds/FD, depository).
@@ -33,7 +33,7 @@ const itemVariants: Variants = {
 const InvestmentProducts = () => {
   return (
     <section className="py-12 md:py-20 bg-background overflow-hidden relative">
-      {/* Background ornaments — consistent with WhyChooseUs */}
+      {/* Background ornaments - consistent with WhyChooseUs */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           className="absolute top-16 right-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"
@@ -64,7 +64,7 @@ const InvestmentProducts = () => {
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full mb-4" />
           <p className="text-muted-foreground max-w-xl mx-auto">
-            From equities to unlisted shares — a full-service brokerage experience, all under one roof.
+            From equities to unlisted shares - a full-service brokerage experience, all under one roof.
           </p>
         </motion.div>
 
@@ -82,7 +82,7 @@ const InvestmentProducts = () => {
               <motion.div key={p.title} variants={itemVariants} whileHover={{ y: -6 }}>
                 <Link
                   to={p.to}
-                  aria-label={`${p.title} — learn more`}
+                  aria-label={`${p.title} - learn more`}
                   className="group relative flex flex-col h-full bg-card border border-border/50 rounded-2xl p-4 md:p-5 hover:border-secondary/40 hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -121,7 +121,7 @@ const InvestmentProducts = () => {
           })}
         </motion.div>
 
-        {/* Trust strip + primary CTA — competitor pattern: funnel to account opening */}
+        {/* Trust strip + primary CTA - competitor pattern: funnel to account opening */}
         <motion.div
           className="mt-10 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 text-center"
           initial={{ opacity: 0, y: 20 }}

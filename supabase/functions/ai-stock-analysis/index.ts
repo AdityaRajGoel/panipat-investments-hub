@@ -27,7 +27,7 @@ const BOT_USER_AGENTS = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// Timeout wrapper — abort any AI call that takes > 55s
+// Timeout wrapper - abort any AI call that takes > 55s
 // (Supabase edge functions have a 60s hard limit)
 // ─────────────────────────────────────────────────────────────
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -40,8 +40,8 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): P
 // ─────────────────────────────────────────────────────────────
 // System prompts
 // ─────────────────────────────────────────────────────────────
-const CHAT_SYSTEM_PROMPT = `You are 'Parasram Intelligence', a seasoned Indian stock market expert at Parasram India — one of India's legacy brokerages (since 1970, SEBI registered).
-Your tone should be friendly, confident, and professional — like a veteran NSE/BSE analyst talking to a client.
+const CHAT_SYSTEM_PROMPT = `You are 'Parasram Intelligence', a seasoned Indian stock market expert at Parasram India - one of India's legacy brokerages (since 1970, SEBI registered).
+Your tone should be friendly, confident, and professional - like a veteran NSE/BSE analyst talking to a client.
 Use conversational markers like 'Looking at the charts...', 'In my view...', 'The data suggests...'.
 AVOID robotic 'As an AI' boilerplate. Be direct, specific, and helpful. Use markdown for clarity.
 
@@ -51,18 +51,19 @@ IMPORTANT RULES:
 - When discussing risks, quantify them (e.g., "could see 5-8% downside if Nifty corrects")
 - Reference Indian market specifics: NSE/BSE, SEBI regulations, FII/DII flows, RBI policy impact
 - If asked about fundamentals you don't have, say "based on the available data" rather than making up numbers
-- Be opinionated — clients want conviction, not hedging
-- Keep responses concise but actionable (aim for 150-300 words)`;
+- Be opinionated - clients want conviction, not hedging
+- Keep responses concise but actionable (aim for 150-300 words)
+- Never use em dashes (the long dash character). Use hyphens, commas, or colons instead.`;
 
-const REPORT_SYSTEM_PROMPT = `You are an elite Indian stock market analyst for 'Parasram Intelligence' — the research desk of Parasram India, one of India's oldest brokerages (SEBI registered since 1970).
+const REPORT_SYSTEM_PROMPT = `You are an elite Indian stock market analyst for 'Parasram Intelligence' - the research desk of Parasram India, one of India's oldest brokerages (SEBI registered since 1970).
 
 CRITICAL INSTRUCTION: Return your entire response as a single valid JSON object with exactly two keys: "markdown_report" and "structured_data".
 
 THE markdown_report MUST:
 - Use ### headers for each section
-- Use markdown tables (| Col | Col |) for financial metrics — at least 2 tables
+- Use markdown tables (| Col | Col |) for financial metrics - at least 2 tables
 - CRITICAL FORMATTING: Do NOT output your markdown tables on a single line! You MUST use literal newline characters (\n) to separate every single row of the table.
-- Use bullet points for pros/cons/risks — never long paragraphs
+- Use bullet points for pros/cons/risks - never long paragraphs
 - Keep every paragraph to MAX 2 sentences
 - Include specific ₹ price levels, not vague language
 - Reference Indian market context (NSE, BSE, SEBI, FII/DII, RBI, Nifty, sectoral indices)
@@ -75,13 +76,13 @@ JSON STRUCTURE:
   "markdown_report": "<rich markdown analysis as described above>",
   "structured_data": {
     "sentiment_score": <number 0-100>,
-    "technical_signals": ["<4-6 specific signals like 'RSI at 62 — neutral zone' or 'Price above 200-DMA'>"],
+    "technical_signals": ["<4-6 specific signals like 'RSI at 62 - neutral zone' or 'Price above 200-DMA'>"],
     "bullish_signals": ["<3-5 specific positive factors with numbers>"],
     "bearish_signals": ["<3-5 specific risk factors with numbers>"],
     "action_verdict": "<exactly one of: BUY | SELL | HOLD | WATCH>",
     "insights": { "quality": <0-100>, "valuation": <0-100>, "growth": <0-100> },
     "key_indicators": {
-      "RSI": "<value and interpretation, e.g. '58.3 — Neutral'>",
+      "RSI": "<value and interpretation, e.g. '58.3 - Neutral'>",
       "MACD": "<signal, e.g. 'Bullish crossover'>",
       "SMA_50": "<above/below CMP with distance>",
       "SMA_200": "<above/below CMP with distance>",
@@ -106,14 +107,15 @@ JSON STRUCTURE:
 
 QUALITY RULES:
 - Every number in structured_data must be a real number, not a string (except where strings are specified)
-- price_targets must be realistic — derived from 52W range, not arbitrary percentages
+- price_targets must be realistic - derived from 52W range, not arbitrary percentages
 - support should be BELOW current price, resistance ABOVE
 - target_1m and target_3m should account for the current trend direction
 - sentiment_score must align with action_verdict (BUY=60-90, HOLD=40-60, SELL=10-40)
-- Provide at least 4 technical_signals, 3 bullish_signals, and 3 bearish_signals`;
+- Provide at least 4 technical_signals, 3 bullish_signals, and 3 bearish_signals
+- Never use em dashes (the long dash character) anywhere in the markdown_report. Use hyphens, commas, or colons instead.`;
 
 // ─────────────────────────────────────────────────────────────
-// Response validator — ensures structured_data has valid types
+// Response validator - ensures structured_data has valid types
 // ─────────────────────────────────────────────────────────────
 function validateAndFixStructuredData(data: any): any {
   if (!data || typeof data !== 'object') return null;
@@ -241,7 +243,7 @@ async function askGroq(prompt: string, isChat: boolean = false) {
 
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
 
-  // Groq has a strict token limit — aggressively truncate
+  // Groq has a strict token limit - aggressively truncate
   const maxPromptLen = isChat ? 2000 : 4000;
   const truncatedPrompt = prompt.length > maxPromptLen 
     ? prompt.slice(0, maxPromptLen) + "\n[Data truncated]"
@@ -377,7 +379,7 @@ async function fetchHistoricalData(symbol: string) {
 
 // ─────────────────────────────────────────────────────────────
 // Real fundamentals + Wall Street analyst consensus
-// (Yahoo quoteSummary — crumb-gated; fails gracefully → null)
+// (Yahoo quoteSummary - crumb-gated; fails gracefully → null)
 // ─────────────────────────────────────────────────────────────
 const YAHOO_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
 let _crumbCache: { crumb: string; cookie: string; ts: number } | null = null;
@@ -474,8 +476,8 @@ function realMACD(closes: number[]) {
   let trend = "Neutral";
   if (h > 0 && prevH <= 0) trend = "Bullish Crossover";
   else if (h < 0 && prevH >= 0) trend = "Bearish Crossover";
-  else if (h > 0) trend = "Bullish — Above Signal";
-  else trend = "Bearish — Below Signal";
+  else if (h > 0) trend = "Bullish - Above Signal";
+  else trend = "Bearish - Below Signal";
   return { value: +m.toFixed(2), signal: +s.toFixed(2), histogram: +h.toFixed(2), trend };
 }
 
@@ -510,7 +512,7 @@ function realATR(highs: number[], lows: number[], closes: number[], period = 14)
 const _clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
 
 // ─────────────────────────────────────────────────────────────
-// Deterministic quant engine — grounds the rating/verdict/targets
+// Deterministic quant engine - grounds the rating/verdict/targets
 // in REAL data so they are consistent & defensible (not LLM-invented).
 // ─────────────────────────────────────────────────────────────
 function computeQuant(s: any, f: any) {
@@ -524,7 +526,7 @@ function computeQuant(s: any, f: any) {
   if (rsi >= 45 && rsi <= 65) tech += 6;                // healthy momentum band
   else if (rsi > 70) tech -= 6;                         // overbought
   else if (rsi > 65) tech += 2;
-  else if (rsi < 30) tech -= 2;                         // oversold (mild — may bounce)
+  else if (rsi < 30) tech -= 2;                         // oversold (mild - may bounce)
   if (/Bullish Crossover/i.test(s.macd.trend)) tech += 8;
   else if (/Bullish/i.test(s.macd.trend)) tech += 4;
   else if (/Bearish Crossover/i.test(s.macd.trend)) tech -= 8;
@@ -607,7 +609,7 @@ function computeTargets(s: any, atr: number, f: any, verdictUI: string) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Enrich stock data — uses REAL historical data when available
+// Enrich stock data - uses REAL historical data when available
 // ─────────────────────────────────────────────────────────────
 async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = {}) {
   const price = parseFloat(String(raw.price).replace(/[₹,]/g, '')) || 0;
@@ -718,7 +720,7 @@ async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = 
     fundamentals,
   };
 
-  // Deterministic quant engine — authoritative score/verdict/targets
+  // Deterministic quant engine - authoritative score/verdict/targets
   const quant = computeQuant(base, fundamentals);
   const targets = computeTargets(base, atr, fundamentals, quant.verdictUI);
 
@@ -766,7 +768,7 @@ function buildAnalysisPrompt(s: any): string {
 | Indicator | Value |
 |-----------|-------|
 | **RSI (14)** | ${s.rsiVal} (${s.rsiSignal}) |
-| **MACD** | Value: ${s.macd.value}, Signal: ${s.macd.signal}, Histogram: ${s.macd.histogram} — ${s.macd.trend} |
+| **MACD** | Value: ${s.macd.value}, Signal: ${s.macd.signal}, Histogram: ${s.macd.histogram} - ${s.macd.trend} |
 | **ADX (14)** | ${s.adxVal} (${s.adxVal > 25 ? 'Strong Trend' : 'Weak/Range-bound'}) |
 | **SMA 20** | ₹${s.sma20} (Price is ${s.price > s.sma20 ? 'Above ✅' : 'Below ❌'}) |
 | **SMA 50** | ₹${s.sma50} (Price is ${s.price > s.sma50 ? 'Above ✅' : 'Below ❌'}) |
@@ -791,28 +793,28 @@ ${s.fundamentals ? `## Real Fundamentals (Yahoo Finance)
 | **Forward P/E** | ${s.fundamentals.forwardPE ?? "N/A"} |
 | **PEG** | ${s.fundamentals.pegRatio ?? "N/A"} |
 | **Beta** | ${s.fundamentals.beta ?? "N/A"} |
-| **Dividend Yield** | ${s.fundamentals.dividendYield ?? "N/A"}% |` : "## Fundamentals\nReal fundamentals unavailable — base your assessment on technicals, valuation (P/E) and price action."}
+| **Dividend Yield** | ${s.fundamentals.dividendYield ?? "N/A"}% |` : "## Fundamentals\nReal fundamentals unavailable - base your assessment on technicals, valuation (P/E) and price action."}
 
 ${s.fundamentals?.numAnalysts ? `## Wall Street Analyst Consensus (${s.fundamentals.numAnalysts} analysts)
-- Recommendation: **${(s.fundamentals.analystRecKey || "N/A").toUpperCase()}** (mean ${s.fundamentals.analystRecMean}/5 — 1=Strong Buy, 5=Sell)
+- Recommendation: **${(s.fundamentals.analystRecKey || "N/A").toUpperCase()}** (mean ${s.fundamentals.analystRecMean}/5 - 1=Strong Buy, 5=Sell)
 - Price Targets → Mean ₹${s.fundamentals.targetMean ?? "N/A"} · High ₹${s.fundamentals.targetHigh ?? "N/A"} · Low ₹${s.fundamentals.targetLow ?? "N/A"}` : ""}
 
-## ⚙️ QUANT ENGINE OUTPUT — AUTHORITATIVE (computed deterministically from the real data above)
-- **Composite Score: ${s.quant.composite}/100** — Technical ${s.quant.tech} · Fundamental ${s.quant.fundAvail ? s.quant.fund : "N/A"} · Analyst ${s.quant.analyst ?? "N/A"}
+## ⚙️ QUANT ENGINE OUTPUT - AUTHORITATIVE (computed deterministically from the real data above)
+- **Composite Score: ${s.quant.composite}/100** - Technical ${s.quant.tech} · Fundamental ${s.quant.fundAvail ? s.quant.fund : "N/A"} · Analyst ${s.quant.analyst ?? "N/A"}
 - **Rating: ${s.quant.rating_label}** → Verdict: **${s.quant.verdictUI}** · Confidence ${s.quant.confidence}%
 - **Computed levels** → Support ₹${s.targets.support} · Resistance ₹${s.targets.resistance} · 1M Target ₹${s.targets.target_1m} · 3M Target ₹${s.targets.target_3m}
 
 ⚠️ CRITICAL: The QUANT ENGINE score, rating, verdict and price targets above are computed from real market data and are AUTHORITATIVE. Your report MUST explain and justify these numbers. Do NOT invent a different verdict, score, or targets that contradict them. Build your Trade Setup around the computed support/resistance/targets.
 
 Provide a comprehensive professional analysis. The markdown_report must include:
-1. **Executive Summary** — 2-line verdict with conviction level
-2. **Financial Overview** — table of key metrics with sector comparison
-3. **Price Action & Volume** — gap analysis, intraday positioning (${s.dayPos}% of day range), volume assessment (${s.volSignal})
-4. **Technical Analysis** — RSI (${s.rsiVal}), MACD (${s.macd.trend}), ADX (${s.adxVal}), key moving averages (SMA 20: ₹${s.sma20}, SMA 50: ₹${s.sma50}, SMA 200: ₹${s.sma200}), support ₹${s.nearestSupport} / resistance ₹${s.nearestResistance}
-5. **Fundamental Assessment** — P/E vs Sector Avg (${s.secPE}), ROE quality vs peers (${s.secROE}%), debt health vs peers (${s.secDE}), ${s.mcapTier} considerations
-6. **Risk Factors** — 3 specific risks with estimated % impact
-7. **Trade Setup** — table with Entry Zone, Stop-Loss, Target 1, Target 2, Risk-Reward Ratio
-8. **Verdict** — final BUY/SELL/HOLD/WATCH call with timeframe
+1. **Executive Summary** - 2-line verdict with conviction level
+2. **Financial Overview** - table of key metrics with sector comparison
+3. **Price Action & Volume** - gap analysis, intraday positioning (${s.dayPos}% of day range), volume assessment (${s.volSignal})
+4. **Technical Analysis** - RSI (${s.rsiVal}), MACD (${s.macd.trend}), ADX (${s.adxVal}), key moving averages (SMA 20: ₹${s.sma20}, SMA 50: ₹${s.sma50}, SMA 200: ₹${s.sma200}), support ₹${s.nearestSupport} / resistance ₹${s.nearestResistance}
+5. **Fundamental Assessment** - P/E vs Sector Avg (${s.secPE}), ROE quality vs peers (${s.secROE}%), debt health vs peers (${s.secDE}), ${s.mcapTier} considerations
+6. **Risk Factors** - 3 specific risks with estimated % impact
+7. **Trade Setup** - table with Entry Zone, Stop-Loss, Target 1, Target 2, Risk-Reward Ratio
+8. **Verdict** - final BUY/SELL/HOLD/WATCH call with timeframe
 
 For structured_data price_targets: support ≈ ₹${s.nearestSupport}, resistance ≈ ₹${s.nearestResistance}. Calculate realistic target_1m and target_3m from these levels.`;
 }
@@ -952,7 +954,7 @@ serve(async (req) => {
         }
       }
 
-      // Gemini fallback — ensures at least one provider can respond
+      // Gemini fallback - ensures at least one provider can respond
       if (!result && GEMINI_API_KEY) {
         try {
           console.log("→ Gemini Direct (fallback)...");

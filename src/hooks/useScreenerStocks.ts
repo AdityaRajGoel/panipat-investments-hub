@@ -67,7 +67,7 @@ export function useScreenerStocks() {
       }
 
       // ─── Phase 2: Refresh prices via edge function (Yahoo Finance) ───────────
-      // Runs in background — edge function checks if cache is fresh (<5 min)
+      // Runs in background - edge function checks if cache is fresh (<5 min)
       // and only fetches from Yahoo if stale. This keeps prices up-to-date.
       setRefreshing(true);
       const { data, error: fnError } = await supabase.functions.invoke("fetch-screener-data", {

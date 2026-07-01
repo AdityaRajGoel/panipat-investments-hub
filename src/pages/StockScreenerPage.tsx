@@ -37,7 +37,7 @@ const formatMarketCap = (cr: number) => {
   if (cr >= 100000) return `₹${(cr / 100000).toFixed(1)}L Cr`;
   if (cr >= 1000) return `₹${(cr / 1000).toFixed(0)}K Cr`;
   if (cr > 0) return `₹${cr.toFixed(0)} Cr`;
-  return "—";
+  return "-";
 };
 
 type SortKey = "symbol" | "price" | "change_pct" | "market_cap" | "pe";
@@ -189,8 +189,8 @@ const StockScreenerPage = () => {
             "Live NSE/BSE stock prices",
             "Filter by sector, market cap, P/E ratio",
             "52-week high/low range display",
-            "Thematic baskets — Banking, IT, Auto, PSU, FMCG",
-            "Technical scanners — Volume Shockers, Momentum, Value Buys",
+            "Thematic baskets - Banking, IT, Auto, PSU, FMCG",
+            "Technical scanners - Volume Shockers, Momentum, Value Buys",
             "Stock heatmap view",
             "AI-powered stock analysis"
           ]
@@ -342,7 +342,7 @@ const StockScreenerPage = () => {
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   {filtered.length > 0
                     ? `${filtered.length} stocks matching criteria`
-                    : "No stocks match your filters — try clearing search or changing the sector"}
+                    : "No stocks match your filters - try clearing search or changing the sector"}
                   {bgRefreshing && (
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium text-brand-orange animate-pulse">
                       <Loader2 className="w-3 h-3 animate-spin" /> Refreshing prices...
@@ -407,7 +407,7 @@ const StockScreenerPage = () => {
                           <td className="px-4 py-3">
                             {s.pe > 0 ? (
                               <Badge variant={s.pe < 20 ? "default" : s.pe <= 40 ? "secondary" : "outline"} className="text-xs">{s.pe.toFixed(1)}</Badge>
-                            ) : <span className="text-muted-foreground text-xs">—</span>}
+                            ) : <span className="text-muted-foreground text-xs">-</span>}
                           </td>
                           <td className="px-4 py-3 min-w-[180px]">
                             {s.high_52 > 0 ? (
@@ -418,10 +418,10 @@ const StockScreenerPage = () => {
                                 </div>
                                 <span>₹{s.high_52.toLocaleString("en-IN")}</span>
                               </div>
-                            ) : <span className="text-muted-foreground text-xs">—</span>}
+                            ) : <span className="text-muted-foreground text-xs">-</span>}
                           </td>
                           <td className="px-4 py-3 text-right font-mono text-muted-foreground">
-                            {s.volume > 0 ? `${(s.volume / 1000000).toFixed(1)}M` : "—"}
+                            {s.volume > 0 ? `${(s.volume / 1000000).toFixed(1)}M` : "-"}
                           </td>
                           <td className="px-4 py-3 text-right">
                             <Button 

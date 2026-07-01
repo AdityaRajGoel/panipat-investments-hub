@@ -79,21 +79,21 @@ const REAL_ARTICLES: Article[] = [
   },
   {
     id: "r5", title: "How to Read Candlestick Chart Patterns", slug: "candlestick-patterns",
-    excerpt: "Master Japanese candlestick patterns — Doji, Hammer, Engulfing, Morning Star. Learn to identify trend reversals and continuations with visual examples.",
+    excerpt: "Master Japanese candlestick patterns - Doji, Hammer, Engulfing, Morning Star. Learn to identify trend reversals and continuations with visual examples.",
     content: "", category: "analysis", cover_image: null, read_time: 12, published: true, created_at: "2025-11-20",
     source: "Investopedia", source_url: "https://www.investopedia.com/trading/candlestick-charting-what-is-it/",
     difficulty: "Intermediate",
   },
   {
     id: "r6", title: "Mutual Funds: Types, Benefits & How to Invest", slug: "mutual-funds-guide",
-    excerpt: "Everything about mutual funds — equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns. SEBI classification explained.",
+    excerpt: "Everything about mutual funds - equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns. SEBI classification explained.",
     content: "", category: "basics", cover_image: null, read_time: 8, published: true, created_at: "2025-11-18",
     source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/mutualfund.asp",
     difficulty: "Beginner",
   },
   {
     id: "r7", title: "Options Trading: Calls, Puts & Basic Strategies", slug: "options-trading-101",
-    excerpt: "Introduction to options — contracts, premiums, Greeks (Delta, Theta, Gamma, Vega), and basic strategies like covered calls and protective puts.",
+    excerpt: "Introduction to options - contracts, premiums, Greeks (Delta, Theta, Gamma, Vega), and basic strategies like covered calls and protective puts.",
     content: "", category: "trading", cover_image: null, read_time: 15, published: true, created_at: "2025-11-15",
     source: "Investopedia", source_url: "https://www.investopedia.com/options-basics-tutorial-4583012",
     difficulty: "Advanced",
@@ -121,7 +121,7 @@ const REAL_ARTICLES: Article[] = [
   },
   {
     id: "r11", title: "Understanding IPO: Process, Allotment & Listing", slug: "ipo-guide",
-    excerpt: "Complete guide to IPOs in India — DRHP, price bands, lot sizes, ASBA application process, GMP, listing day strategy, and grey market explained.",
+    excerpt: "Complete guide to IPOs in India - DRHP, price bands, lot sizes, ASBA application process, GMP, listing day strategy, and grey market explained.",
     content: "", category: "basics", cover_image: null, read_time: 10, published: true, created_at: "2025-11-05",
     source: "Investopedia", source_url: "https://www.investopedia.com/terms/i/ipo.asp",
     difficulty: "Beginner",
@@ -708,7 +708,7 @@ const LearningCenterPage = () => {
                         {iframeErrors[channel.channelId] ? (
                           <div className="w-full h-full absolute inset-0 flex flex-col items-center justify-center bg-muted gap-3">
                             <AlertTriangle className="w-8 h-8 text-brand-orange" />
-                            <p className="text-sm text-muted-foreground font-medium">Stream unavailable — auto-retrying...</p>
+                            <p className="text-sm text-muted-foreground font-medium">Stream unavailable - auto-retrying...</p>
                             <a href={watchUrl} target="_blank" rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
                               <ExternalLink className="w-3 h-3" /> Watch on YouTube instead

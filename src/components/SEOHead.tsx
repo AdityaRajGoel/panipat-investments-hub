@@ -111,7 +111,7 @@ const SEOHead = ({
     ]
   });
 
-  // WebSite schema (homepage only) — signals Google to generate Sitelinks
+  // WebSite schema (homepage only) - signals Google to generate Sitelinks
   if (isHomepage) {
     schemaScripts.push({
       "@context": "https://schema.org",
@@ -136,7 +136,7 @@ const SEOHead = ({
       ]
     });
 
-    // SiteNavigationElement — helps Google understand the site structure for sitelinks
+    // SiteNavigationElement - helps Google understand the site structure for sitelinks
     schemaScripts.push({
       "@context": "https://schema.org",
       "@type": "ItemList",

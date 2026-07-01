@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
 
-    // Honeypot check — if the hidden field has a value, it's a bot
+    // Honeypot check - if the hidden field has a value, it's a bot
     if (body._website && typeof body._website === 'string' && body._website.trim().length > 0) {
       // Silently accept but don't process (bots think it worked)
       return new Response(
@@ -80,12 +80,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Timestamp-based CSRF check — form must be submitted within 5 seconds to 30 minutes of render
+    // Timestamp-based CSRF check - form must be submitted within 5 seconds to 30 minutes of render
     const formTimestamp = body._ts;
     if (formTimestamp && typeof formTimestamp === 'number') {
       const elapsed = Date.now() - formTimestamp;
       if (elapsed < 3000) {
-        // Submitted too fast (< 3 seconds) — likely a bot
+        // Submitted too fast (< 3 seconds) - likely a bot
         return new Response(
           JSON.stringify({ success: true, message: 'Lead saved successfully' }),
           { headers: responseHeaders }

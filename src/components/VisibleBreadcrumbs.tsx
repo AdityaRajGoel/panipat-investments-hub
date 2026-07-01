@@ -13,7 +13,7 @@ type VisibleBreadcrumbsProps = {
 
 /**
  * Visible breadcrumb navigation bar.
- * Schema is handled separately by SEOHead — this is purely the UI element.
+ * Schema is handled separately by SEOHead - this is purely the UI element.
  */
 const VisibleBreadcrumbs = ({ items, className = "" }: VisibleBreadcrumbsProps) => {
   if (!items || items.length === 0) return null;

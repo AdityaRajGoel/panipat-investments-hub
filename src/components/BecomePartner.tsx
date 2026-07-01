@@ -10,10 +10,10 @@ const PHONE_REGEX = /^(\+?91)?[6-9]\d{9}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const benefits = [
-  { icon: Briefcase, text: "Full product suite — Equity, F&O, MF, Insurance" },
+  { icon: Briefcase, text: "Full product suite - Equity, F&O, MF, Insurance" },
   { icon: Users, text: "Marketing & client acquisition support" },
   { icon: Building, text: "Technology platform & back-office" },
-  { icon: MapPin, text: "Pan India presence — 50+ years brand trust" },
+  { icon: MapPin, text: "Pan India presence - 50+ years brand trust" },
 ];
 
 const BecomePartner = () => {
@@ -57,7 +57,7 @@ const BecomePartner = () => {
           name: form.name.trim().slice(0, 100),
           phone: form.phone.trim().slice(0, 20),
           email: form.email.trim().slice(0, 255) || undefined,
-          city: `Partner Inquiry — ${form.city.trim().slice(0, 100)}`,
+          city: `Partner Inquiry - ${form.city.trim().slice(0, 100)}`,
           message: "Business Partner / Associate Inquiry",
           _website: "",
           _ts: formRenderTime.current,
@@ -91,7 +91,7 @@ const BecomePartner = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-          {/* Left — Content */}
+          {/* Left - Content */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -136,7 +136,7 @@ const BecomePartner = () => {
             </div>
           </motion.div>
 
-          {/* Right — Form */}
+          {/* Right - Form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}

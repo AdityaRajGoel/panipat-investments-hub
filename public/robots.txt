@@ -55,7 +55,7 @@ Disallow: /reset-password
 Disallow: /banner-manager
 Disallow: /api/
 
-# Canonical host — the www version is the primary site
+# Canonical host - the www version is the primary site
 Host: https://www.sphpnp.com
 
 Sitemap: https://www.sphpnp.com/sitemap.xml

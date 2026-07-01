@@ -43,7 +43,7 @@ const Index = () => {
         breadcrumbs={[{ name: "Home", url: "/" }]}
         jsonLd={{
           "@type": "VideoObject",
-          "name": "Parasram India Panipat — SEBI Registered Stock Broker Since 1970",
+          "name": "Parasram India Panipat - SEBI Registered Stock Broker Since 1970",
           "description": "Discover Parasram India, Panipat's most trusted SEBI-registered stock broker since 1970. Open a free Demat account and trade stocks, mutual funds, IPO, F&O and unlisted shares.",
           "thumbnailUrl": "https://www.sphpnp.com/hero-bg.jpg",
           "uploadDate": "2024-01-01",

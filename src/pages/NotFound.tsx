@@ -102,7 +102,7 @@ const NotFound = () => {
           transition={{ delay: 0.35 }}
           className="text-sm text-muted-foreground mb-8"
         >
-          Don't worry — your portfolio is safe. Let's get you back on track.
+          Don't worry - your portfolio is safe. Let's get you back on track.
         </motion.p>
 
         {/* Action buttons */}

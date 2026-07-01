@@ -42,7 +42,7 @@
     --brand-green: 150 50% 40%;
     --brand-light-blue: 210 60% 96%;
     /* Darkened for WCAG: gold/orange are used as accent text on light
-       surfaces — these lightness values keep the hue but lift contrast
+       surfaces - these lightness values keep the hue but lift contrast
        above 3:1 (large/bold) and near 4.5:1 (small text). */
     --brand-gold: 40 96% 40%;
     --brand-orange: 22 95% 38%;

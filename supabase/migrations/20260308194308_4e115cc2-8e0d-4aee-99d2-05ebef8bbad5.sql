@@ -10,5 +10,5 @@ WITH CHECK (true);
 -- Fix account_leads: drop overly broad SELECT, restrict to service_role only
 DROP POLICY IF EXISTS "Service role can read leads" ON public.account_leads;
 
--- No SELECT policy needed — service_role bypasses RLS anyway.
+-- No SELECT policy needed - service_role bypasses RLS anyway.
 -- This ensures anon/authenticated users cannot read leads.

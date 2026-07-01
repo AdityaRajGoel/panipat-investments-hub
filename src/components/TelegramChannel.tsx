@@ -107,7 +107,7 @@ function parseStockInfo(text: string | null): {
 } {
   if (!text) return { stockName: null, action: null, upside: null, targetPeriod: null, cta: null };
 
-  // Try to extract stock name — pattern: "📈 Stock Name (SYMBOL)" or "Stock Name Ltd."
+  // Try to extract stock name - pattern: "📈 Stock Name (SYMBOL)" or "Stock Name Ltd."
   const stockMatch = text.match(/📈\s*(.+?)(?:\n|$)/);
   const stockName = stockMatch ? stockMatch[1].trim() : null;
 
@@ -126,7 +126,7 @@ function parseStockInfo(text: string | null): {
   return { stockName, action, upside, targetPeriod, cta: null };
 }
 
-/** Safely render message text as React nodes — no dangerouslySetInnerHTML */
+/** Safely render message text as React nodes - no dangerouslySetInnerHTML */
 function SafeMessageText({ text }: { text: string }) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts: React.ReactNode[] = [];
@@ -170,7 +170,7 @@ const MessageCard = ({ message, index }: { message: TelegramMessage; index: numb
       transition={{ delay: Math.min(index * 0.06, 0.3), duration: 0.35 }}
     >
       <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-xl ${config.glowColor} border ${config.borderColor} hover:scale-[1.01]`}>
-        {/* Category accent — left border */}
+        {/* Category accent - left border */}
         <div className="flex">
           <div className={`w-1.5 flex-shrink-0 ${config.bgColor}`}
             style={{ background: category === "buy" ? "linear-gradient(to bottom, #059669, #10b981)" : category === "sell" ? "linear-gradient(to bottom, #dc2626, #ef4444)" : category === "target" ? "linear-gradient(to bottom, #2563eb, #3b82f6)" : category === "hold" ? "linear-gradient(to bottom, #d97706, #f59e0b)" : "linear-gradient(to bottom, #64748b, #94a3b8)" }}

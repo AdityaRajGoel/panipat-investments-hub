@@ -19,7 +19,7 @@ type IPOEntry = {
 
 const cleanText = (s: string) => s.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 
-// Source 1: ipowatch.in — reliable, server-rendered HTML with markdown-friendly tables
+// Source 1: ipowatch.in - reliable, server-rendered HTML with markdown-friendly tables
 async function fetchFromIPOWatch(): Promise<IPOEntry[] | null> {
   try {
     const res = await fetch('https://ipowatch.in/ipo-grey-market-premium-latest-ipo-gmp/', {
@@ -383,7 +383,7 @@ Deno.serve(async (req) => {
       source = 'curated';
     }
 
-    // Deduplicate (fuzzy — check if one name starts with another)
+    // Deduplicate (fuzzy - check if one name starts with another)
     const seen: string[] = [];
     finalIpos = finalIpos.filter(ipo => {
       if (!ipo.name || ipo.name.length < 2) return false;

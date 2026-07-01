@@ -22,7 +22,7 @@ const teamMembers = [
     name: "Anil Kumar Goel",
     role: "Director",
     description: "35+ years experience in financial services and long-term investment guidance. Expert in equity portfolio management and wealth planning for HNIs.",
-    longBio: "Anil Kumar Goel has been the cornerstone of Parasram India's Panipat branch since the late 1980s. With deep expertise in equity markets and a disciplined approach to wealth creation, he has guided hundreds of families through market cycles — from the Harshad Mehta era to modern algorithmic trading.",
+    longBio: "Anil Kumar Goel has been the cornerstone of Parasram India's Panipat branch since the late 1980s. With deep expertise in equity markets and a disciplined approach to wealth creation, he has guided hundreds of families through market cycles - from the Harshad Mehta era to modern algorithmic trading.",
     phone: "+91 9416400314",
     email: "anil@sphpnp.com",
     icon: Award,
@@ -50,7 +50,7 @@ const teamMembers = [
     name: "Aditya Raj Goel",
     role: "Director",
     description: "Assists investors with account opening, KYC processing, and service queries. Handles online services, website, and social media presence.",
-    longBio: "Aditya Raj Goel represents the next generation of financial services. He bridges traditional client servicing with modern digital tools — ensuring smooth onboarding, paperless KYC, and an active online presence that keeps clients informed and engaged.",
+    longBio: "Aditya Raj Goel represents the next generation of financial services. He bridges traditional client servicing with modern digital tools - ensuring smooth onboarding, paperless KYC, and an active online presence that keeps clients informed and engaged.",
     phone: "+91 8295565443",
     email: "parasrampnp@gmail.com",
     icon: TrendingUp,
@@ -341,7 +341,7 @@ const TeamPage = () => {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[
               { icon: Shield, title: "SEBI Registered", desc: "Fully compliant with all regulatory requirements. Your investments are in safe hands." },
-              { icon: Target, title: "Goal-Based Advice", desc: "We don't sell products — we craft personalized plans aligned with your life goals." },
+              { icon: Target, title: "Goal-Based Advice", desc: "We don't sell products - we craft personalized plans aligned with your life goals." },
               { icon: Handshake, title: "Relationship First", desc: "We build long-term relationships, not transactions. Many clients have been with us for 20+ years." },
               { icon: GraduationCap, title: "Investor Education", desc: "We believe informed investors make better decisions. Free workshops and guidance included." },
               { icon: MapPin, title: "Local Presence", desc: "Walk into our Panipat branch anytime. Face-to-face advice you can trust." },

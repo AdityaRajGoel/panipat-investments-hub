@@ -50,7 +50,7 @@ ${urls.map(u => `  <url>
 `;
 
 // Write to public/ (source of truth for next build) and dist/ (already-copied
-// build output — Vite copies public/ into dist/ *before* this postbuild script
+// build output - Vite copies public/ into dist/ *before* this postbuild script
 // runs, so dist/sitemap.xml must be written directly or the deploy ships stale dates).
 fs.writeFileSync(path.resolve(__dirname, '../public/sitemap.xml'), xml);
 const distDir = path.resolve(__dirname, '../dist');

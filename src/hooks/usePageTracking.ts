@@ -25,7 +25,7 @@ const trackEvent = async (
       metadata,
     } as any);
   } catch {
-    // Silent fail — analytics should never break the app
+    // Silent fail - analytics should never break the app
   }
 };
 

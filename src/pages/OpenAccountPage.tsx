@@ -21,7 +21,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 
 const benefits = [
   { icon: Shield, title: "SEBI Registered", desc: "Trade with a trusted, regulation-compliant broker" },
-  { icon: TrendingUp, title: "Multi-Exchange Access", desc: "NSE, BSE, MCX — all platforms under one roof" },
+  { icon: TrendingUp, title: "Multi-Exchange Access", desc: "NSE, BSE, MCX - all platforms under one roof" },
   { icon: Award, title: "50+ Years Legacy", desc: "Decades of expertise in Indian capital markets" },
   { icon: MapPin, title: "Zero Account Opening Fee", desc: "Open your Demat account absolutely free" },
 ];
@@ -202,7 +202,7 @@ const OpenAccountPage = () => {
           "step": [
             { "@type": "HowToStep", "position": 1, "name": "Fill the online form", "text": "Enter your name, phone number and email in the account opening form on this page." },
             { "@type": "HowToStep", "position": 2, "name": "Team contacts you", "text": "Our team calls you within 24 hours to guide you through the KYC process." },
-            { "@type": "HowToStep", "position": 3, "name": "Submit KYC documents", "text": "Provide PAN card, Aadhaar card, a cancelled cheque, and a passport-size photo — online or at our Panipat branch." },
+            { "@type": "HowToStep", "position": 3, "name": "Submit KYC documents", "text": "Provide PAN card, Aadhaar card, a cancelled cheque, and a passport-size photo - online or at our Panipat branch." },
             { "@type": "HowToStep", "position": 4, "name": "Account activated", "text": "Your Demat and trading account is activated within 1-2 business days after successful KYC verification." }
           ]
         })}</script>
@@ -224,7 +224,7 @@ const OpenAccountPage = () => {
             Open Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-brand-gold">Demat Account</span>
           </motion.h1>
           <motion.p className="text-lg text-primary-foreground/80 max-w-xl mx-auto" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            Start your investment journey with Parasram India — Panipat's most trusted stockbroker since 1970.
+            Start your investment journey with Parasram India - Panipat's most trusted stockbroker since 1970.
           </motion.p>
         </div>
       </section>
@@ -250,7 +250,7 @@ const OpenAccountPage = () => {
               <p className="text-sm text-muted-foreground mb-8">Our team will get in touch with you to complete the account opening process.</p>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Honeypot — hidden from humans */}
+                {/* Honeypot - hidden from humans */}
                 <div className="absolute opacity-0 -z-10" style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true">
                   <Input name="_website" tabIndex={-1} autoComplete="off" />
                 </div>

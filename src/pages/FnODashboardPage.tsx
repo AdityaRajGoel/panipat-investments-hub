@@ -390,34 +390,34 @@ const FnODashboardPage = () => {
                                 className={`border-b border-border/30 transition-colors hover:bg-muted/20 ${isATM ? "bg-brand-gold/10 font-semibold" : ""}`}
                               >
                                 <td className={`px-2 py-2 text-right font-mono ${isITMCall ? "bg-secondary/5" : ""}`}>
-                                  {row.callOI > 0 ? (row.callOI > 100000 ? `${(row.callOI / 100000).toFixed(1)}L` : `${(row.callOI / 1000).toFixed(1)}K`) : "—"}
+                                  {row.callOI > 0 ? (row.callOI > 100000 ? `${(row.callOI / 100000).toFixed(1)}L` : `${(row.callOI / 1000).toFixed(1)}K`) : "-"}
                                   {row.callOI > 0 && <div className="h-1 bg-muted rounded-full mt-0.5"><div className="h-full bg-secondary/40 rounded-full" style={{ width: `${(row.callOI / maxCallOI) * 100}%` }} /></div>}
                                 </td>
                                 <td className={`px-2 py-2 text-right font-mono ${row.callChange >= 0 ? "text-secondary" : "text-destructive"}`}>
-                                  {row.callChange !== 0 ? `${row.callChange >= 0 ? "+" : ""}${row.callChange.toFixed(1)}` : "—"}
+                                  {row.callChange !== 0 ? `${row.callChange >= 0 ? "+" : ""}${row.callChange.toFixed(1)}` : "-"}
                                 </td>
                                 <td className={`px-2 py-2 text-right font-mono ${isITMCall ? "bg-secondary/5" : ""}`}>
-                                  {row.callLTP > 0 ? row.callLTP.toFixed(2) : "—"}
+                                  {row.callLTP > 0 ? row.callLTP.toFixed(2) : "-"}
                                 </td>
                                 <td className="px-2 py-2 text-right font-mono text-muted-foreground border-r border-border">
-                                  {row.callIV > 0 ? row.callIV.toFixed(1) : "—"}
+                                  {row.callIV > 0 ? row.callIV.toFixed(1) : "-"}
                                 </td>
                                 <td className={`px-3 py-2 text-center font-bold font-mono ${isATM ? "text-brand-gold" : "text-foreground"}`}>
                                   {row.strike.toLocaleString("en-IN")}
                                   {isATM && <span className="block text-[9px] text-brand-gold">ATM</span>}
                                 </td>
                                 <td className={`px-2 py-2 text-left font-mono border-l border-border ${isITMPut ? "bg-destructive/5" : ""}`}>
-                                  {row.putOI > 0 ? (row.putOI > 100000 ? `${(row.putOI / 100000).toFixed(1)}L` : `${(row.putOI / 1000).toFixed(1)}K`) : "—"}
+                                  {row.putOI > 0 ? (row.putOI > 100000 ? `${(row.putOI / 100000).toFixed(1)}L` : `${(row.putOI / 1000).toFixed(1)}K`) : "-"}
                                   {row.putOI > 0 && <div className="h-1 bg-muted rounded-full mt-0.5"><div className="h-full bg-destructive/40 rounded-full" style={{ width: `${(row.putOI / maxPutOI) * 100}%` }} /></div>}
                                 </td>
                                 <td className={`px-2 py-2 text-left font-mono ${row.putChange >= 0 ? "text-secondary" : "text-destructive"}`}>
-                                  {row.putChange !== 0 ? `${row.putChange >= 0 ? "+" : ""}${row.putChange.toFixed(1)}` : "—"}
+                                  {row.putChange !== 0 ? `${row.putChange >= 0 ? "+" : ""}${row.putChange.toFixed(1)}` : "-"}
                                 </td>
                                 <td className={`px-2 py-2 text-left font-mono ${isITMPut ? "bg-destructive/5" : ""}`}>
-                                  {row.putLTP > 0 ? row.putLTP.toFixed(2) : "—"}
+                                  {row.putLTP > 0 ? row.putLTP.toFixed(2) : "-"}
                                 </td>
                                 <td className="px-2 py-2 text-left font-mono text-muted-foreground">
-                                  {row.putIV > 0 ? row.putIV.toFixed(1) : "—"}
+                                  {row.putIV > 0 ? row.putIV.toFixed(1) : "-"}
                                 </td>
                               </motion.tr>
                             );

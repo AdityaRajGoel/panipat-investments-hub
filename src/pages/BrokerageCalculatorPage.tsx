@@ -215,7 +215,7 @@ const BrokerageCalculatorPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Brokerage Calculator | Parasram India — Panipat"
+        title="Brokerage Calculator | Parasram India - Panipat"
         description="Calculate Parasram brokerage, STT, GST, exchange charges, and net P&L for equity, F&O, commodity, and currency trades. Updated for April 2026 STT rates."
         breadcrumbs={[
           { name: "Home", url: "/" },
@@ -270,7 +270,7 @@ const BrokerageCalculatorPage = () => {
             Brokerage Calculator
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Estimate total trading charges including Parasram's brokerage, STT, GST & more — updated with{" "}
+            Estimate total trading charges including Parasram's brokerage, STT, GST & more - updated with{" "}
             <span className="text-secondary font-semibold">April 2026 STT rates</span>.
           </p>
         </motion.div>
@@ -553,7 +553,7 @@ const BrokerageCalculatorPage = () => {
                 <span className="font-mono">
                   {(parseInt(qty) || 0) > 0
                     ? `₹${(charges.total / (parseInt(qty) || 1)).toFixed(2)}/share`
-                    : "—"}
+                    : "-"}
                 </span>
               </div>
             </Card>

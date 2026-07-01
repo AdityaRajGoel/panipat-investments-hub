@@ -131,7 +131,7 @@ const Week52TrackerPage = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">52-Week High / Low Tracker</h1>
-            <p className="text-muted-foreground">Live stocks near their yearly extremes — spot breakout and reversal candidates</p>
+            <p className="text-muted-foreground">Live stocks near their yearly extremes - spot breakout and reversal candidates</p>
           </div>
           <div className="flex items-center gap-3">
             {updatedAt && (

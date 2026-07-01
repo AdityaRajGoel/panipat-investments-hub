@@ -85,7 +85,7 @@ const InvestmentTools = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
           />
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Everything you need to make informed investment decisions — like Kite & Groww, but with personal guidance
+            Everything you need to make informed investment decisions - like Kite & Groww, but with personal guidance
           </p>
         </motion.div>
 

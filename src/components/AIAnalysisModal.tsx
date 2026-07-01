@@ -275,7 +275,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   
   const endOfChatRef = useRef<HTMLDivElement>(null);
   
-  // Ref to track the current request — prevents stale responses from overwriting
+  // Ref to track the current request - prevents stale responses from overwriting
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -293,7 +293,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     }
   }, [isOpen, stock?.symbol]);
 
-  // Step animation — purely visual progress; does NOT gate dismissal
+  // Step animation - purely visual progress; does NOT gate dismissal
   useEffect(() => {
     if (!isOpen || !isAnalyzing) return;
     const interval = setInterval(() => {
@@ -309,7 +309,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     return () => clearTimeout(t);
   }, [isOpen, isAnalyzing, stock?.symbol]);
 
-  // Dismiss as soon as the real AI response is ready (past the brief minimum) —
+  // Dismiss as soon as the real AI response is ready (past the brief minimum) -
   // no longer waits out the full decorative animation sequence.
   useEffect(() => {
     if (aiResponseReady && minTimeElapsed) setIsAnalyzing(false);
@@ -330,7 +330,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     }).catch(() => {});
   }, [isOpen, stock?.symbol]);
 
-  // Fetch Deep AI Report — fires when modal opens with a stock
+  // Fetch Deep AI Report - fires when modal opens with a stock
   // Uses a requestId to discard stale responses when user switches stocks quickly
   useEffect(() => {
     if (!isOpen || !stock || !analysis) return;
@@ -474,7 +474,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     return () => clearTimeout(fetchTimer);
   }, [isOpen, stock?.symbol, retryNonce]);
 
-  // Shared context builder for chat — avoids duplicated code
+  // Shared context builder for chat - avoids duplicated code
   const buildChatContext = () => [
     `Stock: ${stock?.name} (${stock?.symbol})`,
     `Sector: ${stock?.sector || 'N/A'}`,
@@ -566,7 +566,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {/* Share buttons — only show after analysis is complete */}
+            {/* Share buttons - only show after analysis is complete */}
             {!isAnalyzing && geminiVerdict && (
               <>
                 <button
@@ -716,7 +716,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                       <IndicatorCard label="Debt to Equity" signal={analysis.deSignal} desc={analysis.deDesc} icon={AlertTriangle} delay={0.2} />
                     </div>
 
-                    {/* Price Targets Card — shown when AI has returned structured data */}
+                    {/* Price Targets Card - shown when AI has returned structured data */}
                     {geminiVerdict?.structured?.price_targets && (
                       <motion.div
                         initial={{ opacity: 0, y: 12 }}
@@ -747,7 +747,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                             <div key={label} className={`${bg} rounded-lg p-3 text-center`}>
                               <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">{label}</p>
                               <p className={`text-sm font-black font-mono ${color}`}>
-                                {value > 0 ? `₹${value.toLocaleString("en-IN")}` : "—"}
+                                {value > 0 ? `₹${value.toLocaleString("en-IN")}` : "-"}
                               </p>
                               {value > 0 && analysis.priceNum > 0 && (
                                 <p className={`text-[8px] font-medium mt-0.5 ${value >= analysis.priceNum ? "text-secondary" : "text-destructive"}`}>
@@ -849,7 +849,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                           )}
                         </div>
 
-                        {/* Analyst Consensus — real Wall Street data from Yahoo */}
+                        {/* Analyst Consensus - real Wall Street data from Yahoo */}
                         {geminiVerdict.structured.analyst_consensus && geminiVerdict.structured.analyst_consensus.count ? (
                           <div className="bg-gradient-to-r from-secondary/5 to-brand-orange/5 border border-secondary/20 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-3">
@@ -871,7 +871,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                               ].map(({ label, value, color }) => (
                                 <div key={label} className="bg-card/60 rounded-lg p-2">
                                   <p className="text-[8px] font-bold text-muted-foreground uppercase mb-0.5">{label}</p>
-                                  <p className={`text-sm font-black font-mono ${color}`}>{value ? `₹${value.toLocaleString("en-IN")}` : "—"}</p>
+                                  <p className={`text-sm font-black font-mono ${color}`}>{value ? `₹${value.toLocaleString("en-IN")}` : "-"}</p>
                                   {value && analysis.priceNum > 0 && label === "Mean Target" && (
                                     <p className={`text-[8px] font-medium mt-0.5 ${value >= analysis.priceNum ? "text-secondary" : "text-destructive"}`}>
                                       {value >= analysis.priceNum ? "+" : ""}{(((value - analysis.priceNum) / analysis.priceNum) * 100).toFixed(1)}% upside
@@ -883,7 +883,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                           </div>
                         ) : null}
 
-                        {/* Quant Score Breakdown — shows how the composite rating was built */}
+                        {/* Quant Score Breakdown - shows how the composite rating was built */}
                         {geminiVerdict.structured.score_breakdown && (
                           <div className="bg-muted/30 border border-border/50 rounded-xl p-4">
                             <div className="flex items-center justify-between mb-3">

@@ -47,7 +47,7 @@ const formatMarketCap = (cr: number) => {
   if (cr >= 100000) return `₹${(cr / 100000).toFixed(1)}L Cr`;
   if (cr >= 1000) return `₹${(cr / 1000).toFixed(0)}K Cr`;
   if (cr > 0) return `₹${cr.toFixed(0)} Cr`;
-  return "—";
+  return "-";
 };
 
 // Candlestick + Volume chart
@@ -254,7 +254,7 @@ const GlobalStockSearch = ({ className }: Props) => {
       body: { query: q },
     });
 
-    // Show DB results immediately when they arrive (fast path — typically <100ms)
+    // Show DB results immediately when they arrive (fast path - typically <100ms)
     dbPromise
       .then((data) => {
         setResults(data);
@@ -296,7 +296,7 @@ const GlobalStockSearch = ({ className }: Props) => {
   }, [query, searchStocks]);
 
   // Handle selecting a stock (either local or from exchange)
-  // NOTE: We intentionally do NOT auto-open AI here — user must click the AI button explicitly
+  // NOTE: We intentionally do NOT auto-open AI here - user must click the AI button explicitly
   const handleSelect = async (stock: any, isExchange = false) => {
     if (isExchange) {
       setSearching(true);
@@ -569,10 +569,10 @@ const GlobalStockSearch = ({ className }: Props) => {
                     <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">Market Statistics</h3>
                     <div className="grid grid-cols-1 gap-1">
                       {[
-                        { label: "Market Cap", value: selected.market_cap > 0 ? formatMarketCap(selected.market_cap) : "—" },
+                        { label: "Market Cap", value: selected.market_cap > 0 ? formatMarketCap(selected.market_cap) : "-" },
                         { label: "P/E Ratio", value: selected.pe > 0 ? selected.pe.toFixed(2) : "N/A" },
-                        { label: "Day Range", value: `₹${selected.day_low.toFixed(1)} — ₹${selected.day_high.toFixed(1)}` },
-                        { label: "Volume (24h)", value: selected.volume > 0 ? `${(selected.volume / 1000000).toFixed(2)}M` : "—" },
+                        { label: "Day Range", value: `₹${selected.day_low.toFixed(1)} - ₹${selected.day_high.toFixed(1)}` },
+                        { label: "Volume (24h)", value: selected.volume > 0 ? `${(selected.volume / 1000000).toFixed(2)}M` : "-" },
                       ].map(({ label, value }) => (
                         <div key={label} className="flex justify-between items-center px-3 py-2.5 rounded-lg bg-muted/10 border border-transparent hover:border-border/20 transition-colors">
                           <span className="text-xs text-muted-foreground font-medium">{label}</span>

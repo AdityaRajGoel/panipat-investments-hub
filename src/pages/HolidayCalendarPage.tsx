@@ -133,7 +133,7 @@ const HolidayCalendarPage = () => {
             <CalendarDays className="w-8 h-8 text-secondary" />
             <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground">Market Holiday Calendar {CALENDAR_YEAR}</h1>
           </div>
-          <p className="text-muted-foreground">NSE, BSE & MCX trading holidays — plan your trades in advance</p>
+          <p className="text-muted-foreground">NSE, BSE & MCX trading holidays - plan your trades in advance</p>
         </motion.div>
 
         {/* Next holiday banner */}
@@ -153,7 +153,7 @@ const HolidayCalendarPage = () => {
                     {daysUntilNext === 0 ? "Today is a market holiday!" : `Next holiday in ${daysUntilNext} day${daysUntilNext > 1 ? "s" : ""}`}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {nextHoliday.name} — {nextHoliday.date}, {nextHoliday.day}
+                    {nextHoliday.name} - {nextHoliday.date}, {nextHoliday.day}
                   </p>
                 </div>
               </div>

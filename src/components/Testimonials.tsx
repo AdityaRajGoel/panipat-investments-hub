@@ -7,7 +7,7 @@ const testimonials = [
     name: "Mohit Bansal",
     role: "Business Owner",
     location: "Panipat",
-    content: "I have been with Parasram for over 8 years. Their team in Panipat genuinely cares about your portfolio. They helped me diversify from just FDs to equity and mutual funds — my returns have grown significantly since then.",
+    content: "I have been with Parasram for over 8 years. Their team in Panipat genuinely cares about your portfolio. They helped me diversify from just FDs to equity and mutual funds - my returns have grown significantly since then.",
     rating: 5,
   },
   {
@@ -21,7 +21,7 @@ const testimonials = [
     name: "Rajeev Mittal",
     role: "Textile Manufacturer",
     location: "Panipat",
-    content: "Panipat's textile industry is volatile — I needed stable returns outside my business. Parasram's research team recommended the right mix of blue-chip stocks and mutual funds. Very happy with the results over 5 years.",
+    content: "Panipat's textile industry is volatile - I needed stable returns outside my business. Parasram's research team recommended the right mix of blue-chip stocks and mutual funds. Very happy with the results over 5 years.",
     rating: 5,
   },
   {
@@ -35,7 +35,7 @@ const testimonials = [
     name: "Pooja Khatri",
     role: "CA Professional",
     location: "Panipat",
-    content: "Being from a finance background, I know what good advice looks like. Parasram's research is solid — their derivative strategies are well-thought-out. The Panipat team is responsive even on weekends.",
+    content: "Being from a finance background, I know what good advice looks like. Parasram's research is solid - their derivative strategies are well-thought-out. The Panipat team is responsive even on weekends.",
     rating: 5,
   },
   {

@@ -44,7 +44,7 @@ function StatBar({ value, max, color }: { value: number | null; max: number; col
 
 // 52W range bar showing where current price is
 function RangeBar({ price, low, high }: { price: number | null; low: number | null; high: number | null }) {
-  if (price == null || low == null || high == null || high === low) return <span>—</span>;
+  if (price == null || low == null || high == null || high === low) return <span>-</span>;
   const pct = Math.min(100, Math.max(0, ((price - low) / (high - low)) * 100));
   const fmtK = (n: number) => n >= 100000 ? `${(n / 100000).toFixed(0)}L` : `${(n / 1000).toFixed(0)}K`;
   return (
@@ -103,22 +103,22 @@ const StockComparisonPage = () => {
   const handleShare = () => {
     if (selected.length === 0) return;
     const text = selected.map(s =>
-      `${s.symbol}: ₹${s.price?.toLocaleString("en-IN")} | P/E: ${s.pe?.toFixed(1) ?? "—"} | MCap: ₹${s.market_cap != null ? (s.market_cap / 100000).toFixed(0) + "L Cr" : "—"}`
+      `${s.symbol}: ₹${s.price?.toLocaleString("en-IN")} | P/E: ${s.pe?.toFixed(1) ?? "-"} | MCap: ₹${s.market_cap != null ? (s.market_cap / 100000).toFixed(0) + "L Cr" : "-"}`
     ).join("\n");
-    const full = `Stock Comparison — Parasram Intelligence:\n${text}`;
+    const full = `Stock Comparison - Parasram Intelligence:\n${text}`;
     if (navigator.share) navigator.share({ title: "Stock Comparison", text: full });
     else navigator.clipboard.writeText(full);
   };
 
-  const fmt = (n: number | null) => n != null ? `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}` : "—";
+  const fmt = (n: number | null) => n != null ? `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}` : "-";
   const fmtCr = (n: number | null) => {
-    if (n == null) return "—";
+    if (n == null) return "-";
     if (n >= 10000000) return `₹${(n / 10000000).toFixed(0)} Cr`;
     if (n >= 100000) return `₹${(n / 100000).toFixed(0)} L`;
     return fmt(n);
   };
   const fmtVol = (n: number | null) => {
-    if (n == null) return "—";
+    if (n == null) return "-";
     if (n >= 10000000) return `${(n / 10000000).toFixed(1)} Cr`;
     if (n >= 100000) return `${(n / 100000).toFixed(1)} L`;
     return n.toLocaleString("en-IN");
@@ -175,7 +175,7 @@ const StockComparisonPage = () => {
     {
       label: "P/E Ratio", key: "pe", compare: "lower",
       format: s => <div className="text-center">
-        <div className="font-mono">{s.pe != null && s.pe > 0 ? s.pe.toFixed(2) : "—"}</div>
+        <div className="font-mono">{s.pe != null && s.pe > 0 ? s.pe.toFixed(2) : "-"}</div>
         {s.pe != null && s.pe > 0 && <div className={`text-[10px] mt-0.5 font-semibold ${s.pe < 20 ? "text-secondary" : s.pe > 50 ? "text-destructive" : "text-muted-foreground"}`}>
           {s.pe < 20 ? "Low" : s.pe > 50 ? "Premium" : "Fair"}
         </div>}
@@ -192,7 +192,7 @@ const StockComparisonPage = () => {
       label: "52W Range", key: "high_52", compare: undefined,
       format: s => <div className="flex justify-center"><RangeBar price={s.price} low={s.low_52} high={s.high_52} /></div>
     },
-    { label: "Sector", key: "sector", compare: undefined, format: s => <div className="text-center text-xs text-muted-foreground">{s.sector ?? "—"}</div> },
+    { label: "Sector", key: "sector", compare: undefined, format: s => <div className="text-center text-xs text-muted-foreground">{s.sector ?? "-"}</div> },
   ];
 
   return (
