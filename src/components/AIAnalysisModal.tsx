@@ -134,11 +134,11 @@ function computeAnalysis(stock: StockForAnalysis) {
   const roe = stock.roe ?? (isFinancial ? 14.5 : stock.pe && stock.pe > 0 ? 100 / stock.pe * 1.5 : 12.0);
   const debtEquity = stock.debt_equity ?? (isFinancial ? 3.5 : 0.4);
 
-  let roeSignal = roe > 15 ? "Strong" : roe > 8 ? "Neutral" : "Weak";
-  let roeDesc = `Return on Equity: ${roe.toFixed(1)}%. ${roe > 15 ? "Excellent capital efficiency." : "Average efficiency."}`;
+  const roeSignal = roe > 15 ? "Strong" : roe > 8 ? "Neutral" : "Weak";
+  const roeDesc = `Return on Equity: ${roe.toFixed(1)}%. ${roe > 15 ? "Excellent capital efficiency." : "Average efficiency."}`;
 
-  let deSignal = debtEquity > (isFinancial ? 5 : 1) ? "High Risk" : "Strong";
-  let deDesc = `D/E Ratio: ${debtEquity.toFixed(2)}. ${deSignal === "Strong" ? "Healthy balance sheet." : "Highly leveraged."}`;
+  const deSignal = debtEquity > (isFinancial ? 5 : 1) ? "High Risk" : "Strong";
+  const deDesc = `D/E Ratio: ${debtEquity.toFixed(2)}. ${deSignal === "Strong" ? "Healthy balance sheet." : "Highly leveraged."}`;
 
   const isBullish = changePct >= 0;
   const patterns: string[] = []; // Pattern detection is now done server-side with real data
@@ -247,6 +247,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   const [isChatting, setIsChatting] = useState(false);
   const [activeTab, setActiveTab] = useState<'report' | 'chat'>('report');
   const [useWebSearch, setUseWebSearch] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   const sampleQuestions = [
     "What's the price target for 3 months?",
@@ -311,7 +312,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       body: { symbol: stock.symbol, range: '1mo' }
     }).then(({ data }) => {
       if (data?.success && data.dataPoints?.length > 0) {
-        setSparklineData(data.dataPoints.map((dp: any, i: number) => ({ day: i, price: dp.c })));
+        setSparklineData(data.dataPoints.map((dp: { c: number }, i: number) => ({ day: i, price: dp.c })));
       }
     }).catch(() => {});
   }, [isOpen, stock?.symbol]);
@@ -381,8 +382,8 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                 console.warn("Standard JSON parse failed, attempting regex extraction...");
                 
                 // Attempt 2: Regex extraction for markdown_report even if truncated
-                const mdMatch = verdict.match(/"markdown_report":\s*"([\s\S]*?)(?=",\s*"structured_data"|",\s*"|\"}|\z)/);
-                const structuredMatch = verdict.match(/"structured_data":\s*({[\s\S]*?)(?=\s*,\s*"|}$|\z)/);
+                const mdMatch = verdict.match(/"markdown_report":\s*"([\s\S]*?)(?=",\s*"structured_data"|",\s*"|"}|$)/);
+                const structuredMatch = verdict.match(/"structured_data":\s*({[\s\S]*?)(?=\s*,\s*"|}$|$)/);
                 
                 let extractedMd = mdMatch ? mdMatch[1] : null;
                 if (extractedMd) {
@@ -557,11 +558,14 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               <>
                 <button
                   onClick={() => {
+                    const verdict = geminiVerdict?.structured?.action_verdict || (analysis.isBullish ? "BULLISH" : "BEARISH");
+                    const score = geminiVerdict?.structured?.sentiment_score ?? analysis.score;
+                    const oneLiner = geminiVerdict?.structured?.bullish_signals?.[0] || "";
                     const text = `📊 *${stock.symbol} AI Analysis* by Parasram Intelligence\n\n` +
                       `💰 Price: ₹${analysis.priceNum.toLocaleString("en-IN")}\n` +
-                      `📈 Signal: ${geminiVerdict?.structured?.signal || analysis.signalLabel}\n` +
-                      `🎯 Confidence: ${geminiVerdict?.structured?.confidence || analysis.confidence}%\n\n` +
-                      `${geminiVerdict?.structured?.one_liner || ""}\n\n` +
+                      `📈 Signal: ${verdict}\n` +
+                      `🎯 AI Score: ${score}/100\n\n` +
+                      (oneLiner ? `${oneLiner}\n\n` : "") +
                       `🔗 Analyse more stocks at sphpnp.com/screener`;
                     const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
                     window.open(waUrl, "_blank");
@@ -574,23 +578,25 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                 </button>
                 <button
                   onClick={() => {
+                    const verdict = geminiVerdict?.structured?.action_verdict || (analysis.isBullish ? "BULLISH" : "BEARISH");
+                    const score = geminiVerdict?.structured?.sentiment_score ?? analysis.score;
+                    const oneLiner = geminiVerdict?.structured?.bullish_signals?.[0] || "";
                     const text = `${stock.symbol} AI Analysis by Parasram Intelligence\n\n` +
                       `Price: ₹${analysis.priceNum.toLocaleString("en-IN")}\n` +
-                      `Signal: ${geminiVerdict?.structured?.signal || analysis.signalLabel}\n` +
-                      `Confidence: ${geminiVerdict?.structured?.confidence || analysis.confidence}%\n\n` +
-                      `${geminiVerdict?.structured?.one_liner || ""}\n\n` +
+                      `Signal: ${verdict}\n` +
+                      `AI Score: ${score}/100\n\n` +
+                      (oneLiner ? `${oneLiner}\n\n` : "") +
                       `Analyse more stocks at https://sphpnp.com/screener`;
                     navigator.clipboard.writeText(text);
-                    // Brief visual feedback
-                    const btn = document.getElementById("copy-analysis-btn");
-                    if (btn) { btn.textContent = "✓"; setTimeout(() => { btn.textContent = ""; }, 1500); }
+                    // Brief visual feedback via React state (no direct DOM mutation)
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1500);
                   }}
                   aria-label="Copy analysis"
-                  id="copy-analysis-btn"
                   className="p-1.5 rounded-full hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
                   title="Copy to clipboard"
                 >
-                  <Share2 className="w-4 h-4" />
+                  {copied ? <CheckCircle2 className="w-4 h-4 text-secondary" /> : <Share2 className="w-4 h-4" />}
                 </button>
               </>
             )}
