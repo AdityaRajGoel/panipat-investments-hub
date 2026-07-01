@@ -1,6 +1,7 @@
-import { TrendingUp, TrendingDown, X, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { useLiveMarket, LiveStock } from "@/hooks/useLiveMarket";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -9,7 +10,6 @@ interface TickerRowProps {
   direction?: "left" | "right";
   bgClass?: string;
   textClass?: string;
-  duration?: number;
 }
 
 import Marquee from "react-fast-marquee";
@@ -44,29 +44,31 @@ const PriceCell = ({ item }: { item: LiveStock }) => {
   );
 };
 
-const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", textClass = "text-primary-foreground", duration = 40 }: TickerRowProps) => {
-  const [selectedItem, setSelectedItem] = useState<LiveStock | null>(null);
-  const isReverse = direction === "right";
+const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", textClass = "text-primary-foreground" }: TickerRowProps) => {
+  const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <div className={`${bgClass} ${textClass} py-1 md:py-1.5 overflow-hidden whitespace-nowrap relative border-b border-black/5 dark:border-white/5`}>
       {/* Edge fade masks */}
       <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-[#1a1f2e] dark:from-[hsl(220,20%,10%)] to-transparent" />
       <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-[#1a1f2e] dark:from-[hsl(220,20%,10%)] to-transparent" />
-      
-      <Marquee 
-        speed={100} 
-        gradient={false} 
+
+      <Marquee
+        speed={100}
+        gradient={false}
         pauseOnHover={true}
         direction={direction}
-        play={!selectedItem}
+        play={!prefersReducedMotion}
         className="flex items-center"
       >
         {items.map((item, i) => (
-          <div
+          <button
             key={i}
+            type="button"
+            aria-label={`${item.name} ${item.price}, view in stock screener`}
             className="inline-flex items-center gap-1 md:gap-1.5 text-xs md:text-sm cursor-pointer select-none px-1 md:px-1.5 py-0.5 rounded-md hover:bg-white/10 transition-colors group"
-            onClick={() => setSelectedItem(item)}
+            onClick={() => navigate("/screener")}
           >
             <span className={`font-extrabold tracking-wide transition-colors ${item.up ? "text-[#00c853] dark:text-[#00e676]" : "text-[#d50000] dark:text-[#ff1744]"}`}>{item.name}</span>
             {item.unit ? <span className="opacity-50 text-[10px] md:text-xs">{item.unit}</span> : null}
@@ -76,41 +78,9 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
               {item.change}
             </span>
             <span className="text-white/20 text-sm mx-0.5">·</span>
-          </div>
+          </button>
         ))}
       </Marquee>
-
-      <AnimatePresence>
-        {selectedItem && (
-          <motion.div
-            className={`absolute inset-0 ${bgClass} flex items-center justify-center z-10`}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-          >
-            <motion.div
-              className={`flex items-center gap-6 ${textClass}`}
-              initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <div className="text-center">
-                <h3 className="text-xl md:text-2xl font-bold">
-                  {selectedItem.name}
-                  {selectedItem.unit ? <span className="text-sm font-normal ml-2 opacity-60">({selectedItem.unit})</span> : null}
-                </h3>
-                <div className="flex items-center justify-center gap-4 mt-1">
-                  <span className="text-lg md:text-xl font-semibold opacity-90">{selectedItem.price}</span>
-                  <span className={`flex items-center gap-1 text-base md:text-lg font-bold px-3 py-1 rounded-full ${selectedItem.up ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
-                    {selectedItem.up ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                    {selectedItem.change}
-                  </span>
-                </div>
-              </div>
-              <button onClick={() => setSelectedItem(null)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
@@ -197,16 +167,16 @@ const StockTicker = () => {
 
   return (
     <div className="border-b border-[#1a1f2e]/20 dark:border-brand-orange/20 bg-[#1a1f2e] dark:bg-brand-charcoal relative">
-      <TickerRow items={stocks} direction="left" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal" textClass="text-white" duration={120} />
+      <TickerRow items={stocks} direction="left" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal" textClass="text-white" />
       {!isMobile && (
         <>
           <div className="h-px bg-white/5 dark:bg-brand-orange/15" />
-          <TickerRow items={commodities} direction="right" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal/95" textClass="text-white" duration={120} />
+          <TickerRow items={commodities} direction="right" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal/95" textClass="text-white" />
         </>
       )}
-      
-      {/* Market status bar */}
-      <div className="absolute top-1 right-2 flex items-center gap-2 z-20">
+
+      {/* Market status bar — solid fade background so scrolling prices don't show through */}
+      <div className="absolute top-0 right-0 h-6 md:h-7 flex items-center gap-2 z-20 pl-10 pr-2 bg-gradient-to-l from-[#1a1f2e] via-[#1a1f2e] to-transparent dark:from-brand-charcoal dark:via-brand-charcoal">
         {/* Status badge */}
         <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${
           marketOpen 
