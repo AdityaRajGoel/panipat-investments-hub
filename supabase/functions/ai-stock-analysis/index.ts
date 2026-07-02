@@ -8,6 +8,10 @@ const REPORT_CACHE_TTL_MS = 15 * 60 * 1000;
 // cached report's price (keeps the verdict aligned with current price).
 const REPORT_CACHE_PRICE_DRIFT = 0.02;
 
+// Per-client rate limit: max requests per rolling window (protects LLM spend).
+const RATE_LIMIT_MAX = 20;
+const RATE_LIMIT_WINDOW_SECONDS = 60;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -876,6 +880,30 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
     const currentPrice = parseFloat(String(stockData.price).replace(/[₹,]/g, "")) || 0;
+
+    // ── Per-client rate limit (fails OPEN if the RPC/table isn't available,
+    //    so a DB hiccup never blocks all users) ──
+    try {
+      const clientId =
+        req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        req.headers.get("x-real-ip") ||
+        "anon";
+      const bucket = `ai:${clientId}`;
+      const { data: allowed, error: rlError } = await sb.rpc("check_ai_rate_limit", {
+        p_bucket: bucket,
+        p_max: RATE_LIMIT_MAX,
+        p_window_seconds: RATE_LIMIT_WINDOW_SECONDS,
+      });
+      if (!rlError && allowed === false) {
+        console.warn(`Rate limit exceeded for ${clientId}`);
+        return new Response(
+          JSON.stringify({ success: false, error: "Rate limit exceeded. Please wait a moment and try again." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(RATE_LIMIT_WINDOW_SECONDS) } },
+        );
+      }
+    } catch (e) {
+      console.warn("Rate limit check failed (non-fatal):", e instanceof Error ? e.message : e);
+    }
 
     // ── Serve a fresh cached report if one exists and the price hasn't
     //    drifted materially. One computation serves every viewer for the TTL. ──
