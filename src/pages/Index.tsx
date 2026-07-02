@@ -39,7 +39,6 @@ const Index = () => {
       <SEOHead
         title="Best Stock Broker in Panipat | Parasram India"
         description="SEBI-registered stock broker in Panipat since 1970. Open a free Demat account. Trade stocks, mutual funds, IPO, F&O, commodities and unlisted shares."
-        ogImage="https://www.sphpnp.com/logo.png"
         breadcrumbs={[{ name: "Home", url: "/" }]}
         jsonLd={{
           "@type": "VideoObject",

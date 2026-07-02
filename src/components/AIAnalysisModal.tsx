@@ -205,6 +205,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
         target_low: number | null;
       };
       data_source?: string;
+      detected_patterns?: string[];
     }
   } | null>(null);
   const [chatHistory, setChatHistory] = useState<{role: 'user' | 'ai', text: string}[]>([]);
@@ -635,9 +636,9 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                             {analysis.changePct >= 0 ? "+" : ""}{analysis.changePct.toFixed(2)}%
                           </span>
                         </div>
-                        <div className="flex gap-2 mt-2">
-                          {analysis.patterns.map(p => (
-                            <span key={p} className="text-[10px] bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded border border-brand-gold/30 flex items-center gap-1"><Sparkles className="w-3 h-3"/> {p} detected</span>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {(geminiVerdict?.structured?.detected_patterns || []).map(p => (
+                            <span key={p} className="text-[10px] bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded border border-brand-gold/30 flex items-center gap-1"><Sparkles className="w-3 h-3"/> {p}</span>
                           ))}
                         </div>
                       </div>

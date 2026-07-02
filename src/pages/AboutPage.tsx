@@ -29,7 +29,6 @@ const AboutPage = () => {
       <SEOHead
         title="About Parasram India Panipat | 50+ Years Legacy Stock Broker"
         description="Parasram India - Panipat's most trusted SEBI-registered stock broker since 1970. NSE, BSE & MCX member. 10L+ happy clients. Open your free Demat account today."
-        ogImage="https://www.sphpnp.com/logo.png"
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "About Us" },

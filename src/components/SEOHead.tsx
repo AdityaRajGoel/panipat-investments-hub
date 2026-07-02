@@ -47,7 +47,8 @@ const SEOHead = ({
   const fullCanonical = canonical || `${BASE_URL}${pathname}`;
   const isHomepage = pathname === '/';
   const fullTitle = title.includes("Parasram") || title.length > 60 ? title : `${title} | Parasram India`;
-  const finalOgImage = ogImage || "https://www.sphpnp.com/logo.png";
+  // Default to a 1200x630 branded banner (renders far better on social than the square logo)
+  const finalOgImage = ogImage || "https://www.sphpnp.com/og-default.jpg";
   
   // Combine all JSON-LD scripts
   const schemaScripts = [];
@@ -234,6 +235,9 @@ const SEOHead = ({
       <meta property="og:site_name" content="Parasram India - Panipat Branch" />
       <meta property="og:locale" content="en_IN" />
       <meta property="og:image" content={finalOgImage} />
+      {finalOgImage.includes("og-default") && <meta property="og:image:width" content="1200" />}
+      {finalOgImage.includes("og-default") && <meta property="og:image:height" content="630" />}
+      <meta property="og:image:alt" content={fullTitle} />
 
       {type === "article" && datePublished && <meta property="article:published_time" content={datePublished} />}
       {type === "article" && dateModified && <meta property="article:modified_time" content={dateModified} />}
