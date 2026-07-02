@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   X, BrainCircuit, TrendingUp, TrendingDown, Activity, AlertTriangle,
   CheckCircle2, Bot, Info, Star, Share2, BarChart2, Zap, Sparkles, MessageSquare, Send, Users
@@ -46,54 +46,6 @@ const analysisSteps = [
   { text: "Generating investment-grade report...", icon: "📝" },
   { text: "Finalizing Intelligence Report...", icon: "✨" },
 ];
-
-function useTypewriter(text: string, speed = 10, start = false) {
-  const [displayed, setDisplayed] = useState("");
-  useEffect(() => {
-    if (!start || !text) { setDisplayed(""); return; }
-    setDisplayed("");
-    let i = 0;
-    const timer = setInterval(() => {
-      setDisplayed(text.slice(0, i + 1));
-      i++;
-      if (i >= text.length) clearInterval(timer);
-    }, speed);
-    return () => clearInterval(timer);
-  }, [text, start, speed]);
-  return displayed;
-}
-
-function AnimatedCounter({ value, duration = 1.5 }: { value: number; duration?: number }) {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, (v) => Math.round(v));
-  const [display, setDisplay] = useState(0);
-  useEffect(() => {
-    const controls = animate(count, value, { duration, ease: "easeOut" });
-    const unsub = rounded.on("change", (v) => setDisplay(v));
-    return () => { controls.stop(); unsub(); };
-  }, [value, duration, count, rounded]);
-  return <span>{display}</span>;
-}
-
-function RiskMeter({ level }: { level: "Low" | "Moderate" | "High" | "Very High" }) {
-  const levels = ["Low", "Moderate", "High", "Very High"];
-  const idx = levels.indexOf(level);
-  const colors = ["bg-secondary", "bg-yellow-500", "bg-orange-500", "bg-destructive"];
-  const textColors = ["text-secondary", "text-yellow-500", "text-orange-500", "text-destructive"];
-  return (
-    <div>
-      <div className="flex gap-1 mb-1">
-        {levels.map((l, i) => (
-          <motion.div key={l}
-            className={`h-1.5 flex-1 rounded-full ${i <= idx ? colors[idx] : "bg-muted"}`}
-            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-            transition={{ delay: 0.3 + i * 0.1, duration: 0.4 }} style={{ originX: 0 }} />
-        ))}
-      </div>
-      <div className={`text-[11px] font-bold ${textColors[idx]}`}>{level} Risk</div>
-    </div>
-  );
-}
 
 function IndicatorCard({ label, signal, desc, icon: Icon, delay }:
   { label: string; signal: string; desc: string; icon: React.ElementType; delay: number }) {
