@@ -12,6 +12,12 @@ const REPORT_CACHE_PRICE_DRIFT = 0.02;
 const RATE_LIMIT_MAX = 20;
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 
+// Report model is configurable via env (default: fast + cheap flash).
+// Set REPORT_MODEL to "google/gemini-2.5-pro" for deeper reasoning (higher cost/latency).
+const REPORT_MODEL = Deno.env.get("REPORT_MODEL") || "google/gemini-2.5-flash";
+// Gemini-direct fallback model name (strip the "google/" prefix if present).
+const GEMINI_REPORT_MODEL = (Deno.env.get("REPORT_MODEL") || "gemini-2.5-flash").replace(/^google\//, "");
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -185,7 +191,7 @@ async function askOpenRouter(prompt: string, isChat: boolean = false) {
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
   const model = isChat
     ? "google/gemini-2.0-flash-lite-001"
-    : "google/gemini-2.5-flash";
+    : REPORT_MODEL;
 
   const messages = [
     { role: "system", content: systemMsg },
@@ -302,7 +308,8 @@ async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: 
   if (!GEMINI_API_KEY) throw new Error("Gemini API key not configured");
 
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+  const geminiModel = isChat ? "gemini-2.5-flash" : GEMINI_REPORT_MODEL;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`;
 
   const bodyData: any = {
     system_instruction: { parts: { text: systemMsg } },
@@ -351,7 +358,7 @@ async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: 
     }
   }
 
-  return { result: text, model: "gemini-2.5-flash" };
+  return { result: text, model: geminiModel };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -372,13 +379,48 @@ async function fetchHistoricalData(symbol: string) {
     const result = json?.chart?.result?.[0];
     if (!result) return null;
     const q = result.indicators?.quote?.[0] || {};
-    const closes: number[] = (q.close || []).filter((v: any) => v != null);
-    const highs: number[] = (q.high || []).filter((v: any) => v != null);
-    const lows: number[] = (q.low || []).filter((v: any) => v != null);
-    const volumes: number[] = (q.volume || []).filter((v: any) => v != null);
+    // Align OHLCV row-by-row (keep only days where close is present) so
+    // candlestick patterns compare matching open/high/low/close values.
+    const opens: number[] = [], highs: number[] = [], lows: number[] = [], closes: number[] = [], volumes: number[] = [];
+    const rawClose = q.close || [];
+    for (let i = 0; i < rawClose.length; i++) {
+      if (rawClose[i] == null) continue;
+      closes.push(rawClose[i]);
+      opens.push(q.open?.[i] ?? rawClose[i]);
+      highs.push(q.high?.[i] ?? rawClose[i]);
+      lows.push(q.low?.[i] ?? rawClose[i]);
+      volumes.push(q.volume?.[i] ?? 0);
+    }
     if (closes.length < 20) return null;
-    return { closes, highs, lows, volumes };
+    return { opens, closes, highs, lows, volumes };
   } catch { return null; }
+}
+
+// ── Real candlestick pattern detection on the most recent 1-2 candles ──
+function detectCandlestickPatterns(opens: number[], highs: number[], lows: number[], closes: number[]): string[] {
+  const n = closes.length;
+  if (n < 2) return [];
+  const patterns: string[] = [];
+  const o = opens[n - 1], h = highs[n - 1], l = lows[n - 1], c = closes[n - 1];
+  const po = opens[n - 2], pc = closes[n - 2];
+  const body = Math.abs(c - o);
+  const range = h - l || 1e-9;
+  const upperWick = h - Math.max(o, c);
+  const lowerWick = Math.min(o, c) - l;
+
+  // Doji — very small body relative to range
+  if (body / range < 0.1) patterns.push("Doji");
+  // Hammer — small body near top, long lower wick (bullish reversal)
+  if (body / range < 0.35 && lowerWick > body * 2 && upperWick < body) patterns.push("Hammer");
+  // Shooting Star — small body near bottom, long upper wick (bearish reversal)
+  if (body / range < 0.35 && upperWick > body * 2 && lowerWick < body) patterns.push("Shooting Star");
+  // Marubozu — full body, tiny wicks (strong conviction)
+  if (body / range > 0.9) patterns.push(c > o ? "Bullish Marubozu" : "Bearish Marubozu");
+  // Engulfing — current body engulfs previous body
+  if (c > o && pc < po && c >= po && o <= pc) patterns.push("Bullish Engulfing");
+  if (c < o && pc > po && o >= pc && c <= po) patterns.push("Bearish Engulfing");
+
+  return [...new Set(patterns)].slice(0, 3);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -651,11 +693,13 @@ async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = 
   let adxVal = 25;
   let volAvg20 = 0, volSignal = "Normal";
   let atr = 0;
+  let detectedPatterns: string[] = [];
   let dataSource = "Approximated";
 
   if (hist) {
     dataSource = "Real (Yahoo Finance 1Y Daily)";
     const { closes, highs, lows, volumes } = hist;
+    detectedPatterns = detectCandlestickPatterns(hist.opens, highs, lows, closes);
     rsiVal = realRSI(closes);
     rsiSignal = rsiVal > 70 ? "Overbought" : rsiVal < 30 ? "Oversold" : rsiVal > 60 ? "Mildly Bullish" : rsiVal < 40 ? "Mildly Bearish" : "Neutral";
     sma20 = realSMA(closes, 20);
@@ -718,6 +762,8 @@ async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = 
     nearestResistance: Math.round(nearestResistance),
     fib382, fib618,
     isFinancial: isFin,
+    // Real detected candlestick patterns (overrides the empty client value)
+    patterns: detectedPatterns.length > 0 ? detectedPatterns : (raw.patterns || []),
     // Prefer REAL fundamentals from Yahoo; fall back to whatever the client sent
     roe: fundamentals?.roe ?? raw.roe ?? null,
     debt_equity: fundamentals?.debtToEquity ?? raw.debt_equity ?? null,
@@ -1035,6 +1081,7 @@ serve(async (req) => {
         };
       }
       sd.data_source = enriched.dataSource;
+      sd.detected_patterns = enriched.patterns || [];
       (result.result as any).structured_data = sd;
     }
 
