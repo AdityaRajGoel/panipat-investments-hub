@@ -159,19 +159,48 @@ const CountdownTimer = ({ fetchedAt, marketOpen }: { fetchedAt: string | null, m
   );
 };
 
+// Shimmer strip shown while live prices are being fetched (avoids flashing stale/fake numbers)
+const TickerSkeleton = ({ rows = 2 }: { rows?: number }) => {
+  const pills = Array.from({ length: 8 });
+  return (
+    <div aria-live="polite" aria-busy="true" className="bg-[#1a1f2e] dark:bg-brand-charcoal text-white">
+      {Array.from({ length: rows }).map((_, r) => (
+        <div key={r} className={`flex items-center gap-4 md:gap-6 px-4 py-1 md:py-1.5 overflow-hidden ${r > 0 ? "border-t border-white/5" : ""}`}>
+          <span className="text-[10px] text-white/40 font-medium shrink-0 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse" /> Loading live prices…
+          </span>
+          {pills.map((_, i) => (
+            <div key={i} className="inline-flex items-center gap-1.5 shrink-0">
+              <div className="h-3 w-12 rounded bg-white/15 animate-pulse" />
+              <div className="h-3 w-10 rounded bg-white/10 animate-pulse" />
+              <div className="h-3 w-8 rounded-full bg-white/10 animate-pulse" />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const StockTicker = () => {
   const isMobile = useIsMobile();
-  const { stocks, commodities, fetchedAt, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose } = useLiveMarket();
+  const { stocks, commodities, fetchedAt, marketOpen, marketStatusText, lastTradingDate, nextMarketOpen, marketClose, loading } = useLiveMarket();
   const nextOpenCountdown = useCountdown(nextMarketOpen);
   const closeCountdown = useCountdown(marketClose);
 
   return (
     <div className="border-b border-[#1a1f2e]/20 dark:border-brand-orange/20 bg-[#1a1f2e] dark:bg-brand-charcoal relative">
-      <TickerRow items={stocks} direction="left" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal" textClass="text-white" />
-      {!isMobile && (
+      {loading ? (
+        <TickerSkeleton rows={isMobile ? 1 : 2} />
+      ) : (
         <>
-          <div className="h-px bg-white/5 dark:bg-brand-orange/15" />
-          <TickerRow items={commodities} direction="right" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal/95" textClass="text-white" />
+          <TickerRow items={stocks} direction="left" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal" textClass="text-white" />
+          {!isMobile && (
+            <>
+              <div className="h-px bg-white/5 dark:bg-brand-orange/15" />
+              <TickerRow items={commodities} direction="right" bgClass="bg-[#1a1f2e] dark:bg-brand-charcoal/95" textClass="text-white" />
+            </>
+          )}
         </>
       )}
 

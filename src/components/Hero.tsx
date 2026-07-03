@@ -101,7 +101,7 @@ const MarketBreadthBar = memo(() => {
 const Hero = () => {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
-  const { indices: liveIndices, commodities, marketOverview } = useLiveMarket();
+  const { indices: liveIndices, commodities, marketOverview, loading: marketLoading } = useLiveMarket();
 
   const heroIndices = useMemo(() =>
     liveIndices.filter(idx => ["NIFTY", "SENSEX", "BANKNIFTY"].includes(idx.key)).map(idx => ({
@@ -245,8 +245,17 @@ const Hero = () => {
                   </div>
                   <div className="min-w-0">
                     <div className="text-[9px] md:text-[10px] text-primary-foreground/60 font-semibold uppercase tracking-wide truncate">{idx.name}</div>
-                    <div className="text-xs md:text-sm font-bold text-primary-foreground truncate">{idx.price}</div>
-                    <div className={`text-[10px] md:text-xs font-bold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
+                    {marketLoading ? (
+                      <>
+                        <div className="h-4 w-16 my-0.5 rounded bg-white/20 animate-pulse" />
+                        <div className="h-3 w-10 rounded bg-white/15 animate-pulse" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-xs md:text-sm font-bold text-primary-foreground truncate">{idx.price}</div>
+                        <div className={`text-[10px] md:text-xs font-bold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
