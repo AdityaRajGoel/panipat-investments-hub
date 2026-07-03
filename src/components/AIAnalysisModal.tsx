@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, BrainCircuit, TrendingUp, TrendingDown, Activity, AlertTriangle,
-  CheckCircle2, Bot, Info, Star, Share2, BarChart2, Zap, Sparkles, MessageSquare, Send, Users
+  CheckCircle2, Bot, Info, Star, Share2, BarChart2, Zap, Sparkles, MessageSquare, Send, Users,
+  Database, LineChart, Scale, Cpu, FileText, Check
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,14 +39,13 @@ interface AIAnalysisModalProps {
   stock: StockForAnalysis | null;
 }
 
-const analysisSteps = [
-  { text: "Connecting to AI Engine...", icon: "🔌" },
-  { text: "Fetching fundamentals (ROE, Debt/Eq)...", icon: "📊" },
-  { text: "Scanning complex chart patterns...", icon: "📈" },
-  { text: "Running deep reasoning model...", icon: "🧠" },
-  { text: "Benchmarking against sector peers...", icon: "⚖️" },
-  { text: "Generating investment-grade report...", icon: "📝" },
-  { text: "Finalizing Intelligence Report...", icon: "✨" },
+const analysisSteps: { text: string; Icon: LucideIcon }[] = [
+  { text: "Fetching live market data", Icon: Database },
+  { text: "Computing technical indicators", Icon: Activity },
+  { text: "Scanning candlestick patterns", Icon: LineChart },
+  { text: "Benchmarking sector peers", Icon: Scale },
+  { text: "Running the reasoning model", Icon: Cpu },
+  { text: "Generating the report", Icon: FileText },
 ];
 
 function IndicatorCard({ label, signal, desc, icon: Icon, delay }:
@@ -102,62 +103,77 @@ function computeAnalysis(stock: StockForAnalysis) {
   };
 }
 
-const NeuralNetworkAnimation = () => {
+// Thematic loader: the AI "scanning" a live candlestick chart.
+// Deterministic candle heights (no random-on-render), compositor-friendly motion.
+const CANDLES = [28, 44, 22, 56, 38, 64, 30, 50, 72, 46, 60, 36];
+
+const AnalysisScanner = () => {
   return (
-    <div className="relative w-48 h-48 mb-8">
-      <svg viewBox="0 0 100 100" className="w-full h-full">
-        {/* Nodes */}
-        {[
-          { x: 20, y: 30 }, { x: 20, y: 50 }, { x: 20, y: 70 }, // Input
-          { x: 50, y: 20 }, { x: 50, y: 40 }, { x: 50, y: 60 }, { x: 50, y: 80 }, // Hidden
-          { x: 80, y: 40 }, { x: 80, y: 60 } // Output
-        ].map((node, i) => (
-          <motion.circle
-            key={i}
-            cx={node.x}
-            cy={node.y}
-            r="2"
-            fill="hsl(var(--secondary))"
-            initial={{ opacity: 0.3 }}
-            animate={{ opacity: [0.3, 1, 0.3], scale: [1, 1.5, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: Math.random() * 2 }}
-          />
+    <div className="relative w-60 h-40 mb-7">
+      <svg viewBox="0 0 240 120" className="w-full h-full overflow-visible">
+        <defs>
+          <linearGradient id="scanGlow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="hsl(var(--brand-orange))" stopOpacity="0" />
+            <stop offset="50%" stopColor="hsl(var(--brand-orange))" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="hsl(var(--brand-orange))" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="scanTrail" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="hsl(var(--brand-orange))" stopOpacity="0" />
+            <stop offset="100%" stopColor="hsl(var(--brand-orange))" stopOpacity="0.16" />
+          </linearGradient>
+        </defs>
+
+        {/* grid lines */}
+        {[24, 56, 88].map((y) => (
+          <line key={y} x1="0" y1={y} x2="240" y2={y} stroke="hsl(var(--border))" strokeWidth="0.5" strokeDasharray="3 5" opacity="0.5" />
         ))}
-        {/* Connections */}
-        {[
-          { from: 0, to: 3 }, { from: 0, to: 4 }, { from: 1, to: 4 }, { from: 1, to: 5 },
-          { from: 2, to: 5 }, { from: 2, to: 6 }, { from: 3, to: 7 }, { from: 4, to: 7 },
-          { from: 5, to: 8 }, { from: 6, to: 8 }
-        ].map((conn, i) => {
-          const nodes = [
-            { x: 20, y: 30 }, { x: 20, y: 50 }, { x: 20, y: 70 },
-            { x: 50, y: 20 }, { x: 50, y: 40 }, { x: 50, y: 60 }, { x: 50, y: 80 },
-            { x: 80, y: 40 }, { x: 80, y: 60 }
-          ];
-          const start = nodes[conn.from];
-          const end = nodes[conn.to];
+
+        {/* candlesticks */}
+        {CANDLES.map((h, i) => {
+          const x = 14 + i * 19;
+          const up = i % 3 !== 1;
+          const color = up ? "hsl(var(--secondary))" : "hsl(var(--destructive))";
+          const bodyTop = 104 - h;
           return (
-            <motion.line
+            <motion.g
               key={i}
-              x1={start.x}
-              y1={start.y}
-              x2={end.x}
-              y2={end.y}
-              stroke="hsl(var(--secondary))"
-              strokeWidth="0.5"
-              initial={{ pathLength: 0, opacity: 0.1 }}
-              animate={{ pathLength: [0, 1, 0], opacity: [0.1, 0.4, 0.1] }}
-              transition={{ duration: 3, repeat: Infinity, delay: Math.random() * 2 }}
-            />
+              initial={{ opacity: 0, scaleY: 0 }}
+              animate={{ opacity: 1, scaleY: 1 }}
+              transition={{ delay: i * 0.05, duration: 0.4, ease: "easeOut" }}
+              style={{ transformOrigin: `${x}px 104px` }}
+            >
+              <line x1={x} y1={bodyTop - 7} x2={x} y2={110} stroke={color} strokeWidth="1.2" opacity="0.65" />
+              <motion.rect
+                x={x - 4} y={bodyTop} width="8" height={h} rx="1.5" fill={color}
+                animate={{ opacity: [0.55, 0.95, 0.55] }}
+                transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.12 }}
+              />
+            </motion.g>
           );
         })}
+
+        {/* sweeping scan beam */}
+        <motion.g
+          initial={{ x: -24 }}
+          animate={{ x: 240 }}
+          transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <rect x="-24" y="0" width="24" height="112" fill="url(#scanTrail)" />
+          <rect x="-1.5" y="0" width="3" height="112" fill="url(#scanGlow)" />
+        </motion.g>
       </svg>
+
+      {/* pulsing AI core badge */}
       <motion.div
-        className="absolute inset-0 flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        className="absolute -top-3 right-0 w-9 h-9 rounded-full bg-brand-orange/15 border border-brand-orange/30 flex items-center justify-center backdrop-blur-sm"
+        animate={{ boxShadow: [
+          "0 0 0px hsl(var(--brand-orange) / 0.35)",
+          "0 0 14px hsl(var(--brand-orange) / 0.55)",
+          "0 0 0px hsl(var(--brand-orange) / 0.35)",
+        ] }}
+        transition={{ duration: 2, repeat: Infinity }}
       >
-        <BrainCircuit className="w-12 h-12 text-brand-orange animate-pulse" />
+        <BrainCircuit className="w-4 h-4 text-brand-orange" />
       </motion.div>
     </div>
   );
@@ -577,36 +593,59 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
           <AnimatePresence mode="wait">
             {isAnalyzing ? (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-8 md:py-16 p-6">
-                <NeuralNetworkAnimation />
+                className="flex flex-col items-center justify-center py-8 md:py-14 p-6">
+                <AnalysisScanner />
+                <div className="w-64 flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Analyzing</span>
+                  <span className="text-[11px] font-bold text-brand-orange tabular-nums">
+                    {Math.round(((loadingStep + 1) / analysisSteps.length) * 100)}%
+                  </span>
+                </div>
                 <div className="w-64 h-2 bg-muted rounded-full overflow-hidden mb-8 shadow-inner">
                   <motion.div className="h-full bg-gradient-to-r from-brand-orange via-secondary to-brand-orange bg-[length:200%_100%]"
-                    initial={{ width: "0%", backgroundPosition: "100% 0" }} 
+                    initial={{ width: "0%", backgroundPosition: "100% 0" }}
                     animate={{ width: `${((loadingStep + 1) / analysisSteps.length) * 100}%`, backgroundPosition: "0% 0" }}
-                    transition={{ 
+                    transition={{
                       width: { duration: 0.6 },
                       backgroundPosition: { duration: 2, repeat: Infinity, ease: "linear" }
                     }} />
                 </div>
-                <div className="space-y-4 w-full max-w-xs">
-                  {analysisSteps.map((step, idx) => (
-                    <motion.div key={idx} className={`flex items-center gap-4 text-sm font-medium transition-all duration-300 ${idx <= loadingStep ? "text-foreground" : "text-muted-foreground/30"}`}
-                      initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }}>
-                      <span className="text-lg">{step.icon}</span>
-                      <div className="flex-1 flex items-center gap-2">
-                        {idx < loadingStep ? (
-                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                            <CheckCircle2 className="w-4 h-4 text-secondary" />
-                          </motion.div>
-                        ) : idx === loadingStep ? (
-                          <div className="w-4 h-4 border-2 border-brand-orange border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <div className="w-4 h-4 border-2 rounded-full border-muted/50" />
+                <div className="space-y-2.5 w-full max-w-[280px]">
+                  {analysisSteps.map((step, idx) => {
+                    const done = idx < loadingStep;
+                    const active = idx === loadingStep;
+                    const StepIcon = step.Icon;
+                    return (
+                      <motion.div
+                        key={idx}
+                        className="flex items-center gap-3"
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: done || active ? 1 : 0.45, x: 0 }}
+                        transition={{ delay: idx * 0.07 }}
+                      >
+                        <div className={`relative w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors duration-300 ${
+                          done ? "bg-secondary/10 border-secondary/30"
+                          : active ? "bg-brand-orange/10 border-brand-orange/40"
+                          : "bg-muted/40 border-border/50"
+                        }`}>
+                          {done
+                            ? <Check className="w-4 h-4 text-secondary" strokeWidth={2.5} />
+                            : <StepIcon className={`w-4 h-4 ${active ? "text-brand-orange" : "text-muted-foreground/60"}`} />}
+                          {active && <span className="absolute inset-0 rounded-lg border border-brand-orange/50 animate-ping" />}
+                        </div>
+                        <span className={`text-sm transition-colors duration-300 ${
+                          active ? "text-foreground font-semibold"
+                          : done ? "text-foreground/70"
+                          : "text-muted-foreground/50"
+                        }`}>
+                          {step.text}
+                        </span>
+                        {active && (
+                          <div className="ml-auto w-4 h-4 border-2 border-brand-orange border-t-transparent rounded-full animate-spin shrink-0" />
                         )}
-                        <span className={idx === loadingStep ? "text-brand-orange font-bold transition-all" : ""}>{step.text}</span>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             ) : (
