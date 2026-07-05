@@ -30,7 +30,7 @@ const CareersPage = () => {
           "employmentType": "FULL_TIME",
           "hiringOrganization": {
             "@type": "Organization",
-            "name": "Parasram India - Panipat Branch",
+            "name": "Shri Parasram Holdings Panipat",
             "url": "https://www.sphpnp.com",
             "logo": "https://www.sphpnp.com/logo.png"
           },

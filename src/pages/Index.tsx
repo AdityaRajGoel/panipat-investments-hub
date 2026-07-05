@@ -37,7 +37,7 @@ const Index = () => {
     <PageTransition>
       <div className="min-h-screen bg-background">
       <SEOHead
-        title="Best Stock Broker in Panipat | Parasram India"
+        title="Best Stock Broker in Panipat | Shri Parasram Holdings Panipat"
         description="SEBI-registered stock broker in Panipat since 1970. Open a free Demat account. Trade stocks, mutual funds, IPO, F&O, commodities and unlisted shares."
         breadcrumbs={[{ name: "Home", url: "/" }]}
         jsonLd={{
@@ -49,7 +49,7 @@ const Index = () => {
           "contentUrl": "https://www.sphpnp.com/video.mp4",
           "publisher": {
             "@type": "Organization",
-            "name": "Parasram India - Panipat Branch",
+            "name": "Shri Parasram Holdings Panipat",
             "logo": { "@type": "ImageObject", "url": "https://www.sphpnp.com/logo.png" }
           }
         }}

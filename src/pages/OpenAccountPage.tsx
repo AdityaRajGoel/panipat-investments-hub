@@ -152,7 +152,7 @@ const OpenAccountPage = () => {
           "serviceType": "Demat Account Opening",
           "provider": {
             "@type": "FinancialService",
-            "name": "Parasram India - Panipat Branch",
+            "name": "Shri Parasram Holdings Panipat",
             "url": "https://www.sphpnp.com",
             "telephone": "+919416400314",
             "aggregateRating": {

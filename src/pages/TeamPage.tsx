@@ -184,7 +184,7 @@ const TeamPage = () => {
         faqItems={teamFAQs.map(f => ({ question: f.q, answer: f.a }))}
         jsonLd={{
           "@type": "Organization",
-          "name": "Parasram India - Panipat Branch",
+          "name": "Shri Parasram Holdings Panipat",
           "url": "https://www.sphpnp.com",
           "description": "Trusted stock brokerage firm in Panipat since 1970 with 2,000+ active clients and ₹250Cr+ AUM managed.",
           "employee": teamMembers.map(m => ({
@@ -196,7 +196,7 @@ const TeamPage = () => {
             "description": m.description,
             "worksFor": {
               "@type": "Organization",
-              "name": "Parasram India - Panipat Branch"
+              "name": "Shri Parasram Holdings Panipat"
             }
           })),
           "aggregateRating": {

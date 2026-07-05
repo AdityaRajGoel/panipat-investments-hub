@@ -36,12 +36,12 @@ const AboutPage = () => {
         faqItems={aboutFAQs.map(f => ({ question: f.q, answer: f.a }))}
         jsonLd={{
           "@type": "AboutPage",
-          "name": "About Parasram India - Panipat Branch",
+          "name": "About Shri Parasram Holdings Panipat",
           "description": "Parasram India is one of the oldest and most trusted SEBI-registered stock brokers in Panipat, Haryana, serving investors since 1970.",
           "about": {
             "@type": "Organization",
             "name": "Shri Parasram Holdings Pvt. Ltd.",
-            "alternateName": "Parasram India - Panipat Branch",
+            "alternateName": "Shri Parasram Holdings Panipat",
             "foundingDate": "1970",
             "numberOfEmployees": { "@type": "QuantitativeValue", "value": 10 },
             "legalName": "Shri Parasram Holdings Pvt. Ltd.",

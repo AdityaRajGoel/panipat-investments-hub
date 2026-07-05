@@ -70,7 +70,7 @@ const ProductsPage = () => {
               "description": p.desc,
               "provider": {
                 "@type": "FinancialService",
-                "name": "Parasram India - Panipat Branch",
+                "name": "Shri Parasram Holdings Panipat",
                 "url": "https://www.sphpnp.com"
               }
             }

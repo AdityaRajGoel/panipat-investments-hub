@@ -112,7 +112,7 @@ const Week52TrackerPage = () => {
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
           "provider": {
             "@type": "Organization",
-            "name": "Parasram India - Panipat Branch",
+            "name": "Shri Parasram Holdings Panipat",
             "url": "https://www.sphpnp.com"
           },
           "featureList": [

@@ -406,7 +406,7 @@ const LearningCenterPage = () => {
           "url": "https://www.sphpnp.com/learn",
           "provider": {
             "@type": "Organization",
-            "name": "Parasram India - Panipat Branch",
+            "name": "Shri Parasram Holdings Panipat",
             "url": "https://www.sphpnp.com"
           },
           "hasCourse": REAL_ARTICLES.slice(0, 10).map(a => ({
@@ -416,7 +416,7 @@ const LearningCenterPage = () => {
             "educationalLevel": a.difficulty || "Beginner",
             "provider": {
               "@type": "Organization",
-              "name": "Parasram India - Panipat Branch"
+              "name": "Shri Parasram Holdings Panipat"
             }
           }))
         }}

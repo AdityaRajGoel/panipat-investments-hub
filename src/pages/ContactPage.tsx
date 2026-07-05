@@ -39,7 +39,7 @@ const ContactPage = () => {
         faqItems={contactFAQs.map(f => ({ question: f.q, answer: f.a }))}
         jsonLd={{
           "@type": "LocalBusiness",
-          "name": "Parasram India - Panipat Branch",
+          "name": "Shri Parasram Holdings Panipat",
           "telephone": "+919416400314",
           "email": "parasrampnp@gmail.com",
           "address": { "@type": "PostalAddress", "streetAddress": "Shakuntala Complex, Palika Bazaar", "addressLocality": "Panipat", "addressRegion": "Haryana", "postalCode": "132103", "addressCountry": "IN" },

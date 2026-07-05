@@ -57,7 +57,7 @@ const SEOHead = ({
   schemaScripts.push({
     "@context": "https://schema.org",
     "@type": ["FinancialService", "LocalBusiness"],
-    "name": "Parasram India - Panipat Branch",
+    "name": "Shri Parasram Holdings Panipat",
     "image": "https://www.sphpnp.com/logo.png",
     "url": BASE_URL,
     "telephone": "+919416400314",
@@ -117,8 +117,8 @@ const SEOHead = ({
     schemaScripts.push({
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Parasram India - Panipat Branch",
-      "alternateName": "Shri Parasram Holdings Pvt. Ltd.",
+      "name": "Shri Parasram Holdings Panipat",
+      "alternateName": ["Shri Parasram Holdings Pvt. Ltd.", "Parasram India"],
       "url": BASE_URL,
       "description": "Best stock broker in Panipat, Haryana. SEBI registered since 1970. Stocks, Mutual Funds, IPO, F&O, Commodities, Unlisted Shares.",
       "inLanguage": "en-IN",
@@ -176,7 +176,7 @@ const SEOHead = ({
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Parasram India - Panipat Branch",
+        "name": "Shri Parasram Holdings Panipat",
         "logo": {
           "@type": "ImageObject",
           "url": "https://www.sphpnp.com/logo.png"
@@ -232,7 +232,7 @@ const SEOHead = ({
       <meta property="og:description" content={description} />
       <meta property="og:url" content={fullCanonical} />
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="Parasram India - Panipat Branch" />
+      <meta property="og:site_name" content="Shri Parasram Holdings Panipat" />
       <meta property="og:locale" content="en_IN" />
       <meta property="og:image" content={finalOgImage} />
       {finalOgImage.includes("og-default") && <meta property="og:image:width" content="1200" />}

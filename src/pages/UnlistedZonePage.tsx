@@ -45,7 +45,7 @@ const UnlistedSpacePage = () => {
             "highPrice": 50000,
             "seller": {
               "@type": "Organization",
-              "name": "Parasram India - Panipat Branch",
+              "name": "Shri Parasram Holdings Panipat",
               "telephone": "+919416400314",
             },
           },
