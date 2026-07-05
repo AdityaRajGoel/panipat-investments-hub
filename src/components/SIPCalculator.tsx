@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Calculator, TrendingUp, IndianRupee, Calendar, Percent } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const SIPCalculator = () => {
   const [monthlyInvestment, setMonthlyInvestment] = useState(5000);
@@ -229,7 +230,7 @@ const SIPCalculator = () => {
                     asChild
                     className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold py-6"
                   >
-                    <a href="#contact">Start SIP with Parasram</a>
+                    <Link to="/contact">Start SIP with Parasram</Link>
                   </Button>
                 </motion.div>
               </CardContent>

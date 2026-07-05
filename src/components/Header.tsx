@@ -17,6 +17,15 @@ const Header = () => {
   const location = useLocation();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { watchlist } = useWatchlist();
+  const [scrolled, setScrolled] = useState(false);
+
+  // Compact, elevated header once the user scrolls past the hero fold
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Auto-close mobile menu on route change
   useEffect(() => {
@@ -78,10 +87,19 @@ const Header = () => {
       </div>
 
       {/* Main header */}
-      <div className="bg-card shadow-md relative">
+      <div className={`bg-card/95 backdrop-blur-md relative transition-shadow duration-300 ${scrolled ? "shadow-lg" : "shadow-md"}`}>
         <div className="container mx-auto px-4 py-1 flex justify-between items-center">
-          <Link to="/" className="flex items-center">
-            <img src={logo80} srcSet={`${logo80} 80w, ${logo160} 160w`} sizes="(min-width: 768px) 80px, 40px" alt="Parasram - Science of Investment" width={80} height={80} decoding="async" className="h-10 md:h-20 w-auto" />
+          <Link to="/" className="flex items-center group">
+            <img
+              src={logo80}
+              srcSet={`${logo80} 80w, ${logo160} 160w`}
+              sizes="(min-width: 768px) 80px, 40px"
+              alt="Parasram - Science of Investment"
+              width={80}
+              height={80}
+              decoding="async"
+              className={`w-auto transition-all duration-300 group-hover:scale-105 ${scrolled ? "h-9 md:h-14" : "h-10 md:h-20"}`}
+            />
           </Link>
 
           {/* Desktop mega menu nav */}
@@ -89,7 +107,7 @@ const Header = () => {
             {megaMenuItems.map((item) => (
               <div
                 key={item.label}
-                className="relative"
+                className="relative group/nav"
                 onMouseEnter={() => item.subItems ? handleMouseEnter(item.label) : setActiveMenu(null)}
                 onMouseLeave={handleMouseLeave}
               >
@@ -122,6 +140,14 @@ const Header = () => {
                     )}
                   </div>
                 )}
+                {/* Animated underline */}
+                {!item.highlight && (
+                  <span
+                    className={`pointer-events-none absolute left-3 right-3 bottom-1 h-0.5 rounded-full bg-secondary origin-left transition-transform duration-300 ${
+                      isActive(item) || activeMenu === item.label ? "scale-x-100" : "scale-x-0 group-hover/nav:scale-x-100"
+                    }`}
+                  />
+                )}
               </div>
             ))}
           </nav>
@@ -153,7 +179,7 @@ const Header = () => {
                 <BarChart3 className="w-4 h-4 mr-1" />Web Trade
               </a>
             </Button>
-            <Button asChild className="hidden sm:inline-flex bg-brand-navy hover:bg-brand-navy/90 text-white font-semibold">
+            <Button asChild className="hidden sm:inline-flex bg-brand-navy hover:bg-brand-navy/90 text-white font-semibold shadow-md hover:shadow-lg hover:shadow-brand-navy/25 hover:scale-[1.03] active:scale-95 transition-all duration-200">
               <Link to="/open-account">Open Account</Link>
             </Button>
             <button

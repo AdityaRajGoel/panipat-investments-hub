@@ -382,8 +382,9 @@ const Hero = () => {
 
       {/* Scroll indicator - desktop only */}
       {!isMobile && (
-        <a
-          href="#about"
+        <button
+          type="button"
+          onClick={() => window.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" })}
           aria-label="Scroll down to explore more content"
           className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-primary-foreground/60 hover:text-primary-foreground transition-colors cursor-pointer"
         >
@@ -391,7 +392,7 @@ const Hero = () => {
           <div className="w-6 h-10 rounded-full border-2 border-primary-foreground/40 flex justify-center pt-2">
             <div className="w-1.5 h-3 bg-secondary rounded-full" style={{ animation: 'scrollBounce 1.5s ease-in-out infinite' }} />
           </div>
-        </a>
+        </button>
       )}
     </section>
   );

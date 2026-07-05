@@ -1,6 +1,7 @@
 import { motion, Variants, useScroll, useTransform } from "framer-motion";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const testimonials = [
   {
@@ -282,10 +283,9 @@ const Testimonials = () => {
           transition={{ delay: 0.5 }}
         >
           <p className="text-muted-foreground mb-4">Ready to start your investment journey?</p>
-          <motion.a
-            href="#contact"
+          <Link
+            to="/contact"
             className="inline-flex items-center gap-2 text-secondary font-semibold hover:gap-4 transition-all duration-300"
-            whileHover={{ x: 5 }}
           >
             Get in touch with us today
             <motion.span
@@ -294,7 +294,7 @@ const Testimonials = () => {
             >
               →
             </motion.span>
-          </motion.a>
+          </Link>
         </motion.div>
       </div>
     </section>
