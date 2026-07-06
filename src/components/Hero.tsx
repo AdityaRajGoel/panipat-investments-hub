@@ -311,14 +311,16 @@ const Hero = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 md:gap-6 pt-6 md:pt-8 border-t border-primary-foreground/20">
               <StatCounter target={50} suffix="+" label="Years Legacy" delay={0.8} />
-              <div className="text-center">
-                <div className="text-2xl md:text-4xl font-bold text-primary-foreground">10L+</div>
-                <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Happy Clients</div>
-              </div>
-              <div className="text-center">
+              <StatCounter target={10} suffix="L+" label="Happy Clients" delay={0.95} />
+              <motion.div
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.6 }}
+              >
                 <div className="text-2xl md:text-4xl font-bold text-primary-foreground">SEBI</div>
                 <div className="text-[10px] md:text-xs text-primary-foreground/60 uppercase tracking-wide mt-1">Registered</div>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
