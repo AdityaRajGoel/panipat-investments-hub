@@ -291,7 +291,7 @@ const Hero = () => {
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-sm md:text-lg 2xl:text-xl px-6 md:px-10 2xl:px-14 py-4 md:py-6 2xl:py-8 shadow-xl shadow-secondary/30 transition-all duration-300 w-full sm:w-auto"
+                className="btn-shine bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-sm md:text-lg 2xl:text-xl px-6 md:px-10 2xl:px-14 py-4 md:py-6 2xl:py-8 shadow-xl shadow-secondary/30 transition-all duration-300 w-full sm:w-auto"
               >
                 <Link to="/open-account">
                   Start Investing Today

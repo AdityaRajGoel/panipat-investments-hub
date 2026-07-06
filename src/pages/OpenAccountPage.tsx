@@ -114,7 +114,7 @@ const OpenAccountPage = () => {
             <p className="text-muted-foreground mb-2">Your account opening request has been submitted successfully.</p>
             <p className="text-sm text-muted-foreground mb-8">Our team will call you within 24 hours. You can also visit our branch at <b>Shakuntala Complex, Palika Bazaar, Panipat</b>.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild className="bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold">
+              <Button asChild className="btn-shine bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold">
                 <a href="tel:+919416400314"><Phone className="w-4 h-4 mr-2" />Call Now</a>
               </Button>
               <Button asChild variant="outline"><Link to="/">Back to Home</Link></Button>

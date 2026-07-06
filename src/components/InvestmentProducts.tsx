@@ -142,7 +142,7 @@ const InvestmentProducts = () => {
           </div>
           <Link
             to="/open-account"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-300"
+            className="inline-flex items-center gap-2 btn-shine bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-300"
           >
             Open Free Demat Account <ArrowRight className="w-4 h-4" />
           </Link>

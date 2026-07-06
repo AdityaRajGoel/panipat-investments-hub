@@ -40,7 +40,7 @@ const StickyMobileCTA = () => {
             </a>
             <Link
               to="/open-account"
-              className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold shadow-lg active:scale-[0.98] transition-transform"
+              className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl btn-shine bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold shadow-lg active:scale-[0.98] transition-transform"
             >
               Open Free Demat Account <ArrowRight className="w-4 h-4" />
             </Link>

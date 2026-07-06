@@ -95,7 +95,7 @@ const IPOCard = ({ ipo, index }: { ipo: IPO; index: number }) => (
       <motion.div className="mt-3 pt-3 border-t border-border/30">
         <a
           href="/open-account"
-          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground text-[11px] font-bold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-1.5 btn-shine bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground text-[11px] font-bold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
         >
           <IndianRupee className="w-3 h-3" />
           Apply Now

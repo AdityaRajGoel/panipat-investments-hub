@@ -126,7 +126,7 @@ const ArticlePage = () => {
             </p>
             <Link
               to="/open-account"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold px-6 py-3 rounded-xl shadow-lg hover:scale-[1.03] transition-transform"
+              className="inline-flex items-center gap-2 btn-shine bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold px-6 py-3 rounded-xl shadow-lg hover:scale-[1.03] transition-transform"
             >
               Open Free Demat Account <ArrowRight className="w-4 h-4" />
             </Link>

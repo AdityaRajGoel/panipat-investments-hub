@@ -247,7 +247,7 @@ const GoogleReviews = () => {
           transition={{ delay: 0.4 }}
         >
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-            <Button asChild className="bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-semibold">
+            <Button asChild className="btn-shine bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-semibold">
               <a
                 href="https://search.google.com/local/writereview?placeid=ChIJ6zHm2Pzb0TkRJ_5hCPHVKaw"
                 target="_blank"

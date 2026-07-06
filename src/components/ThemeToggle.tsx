@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 const ThemeToggle = () => {
@@ -25,11 +26,37 @@ const ThemeToggle = () => {
     <Button
       variant="ghost"
       size="icon"
-      className="h-9 w-9 rounded-full"
-      onClick={() => setDark(d => !d)}
-      aria-label="Toggle theme"
+      className={`h-9 w-9 rounded-full overflow-hidden transition-colors duration-500 ${
+        dark ? "text-brand-gold hover:bg-brand-gold/10" : "text-primary hover:bg-primary/10"
+      }`}
+      onClick={() => setDark((d) => !d)}
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      <AnimatePresence mode="wait" initial={false}>
+        {dark ? (
+          <motion.span
+            key="sun"
+            initial={{ rotate: -90, scale: 0, opacity: 0 }}
+            animate={{ rotate: 0, scale: 1, opacity: 1 }}
+            exit={{ rotate: 90, scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 18 }}
+            className="flex items-center justify-center"
+          >
+            <Sun className="h-4 w-4" />
+          </motion.span>
+        ) : (
+          <motion.span
+            key="moon"
+            initial={{ rotate: 90, scale: 0, opacity: 0 }}
+            animate={{ rotate: 0, scale: 1, opacity: 1 }}
+            exit={{ rotate: -90, scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 18 }}
+            className="flex items-center justify-center"
+          >
+            <Moon className="h-4 w-4" />
+          </motion.span>
+        )}
+      </AnimatePresence>
     </Button>
   );
 };
