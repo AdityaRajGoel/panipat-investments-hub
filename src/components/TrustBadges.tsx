@@ -1,5 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import { Shield, Award, Clock, Users, Building, Briefcase, Globe, Headphones } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
 
 const badges = [
   { icon: Shield, label: "SEBI Registered", desc: "INZ000220838", color: "text-secondary", bg: "bg-secondary/10" },
@@ -9,14 +11,24 @@ const badges = [
   { icon: Building, label: "CDSL IN-DP-47-2015", desc: "Code: DP ID: 12058200", color: "text-primary-blue", bg: "bg-primary/10" },
   { icon: Building, label: "NSDL IN-DP-NSDL-194-2001", desc: "Code: DP ID: IN302365", color: "text-primary-blue", bg: "bg-primary/10" },
   { icon: Building, label: "AMFI Regn. No.", desc: "Code: ARN-35616", color: "text-primary-green", bg: "bg-primary/10" },
-  { icon: Award, label: "50+ Years", desc: "Since 1974", color: "text-brand-gold", bg: "bg-brand-gold/10" },
-  { icon: Users, label: "10 Lakh+", desc: "Happy Clients", color: "text-primary", bg: "bg-primary/10" },
+  { icon: Award, label: "50+ Years", desc: "Since 1974", color: "text-brand-gold", bg: "bg-brand-gold/10", countTo: 50, suffix: "+ Years" },
+  { icon: Users, label: "10 Lakh+", desc: "Happy Clients", color: "text-primary", bg: "bg-primary/10", countTo: 10, suffix: " Lakh+" },
 ];
 
+// Renders a badge label, counting up when number-type badges scroll into view.
+const BadgeLabel = ({ label, countTo, suffix, inView }: { label: string; countTo?: number; suffix?: string; inView: boolean }) => {
+  const count = useCountUp(countTo ?? 0, 1.6, inView);
+  if (countTo === undefined) return <>{label}</>;
+  return <>{count}{suffix}</>;
+};
+
 const TrustBadges = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-80px" });
+
   return (
     <section className="py-12 bg-muted/30 border-y border-border/30 overflow-hidden">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4" ref={sectionRef}>
         <motion.div
           className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -47,7 +59,9 @@ const TrustBadges = () => {
                 <badge.icon className={`w-5 h-5 ${badge.color}`} />
               </motion.div>
               <div>
-                <div className="font-bold text-sm text-foreground">{badge.label}</div>
+                <div className="font-bold text-sm text-foreground">
+                  <BadgeLabel label={badge.label} countTo={badge.countTo} suffix={badge.suffix} inView={inView} />
+                </div>
                 <div className="text-[10px] text-muted-foreground">{badge.desc}</div>
               </div>
             </motion.div>
