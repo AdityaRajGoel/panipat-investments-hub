@@ -8,7 +8,7 @@ import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { AnimatePresence, motion, MotionConfig } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 

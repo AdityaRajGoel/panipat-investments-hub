@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { Building2, TrendingUp, Award, Users, Globe, Landmark, Sparkles } from "lucide-react";
 

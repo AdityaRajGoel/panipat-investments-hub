@@ -5,7 +5,7 @@ import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "motion/react";
 
 // Lightweight requestAnimationFrame count-up.
 // `start` gates the animation so callers can trigger it on scroll-into-view.

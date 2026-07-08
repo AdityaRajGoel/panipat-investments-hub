@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useLiveMarket, LiveStock } from "@/hooks/useLiveMarket";
 import { useIsMobile } from "@/hooks/use-mobile";

@@ -4,7 +4,7 @@ import SEOHead from "@/components/SEOHead";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Building2, Clock, AlertCircle, PartyPopper } from "lucide-react";

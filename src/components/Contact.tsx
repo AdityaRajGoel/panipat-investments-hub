@@ -1,7 +1,7 @@
 import { MapPin, Phone, Mail, Clock, ExternalLink, Instagram, Facebook, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import brandImage from "@/assets/parasram-brand.jpeg";
 

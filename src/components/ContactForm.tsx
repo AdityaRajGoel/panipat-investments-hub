@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useState, useRef } from "react";
 import { Send, Loader2, CheckCircle2, User, Phone, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";

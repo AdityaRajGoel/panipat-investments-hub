@@ -1,6 +1,6 @@
 import { ArrowRight, TrendingUp, TrendingDown, Shield, Users, Sparkles, Award, BarChart2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, useMotionValue, useTransform, useSpring, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring, useReducedMotion } from "motion/react";
 import { useEffect, useState, useRef, useMemo, memo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { Link } from "react-router-dom";

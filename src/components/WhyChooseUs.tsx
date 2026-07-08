@@ -1,4 +1,4 @@
-import { motion, Variants } from "framer-motion";
+import { motion, Variants } from "motion/react";
 import { RevealText } from "@/components/ui/RevealText";
 import {
   Shield, Clock, Smartphone, Users, Award,

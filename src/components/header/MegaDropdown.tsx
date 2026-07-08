@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import type { SubItem } from "./megaMenuData";
 
 interface MegaDropdownProps {

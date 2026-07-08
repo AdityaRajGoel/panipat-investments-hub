@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import {
   User, Mail, Phone, ArrowRight, CheckCircle2,

@@ -1,7 +1,7 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { BookOpen, Clock, ChevronRight, ArrowRight, CheckCircle2, GraduationCap } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";

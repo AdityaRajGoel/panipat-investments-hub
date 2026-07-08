@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { memo } from "react";
 import {
   TrendingUp, TrendingDown, Activity, Gauge, BarChart3, PieChart,

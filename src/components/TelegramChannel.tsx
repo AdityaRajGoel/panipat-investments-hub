@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Send, Clock, TrendingUp, TrendingDown, AlertTriangle, Shield, RefreshCw, ArrowUpRight, Repeat2, MessageSquare, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 import { Star, ExternalLink, MessageSquare } from "lucide-react";
-import { motion, Variants, useScroll, useTransform } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useRef } from "react";
 

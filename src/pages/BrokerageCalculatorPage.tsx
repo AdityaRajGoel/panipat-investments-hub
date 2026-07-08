@@ -5,7 +5,7 @@ import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -1,6 +1,6 @@
 import { Smartphone, Download, Star, Shield, Zap, BarChart3, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 
 const features = [

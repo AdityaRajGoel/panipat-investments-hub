@@ -64,11 +64,13 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            // Match motion before the generic 'react' check - its dist paths
+            // contain 'react' and would otherwise split across two chunks.
+            if (id.includes('node_modules/motion') || id.includes('node_modules/framer-motion')) {
+              return 'animation-vendor';
+            }
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
               return 'react-vendor';
-            }
-            if (id.includes('framer-motion')) {
-              return 'animation-vendor';
             }
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
               return 'ui-vendor';

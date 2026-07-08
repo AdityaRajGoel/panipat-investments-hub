@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   Plus, Pencil, Trash2, Save, X, LogOut, ArrowLeft, Megaphone,
   Info, AlertTriangle, CheckCircle, Sparkles, ExternalLink, Lock,

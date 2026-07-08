@@ -1,7 +1,7 @@
 import { Flame, TrendingUp, Shield, Zap, ArrowRight, Gift, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 const announcements = [
   { icon: Flame, text: "Open a FREE Demat Account", cta: "Start", href: "/open-account", color: "text-brand-gold" },

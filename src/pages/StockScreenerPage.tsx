@@ -5,7 +5,7 @@ import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

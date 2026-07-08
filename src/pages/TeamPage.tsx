@@ -6,7 +6,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import CompanyValues from "@/components/CompanyValues";
 import FAQ from "@/components/FAQ";
 import SEOHead from "@/components/SEOHead";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";

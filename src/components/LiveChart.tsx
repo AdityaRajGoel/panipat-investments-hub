@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useState, useMemo, useCallback, useEffect, memo } from "react";
 import { TrendingUp, TrendingDown, BarChart3, Activity, ArrowUpRight, ArrowDownRight, Clock, Layers, Gauge, LineChart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";

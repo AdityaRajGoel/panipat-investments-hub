@@ -1,6 +1,6 @@
 import { TrendingUp, BarChart3, Wallet, Globe, FileText, Smartphone, ArrowUpRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, Variants, useScroll, useTransform } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "motion/react";
 import { useRef, useState } from "react";
 
 const services = [

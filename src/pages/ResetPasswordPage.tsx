@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import SEOHead from "@/components/SEOHead";
 import logo80 from "@/assets/logo-80.webp";
 

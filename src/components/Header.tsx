@@ -1,7 +1,7 @@
 import { Phone, Mail, ExternalLink, Instagram, Menu, X as XIcon, Facebook, Twitter, LogIn, BarChart3, ChevronDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Link, useLocation } from "react-router-dom";
 import logo80 from "@/assets/logo-80.webp";
 import logo160 from "@/assets/logo-160.webp";

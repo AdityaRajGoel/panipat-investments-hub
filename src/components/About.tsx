@@ -1,5 +1,5 @@
 import { CheckCircle2, TrendingUp, Users, Award, BarChart2 } from "lucide-react";
-import { motion, Variants, useScroll, useTransform } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 
 const features = [

@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import PageTransition from "@/components/PageTransition";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Briefcase, MapPin, Users, TrendingUp, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WhatsAppButton from "@/components/WhatsAppButton";

@@ -1,4 +1,4 @@
-import { motion, Variants, useScroll, useTransform } from "framer-motion";
+import { motion, Variants, useScroll, useTransform } from "motion/react";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";

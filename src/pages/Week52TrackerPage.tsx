@@ -4,7 +4,7 @@ import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

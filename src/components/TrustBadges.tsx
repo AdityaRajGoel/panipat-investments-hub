@@ -1,4 +1,4 @@
-import { motion, useInView } from "framer-motion";
+import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { Shield, Award, Clock, Users, Building, Briefcase, Globe, Headphones } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";

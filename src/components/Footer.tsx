@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter, Shield, FileText, AlertCircle, Scale, ChevronDown } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import logo80 from "@/assets/logo-80.webp";
 import logo160 from "@/assets/logo-160.webp";

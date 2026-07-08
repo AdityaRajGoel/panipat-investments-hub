@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import {
   X, BrainCircuit, TrendingUp, TrendingDown, Activity, AlertTriangle,
   CheckCircle2, Bot, Info, Star, Share2, BarChart2, Zap, Sparkles, MessageSquare, Send, Users,

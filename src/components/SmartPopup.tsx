@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, ArrowRight } from 'lucide-react';
 import { useEngagement } from '@/hooks/useEngagement';
 import { Button } from '@/components/ui/button';

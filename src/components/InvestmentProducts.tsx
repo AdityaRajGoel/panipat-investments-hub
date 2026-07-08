@@ -1,4 +1,4 @@
-import { motion, Variants } from "framer-motion";
+import { motion, Variants } from "motion/react";
 import { Link } from "react-router-dom";
 import { RevealText } from "@/components/ui/RevealText";
 import {
@@ -10,16 +10,49 @@ import {
 // with. Each card links to an existing route and maps to the parent
 // company's product line (equity, F&O, MF, IPO, commodities, unlisted,
 // bonds/FD, depository).
-const products = [
-  { icon: LineChart, title: "Stocks & Equity", desc: "Invest in NSE & BSE listed companies with a free Demat account.", to: "/screener", tag: "Live Screener" },
+// Bento layout: "featured" spans 2x2 on desktop (full-width on mobile),
+// "wide" spans 2 columns. Order matters for grid auto-placement.
+type ProductLayout = "featured" | "wide" | undefined;
+const products: { icon: typeof LineChart; title: string; desc: string; to: string; tag: string; layout?: ProductLayout }[] = [
+  { icon: LineChart, title: "Stocks & Equity", desc: "Invest in NSE & BSE listed companies with a free Demat account, backed by daily research from SEBI-registered analysts.", to: "/screener", tag: "Live Screener", layout: "featured" },
   { icon: Activity, title: "Futures & Options", desc: "Trade NIFTY, BANKNIFTY & stock F&O with live option-chain tools.", to: "/fno", tag: "PCR & Max Pain" },
-  { icon: Sparkles, title: "Unlisted & Pre-IPO", desc: "Buy verified pre-IPO and unlisted shares before they list.", to: "/unlisted-space", tag: "Exclusive" },
   { icon: PiggyBank, title: "Mutual Funds & SIP", desc: "Start a SIP from ₹500/month across direct & regular funds.", to: "/services", tag: "From ₹500" },
   { icon: Rocket, title: "IPO Investments", desc: "Apply for upcoming IPOs online via UPI/ASBA in a few taps.", to: "/services", tag: "UPI / ASBA" },
   { icon: Gem, title: "Commodities (MCX)", desc: "Trade gold, silver, crude oil & agri commodities on MCX & NCDEX.", to: "/services", tag: "MCX · NCDEX" },
+  { icon: Sparkles, title: "Unlisted & Pre-IPO", desc: "Buy verified pre-IPO and unlisted shares before they list on the exchange.", to: "/unlisted-space", tag: "Exclusive", layout: "wide" },
   { icon: Landmark, title: "Bonds, FD & Insurance", desc: "Diversify beyond equity with FDs, corporate bonds & insurance.", to: "/products", tag: "Safer Yields" },
   { icon: Vault, title: "Demat & Depository", desc: "Secure CDSL/NSDL depository services, pledging & transfers.", to: "/depository-services", tag: "CDSL · NSDL" },
 ];
+
+// Decorative market sparkline for the featured card - draws itself on scroll-in.
+const FeaturedSparkline = () => (
+  <svg viewBox="0 0 220 64" preserveAspectRatio="none" fill="none" className="w-full h-16 md:h-24 mt-auto pt-2" aria-hidden="true">
+    <defs>
+      <linearGradient id="spark-stroke" x1="0" y1="0" x2="220" y2="0" gradientUnits="userSpaceOnUse">
+        <stop stopColor="hsl(var(--secondary))" />
+        <stop offset="1" stopColor="hsl(var(--brand-gold))" />
+      </linearGradient>
+    </defs>
+    <motion.path
+      d="M2 52 L28 44 L52 48 L76 32 L100 38 L124 20 L148 27 L174 12 L202 18 L218 6"
+      stroke="url(#spark-stroke)"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      initial={{ pathLength: 0 }}
+      whileInView={{ pathLength: 1 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 1.6, ease: "easeInOut", delay: 0.3 }}
+    />
+    <motion.circle
+      cx="218" cy="6" r="3.5"
+      fill="hsl(var(--brand-gold))"
+      initial={{ scale: 0, opacity: 0 }}
+      whileInView={{ scale: [0, 1.4, 1], opacity: 1 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, delay: 1.9 }}
+    />
+  </svg>
+);
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -79,7 +112,7 @@ const InvestmentProducts = () => {
 
         {/* Product grid */}
         <motion.div
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5"
+          className="grid grid-cols-2 lg:grid-cols-4 lg:auto-rows-fr gap-4 md:gap-5"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -87,32 +120,43 @@ const InvestmentProducts = () => {
         >
           {products.map((p) => {
             const Icon = p.icon;
+            const isFeatured = p.layout === "featured";
+            const isWide = p.layout === "wide";
+            const spanClass = isFeatured
+              ? "col-span-2 lg:row-span-2"
+              : isWide
+              ? "col-span-2"
+              : "";
             return (
-              <motion.div key={p.title} variants={itemVariants} whileHover={{ y: -6 }}>
+              <motion.div key={p.title} variants={itemVariants} whileHover={{ y: -6 }} className={spanClass}>
                 <Link
                   to={p.to}
                   aria-label={`${p.title} - learn more`}
                   onMouseMove={handleCardGlow}
-                  className="card-glow group relative flex flex-col h-full bg-card border border-border/50 rounded-2xl p-4 md:p-5 hover:border-secondary/40 hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  className={`card-glow group relative flex flex-col h-full bg-card border border-border/50 rounded-2xl hover:border-secondary/40 hover:shadow-xl transition-all duration-300 overflow-hidden ${
+                    isFeatured ? "p-5 md:p-7 bg-gradient-to-br from-card to-secondary/[0.04]" : "p-4 md:p-5"
+                  }`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="relative z-10 flex flex-col h-full">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="w-11 h-11 bg-secondary/10 rounded-xl flex items-center justify-center group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300">
-                        <Icon className="w-5 h-5 text-secondary" />
+                      <div className={`bg-secondary/10 rounded-xl flex items-center justify-center group-hover:bg-secondary/20 group-hover:scale-110 transition-all duration-300 ${isFeatured ? "w-14 h-14" : "w-11 h-11"}`}>
+                        <Icon className={`text-secondary ${isFeatured ? "w-7 h-7" : "w-5 h-5"}`} />
                       </div>
                       <span className="text-[9px] font-bold uppercase tracking-wide text-brand-orange bg-brand-orange/10 border border-brand-orange/20 rounded-full px-2 py-0.5">
                         {p.tag}
                       </span>
                     </div>
 
-                    <h3 className="font-heading text-sm md:text-base font-bold text-foreground mb-1.5 group-hover:text-secondary transition-colors duration-300">
+                    <h3 className={`font-heading font-bold text-foreground mb-1.5 group-hover:text-secondary transition-colors duration-300 ${isFeatured ? "text-lg md:text-2xl" : "text-sm md:text-base"}`}>
                       {p.title}
                     </h3>
-                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed flex-1">
+                    <p className={`text-muted-foreground leading-relaxed flex-1 ${isFeatured ? "text-sm md:text-base max-w-md" : "text-xs md:text-sm"}`}>
                       {p.desc}
                     </p>
+
+                    {isFeatured && <FeaturedSparkline />}
 
                     <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-secondary opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-300">
                       Explore <ArrowRight className="w-3.5 h-3.5" />

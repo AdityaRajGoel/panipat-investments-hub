@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import PageTransition from "@/components/PageTransition";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Vault, Share2, FileDigit, Link as LinkIcon, ShieldAlert } from "lucide-react";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";

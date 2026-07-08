@@ -1,4 +1,4 @@
-import { motion, Variants } from "framer-motion";
+import { motion, Variants } from "motion/react";
 
 // Reveals a heading word-by-word as it scrolls into view.
 // Renders inline spans so it drops into any <h2>/<h3> without changing layout.

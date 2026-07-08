@@ -1,7 +1,7 @@
 import { Phone, TrendingUp, TrendingDown, ShieldCheck, Handshake, ArrowRight, Sparkles, Star, ChevronRight, BadgeCheck, Clock, AlertTriangle, Building2, MapPin, Calendar, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion, Variants, AnimatePresence } from "framer-motion";
+import { motion, Variants, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 

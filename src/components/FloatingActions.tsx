@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { MessageCircle, PhoneCall, Download, X, HelpCircle, ArrowUp } from "lucide-react";
 
 const FloatingActions = () => {

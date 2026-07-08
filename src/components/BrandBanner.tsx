@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { Phone, Instagram, Facebook, MapPin } from "lucide-react";
 import brandImage from "@/assets/parasram-brand.jpeg";

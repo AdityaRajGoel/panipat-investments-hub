@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import PageTransition from "@/components/PageTransition";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Briefcase, Building2, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
