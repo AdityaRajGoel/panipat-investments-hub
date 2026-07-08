@@ -123,7 +123,7 @@ const InvestmentProducts = () => {
             const isFeatured = p.layout === "featured";
             const isWide = p.layout === "wide";
             const spanClass = isFeatured
-              ? "col-span-2 lg:row-span-2"
+              ? "col-span-2 lg:row-span-2 border-beam rounded-2xl"
               : isWide
               ? "col-span-2"
               : "";

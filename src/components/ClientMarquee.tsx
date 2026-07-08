@@ -47,7 +47,7 @@ const ClientMarquee = () => {
         </div>
       </div>
 
-      <div className="relative overflow-hidden py-2 flex" style={{ maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)' }}>
+      <div className="marquee-pause relative overflow-hidden py-2 flex" style={{ maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)' }}>
         <div
           className="flex shrink-0 animate-marquee-scroll"
           style={{ willChange: "transform", animationDuration: "50s" }}

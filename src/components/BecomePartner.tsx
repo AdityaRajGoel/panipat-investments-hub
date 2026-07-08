@@ -109,7 +109,7 @@ const BecomePartner = () => {
             </motion.span>
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
               Become a{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-brand-gold">
+              <span className="text-shimmer text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary">
                 Business Associate
               </span>
             </h2>
@@ -162,7 +162,7 @@ const BecomePartner = () => {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="bg-card/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 space-y-4"
+                className="border-beam bg-card/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 space-y-4"
               >
                 <h3 className="font-heading text-lg font-bold text-primary-foreground mb-1">Apply to Become a Partner</h3>
                 <p className="text-primary-foreground/60 text-sm mb-4">Fill in your details and our team will get in touch.</p>

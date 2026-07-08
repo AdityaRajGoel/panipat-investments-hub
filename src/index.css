@@ -241,15 +241,69 @@
     .card-glow:hover::before { opacity: 1; }
   }
 
+  /* Border beam — a thin light that travels around a card's border.
+     Falls back to a static gradient ring in browsers without @property. */
+  .border-beam {
+    position: relative;
+  }
+  .border-beam::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--beam-angle, 0deg),
+      transparent 0% 78%,
+      hsl(var(--secondary) / 0.9) 86%,
+      hsl(var(--brand-gold) / 0.9) 93%,
+      transparent 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: beam-rotate 7s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+  @keyframes beam-rotate {
+    to { --beam-angle: 360deg; }
+  }
+
+  /* Living gradient text — the gradient slowly breathes across the letters */
+  .text-shimmer {
+    background-size: 200% auto;
+    animation: text-shimmer 5s ease-in-out infinite alternate;
+  }
+  @keyframes text-shimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: 100% center; }
+  }
+
+  /* Pause marquees while the user reads/hovers */
+  .marquee-pause:hover .animate-marquee-scroll {
+    animation-play-state: paused;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .btn-shine::after,
     .nav-underline::after {
       transition: none;
     }
-    .hero-aurora {
+    .hero-aurora,
+    .border-beam::after,
+    .text-shimmer {
       animation: none;
     }
   }
+}
+
+/* Register the beam angle so browsers can interpolate it */
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
 }
 
 @layer utilities {
