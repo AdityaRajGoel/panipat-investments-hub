@@ -1,4 +1,5 @@
 import { motion, Variants } from "framer-motion";
+import { RevealText } from "@/components/ui/RevealText";
 import {
   Shield, Clock, Smartphone, Users, Award,
   Headphones, MapPin, TrendingUp, MessageCircle, Briefcase
@@ -100,7 +101,7 @@ const WhyChooseUs = () => {
             Why Parasram Panipat
           </motion.span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Why Choose Us?
+            <RevealText text="Why Choose Us?" />
           </h2>
           <motion.div
             className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full mb-4"

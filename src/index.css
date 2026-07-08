@@ -209,10 +209,45 @@
     transform: scaleX(1);
   }
 
+  /* Hero aurora — slow-drifting brand-colored glows behind the video overlay */
+  .hero-aurora {
+    background:
+      radial-gradient(40% 55% at 18% 30%, hsl(var(--secondary) / 0.55), transparent 70%),
+      radial-gradient(35% 45% at 82% 22%, hsl(var(--brand-gold) / 0.40), transparent 70%),
+      radial-gradient(45% 50% at 65% 85%, hsl(var(--brand-green) / 0.45), transparent 72%);
+    filter: blur(64px);
+    animation: aurora-drift 22s ease-in-out infinite alternate;
+    will-change: transform, opacity;
+  }
+  @keyframes aurora-drift {
+    0%   { transform: translate3d(-4%, -2%, 0) scale(1.05); opacity: 0.45; }
+    50%  { transform: translate3d(3%, 2%, 0) scale(1.16); opacity: 0.75; }
+    100% { transform: translate3d(5%, -3%, 0) scale(1.08); opacity: 0.55; }
+  }
+
+  /* Cursor-follow glow for cards — desktop pointers only */
+  @media (hover: hover) and (pointer: fine) {
+    .card-glow::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), hsl(var(--secondary) / 0.16), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .card-glow:hover::before { opacity: 1; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .btn-shine::after,
     .nav-underline::after {
       transition: none;
+    }
+    .hero-aurora {
+      animation: none;
     }
   }
 }

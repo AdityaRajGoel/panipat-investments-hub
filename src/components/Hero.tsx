@@ -214,6 +214,10 @@ const Hero = () => {
             backgroundSize: '50px 50px',
           }}
         />
+        {/* Aurora mesh - slow drifting brand glows for depth */}
+        {!prefersReducedMotion && (
+          <div className="hero-aurora absolute inset-0 mix-blend-screen opacity-70" aria-hidden="true" />
+        )}
       </div>
 
       <div className="container mx-auto px-4 py-8 md:py-24 2xl:py-32 relative z-10 h-full min-h-screen flex items-center">

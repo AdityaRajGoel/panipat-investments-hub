@@ -1,5 +1,6 @@
 import { motion, Variants } from "framer-motion";
 import { Link } from "react-router-dom";
+import { RevealText } from "@/components/ui/RevealText";
 import {
   LineChart, Activity, Sparkles, PiggyBank, Rocket,
   Gem, Landmark, Vault, ArrowRight, BadgeCheck,
@@ -28,6 +29,14 @@ const containerVariants: Variants = {
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+};
+
+// Track cursor position as CSS vars so the card glow follows the pointer.
+const handleCardGlow = (e: React.MouseEvent<HTMLElement>) => {
+  const el = e.currentTarget;
+  const rect = el.getBoundingClientRect();
+  el.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+  el.style.setProperty("--my", `${e.clientY - rect.top}px`);
 };
 
 const InvestmentProducts = () => {
@@ -60,7 +69,7 @@ const InvestmentProducts = () => {
             One Platform · Every Investment
           </span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Explore What You Can Invest In
+            <RevealText text="Explore What You Can Invest In" />
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full mb-4" />
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -83,7 +92,8 @@ const InvestmentProducts = () => {
                 <Link
                   to={p.to}
                   aria-label={`${p.title} - learn more`}
-                  className="group relative flex flex-col h-full bg-card border border-border/50 rounded-2xl p-4 md:p-5 hover:border-secondary/40 hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  onMouseMove={handleCardGlow}
+                  className="card-glow group relative flex flex-col h-full bg-card border border-border/50 rounded-2xl p-4 md:p-5 hover:border-secondary/40 hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
