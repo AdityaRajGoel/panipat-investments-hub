@@ -21,6 +21,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell
 } from "recharts";
 import SEOHead from "@/components/SEOHead";
+import MarketDataManager from "@/components/admin/MarketDataManager";
 
 // ---- Types ----
 type UnlistedShare = {
@@ -765,6 +766,7 @@ const AdminPage = () => {
             <TabsTrigger value="shares" className="flex-1 sm:flex-none">Unlisted Shares</TabsTrigger>
             <TabsTrigger value="leads" className="flex-1 sm:flex-none">Account Leads</TabsTrigger>
             <TabsTrigger value="analytics" className="flex-1 sm:flex-none">Analytics</TabsTrigger>
+            <TabsTrigger value="market" className="flex-1 sm:flex-none">Market Data</TabsTrigger>
           </TabsList>
 
           <TabsContent value="shares">
@@ -796,6 +798,10 @@ const AdminPage = () => {
 
           <TabsContent value="analytics">
             <AnalyticsPanel password={password} />
+          </TabsContent>
+
+          <TabsContent value="market">
+            <MarketDataManager />
           </TabsContent>
         </Tabs>
       </div>

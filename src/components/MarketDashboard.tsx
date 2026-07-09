@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
+import { useMarketFlows } from "@/hooks/useMarketFeed";
 
 const sectorIcons: Record<string, any> = {
   IT: Cpu, Banks: Landmark, Pharma: Pill, Auto: Factory,
@@ -119,32 +120,33 @@ const SectorHeatmap = memo(() => {
   );
 });
 
-// FII/DII Flow
+// FII/DII/MF flows - admin-fed from NSE/AMFI daily figures (market_flows table).
+// Never synthesize these numbers; show an awaiting state until data is fed.
+const FLOW_LABELS: Record<string, string> = {
+  fii_cash: "FII (Cash)",
+  dii_cash: "DII (Cash)",
+  fii_fno: "FII (F&O)",
+  mf_activity: "Mutual Funds",
+};
+
 const FIIDIIFlow = memo(() => {
-  const { marketOverview } = useLiveMarket();
-  const advances = marketOverview?.advances ?? 12;
-  const declines = marketOverview?.declines ?? 8;
-  const bullish = advances > declines;
+  const { flows, asOf } = useMarketFlows();
 
-  const fiiBuy = 6000 + advances * 120;
-  const fiiSell = 5000 + declines * 180;
-  const fiiNet = fiiBuy - fiiSell;
+  const rows = flows.map((f) => {
+    const net = f.buy_cr - f.sell_cr;
+    return {
+      label: FLOW_LABELS[f.category] ?? f.category,
+      buy: `₹${f.buy_cr.toLocaleString("en-IN")} Cr`,
+      sell: `₹${f.sell_cr.toLocaleString("en-IN")} Cr`,
+      net: `${net >= 0 ? "+" : "-"}₹${Math.abs(net).toLocaleString("en-IN")} Cr`,
+      buyShare: f.buy_cr + f.sell_cr > 0 ? (f.buy_cr / (f.buy_cr + f.sell_cr)) * 100 : 50,
+      up: net >= 0,
+    };
+  });
 
-  const diiBuy = 5500 + declines * 100;
-  const diiSell = 3500 + advances * 70;
-  const diiNet = diiBuy - diiSell;
-
-  const fiiFnoBuy = 35000 + advances * 500;
-  const fiiFnoSell = 38000 + declines * 600;
-  const fiiFnoNet = fiiFnoBuy - fiiFnoSell;
-
-  const formatNet = (net: number) => net > 0 ? `+₹${net.toLocaleString('en-IN')} Cr` : `-₹${Math.abs(net).toLocaleString('en-IN')} Cr`;
-
-  const fiiDiiData = [
-    { label: "FII (Cash)", buy: `₹${fiiBuy.toLocaleString('en-IN')} Cr`, sell: `₹${fiiSell.toLocaleString('en-IN')} Cr`, net: formatNet(fiiNet), up: fiiNet > 0 },
-    { label: "DII (Cash)", buy: `₹${diiBuy.toLocaleString('en-IN')} Cr`, sell: `₹${diiSell.toLocaleString('en-IN')} Cr`, net: formatNet(diiNet), up: diiNet > 0 },
-    { label: "FII (F&O)", buy: `₹${fiiFnoBuy.toLocaleString('en-IN')} Cr`, sell: `₹${fiiFnoSell.toLocaleString('en-IN')} Cr`, net: formatNet(fiiFnoNet), up: fiiFnoNet > 0 },
-  ];
+  const asOfLabel = asOf
+    ? new Date(asOf).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+    : null;
 
   return (
     <Card className="border-border/50 overflow-hidden">
@@ -152,31 +154,40 @@ const FIIDIIFlow = memo(() => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
             <Globe className="w-4 h-4 text-brand-copper" />
-            FII / DII Activity
+            FII / DII / MF Activity
           </h3>
-          <span className="text-[10px] text-muted-foreground">Provisional</span>
+          <span className="text-[10px] text-muted-foreground">
+            {asOfLabel ? `As of ${asOfLabel} · Provisional` : "Provisional"}
+          </span>
         </div>
-        <div className="space-y-3">
-          {fiiDiiData.map((item) => (
-            <div key={item.label} className="bg-muted/30 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-foreground">{item.label}</span>
-                <span className={`text-xs font-bold flex items-center gap-0.5 ${item.up ? "text-secondary" : "text-destructive"}`}>
-                  {item.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                  {item.net}
-                </span>
+        {rows.length === 0 ? (
+          <div className="text-xs text-muted-foreground bg-muted/30 rounded-lg p-4 text-center">
+            Institutional activity figures are published after market close.
+            <br />Today's data will appear here once released.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {rows.map((item) => (
+              <div key={item.label} className="bg-muted/30 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-semibold text-foreground">{item.label}</span>
+                  <span className={`text-xs font-bold flex items-center gap-0.5 ${item.up ? "text-secondary" : "text-destructive"}`}>
+                    {item.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    {item.net}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                  <span>Buy: <b className="text-secondary">{item.buy}</b></span>
+                  <span>Sell: <b className="text-destructive">{item.sell}</b></span>
+                </div>
+                <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden flex">
+                  <div className="bg-secondary/70 rounded-l-full" style={{ width: `${item.buyShare}%` }} />
+                  <div className="bg-destructive/70 rounded-r-full flex-1" />
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                <span>Buy: <b className="text-secondary">{item.buy}</b></span>
-                <span>Sell: <b className="text-destructive">{item.sell}</b></span>
-              </div>
-              <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden flex">
-                <div className="bg-secondary/70 rounded-l-full" style={{ width: item.up ? "60%" : "42%" }} />
-                <div className="bg-destructive/70 rounded-r-full flex-1" />
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -367,62 +378,23 @@ const CurrencyDashboard = memo(() => {
   );
 });
 
-// NEW: IPO & GMP Tracker
-const IPOTracker = memo(() => {
-  // Hardcoded current IPO data (updated regularly)
-  const ipos = [
-    { name: "Denta Water & Infra", status: "Open", gmp: "+85%", subscribed: "12.4x", category: "SME", statusColor: "text-secondary bg-secondary/10" },
-    { name: "Stallion India Fluoro", status: "Open", gmp: "+42%", subscribed: "6.8x", category: "SME", statusColor: "text-secondary bg-secondary/10" },
-    { name: "Tata Capital", status: "Upcoming", gmp: "+120%", subscribed: "-", category: "Mainboard", statusColor: "text-brand-orange bg-brand-orange/10" },
-    { name: "HDB Financial", status: "Upcoming", gmp: "+65%", subscribed: "-", category: "Mainboard", statusColor: "text-brand-orange bg-brand-orange/10" },
-  ];
+// Mutual fund activity - real net buy/sell from the admin-fed market_flows
+// table (AMFI/NSE daily figures). Category returns are indicative context only.
+const fundCategories = [
+  { name: "Large Cap", return1y: "+18.5%" },
+  { name: "Mid Cap", return1y: "+28.2%" },
+  { name: "Small Cap", return1y: "+35.4%" },
+  { name: "Flexi Cap", return1y: "+22.8%" },
+  { name: "Debt Funds", return1y: "+7.2%" },
+];
 
-  return (
-    <Card className="border-border/50 overflow-hidden">
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-secondary" />
-            IPO & GMP Tracker
-          </h3>
-          <span className="text-[10px] text-muted-foreground">Updated Daily</span>
-        </div>
-        <div className="space-y-2">
-          {ipos.map((ipo) => (
-            <motion.div key={ipo.name}
-              className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-              whileHover={{ x: 2 }}>
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-foreground">{ipo.name}</span>
-                  <span className="text-[9px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">{ipo.category}</span>
-                </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ipo.statusColor}`}>{ipo.status}</span>
-              </div>
-              <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
-                <span>GMP: <b className="text-secondary">{ipo.gmp}</b></span>
-                <span>Subscribed: <b className="text-foreground">{ipo.subscribed}</b></span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-});
-
-// NEW: Mutual Fund Flows
 const MutualFundFlows = memo(() => {
-  const { marketOverview } = useLiveMarket();
-  const advances = marketOverview?.advances ?? 12;
-
-  const fundCategories = [
-    { name: "Large Cap", aum: "₹8.2L Cr", flow: `+₹${(2400 + advances * 30).toLocaleString('en-IN')} Cr`, return1y: "+18.5%", up: true },
-    { name: "Mid Cap", aum: "₹4.1L Cr", flow: `+₹${(1800 + advances * 25).toLocaleString('en-IN')} Cr`, return1y: "+28.2%", up: true },
-    { name: "Small Cap", aum: "₹2.8L Cr", flow: `+₹${(900 + advances * 15).toLocaleString('en-IN')} Cr`, return1y: "+35.4%", up: true },
-    { name: "Flexi Cap", aum: "₹3.5L Cr", flow: `+₹${(1500 + advances * 20).toLocaleString('en-IN')} Cr`, return1y: "+22.8%", up: true },
-    { name: "Debt Funds", aum: "₹12.4L Cr", flow: `-₹${(500 + Math.abs(advances - 10) * 40).toLocaleString('en-IN')} Cr`, return1y: "+7.2%", up: false },
-  ];
+  const { flows, asOf } = useMarketFlows();
+  const mf = flows.find((f) => f.category === "mf_activity");
+  const mfNet = mf ? mf.buy_cr - mf.sell_cr : null;
+  const asOfLabel = asOf
+    ? new Date(asOf).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+    : null;
 
   return (
     <Card className="border-border/50 overflow-hidden">
@@ -430,32 +402,43 @@ const MutualFundFlows = memo(() => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
             <Coins className="w-4 h-4 text-brand-gold" />
-            Mutual Fund Flows
+            Mutual Fund Activity
           </h3>
-          <span className="text-[10px] text-muted-foreground">Monthly Data</span>
+          <span className="text-[10px] text-muted-foreground">{asOfLabel ? `As of ${asOfLabel}` : "Daily Data"}</span>
         </div>
-        <div className="space-y-2">
+
+        {mf ? (
+          <div className="mb-3 p-3 bg-muted/30 rounded-lg">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-semibold text-foreground">MF Net Activity (Equity)</span>
+              <span className={`text-sm font-bold ${mfNet! >= 0 ? "text-secondary" : "text-destructive"}`}>
+                {mfNet! >= 0 ? "+" : "-"}₹{Math.abs(mfNet!).toLocaleString("en-IN")} Cr
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+              <span>Buy: <b className="text-secondary">₹{mf.buy_cr.toLocaleString("en-IN")} Cr</b></span>
+              <span>Sell: <b className="text-destructive">₹{mf.sell_cr.toLocaleString("en-IN")} Cr</b></span>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-3 text-xs text-muted-foreground bg-muted/30 rounded-lg p-3 text-center">
+            MF activity figures publish after market close and will appear here once released.
+          </div>
+        )}
+
+        <div className="space-y-1.5">
           {fundCategories.map((fund) => (
-            <div key={fund.name} className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg">
-              <div className="flex-1">
-                <div className="text-xs font-semibold text-foreground">{fund.name}</div>
-                <div className="text-[10px] text-muted-foreground">AUM: {fund.aum}</div>
-              </div>
-              <div className="text-right mr-3">
-                <div className={`text-[10px] font-bold ${fund.up ? "text-secondary" : "text-destructive"}`}>{fund.flow}</div>
-                <div className="text-[9px] text-muted-foreground">Net Flow</div>
-              </div>
+            <div key={fund.name} className="flex items-center justify-between p-2 bg-muted/30 rounded-lg">
+              <span className="text-xs font-semibold text-foreground">{fund.name}</span>
               <div className="text-right">
-                <div className="text-xs font-bold text-secondary">{fund.return1y}</div>
-                <div className="text-[9px] text-muted-foreground">1Y Return</div>
+                <span className="text-xs font-bold text-secondary">{fund.return1y}</span>
+                <span className="text-[9px] text-muted-foreground ml-1.5">1Y Category Avg</span>
               </div>
             </div>
           ))}
         </div>
-        <div className="mt-3 text-center">
-          <div className="text-[10px] text-muted-foreground">
-            Total SIP Flows: <b className="text-secondary">₹21,260 Cr/month</b>
-          </div>
+        <div className="mt-3 text-center text-[9px] text-muted-foreground">
+          Category returns are indicative averages, not live NAVs.
         </div>
       </CardContent>
     </Card>

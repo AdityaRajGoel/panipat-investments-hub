@@ -4,14 +4,15 @@ import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
-import { useState, useMemo, lazy, Suspense } from "react";
+import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar } from "lucide-react";
+import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar, X, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "react-router-dom";
 import { useScreenerStocks, type ScreenerStock } from "@/hooks/useScreenerStocks";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
@@ -41,6 +42,21 @@ const formatMarketCap = (cr: number) => {
 };
 
 type SortKey = "symbol" | "price" | "change_pct" | "market_cap" | "pe";
+
+// Download the current filtered view as CSV
+const exportCsv = (rows: ScreenerStock[]) => {
+  const header = "Symbol,Name,Sector,Price,Change %,Market Cap (Cr),P/E,52W High,52W Low,Volume";
+  const body = rows.map(s =>
+    [s.symbol, `"${s.name.replace(/"/g, '""')}"`, s.sector, s.price, s.change_pct, s.market_cap, s.pe, s.high_52, s.low_52, s.volume].join(",")
+  );
+  const blob = new Blob([[header, ...body].join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `parasram-screener-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 /** Animated candlestick loading skeleton */
 const StockLoadingAnimation = () => {
@@ -111,17 +127,42 @@ const TableRowSkeleton = ({ index }: { index: number }) => (
 
 const StockScreenerPage = () => {
   const { stocks, loading, refreshing: bgRefreshing, updatedAt, error, refresh } = useScreenerStocks();
-  const [search, setSearch] = useState("");
-  const [sector, setSector] = useState("all");
-  const [peRange, setPeRange] = useState("all");
-  const [capRange, setCapRange] = useState("all");
-  const [sortKey, setSortKey] = useState<SortKey>("market_cap");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  // Filters live in the URL so a configured screen can be shared/bookmarked.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("q") ?? "");
+  const [sector, setSector] = useState(searchParams.get("sector") ?? "all");
+  const [peRange, setPeRange] = useState(searchParams.get("pe") ?? "all");
+  const [capRange, setCapRange] = useState(searchParams.get("cap") ?? "all");
+  const [sortKey, setSortKey] = useState<SortKey>((searchParams.get("sort") as SortKey) || "market_cap");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">(searchParams.get("dir") === "asc" ? "asc" : "desc");
   const [refreshing, setRefreshing] = useState(false);
   const [analyzingStock, setAnalyzingStock] = useState<ScreenerStock | null>(null);
-  const [activeBasket, setActiveBasket] = useState<string | null>(null);
-  const [activeScanner, setActiveScanner] = useState<string | null>(null);
+  const [activeBasket, setActiveBasket] = useState<string | null>(searchParams.get("basket"));
+  const [activeScanner, setActiveScanner] = useState<string | null>(searchParams.get("scan"));
   const [viewMode, setViewMode] = useState<"list" | "heatmap">("list");
+
+  // Reflect filters into the URL (replace - no history spam)
+  useEffect(() => {
+    const p = new URLSearchParams();
+    if (search) p.set("q", search);
+    if (sector !== "all") p.set("sector", sector);
+    if (peRange !== "all") p.set("pe", peRange);
+    if (capRange !== "all") p.set("cap", capRange);
+    if (sortKey !== "market_cap") p.set("sort", sortKey);
+    if (sortDir !== "desc") p.set("dir", sortDir);
+    if (activeBasket) p.set("basket", activeBasket);
+    if (activeScanner) p.set("scan", activeScanner);
+    setSearchParams(p, { replace: true });
+  }, [search, sector, peRange, capRange, sortKey, sortDir, activeBasket, activeScanner, setSearchParams]);
+
+  const activeFilterCount =
+    (search ? 1 : 0) + (sector !== "all" ? 1 : 0) + (peRange !== "all" ? 1 : 0) +
+    (capRange !== "all" ? 1 : 0) + (activeBasket ? 1 : 0) + (activeScanner ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSearch(""); setSector("all"); setPeRange("all"); setCapRange("all");
+    setActiveBasket(null); setActiveScanner(null);
+  };
 
   const sectors = useMemo(() => [...new Set(stocks.map(s => s.sector))].sort(), [stocks]);
 
@@ -205,12 +246,21 @@ const StockScreenerPage = () => {
             <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">Stock Screener</h1>
             <p className="text-muted-foreground">Live prices for {stocks.length}+ NSE stocks • Filter by sector, market cap, P/E & more</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             {updatedAt && (
               <span className="text-xs text-muted-foreground">
                 Updated {new Date(updatedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
+            {activeFilterCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 text-muted-foreground hover:text-foreground">
+                <X className="w-3.5 h-3.5 mr-1" /> Clear filters ({activeFilterCount})
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={() => exportCsv(filtered)} disabled={filtered.length === 0}>
+              <Download className="w-4 h-4" />
+              <span className="ml-1.5">CSV</span>
+            </Button>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
               {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               <span className="ml-1.5">Refresh</span>
@@ -374,7 +424,7 @@ const StockScreenerPage = () => {
               ) : (
               <Card className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead>
+                  <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm">
                     <tr className="border-b border-border bg-muted/50">
                       {([["symbol", "Stock"], ["price", "Price"], ["change_pct", "Change"], ["market_cap", "Market Cap"], ["pe", "P/E"]] as [SortKey, string][]).map(([key, label]) => (
                         <th key={key} className="text-left px-4 py-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors" onClick={() => toggleSort(key)}>

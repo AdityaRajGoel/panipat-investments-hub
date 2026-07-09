@@ -3,7 +3,7 @@ import { useRef, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   TrendingUp, TrendingDown, Activity, Eye, ArrowUpRight, ArrowDownRight,
-  BarChart3, Layers, PieChart, Gem, Maximize2, X, Clock, Volume2,
+  BarChart3, Gem, Maximize2, X, Clock, Volume2,
   IndianRupee, Percent, ChevronRight, Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
+import { useCorporateActions, useMarketFlows } from "@/hooks/useMarketFeed";
 
 type Stock = { name: string; price: string; change: string; up: boolean; volume?: string; high?: string; low?: string };
 
@@ -43,24 +44,6 @@ const mostActive: Stock[] = [
   { name: "MARUTI", price: "₹12,450.00", change: "+1.5%", up: true, volume: "1.8M", high: "₹12,520.00", low: "₹12,280.00" },
 ];
 
-const fnoData: Stock[] = [
-  { name: "NIFTY 22500 CE", price: "₹185.50", change: "+12.5%", up: true, volume: "2.1L", high: "₹198.00", low: "₹145.20" },
-  { name: "NIFTY 22000 PE", price: "₹72.30", change: "-8.2%", up: false, volume: "1.8L", high: "₹88.40", low: "₹68.50" },
-  { name: "BANKNIFTY 47000 CE", price: "₹312.80", change: "+6.3%", up: true, volume: "95K", high: "₹325.00", low: "₹278.60" },
-  { name: "RELIANCE 2900 CE", price: "₹45.60", change: "+15.1%", up: true, volume: "78K", high: "₹52.40", low: "₹38.20" },
-  { name: "TCS 4000 PE", price: "₹28.40", change: "-4.7%", up: false, volume: "45K", high: "₹32.80", low: "₹26.10" },
-  { name: "HDFCBANK 1700 CE", price: "₹22.80", change: "+8.9%", up: true, volume: "62K", high: "₹25.40", low: "₹18.60" },
-];
-
-const mutualFunds: Stock[] = [
-  { name: "SBI Bluechip Fund", price: "₹78.52", change: "+1.2%", up: true, volume: "₹2,450 Cr", high: "₹79.10", low: "₹77.80" },
-  { name: "HDFC Mid-Cap Opp.", price: "₹156.34", change: "+2.8%", up: true, volume: "₹1,820 Cr", high: "₹157.20", low: "₹152.10" },
-  { name: "Axis Small Cap", price: "₹92.18", change: "+3.5%", up: true, volume: "₹980 Cr", high: "₹93.40", low: "₹89.20" },
-  { name: "ICICI Pru Tech Fund", price: "₹189.45", change: "-0.4%", up: false, volume: "₹1,560 Cr", high: "₹191.20", low: "₹188.30" },
-  { name: "Kotak Flexi Cap", price: "₹65.72", change: "+1.8%", up: true, volume: "₹2,100 Cr", high: "₹66.30", low: "₹64.50" },
-  { name: "Nippon India Growth", price: "₹3,245.80", change: "+2.2%", up: true, volume: "₹1,340 Cr", high: "₹3,260.00", low: "₹3,178.40" },
-];
-
 const fallbackCommodities: Stock[] = [
   { name: "GOLD", price: "$2,345.60/oz", change: "+0.45%", up: true, volume: "182K", high: "$2,358.40", low: "$2,330.20" },
   { name: "SILVER", price: "$29.82/oz", change: "+1.20%", up: true, volume: "95K", high: "$30.10", low: "$29.45" },
@@ -73,20 +56,9 @@ const fallbackCommodities: Stock[] = [
   { name: "EUR/INR", price: "₹90.15", change: "-0.12%", up: false, volume: "-", high: "₹90.40", low: "₹89.95" },
 ];
 
-const generateDynamicDate = (daysAhead: number) => {
-  const d = new Date();
-  d.setDate(d.getDate() + daysAhead);
-  return d.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
-};
-
-const corporateActions = [
-  { date: generateDynamicDate(3), symbol: "RELIANCE", eventName: "Earnings", details: "Est EPS: ₹24.5", up: true },
-  { date: generateDynamicDate(6), symbol: "TCS", eventName: "Interim Dividend", details: "₹9.00 per share", up: true },
-  { date: generateDynamicDate(11), symbol: "HDFC BANK", eventName: "Stock Split", details: "1:2 Ratio Ex-Date", up: true },
-  { date: generateDynamicDate(14), symbol: "INFY", eventName: "Earnings", details: "Est EPS: ₹16.2", up: true },
-  { date: generateDynamicDate(21), symbol: "ITC", eventName: "AGM", details: "Annual General Meeting", up: false },
-  { date: generateDynamicDate(24), symbol: "BAJFINANCE", eventName: "Bonus Issue", details: "1:1 Ratio Record Date", up: true },
-];
+// Corporate actions come from the admin-fed corporate_actions table
+// (useCorporateActions). No fabricated fallback events - an empty feed
+// shows an honest empty state instead.
 
 // marketStats is now computed dynamically inside the component using live data
 
@@ -269,17 +241,10 @@ const CalendarRow = ({ action, index }: { action: any; index: number }) => (
   </motion.div>
 );
 
-type TabKey = "gainers" | "losers" | "active" | "fno" | "mf" | "commodities" | "calendar";
-
-const tabConfig: { key: TabKey; label: string; icon: any; data: Stock[] | any[] }[] = [
-  { key: "gainers", label: "Top Gainers", icon: TrendingUp, data: fallbackTopGainers },
-  { key: "losers", label: "Top Losers", icon: TrendingDown, data: fallbackTopLosers },
-  { key: "active", label: "Most Active", icon: Activity, data: mostActive },
-  { key: "fno", label: "F&O", icon: Layers, data: fnoData },
-  { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
-  { key: "commodities", label: "Commodities", icon: Gem, data: fallbackCommodities },
-  { key: "calendar", label: "Corp Actions", icon: Calendar, data: corporateActions },
-];
+// F&O option-premium and MF NAV tabs were removed - we can't source those
+// prices live, and showing stale figures as market data isn't OK for a broker
+// site. The /fno page carries the live derivatives data instead.
+type TabKey = "gainers" | "losers" | "active" | "commodities" | "calendar";
 
 const MarketOverview = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -287,6 +252,8 @@ const MarketOverview = () => {
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [chartData] = useState(() => new Map<string, number[]>());
   const { marketOverview: liveData, commodities: liveCommodities, vix, fetchedAt } = useLiveMarket();
+  const { actions: corpActions } = useCorporateActions();
+  const { flows } = useMarketFlows();
 
   const liveCommodityStocks: Stock[] = useMemo(() => {
     if (!liveCommodities?.length) return fallbackCommodities;
@@ -301,19 +268,30 @@ const MarketOverview = () => {
       }));
   }, [liveCommodities]);
 
+  // Admin-fed corporate actions mapped into the calendar row shape
+  const calendarRows = useMemo(
+    () =>
+      corpActions.map((a) => ({
+        date: new Date(a.ex_date).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+        symbol: a.company,
+        eventName: a.action_type,
+        details: a.details,
+        up: true,
+      })),
+    [corpActions]
+  );
+
   // Merge live data with fallbacks
   const dynamicTabConfig = useMemo(() => {
     const cfg: { key: TabKey; label: string; icon: any; data: Stock[] | any[] }[] = [
       { key: "gainers", label: "Top Gainers", icon: TrendingUp, data: liveData?.gainers?.length ? liveData.gainers as Stock[] : fallbackTopGainers },
       { key: "losers", label: "Top Losers", icon: TrendingDown, data: liveData?.losers?.length ? liveData.losers as Stock[] : fallbackTopLosers },
       { key: "active", label: "Most Active", icon: Activity, data: liveData?.mostActive?.length ? liveData.mostActive as Stock[] : mostActive },
-      { key: "fno", label: "F&O", icon: Layers, data: fnoData },
-      { key: "mf", label: "Mutual Funds", icon: PieChart, data: mutualFunds },
       { key: "commodities", label: "Commodities", icon: Gem, data: liveCommodityStocks },
-      { key: "calendar", label: "Corp Actions", icon: Calendar, data: corporateActions },
+      { key: "calendar", label: "Corp Actions", icon: Calendar, data: calendarRows },
     ];
     return cfg;
-  }, [liveData, liveCommodityStocks]);
+  }, [liveData, liveCommodityStocks, calendarRows]);
 
   const activeConfig = dynamicTabConfig.find(t => t.key === activeTab)!;
 
@@ -325,16 +303,27 @@ const MarketOverview = () => {
   const liveVix = vix?.price ?? "13.45";
   const liveMostActive = liveData?.mostActive?.[0]?.name ?? "TATA STEEL";
 
+  // FII/DII from the admin-fed market_flows table; "—" until published.
+  const fmtFlow = (cat: string) => {
+    const f = flows.find((x) => x.category === cat);
+    if (!f) return null;
+    const net = f.buy_cr - f.sell_cr;
+    return { value: `${net >= 0 ? "+" : "-"}₹${Math.abs(net).toLocaleString("en-IN")} Cr`, up: net >= 0 };
+  };
+  const fiiFlow = fmtFlow("fii_cash");
+  const diiFlow = fmtFlow("dii_cash");
+  const breadthPct = totalStocks > 0 ? Math.round((liveAdvances / totalStocks) * 100) : 50;
+
   const marketStats = useMemo(() => [
-    { icon: Activity, label: "Market Cap", value: "₹385L Cr", color: "text-secondary", bgColor: "bg-secondary/10" },
-    { icon: BarChart3, label: "F&O Volume", value: "18.2B", color: "text-brand-gold", bgColor: "bg-brand-gold/10" },
+    { icon: BarChart3, label: "Breadth (Adv)", value: `${breadthPct}%`, color: breadthPct >= 50 ? "text-secondary" : "text-destructive", bgColor: breadthPct >= 50 ? "bg-secondary/10" : "bg-destructive/10" },
+    { icon: Activity, label: "Unchanged", value: liveUnchanged.toLocaleString(), color: "text-brand-gold", bgColor: "bg-brand-gold/10" },
     { icon: TrendingUp, label: "Advances", value: liveAdvances.toLocaleString(), color: "text-secondary", bgColor: "bg-secondary/10" },
     { icon: TrendingDown, label: "Declines", value: liveDeclines.toLocaleString(), color: "text-destructive", bgColor: "bg-destructive/10" },
     { icon: Eye, label: "Most Active", value: liveMostActive, color: "text-primary", bgColor: "bg-primary/10" },
     { icon: Activity, label: "India VIX", value: liveVix, color: "text-brand-gold", bgColor: "bg-brand-gold/10" },
-    { icon: IndianRupee, label: "FII Flow", value: "-₹1,245 Cr", color: "text-destructive", bgColor: "bg-destructive/10" },
-    { icon: Percent, label: "DII Flow", value: "+₹2,180 Cr", color: "text-secondary", bgColor: "bg-secondary/10" },
-  ], [liveAdvances, liveDeclines, liveMostActive, liveVix]);
+    { icon: IndianRupee, label: "FII Flow", value: fiiFlow?.value ?? "—", color: fiiFlow ? (fiiFlow.up ? "text-secondary" : "text-destructive") : "text-muted-foreground", bgColor: fiiFlow ? (fiiFlow.up ? "bg-secondary/10" : "bg-destructive/10") : "bg-muted/40" },
+    { icon: Percent, label: "DII Flow", value: diiFlow?.value ?? "—", color: diiFlow ? (diiFlow.up ? "text-secondary" : "text-destructive") : "text-muted-foreground", bgColor: diiFlow ? (diiFlow.up ? "bg-secondary/10" : "bg-destructive/10") : "bg-muted/40" },
+  ], [liveAdvances, liveDeclines, liveUnchanged, liveMostActive, liveVix, fiiFlow, diiFlow, breadthPct]);
 
   const getChartData = useCallback((stock: Stock) => {
     if (!chartData.has(stock.name)) {
@@ -409,7 +398,7 @@ const MarketOverview = () => {
               </div>
             ) : (
               <div className="flex items-center justify-between py-2 px-3 sm:px-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-wide border-b border-border/30 bg-muted/20">
-                <span>{activeTab === "fno" ? "Contract" : activeTab === "mf" ? "Fund" : activeTab === "commodities" ? "Commodity" : "Company"}</span>
+                <span>{activeTab === "commodities" ? "Commodity" : "Company"}</span>
                 <div className="flex items-center gap-2 sm:gap-4">
                   <span className="w-16 text-center hidden sm:block">Chart</span>
                   <span className="w-20 sm:w-28 text-right">Price</span>
@@ -421,11 +410,17 @@ const MarketOverview = () => {
 
             <AnimatePresence mode="wait">
               <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="p-1 sm:p-2">
-                {activeConfig.data.map((item, i) => (
-                  activeTab === "calendar"
-                    ? <CalendarRow key={`cal-${(item as any).symbol}`} action={item} index={i} />
-                    : <StockRow key={`${activeTab}-${(item as Stock).name}`} stock={item as Stock} index={i} onChartClick={handleChartClick} />
-                ))}
+                {activeTab === "calendar" && activeConfig.data.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    No upcoming corporate actions listed right now - check back soon.
+                  </div>
+                ) : (
+                  activeConfig.data.map((item, i) => (
+                    activeTab === "calendar"
+                      ? <CalendarRow key={`cal-${(item as any).symbol}-${i}`} action={item} index={i} />
+                      : <StockRow key={`${activeTab}-${(item as Stock).name}`} stock={item as Stock} index={i} onChartClick={handleChartClick} />
+                  ))
+                )}
               </motion.div>
             </AnimatePresence>
 
