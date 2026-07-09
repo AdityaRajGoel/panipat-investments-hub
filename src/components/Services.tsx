@@ -150,7 +150,9 @@ const Services = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
           />
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Comprehensive financial services tailored to meet your investment goals
+            Your one-stop financial supermarket - equity, F&O, commodities,
+            mutual funds, IPOs, insurance, bonds and FDs, all under one
+            SEBI-registered roof in Panipat.
           </p>
         </motion.div>
 

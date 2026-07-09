@@ -230,6 +230,55 @@ const About = () => {
             />
           </motion.div>
         </div>
+
+        {/* Pan-India network strip - borrows the parent group's scale for branch trust */}
+        <motion.div
+          className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-center bg-muted/40 border border-border/40 rounded-2xl px-6 py-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <span className="text-sm font-semibold text-foreground">
+            Part of the Shri Parasram Holdings network
+          </span>
+          <span className="hidden sm:block w-px h-5 bg-border" />
+          <span className="text-sm text-muted-foreground">
+            <b className="text-secondary">350+</b> locations · <b className="text-secondary">160+</b> cities · <b className="text-secondary">1.3 Lakh+</b> network clients across India
+          </span>
+        </motion.div>
+
+        {/* Vision & Mission */}
+        <div className="mt-8 grid md:grid-cols-2 gap-6">
+          <motion.div
+            className="bg-card border border-border/50 rounded-2xl p-6 md:p-8 hover:border-secondary/40 hover:shadow-lg transition-all"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="inline-block text-secondary font-semibold text-xs uppercase tracking-[0.15em] mb-2">Our Vision</span>
+            <p className="text-foreground/90 leading-relaxed">
+              To be the most trusted investment partner in Haryana - bringing
+              institutional-grade trading technology and research to every
+              investor, from first SIP to seasoned portfolio.
+            </p>
+          </motion.div>
+          <motion.div
+            className="bg-card border border-border/50 rounded-2xl p-6 md:p-8 hover:border-brand-gold/40 hover:shadow-lg transition-all"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <span className="inline-block text-brand-gold font-semibold text-xs uppercase tracking-[0.15em] mb-2">Our Mission</span>
+            <p className="text-foreground/90 leading-relaxed">
+              Foster investor confidence through fair practice, transparent
+              pricing and personal guidance - so every client in Panipat invests
+              with the same edge as those in the metros.
+            </p>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
