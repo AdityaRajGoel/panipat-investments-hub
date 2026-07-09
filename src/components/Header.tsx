@@ -56,33 +56,35 @@ const Header = () => {
       {/* Top bar */}
       <div className="bg-hero text-primary-foreground py-1.5 hidden sm:block">
         <div className="container mx-auto px-4 flex justify-between items-center text-xs">
-          <div className="flex items-center gap-3 flex-wrap">
-            <a href="tel:+919416400314" className="flex items-center gap-1 hover:text-secondary transition-colors">
+          <div className="flex items-center gap-4">
+            <a href="tel:+919416400314" className="flex items-center gap-1.5 hover:text-secondary transition-colors font-medium">
               <Phone className="w-3.5 h-3.5" /><span>+91 9416400314</span>
             </a>
-            <a href="tel:+919999790011" className="flex items-center gap-1 hover:text-secondary transition-colors">
-              <Phone className="w-3.5 h-3.5" /><span>+91 9999790011</span>
-            </a>
-            <a href="tel:+919416400277" className="flex items-center gap-1 hover:text-secondary transition-colors">
-              <Phone className="w-3.5 h-3.5" /><span>+91 9416400277</span>
-            </a>
-            <a href="mailto:parasrampnp@gmail.com" className="flex items-center gap-1 hover:text-secondary transition-colors">
+            <a href="mailto:parasrampnp@gmail.com" className="hidden md:flex items-center gap-1.5 hover:text-secondary transition-colors">
               <Mail className="w-3.5 h-3.5" /><span>parasrampnp@gmail.com</span>
             </a>
-            <a href="https://www.instagram.com/parasrampanipat/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="hover:text-secondary transition-colors">
-              <Instagram className="w-3.5 h-3.5" />
-            </a>
-            <a href="https://www.facebook.com/share/18B5W5rZaT/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" className="hover:text-secondary transition-colors">
-              <Facebook className="w-3.5 h-3.5" />
-            </a>
-            <a href="https://x.com/ParasramPanipat" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X (Twitter)" className="hover:text-secondary transition-colors">
-              <Twitter className="w-3.5 h-3.5" />
+            <span className="hidden lg:flex items-center gap-1.5 text-primary-foreground/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+              SEBI Registered · Since 1970
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 pr-3 border-r border-primary-foreground/20">
+              <a href="https://www.instagram.com/parasrampanipat/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="hover:text-secondary hover:scale-110 transition-all">
+                <Instagram className="w-3.5 h-3.5" />
+              </a>
+              <a href="https://www.facebook.com/share/18B5W5rZaT/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" className="hover:text-secondary hover:scale-110 transition-all">
+                <Facebook className="w-3.5 h-3.5" />
+              </a>
+              <a href="https://x.com/ParasramPanipat" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X (Twitter)" className="hover:text-secondary hover:scale-110 transition-all">
+                <Twitter className="w-3.5 h-3.5" />
+              </a>
+            </div>
+            <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
+              <span>Visit Main Website</span>
+              <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
-          <a href="https://parasramindia.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-secondary transition-colors">
-            <span>Visit Main Website</span>
-            <ExternalLink className="w-4 h-4" />
-          </a>
         </div>
       </div>
 
@@ -179,7 +181,7 @@ const Header = () => {
                 <BarChart3 className="w-4 h-4 mr-1" />Web Trade
               </a>
             </Button>
-            <Button asChild className="hidden sm:inline-flex bg-brand-navy hover:bg-brand-navy/90 text-white font-semibold shadow-md hover:shadow-lg hover:shadow-brand-navy/25 hover:scale-[1.03] active:scale-95 transition-all duration-200">
+            <Button asChild className="hidden sm:inline-flex btn-shine bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold shadow-md shadow-secondary/25 hover:shadow-lg hover:shadow-secondary/30 hover:scale-[1.03] active:scale-95 transition-all duration-200">
               <Link to="/open-account">Open Account</Link>
             </Button>
             <button
