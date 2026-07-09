@@ -202,7 +202,7 @@ const UnlistedShares = () => {
                     <CardContent className="p-5">
                       <div className="flex items-start gap-4">
                         {stock.imageUrl ? (
-                          <img src={stock.imageUrl} alt={stock.short} className="w-14 h-14 rounded-xl object-contain border border-border bg-white shrink-0 shadow-lg" />
+                          <img src={stock.imageUrl} alt={stock.short} width={56} height={56} className="w-14 h-14 rounded-xl object-contain border border-border bg-white shrink-0 shadow-lg" />
                         ) : (
                           <div className={`w-14 h-14 bg-gradient-to-br ${stock.color} rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}>{stock.short}</div>
                         )}
@@ -251,7 +251,7 @@ const UnlistedShares = () => {
               <div className="p-6">
                 <div className="flex items-start gap-4 mb-5">
                   {selectedStock.imageUrl ? (
-                    <img src={selectedStock.imageUrl} alt={selectedStock.short} className="w-16 h-16 rounded-xl object-contain border border-border bg-white" />
+                    <img src={selectedStock.imageUrl} alt={selectedStock.short} width={64} height={64} className="w-16 h-16 rounded-xl object-contain border border-border bg-white" />
                   ) : (
                     <div className={`w-16 h-16 bg-gradient-to-br ${selectedStock.color} rounded-xl flex items-center justify-center text-sm font-bold text-white`}>{selectedStock.short}</div>
                   )}

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, X, TrendingUp, TrendingDown, Loader2, CandlestickChart, LineChart, Bot } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import AIAnalysisModal from "@/components/AIAnalysisModal";
+const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
 
 type StockResult = {
   symbol: string;
@@ -486,7 +486,7 @@ const GlobalStockSearch = ({ className }: Props) => {
                 <div className="flex items-end gap-6 mt-6">
                   <div>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Current Price</p>
-                    <div className="text-4xl font-extrabold tracking-tighter text-foreground">
+                    <div className="text-4xl font-bold tracking-tighter text-foreground">
                       ₹{selected.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
@@ -644,24 +644,29 @@ const GlobalStockSearch = ({ className }: Props) => {
         </DialogContent>
       </Dialog>
       
-      <AIAnalysisModal 
-        isOpen={!!analyzingStock} 
-        onClose={() => setAnalyzingStock(null)} 
-        stock={analyzingStock ? {
-          name: analyzingStock.name,
-          symbol: analyzingStock.symbol,
-          price: analyzingStock.price,
-          change_pct: analyzingStock.change_pct,
-          pe: analyzingStock.pe,
-          high_52: analyzingStock.high_52,
-          low_52: analyzingStock.low_52,
-          day_high: analyzingStock.day_high,
-          day_low: analyzingStock.day_low,
-          volume: analyzingStock.volume,
-          market_cap: analyzingStock.market_cap,
-          sector: analyzingStock.sector,
-        } : null} 
-      />
+      {/* Lazy: recharts only downloads when an analysis is opened */}
+      {analyzingStock && (
+        <Suspense fallback={null}>
+          <AIAnalysisModal
+            isOpen
+            onClose={() => setAnalyzingStock(null)}
+            stock={{
+              name: analyzingStock.name,
+              symbol: analyzingStock.symbol,
+              price: analyzingStock.price,
+              change_pct: analyzingStock.change_pct,
+              pe: analyzingStock.pe,
+              high_52: analyzingStock.high_52,
+              low_52: analyzingStock.low_52,
+              day_high: analyzingStock.day_high,
+              day_low: analyzingStock.day_low,
+              volume: analyzingStock.volume,
+              market_cap: analyzingStock.market_cap,
+              sector: analyzingStock.sector,
+            }}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

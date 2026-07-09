@@ -349,14 +349,12 @@ const LearningCenterPage = () => {
       healthCheckRef.current = setInterval(() => {
         const hasErrors = Object.values(iframeErrors).some(Boolean);
         if (hasErrors) {
-          console.log('[LiveTV] Health check: iframe error detected, refreshing broadcasts...');
           fetchLiveBroadcasts();
         }
       }, 30000); // Check every 30s
 
       // Full refresh every 90s regardless
       const fullRefresh = setInterval(() => {
-        console.log('[LiveTV] Auto-refreshing broadcast IDs...');
         fetchLiveBroadcasts();
       }, 90000);
 

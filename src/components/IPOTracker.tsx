@@ -161,7 +161,6 @@ const IPOTracker = () => {
         setFetchedAt(data.fetchedAt || "");
       }
     } catch {
-      console.log('Using empty IPO data');
     } finally {
       setLoading(false);
     }

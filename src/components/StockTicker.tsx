@@ -70,7 +70,7 @@ const TickerRow = ({ items, direction = "left", bgClass = "bg-brand-charcoal", t
             className="inline-flex items-center gap-1 md:gap-1.5 text-xs md:text-sm cursor-pointer select-none px-1 md:px-1.5 py-0.5 rounded-md hover:bg-white/10 transition-colors group"
             onClick={() => navigate("/screener")}
           >
-            <span className={`font-extrabold tracking-wide transition-colors ${item.up ? "text-[#00c853] dark:text-[#00e676]" : "text-[#d50000] dark:text-[#ff1744]"}`}>{item.name}</span>
+            <span className={`font-bold tracking-wide transition-colors ${item.up ? "text-[#00c853] dark:text-[#00e676]" : "text-[#d50000] dark:text-[#ff1744]"}`}>{item.name}</span>
             {item.unit ? <span className="opacity-50 text-[10px] md:text-xs">{item.unit}</span> : null}
             <PriceCell item={item} />
             <span className={`flex items-center gap-0.5 font-bold text-[11px] md:text-xs px-1.5 py-0.5 rounded-full ${item.up ? "bg-brand-gold/15 text-brand-gold" : "bg-brand-orange/15 text-brand-orange"}`}>

@@ -115,7 +115,6 @@ const MarketNews = () => {
         if (data.world?.length > 0) setWorldNews(data.world);
       }
     } catch {
-      console.log('Using fallback news data');
     } finally {
       setLoading(false);
     }

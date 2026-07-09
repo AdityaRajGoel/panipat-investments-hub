@@ -162,6 +162,8 @@ const GoogleReviews = () => {
               src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
               alt="Google Reviews logo"
               loading="lazy"
+              width={92}
+              height={30}
               className="h-6 ml-2 opacity-70"
             />
           </motion.div>

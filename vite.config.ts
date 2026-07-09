@@ -84,6 +84,12 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
               return 'ui-vendor';
             }
+            // Tiny utils shared by the app AND recharts (clsx etc.) — pin them
+            // to react-vendor or rollup buries them inside chart-vendor, which
+            // forces the 104KB chart chunk to load eagerly on every page.
+            if (id.includes('/clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) {
+              return 'react-vendor';
+            }
             if (id.includes('recharts') || id.includes('d3')) {
               return 'chart-vendor';
             }

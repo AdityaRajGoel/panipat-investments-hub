@@ -196,7 +196,6 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
         setMarketClose(data.marketClose || null);
       }
     } catch (e) {
-      console.log('Using fallback market data');
     } finally {
       setLoading(false);
     }

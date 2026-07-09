@@ -4,7 +4,7 @@ import SEOHead from "@/components/SEOHead";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GitCompareArrows, Search, X, TrendingUp, TrendingDown, Star, Bot, Share2, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import AIAnalysisModal, { type StockForAnalysis } from "@/components/AIAnalysisModal";
+import type { StockForAnalysis } from "@/components/AIAnalysisModal";
+const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
 
 type Stock = {
   symbol: string; name: string; price: number | null; change: number | null;
@@ -426,11 +427,12 @@ const StockComparisonPage = () => {
       <Footer />
       <WhatsAppButton />
 
-      <AIAnalysisModal
-        isOpen={!!analyzingStock}
-        onClose={() => setAnalyzingStock(null)}
-        stock={analyzingStock}
-      />
+      {/* Lazy: recharts only downloads when an analysis is opened */}
+      {analyzingStock && (
+        <Suspense fallback={null}>
+          <AIAnalysisModal isOpen onClose={() => setAnalyzingStock(null)} stock={analyzingStock} />
+        </Suspense>
+      )}
     </div>
   );
 };

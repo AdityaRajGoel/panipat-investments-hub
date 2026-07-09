@@ -4,7 +4,7 @@ import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useScreenerStocks, type ScreenerStock } from "@/hooks/useScreenerStocks";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
-import AIAnalysisModal from "@/components/AIAnalysisModal";
+const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
 
 const THEMATIC_BASKETS = [
   { id: "banking", name: "Banking & Finance", desc: "Top private & PSU banks", icon: Landmark, filter: (s: ScreenerStock) => s.sector === "Banking" || s.sector === "NBFC" || s.sector === "Insurance" },
@@ -451,24 +451,29 @@ const StockScreenerPage = () => {
           )}
         </AnimatePresence>
 
-        <AIAnalysisModal 
-          isOpen={!!analyzingStock} 
-          onClose={() => setAnalyzingStock(null)} 
-          stock={analyzingStock ? {
-            name: analyzingStock.name,
-            symbol: analyzingStock.symbol,
-            price: analyzingStock.price,
-            change_pct: analyzingStock.change_pct,
-            pe: analyzingStock.pe,
-            high_52: analyzingStock.high_52,
-            low_52: analyzingStock.low_52,
-            day_high: analyzingStock.day_high,
-            day_low: analyzingStock.day_low,
-            volume: analyzingStock.volume,
-            market_cap: analyzingStock.market_cap,
-            sector: analyzingStock.sector,
-          } : null} 
-        />
+        {/* Lazy: recharts only downloads when an analysis is opened */}
+        {analyzingStock && (
+          <Suspense fallback={null}>
+            <AIAnalysisModal
+              isOpen
+              onClose={() => setAnalyzingStock(null)}
+              stock={{
+                name: analyzingStock.name,
+                symbol: analyzingStock.symbol,
+                price: analyzingStock.price,
+                change_pct: analyzingStock.change_pct,
+                pe: analyzingStock.pe,
+                high_52: analyzingStock.high_52,
+                low_52: analyzingStock.low_52,
+                day_high: analyzingStock.day_high,
+                day_low: analyzingStock.day_low,
+                volume: analyzingStock.volume,
+                market_cap: analyzingStock.market_cap,
+                sector: analyzingStock.sector,
+              }}
+            />
+          </Suspense>
+        )}
       </main>
       <Footer />
       <WhatsAppButton />

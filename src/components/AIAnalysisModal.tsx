@@ -339,7 +339,6 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
         .then(({ data, error }) => {
           // CRITICAL: Discard if this response belongs to a stale request
           if (thisRequestId !== requestIdRef.current) {
-            console.log(`[AI] Discarding stale response for old stock (req ${thisRequestId}, current ${requestIdRef.current})`);
             return;
           }
 
