@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import logo80 from "@/assets/logo-80.webp";
 import logo160 from "@/assets/logo-160.webp";
+import appQr from "@/assets/app-qr.svg";
 
 type FooterLink = { label: string; href: string; external?: boolean; title?: string };
 
@@ -225,24 +226,38 @@ const Footer = () => {
                 <a href="mailto:parasrampnp@gmail.com" className="hover:text-secondary transition-colors">parasrampnp@gmail.com</a>
               </p>
 
-              {/* App Download */}
-              <div className="flex gap-2">
+              {/* App download with scannable QR (parent-site pattern) */}
+              <div className="flex items-center gap-3">
                 <a
                   href="https://play.google.com/store/apps/details?id=com.parasramindia.xts"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-primary-foreground/10 hover:bg-secondary/30 rounded-lg px-3 py-2 text-xs font-medium transition-all hover:scale-105"
+                  aria-label="Scan or tap to download the Parasram Trade app on Google Play"
+                  className="shrink-0 bg-white rounded-lg p-1.5 hover:scale-105 transition-transform shadow-md"
                 >
-                  Google Play
+                  <img src={appQr} alt="QR code - download the Parasram Trade app" width={64} height={64} className="w-16 h-16" loading="lazy" />
                 </a>
-                <a
-                  href="https://apps.apple.com/us/app/parasram-trade/id1564728869"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-primary-foreground/10 hover:bg-secondary/30 rounded-lg px-3 py-2 text-xs font-medium transition-all hover:scale-105"
-                >
-                  App Store
-                </a>
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-[11px] font-semibold text-primary-foreground/80">Scan for Parasram Trade</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    <a
+                      href="https://play.google.com/store/apps/details?id=com.parasramindia.xts"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center bg-primary-foreground/10 hover:bg-secondary/30 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-all hover:scale-105"
+                    >
+                      Google Play
+                    </a>
+                    <a
+                      href="https://apps.apple.com/us/app/parasram-trade/id1564728869"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center bg-primary-foreground/10 hover:bg-secondary/30 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-all hover:scale-105"
+                    >
+                      App Store
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </FooterColumn>
