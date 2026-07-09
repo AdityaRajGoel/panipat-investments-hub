@@ -1,0 +1,42 @@
+# Catches broken builds BEFORE Vercel deploys them.
+# Hard gates: typecheck, tests, production build.
+# Lint reports but does not block (101 pre-existing issues to burn down).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Tests
+        run: npm test
+      - name: Build (vite only, no prerender)
+        run: npx vite build
+      - name: Lint (report only)
+        run: npx eslint . --max-warnings=0
+        continue-on-error: true
+
+  docker:
+    runs-on: ubuntu-latest
+    # Only prove the container still builds when its inputs change.
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t sphpnp-web .

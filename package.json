@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "analyze": "vite build --mode analyze && open dist/stats.html"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -92,6 +93,7 @@
     "postcss": "^8.5.6",
     "puppeteer": "^24.42.0",
     "puppeteer-core": "^24.42.0",
+    "rollup-plugin-visualizer": "^7.0.1",
     "sharp": "^0.35.2",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",

@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.github
+.vercel
+.env
+.env.*
+*.log
+supabase/.temp
+scripts/prerender.js
+Dockerfile
+docker-compose.yml
+README.md
