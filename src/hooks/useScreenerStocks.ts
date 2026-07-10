@@ -27,7 +27,7 @@ export function useScreenerStocks() {
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const mapStock = useCallback((s: any): ScreenerStock => ({
+  const mapStock = useCallback((s: { symbol: string; name: string; sector?: string; yahoo?: string } & Record<string, unknown>): ScreenerStock => ({
     symbol: s.symbol,
     name: s.name,
     sector: s.sector || "General",
@@ -80,7 +80,7 @@ export function useScreenerStocks() {
         setStocks(data.stocks.map(mapStock));
         setUpdatedAt(data.updated_at);
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error("Failed to fetch screener stocks:", e);
       setError(e.message || "Failed to load stock data");
     } finally {

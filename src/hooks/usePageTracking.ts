@@ -18,12 +18,12 @@ const trackEvent = async (
   metadata: Record<string, unknown> = {}
 ) => {
   try {
-    await supabase.from("page_analytics" as any).insert({
+    await (supabase.from("page_analytics" as never) as ReturnType<typeof supabase.from>).insert({
       page_path: pagePath,
       event_type: eventType,
       session_id: getSessionId(),
       metadata,
-    } as any);
+    } as never);
   } catch {
     // Silent fail - analytics should never break the app
   }

@@ -28,9 +28,22 @@ jobs:
         run: npm test
       - name: Build (vite only, no prerender)
         run: npx vite build
-      - name: Lint (report only)
+      - name: Lint
         run: npx eslint . --max-warnings=0
-        continue-on-error: true
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx vite build
+      - run: npx playwright install chromium --with-deps
+      - name: E2E smoke tests
+        run: npx playwright test
 
   docker:
     runs-on: ubuntu-latest

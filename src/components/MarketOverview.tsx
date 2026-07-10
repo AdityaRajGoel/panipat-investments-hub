@@ -3,15 +3,16 @@ import { useRef, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   TrendingUp, TrendingDown, Activity, Eye, ArrowUpRight, ArrowDownRight,
-  BarChart3, Gem, Maximize2, X, Clock, Volume2,
+  BarChart3, Gem, PieChart, Maximize2, X, Clock, Volume2,
   IndianRupee, Percent, ChevronRight, Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
+import type { LucideIcon } from "lucide-react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
-import { useCorporateActions, useMarketFlows } from "@/hooks/useMarketFeed";
+import { useCorporateActions, useMarketFlows, useMfNavs } from "@/hooks/useMarketFeed";
 
 type Stock = { name: string; price: string; change: string; up: boolean; volume?: string; high?: string; low?: string };
 
@@ -219,7 +220,9 @@ const StockRow = ({ stock, index, onChartClick }: { stock: Stock; index: number;
   </motion.div>
 );
 
-const CalendarRow = ({ action, index }: { action: any; index: number }) => (
+type CalendarAction = { date: string; symbol: string; eventName: string; details: string; up: boolean };
+
+const CalendarRow = ({ action, index }: { action: CalendarAction; index: number }) => (
   <motion.div
     className="flex items-center justify-between py-3 px-3 sm:px-4 rounded-xl hover:bg-muted/50 transition-colors duration-200 cursor-default group border-b border-border/30 last:border-0"
     initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }}
@@ -244,7 +247,7 @@ const CalendarRow = ({ action, index }: { action: any; index: number }) => (
 // F&O option-premium and MF NAV tabs were removed - we can't source those
 // prices live, and showing stale figures as market data isn't OK for a broker
 // site. The /fno page carries the live derivatives data instead.
-type TabKey = "gainers" | "losers" | "active" | "commodities" | "calendar";
+type TabKey = "gainers" | "losers" | "active" | "mf" | "commodities" | "calendar";
 
 const MarketOverview = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -254,6 +257,23 @@ const MarketOverview = () => {
   const { marketOverview: liveData, commodities: liveCommodities, vix, fetchedAt } = useLiveMarket();
   const { actions: corpActions } = useCorporateActions();
   const { flows } = useMarketFlows();
+  const { navs: mfNavs } = useMfNavs();
+
+  // AMFI-fed daily NAVs mapped into the shared row shape
+  const mfStocks: Stock[] = useMemo(
+    () =>
+      mfNavs.map((n) => {
+        const changePct = n.prev_nav ? ((n.nav - n.prev_nav) / n.prev_nav) * 100 : null;
+        return {
+          name: n.scheme_name,
+          price: `₹${n.nav.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          change: changePct === null ? "NAV" : `${changePct >= 0 ? "+" : ""}${changePct.toFixed(2)}%`,
+          up: changePct === null ? true : changePct >= 0,
+          volume: new Date(n.nav_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+        };
+      }),
+    [mfNavs]
+  );
 
   const liveCommodityStocks: Stock[] = useMemo(() => {
     if (!liveCommodities?.length) return fallbackCommodities;
@@ -283,15 +303,18 @@ const MarketOverview = () => {
 
   // Merge live data with fallbacks
   const dynamicTabConfig = useMemo(() => {
-    const cfg: { key: TabKey; label: string; icon: any; data: Stock[] | any[] }[] = [
+    const cfg: { key: TabKey; label: string; icon: LucideIcon; data: Stock[] | CalendarAction[] }[] = [
       { key: "gainers", label: "Top Gainers", icon: TrendingUp, data: liveData?.gainers?.length ? liveData.gainers as Stock[] : fallbackTopGainers },
       { key: "losers", label: "Top Losers", icon: TrendingDown, data: liveData?.losers?.length ? liveData.losers as Stock[] : fallbackTopLosers },
       { key: "active", label: "Most Active", icon: Activity, data: liveData?.mostActive?.length ? liveData.mostActive as Stock[] : mostActive },
+      ...(mfStocks.length > 0
+        ? [{ key: "mf" as TabKey, label: "Mutual Funds", icon: PieChart, data: mfStocks }]
+        : []),
       { key: "commodities", label: "Commodities", icon: Gem, data: liveCommodityStocks },
       { key: "calendar", label: "Corp Actions", icon: Calendar, data: calendarRows },
     ];
     return cfg;
-  }, [liveData, liveCommodityStocks, calendarRows]);
+  }, [liveData, liveCommodityStocks, calendarRows, mfStocks]);
 
   const activeConfig = dynamicTabConfig.find(t => t.key === activeTab)!;
 
@@ -398,7 +421,7 @@ const MarketOverview = () => {
               </div>
             ) : (
               <div className="flex items-center justify-between py-2 px-3 sm:px-4 text-[10px] text-muted-foreground font-semibold uppercase tracking-wide border-b border-border/30 bg-muted/20">
-                <span>{activeTab === "commodities" ? "Commodity" : "Company"}</span>
+                <span>{activeTab === "commodities" ? "Commodity" : activeTab === "mf" ? "Fund (Direct-Growth)" : "Company"}</span>
                 <div className="flex items-center gap-2 sm:gap-4">
                   <span className="w-16 text-center hidden sm:block">Chart</span>
                   <span className="w-20 sm:w-28 text-right">Price</span>
@@ -417,7 +440,7 @@ const MarketOverview = () => {
                 ) : (
                   activeConfig.data.map((item, i) => (
                     activeTab === "calendar"
-                      ? <CalendarRow key={`cal-${(item as any).symbol}-${i}`} action={item} index={i} />
+                      ? <CalendarRow key={`cal-${(item as CalendarAction).symbol}-${i}`} action={item} index={i} />
                       : <StockRow key={`${activeTab}-${(item as Stock).name}`} stock={item as Stock} index={i} onChartClick={handleChartClick} />
                   ))
                 )}

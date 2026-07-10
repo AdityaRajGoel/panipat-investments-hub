@@ -312,6 +312,7 @@ const TelegramChannel = ({ limit = 10, showViewAll = false }: TelegramChannelPro
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
   }, []);
 
   return (

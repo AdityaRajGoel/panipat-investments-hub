@@ -318,7 +318,7 @@ async function fetchBatchQuotes(symbols: string[], crumb: string, cookie: string
         marketCap: 0,
         trailingPE: 0,
       });
-    } catch {}
+    } catch { /* ignore parse errors */ }
   }));
   return results;
 }
@@ -474,7 +474,7 @@ Deno.serve(async (req) => {
 
     if (requestedSymbol) {
       console.log(`Searching/Updating dynamic symbol: ${requestedSymbol}`);
-      let stockInfo = NSE_SYMBOLS.find(s => s.symbol === requestedSymbol);
+      const stockInfo = NSE_SYMBOLS.find(s => s.symbol === requestedSymbol);
       
       try {
         const { crumb, cookie } = await getYahooCrumb();

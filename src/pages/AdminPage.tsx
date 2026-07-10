@@ -67,6 +67,8 @@ const emptyShare: Omit<UnlistedShare, "id"> = {
   company_description: null, sector: "General", founded_year: null, headquarters: null,
 };
 
+type ShareFormData = Omit<UnlistedShare, "id"> & { id?: string };
+
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
 const LEAD_STATUS_OPTIONS = ["new", "contacted", "converted", "closed"];
@@ -81,7 +83,7 @@ const CHART_COLORS = ["hsl(var(--secondary))", "hsl(var(--primary))", "hsl(var(-
 
 // ---- Unlisted Shares Components ----
 const LogoUpload = memo(({ form, setForm, shareId, password }: {
-  form: any; setForm: (f: any) => void; shareId?: string; password: string;
+  form: ShareFormData; setForm: (f: ShareFormData) => void; shareId?: string; password: string;
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -124,7 +126,7 @@ const LogoUpload = memo(({ form, setForm, shareId, password }: {
 });
 
 const ShareForm = memo(({ form, setForm, onSave, onCancel, title, shareId, password }: {
-  form: any; setForm: (f: any) => void; onSave: () => void; onCancel: () => void;
+  form: ShareFormData; setForm: (f: ShareFormData) => void; onSave: () => void; onCancel: () => void;
   title: string; shareId?: string; password: string;
 }) => (
   <Card className="border-secondary/30 mb-4">
@@ -314,7 +316,7 @@ const LeadsPanel = ({ password }: { password: string }) => {
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
       const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
+      if (n.has(id)) n.delete(id); else n.add(id);
       return n;
     });
   };
@@ -518,6 +520,8 @@ const LeadsPanel = ({ password }: { password: string }) => {
 
 // ---- Analytics Panel ----
 const AnalyticsPanel = ({ password }: { password: string }) => {
+  // analytics payload is dynamic (edge function aggregate)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("30d");
@@ -583,7 +587,7 @@ const AnalyticsPanel = ({ password }: { password: string }) => {
           <CardContent className="p-3 pt-2">
             {data.topPages?.length > 0 ? (
               <div className="space-y-1.5">
-                {data.topPages.map((p: any) => (
+                {data.topPages.map((p: { path: string; views: number }) => (
                   <div key={p.path} className="flex items-center justify-between text-xs">
                     <span className="font-mono text-muted-foreground truncate max-w-[200px]">{p.path}</span>
                     <span className="font-bold text-foreground">{p.views}</span>
@@ -600,7 +604,7 @@ const AnalyticsPanel = ({ password }: { password: string }) => {
           <CardContent className="p-3 pt-2">
             {data.popularStocks?.length > 0 ? (
               <div className="space-y-1.5">
-                {data.popularStocks.slice(0, 10).map((s: any) => (
+                {data.popularStocks.slice(0, 10).map((s: { symbol: string; views: number }) => (
                   <div key={s.symbol} className="flex items-center justify-between text-xs">
                     <span className="font-mono font-semibold text-foreground">{s.symbol}</span>
                     <span className="text-muted-foreground">{s.views} views</span>
@@ -780,7 +784,7 @@ const AdminPage = () => {
               <div className="space-y-2 sm:space-y-3">
                 {shares.map((share) =>
                   editingId === share.id ? (
-                    <ShareForm key={share.id} form={{ ...share, ...editForm }} setForm={(f: any) => setEditForm(f)} onSave={() => handleUpdate(share)}
+                    <ShareForm key={share.id} form={{ ...share, ...editForm }} setForm={(f: ShareFormData) => setEditForm(f)} onSave={() => handleUpdate(share)}
                       onCancel={() => setEditingId(null)} title={`Edit: ${share.name}`} shareId={share.id} password={password} />
                   ) : (
                     <ShareListItem key={share.id} share={share} onEdit={() => { setEditingId(share.id); setEditForm(share); }} onDelete={() => handleDelete(share.id)} />

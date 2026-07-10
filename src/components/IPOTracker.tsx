@@ -5,6 +5,7 @@ import {
   ChevronRight, Rocket, CheckCircle2, Timer, Star, IndianRupee,
   RefreshCw, Loader2
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,7 +25,7 @@ type IPO = {
 
 type TabKey = "upcoming" | "open" | "listed";
 
-const tabs: { key: TabKey; label: string; icon: any }[] = [
+const tabs: { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: "upcoming", label: "Upcoming", icon: Timer },
   { key: "open", label: "Open Now", icon: Rocket },
   { key: "listed", label: "Recently Listed", icon: CheckCircle2 },
@@ -161,6 +162,7 @@ const IPOTracker = () => {
         setFetchedAt(data.fetchedAt || "");
       }
     } catch {
+      // fall through to the fallback list
     } finally {
       setLoading(false);
     }
@@ -255,6 +257,34 @@ const IPOTracker = () => {
             </motion.div>
           </AnimatePresence>
         )}
+
+        {/* How to apply - compact 4-step strip (parent-site pattern) */}
+        <motion.div
+          className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-3"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
+        >
+          {[
+            { num: "01", title: "Open a Demat A/c", desc: "Free with Parasram India - ready in 1-2 days" },
+            { num: "02", title: "Pick an IPO", desc: "Track open & upcoming issues with GMP above" },
+            { num: "03", title: "Apply via UPI/ASBA", desc: "Funds stay blocked in your bank till allotment" },
+            { num: "04", title: "Allotment & Listing", desc: "Shares credit to your Demat on allotment" },
+          ].map((s) => (
+            <motion.div
+              key={s.num}
+              className="relative bg-card border border-border/50 rounded-xl p-4 hover:border-brand-orange/40 hover:shadow-md transition-all"
+              variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
+            >
+              <span className="absolute -top-2.5 left-4 text-[10px] font-bold bg-brand-orange text-white px-2 py-0.5 rounded-full">
+                Step {s.num}
+              </span>
+              <h4 className="font-heading text-sm font-bold text-foreground mt-2 mb-1">{s.title}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* CTA */}
         <motion.div className="mt-8 text-center" initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>

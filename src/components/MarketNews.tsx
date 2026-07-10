@@ -115,6 +115,7 @@ const MarketNews = () => {
         if (data.world?.length > 0) setWorldNews(data.world);
       }
     } catch {
+      // fall through to fallback content
     } finally {
       setLoading(false);
     }
@@ -122,7 +123,7 @@ const MarketNews = () => {
 
   useEffect(() => {
     fetchNews();
-    let interval: ReturnType<typeof setInterval> | null = setInterval(() => {
+    const interval: ReturnType<typeof setInterval> | null = setInterval(() => {
       if (!document.hidden) fetchNews();
     }, 5 * 60 * 1000);
 

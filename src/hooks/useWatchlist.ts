@@ -20,7 +20,7 @@ function loadWatchlist(): WatchlistItem[] {
 function saveWatchlist(list: WatchlistItem[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch {}
+  } catch { /* localStorage unavailable */ }
 }
 
 export function useWatchlist() {

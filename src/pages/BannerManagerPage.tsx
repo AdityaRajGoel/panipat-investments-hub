@@ -85,7 +85,7 @@ const BannerManagerPage = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("banner_messages" as any)
+        .from("banner_messages" as never)
         .select("*")
         .order("display_order", { ascending: true });
       if (!error && data) setBanners(data as unknown as BannerMessage[]);
@@ -119,8 +119,8 @@ const BannerManagerPage = () => {
       
       setForm(prev => ({ ...prev, image_url: data.publicUrl }));
       toast({ title: "Image uploaded successfully" });
-    } catch (error: any) {
-      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+    } catch (error) {
+      toast({ title: "Upload failed", description: error instanceof Error ? error.message : "Unknown error", variant: "destructive" });
     } finally {
       setIsUploading(false);
       // Reset input so the same file could be chosen again if needed
@@ -138,7 +138,7 @@ const BannerManagerPage = () => {
       return;
     }
     const { error } = await supabase
-      .from("banner_messages" as any)
+      .from("banner_messages" as never)
       .insert({
         title: form.title?.trim() || null,
         message: form.message.trim(),
@@ -150,7 +150,7 @@ const BannerManagerPage = () => {
         bg_theme: form.bg_theme,
         is_active: form.is_active,
         display_order: banners.length,
-      } as any);
+      } as never);
       
     if (!error) {
       toast({ title: "Banner created" });
@@ -158,14 +158,14 @@ const BannerManagerPage = () => {
       setForm(emptyBanner);
       fetchBanners();
     } else {
-      toast({ title: "Error creating banner", description: error.message, variant: "destructive" });
+      toast({ title: "Error creating banner", description: error instanceof Error ? error.message : "Unknown error", variant: "destructive" });
     }
   };
 
   const handleUpdate = async () => {
     if (!editingId) return;
     const { error } = await supabase
-      .from("banner_messages" as any)
+      .from("banner_messages" as never)
       .update({
         title: form.title?.trim() || null,
         message: form.message.trim(),
@@ -178,7 +178,7 @@ const BannerManagerPage = () => {
         is_active: form.is_active,
         display_order: form.display_order,
         updated_at: new Date().toISOString(),
-      } as any)
+      } as never)
       .eq("id", editingId);
       
     if (!error) {
@@ -187,14 +187,14 @@ const BannerManagerPage = () => {
       setForm(emptyBanner);
       fetchBanners();
     } else {
-      toast({ title: "Error updating banner", description: error.message, variant: "destructive" });
+      toast({ title: "Error updating banner", description: error instanceof Error ? error.message : "Unknown error", variant: "destructive" });
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this banner?")) return;
     const { error } = await supabase
-      .from("banner_messages" as any)
+      .from("banner_messages" as never)
       .delete()
       .eq("id", id);
     if (!error) {
@@ -207,8 +207,8 @@ const BannerManagerPage = () => {
 
   const handleToggle = async (banner: BannerMessage) => {
     await supabase
-      .from("banner_messages" as any)
-      .update({ is_active: !banner.is_active, updated_at: new Date().toISOString() } as any)
+      .from("banner_messages" as never)
+      .update({ is_active: !banner.is_active, updated_at: new Date().toISOString() } as never)
       .eq("id", banner.id);
     fetchBanners();
   };

@@ -171,7 +171,7 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
         if (data.indices?.length > 0) setIndices(data.indices);
         if (data.data?.length > 0) setStocks(data.data);
         if (data.commodities?.length > 0) {
-          const processedCommodities = data.commodities.map((c: any) => {
+          const processedCommodities = data.commodities.map((c: { name: string; price: string } & Record<string, unknown>) => {
             if (c.name.toLowerCase().includes('aluminium') && c.price) {
               const rawPrice = parseFloat(c.price.replace(/[^\d.-]/g, ''));
               if (!isNaN(rawPrice) && rawPrice > 10000) {
@@ -195,7 +195,8 @@ export const LiveMarketProvider = ({ children }: { children: ReactNode }) => {
         setNextMarketOpen(data.nextMarketOpen || null);
         setMarketClose(data.marketClose || null);
       }
-    } catch (e) {
+    } catch {
+      // keep showing the last good data
     } finally {
       setLoading(false);
     }

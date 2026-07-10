@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import type { LucideIcon } from "lucide-react";
 import { memo } from "react";
 import {
   TrendingUp, TrendingDown, Activity, Gauge, BarChart3, PieChart,
@@ -10,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { useMarketFlows } from "@/hooks/useMarketFeed";
 
-const sectorIcons: Record<string, any> = {
+const sectorIcons: Record<string, LucideIcon> = {
   IT: Cpu, Banks: Landmark, Pharma: Pill, Auto: Factory,
   Energy: Fuel, FMCG: ShoppingCart, Realty: Building2, Metal: Pickaxe,
   Healthcare: Heart,
@@ -282,7 +283,7 @@ const TrendingStocks = memo(() => {
                   {stock.change}
                 </span>
               </div>
-              {'price' in stock && <div className="text-[9px] text-primary-foreground/50">{(stock as any).price}</div>}
+              {'price' in stock && <div className="text-[9px] text-primary-foreground/50">{(stock as { price?: string }).price}</div>}
             </motion.div>
           ))}
         </div>
@@ -511,7 +512,7 @@ const MarketDashboard = () => {
                     { name: "ADANI GREEN", change: "+3.9%", up: true, price: "₹1,842" },
                     { name: "IREDA", change: "+2.8%", up: true, price: "₹187" },
                     { name: "NHPC", change: "+2.1%", up: true, price: "₹82" },
-                  ]).map((s: any, i: number) => (
+                  ]).map((s: { name: string; change: string; up: boolean; price?: string }, i: number) => (
                     <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-0">
                       <span className="text-xs font-semibold text-foreground">{s.name}</span>
                       <div className="text-right">
@@ -542,7 +543,7 @@ const MarketDashboard = () => {
                     { name: "ONGC", change: "-2.1%", up: false, price: "₹264" },
                     { name: "BHEL", change: "-1.8%", up: false, price: "₹218" },
                     { name: "MTNL", change: "-2.9%", up: false, price: "₹43" },
-                  ]).map((s: any, i: number) => (
+                  ]).map((s: { name: string; change: string; up: boolean; price?: string }, i: number) => (
                     <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-0">
                       <span className="text-xs font-semibold text-foreground">{s.name}</span>
                       <div className="text-right">

@@ -3,16 +3,19 @@
 // Feeds:
 //   market_flows        <- NSE fiidiiTradeReact (FII + DII cash, gross buy/sell)
 //                          fallback: niftytrader (net-only, stored as one-sided)
+//                       <- NSE fii_stats_<date>.xls (FII F&O gross buy/sell)
 //   corporate_actions   <- NSE corporates-corporateActions (upcoming ex-dates)
+//   mf_navs             <- AMFI NAVAll (curated popular schemes, real NAVs)
 //
-// mf_activity and fii_fno are NOT automated (no reliable free source for the
-// gross figures) - they remain manual via /admin -> Market Data.
+// mf_activity (MF cash buy/sell) is NOT automated - no reliable free source
+// for the gross figures - and remains manual via /admin -> Market Data.
 //
 // Trigger: GitHub Actions cron (see .github/workflows/market-feed.yml) after
 // market close. Protected by SYNC_SECRET; writes use the service-role key so
 // RLS stays authenticated-only for everyone else. Safe to re-run (upserts).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import * as XLSX from "npm:xlsx@0.18.5";
 
 const BROWSER_HEADERS = {
   "User-Agent":
@@ -29,7 +32,7 @@ const cors = {
 
 type FlowRow = {
   activity_date: string;
-  category: "fii_cash" | "dii_cash";
+  category: "fii_cash" | "dii_cash" | "fii_fno";
   buy_cr: number;
   sell_cr: number;
 };
@@ -98,6 +101,77 @@ async function fetchFlowsFromNiftytrader(): Promise<FlowRow[]> {
     { activity_date: iso, category: "fii_cash", ...oneSided(Number(latest.fii_net_value)) },
     { activity_date: iso, category: "dii_cash", ...oneSided(Number(latest.dii_net_value)) },
   ];
+}
+
+// FII derivatives stats: daily .xls with gross buy/sell per instrument.
+// Sum the four top-level instrument rows (sub-rows like BANKNIFTY FUTURES
+// roll up into INDEX FUTURES, so summing them too would double count).
+const FNO_CATEGORIES = ["INDEX FUTURES", "STOCK FUTURES", "INDEX OPTIONS", "STOCK OPTIONS"];
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+async function fetchFiiFnoFlow(activityDateISO: string): Promise<FlowRow> {
+  // "2026-07-09" -> "09-Jul-2026"
+  const [y, m, d] = activityDateISO.split("-");
+  const nseDate = `${d}-${MONTH_NAMES[parseInt(m, 10) - 1]}-${y}`;
+  const url = `https://nsearchives.nseindia.com/content/fo/fii_stats_${nseDate}.xls`;
+  const res = await fetch(url, { headers: BROWSER_HEADERS });
+  if (!res.ok) throw new Error(`fii_stats xls -> ${res.status}`);
+  const wb = XLSX.read(await res.arrayBuffer(), { type: "array" });
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1 }) as unknown[][];
+
+  let buy = 0, sell = 0, matched = 0;
+  for (const r of rows) {
+    if (FNO_CATEGORIES.includes(String(r?.[0] ?? "").trim().toUpperCase())) {
+      buy += parseFloat(String(r[2]));
+      sell += parseFloat(String(r[4]));
+      matched++;
+    }
+  }
+  if (matched === 0 || !isFinite(buy) || !isFinite(sell)) throw new Error("fii_stats: empty parse");
+  return {
+    activity_date: activityDateISO,
+    category: "fii_fno",
+    buy_cr: Math.round(buy * 100) / 100,
+    sell_cr: Math.round(sell * 100) / 100,
+  };
+}
+
+// AMFI daily NAVs for a curated set of widely-held schemes (Direct-Growth).
+// Keyed by AMFI scheme code so renames don't break the feed.
+const CURATED_SCHEMES: Record<string, string> = {
+  "122639": "Parag Parikh Flexi Cap",
+  "118825": "Mirae Asset Large Cap",
+  "118989": "HDFC Mid Cap",
+  "118778": "Nippon India Small Cap",
+  "125497": "SBI Small Cap",
+  "120716": "UTI Nifty 50 Index",
+  "118968": "HDFC Balanced Advantage",
+  "120503": "Axis ELSS Tax Saver",
+};
+
+type MfNav = { scheme_code: string; scheme_name: string; nav: number; nav_date: string };
+
+async function fetchMfNavs(): Promise<MfNav[]> {
+  const res = await fetch("https://portal.amfiindia.com/spages/NAVAll.txt", {
+    headers: { "User-Agent": BROWSER_HEADERS["User-Agent"] },
+  });
+  if (!res.ok) throw new Error(`AMFI -> ${res.status}`);
+  const text = await res.text();
+
+  const navs: MfNav[] = [];
+  for (const line of text.split("\n")) {
+    const parts = line.split(";");
+    if (parts.length < 6) continue;
+    const code = parts[0].trim();
+    const friendly = CURATED_SCHEMES[code];
+    if (!friendly) continue;
+    const nav = parseFloat(parts[4]);
+    const iso = nseDateToISO(parts[5].trim());
+    if (!isFinite(nav) || !iso) continue;
+    navs.push({ scheme_code: code, scheme_name: friendly, nav, nav_date: iso });
+  }
+  if (navs.length === 0) throw new Error("AMFI: no curated schemes matched");
+  return navs;
 }
 
 type CorpAction = {
@@ -175,6 +249,13 @@ Deno.serve(async (req) => {
       report.flows_source = "niftytrader (net-only fallback)";
       report.flows_nse_error = String(nseErr);
     }
+    // FII F&O rides on the same trading date as the cash figures
+    try {
+      flows.push(await fetchFiiFnoFlow(flows[0].activity_date));
+      report.fii_fno = "ok";
+    } catch (e) {
+      report.fii_fno_error = String(e);
+    }
     const { error } = await supabase
       .from("market_flows")
       .upsert(flows, { onConflict: "activity_date,category" });
@@ -183,6 +264,30 @@ Deno.serve(async (req) => {
     report.flows_date = flows[0]?.activity_date;
   } catch (e) {
     report.flows_error = String(e);
+  }
+
+  // ── Mutual fund NAVs (AMFI) ────────────────────────────────────
+  try {
+    const navs = await fetchMfNavs();
+    // carry forward prev_nav so the UI can show a real day change
+    type ExistingNav = { scheme_code: string; nav: number; nav_date: string; prev_nav: number | null };
+    const { data: existing } = await supabase
+      .from("mf_navs")
+      .select("scheme_code, nav, nav_date, prev_nav");
+    const prevByCode = new Map(
+      ((existing as ExistingNav[] | null) ?? []).map((r) => [r.scheme_code, r]),
+    );
+    const rows = navs.map((n) => {
+      const prev = prevByCode.get(n.scheme_code);
+      // new trading day -> yesterday's nav becomes prev; same day re-run -> keep old prev
+      const prev_nav = prev ? (prev.nav_date !== n.nav_date ? prev.nav : prev.prev_nav) : null;
+      return { ...n, prev_nav };
+    });
+    const { error } = await supabase.from("mf_navs").upsert(rows, { onConflict: "scheme_code" });
+    if (error) throw error;
+    report.mf_navs_upserted = rows.length;
+  } catch (e) {
+    report.mf_navs_error = String(e);
   }
 
   // ── Corporate actions ──────────────────────────────────────────

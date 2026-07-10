@@ -70,12 +70,12 @@ const BannerMessage = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    let initialDismissed = new Set<string>();
+    const initialDismissed = new Set<string>();
 
     const fetchBanners = async () => {
       try {
         const { data, error } = await supabase
-          .from("banner_messages" as any)
+          .from("banner_messages" as never)
           .select("id, title, message, type, link_url, link_text, button_text, image_url, bg_theme")
           .eq("is_active", true)
           .order("display_order", { ascending: true });

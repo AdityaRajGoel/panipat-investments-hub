@@ -326,9 +326,9 @@ const LiveChart = () => {
         });
         
         if (active && data?.success && data.dataPoints && data.dataPoints.length > 0) {
-          setChartData(data.dataPoints.map((dp: any) => dp.c));
-          setVolumeData(data.dataPoints.map((dp: any) => dp.v));
-          setTimestamps(data.dataPoints.map((dp: any) => dp.t));
+          setChartData(data.dataPoints.map((dp: { c: number }) => dp.c));
+          setVolumeData(data.dataPoints.map((dp: { v: number }) => dp.v));
+          setTimestamps(data.dataPoints.map((dp: { t: number }) => dp.t));
         } else if (active) {
           // fallback to generate if no data
           const trend = currentUp ? "up" : "down";

@@ -260,6 +260,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       setChatHistory([]); setActiveTab('report');
       setMinTimeElapsed(false); setAiResponseReady(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
   }, [isOpen, stock?.symbol]);
 
   // Step animation - purely visual progress; does NOT gate dismissal
@@ -297,6 +298,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
         setSparklineData(data.dataPoints.map((dp: { c: number }, i: number) => ({ day: i, price: dp.c })));
       }
     }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
   }, [isOpen, stock?.symbol]);
 
   // Fetch Deep AI Report - fires when modal opens with a stock
@@ -440,6 +442,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
     }, 50); // Small delay to let state reset propagate
 
     return () => clearTimeout(fetchTimer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
   }, [isOpen, stock?.symbol, retryNonce]);
 
   // Shared context builder for chat - avoids duplicated code

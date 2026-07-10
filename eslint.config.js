@@ -19,8 +19,25 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // HMR hint only; idiomatic shadcn/context files export helpers alongside
+      // components, and we don't rely on react-refresh boundaries.
+      "react-refresh/only-export-components": "off",
       "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
+  {
+    // Deno edge functions: separate runtime, response shapes come from
+    // third-party APIs - `any` at those boundaries is acceptable there.
+    files: ["supabase/functions/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
+    // shadcn-generated primitives keep their upstream shape
+    files: ["src/components/ui/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-empty-object-type": "off",
     },
   },
 );

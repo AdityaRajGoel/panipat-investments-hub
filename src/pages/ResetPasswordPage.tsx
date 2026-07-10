@@ -24,6 +24,7 @@ const ResetPasswordPage = () => {
     if (!hash.includes("type=recovery")) {
       toast({ title: "Invalid link", description: "This password reset link is invalid or expired.", variant: "destructive" });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {

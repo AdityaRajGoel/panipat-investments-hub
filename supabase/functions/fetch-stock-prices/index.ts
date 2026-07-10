@@ -200,7 +200,7 @@ function getIndianMarketStatus(): { isOpen: boolean; lastTradingDate: string; st
   // Calculate last trading date
   const istDate = new Date(istNow);
   if (!isWeekday || (isWeekday && timeInMinutes < marketOpenMin)) {
-    let d = new Date(istDate);
+    const d = new Date(istDate);
     if (timeInMinutes < marketOpenMin && isWeekday) {
       d.setDate(d.getDate() - 1);
     }
@@ -238,7 +238,7 @@ function getIndianMarketStatus(): { isOpen: boolean; lastTradingDate: string; st
   
   if (!isOpen) {
     // Find next weekday
-    let nextDay = new Date(istNow);
+    const nextDay = new Date(istNow);
     if (isWeekday && timeInMinutes > marketCloseMin) {
       nextDay.setDate(nextDay.getDate() + 1);
     } else if (isWeekday && timeInMinutes < marketOpenMin) {

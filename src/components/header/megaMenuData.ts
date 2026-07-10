@@ -5,11 +5,12 @@ import {
   Users, Building2, Phone, Mail, Award, ShieldCheck,
   Search, Flame, Briefcase, Globe, KeyRound, Banknote, Percent
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export type SubItem = {
   label: string;
   href: string;
-  icon: any;
+  icon: LucideIcon;
   description: string;
   external?: boolean;
 };

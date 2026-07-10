@@ -78,9 +78,10 @@ const UnlistedShares = () => {
         }
         
         if (data && data.success && Array.isArray(data.data)) {
-          const activeShares = data.data.filter((s: any) => s.is_active !== false);
+          type ApiShare = { is_active?: boolean; name: string; short_code: string; tag?: string; tag_color?: string; price: string; buy_price?: string | null; sell_price?: string | null; min_qty?: string; gradient_color?: string; image_url?: string | null; company_description?: string | null; sector?: string | null; founded_year?: string | null; headquarters?: string | null };
+          const activeShares = (data.data as ApiShare[]).filter((s) => s.is_active !== false);
           if (activeShares.length > 0) {
-            setStocks(activeShares.map((s: any) => ({
+            setStocks(activeShares.map((s) => ({
               name: s.name,
               short: s.short_code,
               tag: s.tag || 'Popular',

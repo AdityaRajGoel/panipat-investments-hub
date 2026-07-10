@@ -220,7 +220,7 @@ type Props = { className?: string };
 const GlobalStockSearch = ({ className }: Props) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<StockResult[]>([]);
-  const [exchangeResults, setExchangeResults] = useState<any[]>([]);
+  const [exchangeResults, setExchangeResults] = useState<StockResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<StockResult | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -267,12 +267,12 @@ const GlobalStockSearch = ({ className }: Props) => {
       const localData = localResult.status === "fulfilled" ? localResult.value : [];
 
       if (exResult.status === "fulfilled") {
-        const { data: exData, error } = exResult.value as any;
+        const { data: exData, error } = exResult.value as { data: { success?: boolean; results?: StockResult[] } | null; error: unknown };
         if (!error && exData?.success) {
           const localSymbols = new Set(localData.map((s) => s.symbol));
           setExchangeResults(
             (exData.results || [])
-              .filter((r: any) => !localSymbols.has(r.symbol))
+              .filter((r: StockResult) => !localSymbols.has(r.symbol))
               .slice(0, 10)
           );
         }
@@ -297,7 +297,7 @@ const GlobalStockSearch = ({ className }: Props) => {
 
   // Handle selecting a stock (either local or from exchange)
   // NOTE: We intentionally do NOT auto-open AI here - user must click the AI button explicitly
-  const handleSelect = async (stock: any, isExchange = false) => {
+  const handleSelect = async (stock: StockResult, isExchange = false) => {
     if (isExchange) {
       setSearching(true);
       try {

@@ -57,6 +57,40 @@ export function useMarketFlows() {
   return { flows, asOf, loading };
 }
 
+export type MfNav = {
+  scheme_code: string;
+  scheme_name: string;
+  nav: number;
+  prev_nav: number | null;
+  nav_date: string;
+};
+
+export function useMfNavs() {
+  const [navs, setNavs] = useState<MfNav[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await (supabase.from("mf_navs" as never) as ReturnType<typeof supabase.from>)
+          .select("scheme_code, scheme_name, nav, prev_nav, nav_date")
+          .order("scheme_name");
+        if (!cancelled && data) setNavs(data as MfNav[]);
+      } catch {
+        // table may not exist yet - tab simply hides
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { navs, loading };
+}
+
 export function useCorporateActions() {
   const [actions, setActions] = useState<CorporateAction[]>([]);
   const [loading, setLoading] = useState(true);

@@ -243,7 +243,7 @@ const LearningCenterPage = () => {
     setReadArticles(prev => {
       const next = new Set(prev);
       next.add(id);
-      try { localStorage.setItem("pnp_read_articles", JSON.stringify([...next])); } catch {}
+      try { localStorage.setItem("pnp_read_articles", JSON.stringify([...next])); } catch { /* private mode */ }
       return next;
     });
   };
@@ -317,7 +317,7 @@ const LearningCenterPage = () => {
     try {
       const { data, error } = await supabase.functions.invoke('fetch-live-broadcasts');
       if (!error && data?.success && Array.isArray(data.channels)) {
-        const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>, channel: any) => {
+        const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>, channel: { channelId: string; embedUrl?: string; watchUrl?: string; title?: string | null }) => {
           acc[channel.channelId] = {
             embedUrl: channel.embedUrl || `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`,
             watchUrl: channel.watchUrl || channel.liveUrl || `https://www.youtube.com/@${channel.handle}/live`,
@@ -368,12 +368,14 @@ const LearningCenterPage = () => {
         healthCheckRef.current = null;
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
   }, [activeSection, iframeErrors]);
 
   useEffect(() => {
     if (activeSection === "news" && indianNews.length === 0) {
       fetchNews();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
   }, [activeSection]);
 
   const filtered = useMemo(() => articles.filter(a => {

@@ -167,7 +167,7 @@ function generateRealisticOptionChain(symbol: string, spot: number, selectedExpi
   // Generate expiry dates (next 4 Thursdays)
   const expiries: { timestamp: string; label: string }[] = [];
   const now = new Date();
-  let d = new Date(now);
+  const d = new Date(now);
   for (let i = 0; i < 4; i++) {
     // Find next Thursday
     while (d.getDay() !== 4) d.setDate(d.getDate() + 1);

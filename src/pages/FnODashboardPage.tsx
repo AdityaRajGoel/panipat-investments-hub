@@ -155,9 +155,9 @@ const FnODashboardPage = () => {
       if (!exp && res.expiries?.length > 0) {
         setExpiry(String(res.expiries[0].timestamp));
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error("F&O fetch error:", e);
-      setError(e.message || "Failed to load F&O data");
+      setError(e instanceof Error ? e.message : "Failed to load F&O data");
     } finally {
       setLoading(false);
       setRefreshing(false);

@@ -98,7 +98,7 @@ const resolveEmbeddableUrl = async (videoId: string) => {
 
   const payload = await response.json();
   const iframeHtml = typeof payload?.html === 'string' ? payload.html : '';
-  const srcMatch = iframeHtml.match(/src=\"([^\"]+)\"/);
+  const srcMatch = iframeHtml.match(/src="([^"]+)"/);
   const rawEmbed = srcMatch?.[1] || `https://www.youtube.com/embed/${videoId}?feature=oembed`;
 
   return {
