@@ -491,6 +491,18 @@ const FnODashboardPage = () => {
           )}
         </AnimatePresence>
 
+        {/* SEBI risk transparency - serious-broker pattern (ref: SEBI study, Jan 2023) */}
+        <div className="mt-8 bg-brand-orange/5 border border-brand-orange/20 rounded-xl p-4 text-center">
+          <p className="text-sm text-foreground/80 font-medium">
+            ⚠️ As per a SEBI study, <b className="text-brand-orange">9 out of 10 individual traders</b> in the equity
+            F&amp;O segment incurred net losses.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1.5">
+            Derivatives are leveraged instruments. Trade with defined risk, and consult our
+            SEBI-registered research desk before taking positions.
+          </p>
+        </div>
+
         <p className="text-xs text-muted-foreground mt-6 text-center">
           Live options data sourced from Yahoo Finance. Values update on refresh.
         </p>
