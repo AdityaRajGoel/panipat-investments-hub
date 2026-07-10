@@ -1,0 +1,208 @@
+// Automated daily ingestion for the admin-fed market tables.
+//
+// Feeds:
+//   market_flows        <- NSE fiidiiTradeReact (FII + DII cash, gross buy/sell)
+//                          fallback: niftytrader (net-only, stored as one-sided)
+//   corporate_actions   <- NSE corporates-corporateActions (upcoming ex-dates)
+//
+// mf_activity and fii_fno are NOT automated (no reliable free source for the
+// gross figures) - they remain manual via /admin -> Market Data.
+//
+// Trigger: GitHub Actions cron (see .github/workflows/market-feed.yml) after
+// market close. Protected by SYNC_SECRET; writes use the service-role key so
+// RLS stays authenticated-only for everyone else. Safe to re-run (upserts).
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const BROWSER_HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+  Accept: "application/json, text/plain, */*",
+  "Accept-Language": "en-IN,en;q=0.9",
+  Referer: "https://www.nseindia.com/",
+};
+
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-sync-secret",
+};
+
+type FlowRow = {
+  activity_date: string;
+  category: "fii_cash" | "dii_cash";
+  buy_cr: number;
+  sell_cr: number;
+};
+
+// "09-Jul-2026" -> "2026-07-09"
+const MONTHS: Record<string, string> = {
+  Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
+  Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12",
+};
+function nseDateToISO(d: string): string | null {
+  const m = d?.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+  if (!m || !MONTHS[m[2]]) return null;
+  return `${m[3]}-${MONTHS[m[2]]}-${m[1]}`;
+}
+
+async function fetchNseJson(url: string): Promise<unknown> {
+  // NSE sometimes wants a cookie warm-up from the homepage first
+  const res1 = await fetch(url, { headers: BROWSER_HEADERS });
+  if (res1.ok) return res1.json();
+
+  const home = await fetch("https://www.nseindia.com", { headers: BROWSER_HEADERS });
+  const cookie = home.headers.get("set-cookie")?.split(";")[0] ?? "";
+  const res2 = await fetch(url, { headers: { ...BROWSER_HEADERS, Cookie: cookie } });
+  if (!res2.ok) throw new Error(`NSE ${url} -> ${res2.status}`);
+  return res2.json();
+}
+
+async function fetchFlowsFromNse(): Promise<FlowRow[]> {
+  const data = (await fetchNseJson("https://www.nseindia.com/api/fiidiiTradeReact")) as {
+    category: string; date: string; buyValue: string; sellValue: string;
+  }[];
+  const rows: FlowRow[] = [];
+  for (const r of data ?? []) {
+    const iso = nseDateToISO(r.date);
+    if (!iso) continue;
+    const category = r.category.includes("FII") ? "fii_cash" : r.category.includes("DII") ? "dii_cash" : null;
+    if (!category) continue;
+    rows.push({
+      activity_date: iso,
+      category,
+      buy_cr: Math.round(parseFloat(r.buyValue) * 100) / 100,
+      sell_cr: Math.round(parseFloat(r.sellValue) * 100) / 100,
+    });
+  }
+  if (rows.length === 0) throw new Error("NSE flows: empty parse");
+  return rows;
+}
+
+// Fallback: niftytrader publishes net values only. We store them one-sided
+// (net buy -> buy_cr, net sell -> sell_cr) so the NET shown on-site is right;
+// gross figures get corrected when NSE is reachable again or entered manually.
+async function fetchFlowsFromNiftytrader(): Promise<FlowRow[]> {
+  const res = await fetch("https://webapi.niftytrader.in/webapi/Resource/fii-dii-activity-data", {
+    headers: { "User-Agent": BROWSER_HEADERS["User-Agent"], Accept: "application/json" },
+  });
+  if (!res.ok) throw new Error(`niftytrader -> ${res.status}`);
+  const json = await res.json();
+  const latest = json?.resultData?.fii_dii_data?.[0];
+  if (!latest?.created_at) throw new Error("niftytrader: empty parse");
+  const iso = String(latest.created_at).slice(0, 10);
+  const oneSided = (net: number) => ({
+    buy_cr: net >= 0 ? Math.abs(net) : 0,
+    sell_cr: net < 0 ? Math.abs(net) : 0,
+  });
+  return [
+    { activity_date: iso, category: "fii_cash", ...oneSided(Number(latest.fii_net_value)) },
+    { activity_date: iso, category: "dii_cash", ...oneSided(Number(latest.dii_net_value)) },
+  ];
+}
+
+type CorpAction = {
+  company: string;
+  action_type: string;
+  details: string;
+  ex_date: string;
+};
+
+const ACTION_TYPE_MAP: [RegExp, string][] = [
+  [/dividend/i, "Dividend"],
+  [/bonus/i, "Bonus"],
+  [/split|sub-division|subdivision/i, "Split"],
+  [/buy\s*back|buyback/i, "Buyback"],
+  [/rights/i, "Rights"],
+  [/agm|annual general/i, "AGM"],
+];
+
+async function fetchCorporateActions(): Promise<CorpAction[]> {
+  const data = (await fetchNseJson(
+    "https://www.nseindia.com/api/corporates-corporateActions?index=equities",
+  )) as { comp: string; symbol: string; subject: string; exDate: string; series: string }[];
+
+  const today = new Date().toISOString().slice(0, 10);
+  const seen = new Set<string>();
+  const actions: CorpAction[] = [];
+
+  for (const r of data ?? []) {
+    if (r.series && r.series !== "EQ") continue;
+    const iso = nseDateToISO(r.exDate);
+    if (!iso || iso < today) continue;
+    const type = ACTION_TYPE_MAP.find(([re]) => re.test(r.subject ?? ""))?.[1] ?? "Other";
+    // "Dividend - Rs 20 Per Share" -> "₹20/share"
+    const details = (r.subject ?? "")
+      .replace(/^[a-z\s]+-\s*/i, "")
+      .replace(/Rs\.?\s*/i, "₹")
+      .replace(/\s*Per Share/i, "/share")
+      .trim() || r.subject || type;
+    const key = `${r.symbol}|${type}|${iso}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    actions.push({ company: r.symbol || r.comp, action_type: type, details: details.slice(0, 120), ex_date: iso });
+    if (actions.length >= 20) break;
+  }
+  if (actions.length === 0) throw new Error("NSE corp actions: empty parse");
+  return actions;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  const secret = Deno.env.get("SYNC_SECRET");
+  if (!secret || req.headers.get("x-sync-secret") !== secret) {
+    return new Response(JSON.stringify({ error: "unauthorized" }), {
+      status: 401,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  const report: Record<string, unknown> = {};
+
+  // ── FII/DII flows ──────────────────────────────────────────────
+  try {
+    let flows: FlowRow[];
+    try {
+      flows = await fetchFlowsFromNse();
+      report.flows_source = "nse";
+    } catch (nseErr) {
+      flows = await fetchFlowsFromNiftytrader();
+      report.flows_source = "niftytrader (net-only fallback)";
+      report.flows_nse_error = String(nseErr);
+    }
+    const { error } = await supabase
+      .from("market_flows")
+      .upsert(flows, { onConflict: "activity_date,category" });
+    if (error) throw error;
+    report.flows_upserted = flows.length;
+    report.flows_date = flows[0]?.activity_date;
+  } catch (e) {
+    report.flows_error = String(e);
+  }
+
+  // ── Corporate actions ──────────────────────────────────────────
+  try {
+    const actions = await fetchCorporateActions();
+    const { error } = await supabase
+      .from("corporate_actions")
+      .upsert(actions, { onConflict: "company,action_type,ex_date" });
+    if (error) throw error;
+    // prune past-dated entries so the list stays fresh
+    const today = new Date().toISOString().slice(0, 10);
+    await supabase.from("corporate_actions").delete().lt("ex_date", today);
+    report.corp_actions_upserted = actions.length;
+  } catch (e) {
+    report.corp_actions_error = String(e);
+  }
+
+  const failed = report.flows_error && report.corp_actions_error;
+  return new Response(JSON.stringify(report, null, 2), {
+    status: failed ? 500 : 200,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+});

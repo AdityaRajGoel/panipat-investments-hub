@@ -1,0 +1,29 @@
+# Daily market-feed sync: triggers the sync-market-feed edge function after
+# NSE publishes FII/DII provisional figures (~18:00 IST).
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   SUPABASE_ANON_KEY - the project's anon/publishable key (passes the edge gateway)
+#   MARKET_SYNC_SECRET - must match the SYNC_SECRET set on the edge function
+name: Market Feed Sync
+
+on:
+  schedule:
+    # 13:15 UTC = 18:45 IST (primary) and 15:30 UTC = 21:00 IST (retry), Mon-Fri
+    - cron: "15 13 * * 1-5"
+    - cron: "30 15 * * 1-5"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync-market-feed
+        run: |
+          resp=$(curl -sS -w "\n%{http_code}" --max-time 120 \
+            -X POST "https://zbkjbbujsdlpujotgltm.supabase.co/functions/v1/sync-market-feed" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "x-sync-secret: ${{ secrets.MARKET_SYNC_SECRET }}")
+          body=$(echo "$resp" | sed '$d'); code=$(echo "$resp" | tail -1)
+          echo "$body"
+          # Fail the job only when BOTH feeds failed (edge returns 500 then)
+          [ "$code" = "200" ] || exit 1
