@@ -18,6 +18,7 @@ const companyLinks: FooterLink[] = [
   { label: "Careers", href: "/careers" },
   { label: "Contact Us", href: "/contact" },
   { label: "Open Account", href: "/open-account" },
+  { label: "Pricing & Charges", href: "/pricing" },
 ];
 
 const toolLinks: FooterLink[] = [

@@ -9,6 +9,7 @@ const urls = [
   { loc: '/',                    changefreq: 'daily',   priority: '1.0',  lastmod: today },
   { loc: '/unlisted-space',      changefreq: 'weekly',  priority: '0.9',  lastmod: today },
   { loc: '/open-account',        changefreq: 'monthly', priority: '0.9',  lastmod: today },
+  { loc: '/pricing',             changefreq: 'monthly', priority: '0.85', lastmod: today },
   { loc: '/fno',                 changefreq: 'daily',   priority: '0.9',  lastmod: today },
   { loc: '/services',            changefreq: 'weekly',  priority: '0.85', lastmod: today },
   { loc: '/depository-services', changefreq: 'weekly',  priority: '0.85', lastmod: today },

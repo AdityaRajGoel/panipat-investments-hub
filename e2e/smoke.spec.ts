@@ -37,3 +37,11 @@ test("unknown learn slug redirects to the learning center", async ({ page }) => 
   await page.goto("/learn/this-does-not-exist");
   await expect(page).toHaveURL(/\/learn$/);
 });
+
+test("pricing page renders the full charges tables", async ({ page }) => {
+  await page.goto("/pricing");
+  await expect(page.locator("h1")).toContainText("Brokerage Charges");
+  await expect(page.getByText("0.15%").first()).toBeVisible();
+  await expect(page.getByText("₹885 / year")).toBeVisible();
+  await expect(page.getByText("Equity Options")).toBeVisible();
+});

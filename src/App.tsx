@@ -36,6 +36,7 @@ const TeamPage = lazy(() => import("./pages/TeamPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const OpenAccountPage = lazy(() => import("./pages/OpenAccountPage"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
 const StockScreenerPage = lazy(() => import("./pages/StockScreenerPage"));
 const HolidayCalendarPage = lazy(() => import("./pages/HolidayCalendarPage"));
 const Week52TrackerPage = lazy(() => import("./pages/Week52TrackerPage"));
@@ -146,7 +147,8 @@ const AnimatedRoutes = () => {
         <Route path="/team" element={<TeamPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPage />} />
-        <Route path="/open-account" element={<OpenAccountPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/open-account" element={<OpenAccountPage />} />
         <Route path="/screener" element={<StockScreenerPage />} />
         <Route path="/fno" element={<FnODashboardPage />} />
         <Route path="/holidays" element={<HolidayCalendarPage />} />

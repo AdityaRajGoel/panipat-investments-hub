@@ -12,6 +12,7 @@ const routes = [
   '/services',
   '/unlisted-space',
   '/open-account',
+  '/pricing',
   '/screener',
   '/fno',
   '/learn',
