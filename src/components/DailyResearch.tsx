@@ -43,15 +43,11 @@ const DailyResearch = () => {
     <section className="py-12 md:py-20 bg-muted/30 overflow-hidden relative">
       {/* Background accents */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-10 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }}
-          transition={{ duration: 8, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl"
-          animate={{ scale: [1.1, 1, 1.1], opacity: [0.15, 0.3, 0.15] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
       </div>
 

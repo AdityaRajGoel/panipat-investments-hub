@@ -23,10 +23,8 @@ const CompanyTimeline = () => {
   return (
     <section ref={sectionRef} id="timeline" className="py-10 md:py-20 bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-40 right-10 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
       </div>
 

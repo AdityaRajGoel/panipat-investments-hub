@@ -23,15 +23,11 @@ const SIPCalculator = () => {
     <section className="py-10 md:py-20 bg-background relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-10 right-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 8, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 left-10 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1.1, 0.9, 1.1] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
       </div>
 

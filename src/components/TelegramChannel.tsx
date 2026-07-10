@@ -319,15 +319,11 @@ const TelegramChannel = ({ limit = 10, showViewAll = false }: TelegramChannelPro
     <section className="py-12 md:py-20 bg-muted/20 relative overflow-hidden">
       {/* Background accents */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-10 left-10 w-80 h-80 bg-[#229ED9]/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.25, 0.1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 right-10 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1.1, 1, 1.1], opacity: [0.15, 0.3, 0.15] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 

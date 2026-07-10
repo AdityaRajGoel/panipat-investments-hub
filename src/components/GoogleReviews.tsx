@@ -71,15 +71,11 @@ const GoogleReviews = () => {
     <section ref={sectionRef} id="google-reviews" className="py-10 md:py-20 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
       {/* Background decorations */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
-        <motion.div
+        <div
           className="absolute top-10 right-20 w-72 h-72 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 9, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 left-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 11, repeat: Infinity }}
         />
       </motion.div>
 

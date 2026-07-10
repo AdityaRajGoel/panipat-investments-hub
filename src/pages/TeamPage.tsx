@@ -230,15 +230,11 @@ const TeamPage = () => {
       <motion.section ref={heroRef} style={{ opacity: heroOpacity }} className="py-10 md:py-28 bg-background relative overflow-hidden">
         {/* Ambient background */}
         <div className="absolute inset-0 pointer-events-none">
-          <motion.div
+          <div
             className="absolute top-20 right-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 9, repeat: Infinity }}
           />
-          <motion.div
+          <div
             className="absolute bottom-10 left-10 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"
-            animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.35, 0.15] }}
-            transition={{ duration: 12, repeat: Infinity }}
           />
           <div
             className="absolute inset-0 opacity-[0.02]"

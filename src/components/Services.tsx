@@ -86,15 +86,11 @@ const Services = () => {
     <section ref={sectionRef} id="services" className="py-12 md:py-24 bg-muted/50 overflow-hidden relative">
       {/* Parallax background orbs */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
-        <motion.div
+        <div
           className="absolute top-10 left-10 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 8, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 right-10 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.4, 0.15] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
         {/* Orbiting element */}
         <motion.div

@@ -76,15 +76,11 @@ const Contact = () => {
     <section ref={sectionRef} id="contact" className="py-10 md:py-20 bg-muted/50 relative overflow-hidden">
       {/* Ambient background orbs */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-10 left-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 right-20 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 

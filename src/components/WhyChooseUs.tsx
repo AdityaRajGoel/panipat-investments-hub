@@ -71,15 +71,11 @@ const WhyChooseUs = () => {
     <section className="py-12 md:py-20 bg-background overflow-hidden relative">
       {/* Background ornaments */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-20 left-0 w-72 h-72 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], x: [0, 15, 0] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 right-0 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1.1, 1, 1.1], y: [0, -20, 0] }}
-          transition={{ duration: 12, repeat: Infinity }}
         />
       </div>
 

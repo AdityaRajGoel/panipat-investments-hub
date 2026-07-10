@@ -93,15 +93,11 @@ const Testimonials = () => {
     <section ref={sectionRef} id="testimonials" className="py-12 md:py-24 bg-gradient-to-b from-muted/50 to-background relative overflow-hidden">
       {/* Background decoration with parallax */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
-        <motion.div
+        <div
           className="absolute top-20 left-10 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-20 right-10 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
         {/* Floating quote marks */}
         <motion.div

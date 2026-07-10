@@ -77,15 +77,11 @@ const BecomePartner = () => {
     <section className="py-12 md:py-20 bg-hero overflow-hidden relative">
       {/* Background accents */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-20 right-20 w-80 h-80 bg-secondary/10 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1] }}
-          transition={{ duration: 8, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 left-10 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
       </div>
 

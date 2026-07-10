@@ -31,15 +31,11 @@ const MobileApp = () => {
     <section ref={sectionRef} id="app" className="py-10 md:py-20 bg-hero overflow-hidden relative">
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-20 left-20 w-64 h-64 bg-secondary/10 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], x: [0, 20, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-20 right-20 w-80 h-80 bg-brand-gold/10 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], y: [0, -30, 0] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
         {/* Floating dots */}
         {[...Array(6)].map((_, i) => (
@@ -176,10 +172,8 @@ const MobileApp = () => {
           >
             <div className="relative">
               {/* Glow effect */}
-              <motion.div
+              <div
                 className="absolute inset-0 bg-secondary/30 blur-3xl rounded-full scale-75"
-                animate={{ scale: [0.7, 0.85, 0.7], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 4, repeat: Infinity }}
               />
 
               {/* Phone frame */}

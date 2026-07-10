@@ -51,15 +51,11 @@ const About = () => {
     <section ref={sectionRef} id="about" className="py-12 md:py-24 bg-background overflow-hidden relative">
       {/* Ambient orbs with parallax */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: parallaxY }}>
-        <motion.div
+        <div
           className="absolute top-20 right-10 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
+        <div
           className="absolute bottom-10 left-10 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.35, 0.15] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
       </motion.div>
 

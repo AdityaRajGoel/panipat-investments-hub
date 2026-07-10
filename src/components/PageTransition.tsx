@@ -26,8 +26,8 @@ export const PageTransition = ({ children }: PageTransitionProps) => {
       <motion.div
         variants={{
           initial: { opacity: 0, y: 12 },
-          in: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut", delay: 0.15 } },
-          out: { opacity: 0, y: -8, transition: { duration: 0.2, ease: "easeIn" } },
+          in: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut", delay: 0.08 } },
+          out: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
         }}
       >
         {children}
@@ -38,8 +38,8 @@ export const PageTransition = ({ children }: PageTransitionProps) => {
         className="fixed inset-0 z-[70] pointer-events-none bg-gradient-to-r from-secondary via-brand-green to-brand-gold"
         variants={{
           initial: { scaleX: 1, transformOrigin: "right" },
-          in: { scaleX: 0, transformOrigin: "right", transition: { duration: 0.4, ease: [0.76, 0, 0.24, 1] } },
-          out: { scaleX: 1, transformOrigin: "left", transition: { duration: 0.3, ease: [0.76, 0, 0.24, 1] } },
+          in: { scaleX: 0, transformOrigin: "right", transition: { duration: 0.3, ease: [0.76, 0, 0.24, 1] } },
+          out: { scaleX: 1, transformOrigin: "left", transition: { duration: 0.22, ease: [0.76, 0, 0.24, 1] } },
         }}
         aria-hidden="true"
       />

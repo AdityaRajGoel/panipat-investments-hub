@@ -18,15 +18,11 @@ const BrandBanner = () => {
     <section ref={ref} className="py-8 md:py-16 bg-gradient-to-b from-muted/30 to-background relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-0 right-1/4 w-80 h-80 bg-brand-gold/5 rounded-full blur-3xl"
-          animate={{ scale: [1.1, 0.9, 1.1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity }}
         />
       </div>
 
