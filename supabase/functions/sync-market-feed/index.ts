@@ -12,7 +12,7 @@
 // market close. Protected by SYNC_SECRET; writes use the service-role key so
 // RLS stays authenticated-only for everyone else. Safe to re-run (upserts).
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const BROWSER_HEADERS = {
   "User-Agent":
