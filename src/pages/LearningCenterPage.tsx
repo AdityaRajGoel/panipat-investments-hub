@@ -50,6 +50,41 @@ const CATEGORIES = [
 
 const REAL_ARTICLES: Article[] = [
   {
+    id: "r21", title: "Full-Service vs Discount Broker: Which to Pick?", slug: "full-service-vs-discount-broker",
+    excerpt: "Flat-fee app or a broker who picks up the phone? Compare costs, research, call-to-trade and support to find what fits your investing style.",
+    content: "", category: "basics", cover_image: null, read_time: 7, published: true, created_at: "2026-07-10",
+    source: "Parasram Research", source_url: "",
+    difficulty: "Beginner", featured: true,
+  },
+  {
+    id: "r22", title: "Tax on Share Market Income: STCG, LTCG & F&O", slug: "tax-on-share-market-income",
+    excerpt: "20% STCG, 12.5% LTCG above ₹1.25 lakh, F&O as business income - how every type of market income is taxed in India, with a compliance checklist.",
+    content: "", category: "investing", cover_image: null, read_time: 8, published: true, created_at: "2026-07-10",
+    source: "Parasram Research", source_url: "",
+    difficulty: "Intermediate", featured: true,
+  },
+  {
+    id: "r23", title: "How to Buy Unlisted Shares in India", slug: "how-to-buy-unlisted-shares",
+    excerpt: "Off-market transfers, negotiated pricing, the 6-month post-IPO lock-in and 24-month LTCG rule - the full process and risks of pre-IPO investing.",
+    content: "", category: "investing", cover_image: null, read_time: 7, published: true, created_at: "2026-07-10",
+    source: "Parasram Research", source_url: "",
+    difficulty: "Intermediate",
+  },
+  {
+    id: "r24", title: "Futures & Options (F&O) Basics for Beginners", slug: "fno-basics",
+    excerpt: "Lots, expiry, SPAN margins, CE/PE premiums and the SEBI loss study - what every beginner should know before touching derivatives.",
+    content: "", category: "trading", cover_image: null, read_time: 8, published: true, created_at: "2026-07-10",
+    source: "Parasram Research", source_url: "",
+    difficulty: "Intermediate",
+  },
+  {
+    id: "r25", title: "What is MTF? Margin Trading Facility Explained", slug: "margin-trading-facility-mtf",
+    excerpt: "Buy delivery stocks by paying part of the value while your broker funds the rest. How pledging, interest and margin calls actually work.",
+    content: "", category: "trading", cover_image: null, read_time: 6, published: true, created_at: "2026-07-10",
+    source: "Parasram Research", source_url: "",
+    difficulty: "Intermediate",
+  },
+  {
     id: "r1", title: "What is a Demat Account?", slug: "demat-account",
     excerpt: "A demat account holds your shares in electronic format. Learn how it works, how to open one, and why it's essential for stock market investing in India.",
     content: "", category: "basics", cover_image: null, read_time: 5, published: true, created_at: "2025-12-01",

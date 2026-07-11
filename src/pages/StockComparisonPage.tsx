@@ -199,7 +199,7 @@ const StockComparisonPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead 
-        title="Stock Comparison Tool | Parasram India" 
+        title="Compare Stocks Side-by-Side NSE BSE | Parasram India" 
         description="Compare up to 3 NSE/BSE stocks side-by-side with live price, P/E ratio, market cap, 52-week range, volume and AI-powered analysis. Free tool." 
         breadcrumbs={[
           { name: "Home", url: "/" },
