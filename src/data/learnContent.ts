@@ -150,7 +150,7 @@ The P/E ratio is a brilliant *first filter*, not a *final verdict*. Use it to sh
 
   "sip-vs-lumpsum": {
     slug: "sip-vs-lumpsum",
-    title: "SIP vs Lumpsum: Which Investment Strategy Actually Wins?",
+    title: "SIP vs Lumpsum: Which Strategy Wins in India?",
     metaDescription:
       "Should you invest via SIP or a one-time lumpsum? Compare rupee-cost averaging, risk, and returns across market cycles to choose the right strategy in India.",
     category: "investing",
