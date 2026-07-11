@@ -88,21 +88,21 @@ const REAL_ARTICLES: Article[] = [
     id: "r1", title: "What is a Demat Account?", slug: "demat-account",
     excerpt: "A demat account holds your shares in electronic format. Learn how it works, how to open one, and why it's essential for stock market investing in India.",
     content: "", category: "basics", cover_image: null, read_time: 5, published: true, created_at: "2025-12-01",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dematerialization.asp",
+    source: "Parasram Research", source_url: "",
     difficulty: "Beginner", featured: true,
   },
   {
     id: "r2", title: "Understanding P/E Ratio: How to Value Stocks", slug: "pe-ratio",
     excerpt: "The P/E ratio is the most widely used valuation metric. Learn how to interpret it to evaluate whether a stock is cheap or expensive relative to earnings.",
     content: "", category: "analysis", cover_image: null, read_time: 7, published: true, created_at: "2025-11-28",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/p/price-earningsratio.asp",
+    source: "Parasram Research", source_url: "",
     difficulty: "Beginner", featured: true,
   },
   {
     id: "r3", title: "SIP vs Lumpsum: Which Investment Strategy Wins?", slug: "sip-vs-lumpsum",
     excerpt: "Compare rupee cost averaging through SIPs with lumpsum investing. Which strategy delivers better returns across market cycles?",
     content: "", category: "investing", cover_image: null, read_time: 8, published: true, created_at: "2025-11-25",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/d/dollarcostaveraging.asp",
+    source: "Parasram Research", source_url: "",
     difficulty: "Beginner",
   },
   {
@@ -123,7 +123,7 @@ const REAL_ARTICLES: Article[] = [
     id: "r6", title: "Mutual Funds: Types, Benefits & How to Invest", slug: "mutual-funds-guide",
     excerpt: "Everything about mutual funds - equity, debt, hybrid, index funds. Understand NAV, expense ratios, and CAGR returns. SEBI classification explained.",
     content: "", category: "basics", cover_image: null, read_time: 8, published: true, created_at: "2025-11-18",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/m/mutualfund.asp",
+    source: "Parasram Research", source_url: "",
     difficulty: "Beginner",
   },
   {
@@ -137,7 +137,7 @@ const REAL_ARTICLES: Article[] = [
     id: "r8", title: "The Power of Compounding: Why Start Early", slug: "power-of-compounding",
     excerpt: "Even small monthly investments can grow into crores over decades. Understand compound interest with real examples and the Rule of 72.",
     content: "", category: "investing", cover_image: null, read_time: 5, published: true, created_at: "2025-11-12",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/c/compoundinterest.asp",
+    source: "Parasram Research", source_url: "",
     difficulty: "Beginner",
   },
   {
@@ -158,7 +158,7 @@ const REAL_ARTICLES: Article[] = [
     id: "r11", title: "Understanding IPO: Process, Allotment & Listing", slug: "ipo-guide",
     excerpt: "Complete guide to IPOs in India - DRHP, price bands, lot sizes, ASBA application process, GMP, listing day strategy, and grey market explained.",
     content: "", category: "basics", cover_image: null, read_time: 10, published: true, created_at: "2025-11-05",
-    source: "Investopedia", source_url: "https://www.investopedia.com/terms/i/ipo.asp",
+    source: "Parasram Research", source_url: "",
     difficulty: "Beginner",
   },
   {
