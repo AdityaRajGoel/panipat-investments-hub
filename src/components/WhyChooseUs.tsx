@@ -1,8 +1,8 @@
 import { motion, Variants } from "motion/react";
 import { RevealText } from "@/components/ui/RevealText";
 import {
-  Shield, Clock, Smartphone, Users, Award,
-  Headphones, MapPin, TrendingUp, MessageCircle, Briefcase
+  Shield, Smartphone, Award, PhoneCall, Percent,
+  Headphones, MapPin, TrendingUp, MessageCircle
 } from "lucide-react";
 
 const usps = [
@@ -32,9 +32,9 @@ const usps = [
     description: "Get daily market reports, SR levels, and alerts directly on WhatsApp",
   },
   {
-    icon: Headphones,
-    title: "Dedicated Support",
-    description: "Personal relationship manager for portfolio guidance and query resolution",
+    icon: PhoneCall,
+    title: "Free ₹0 Call-to-Trade",
+    description: "Call your dealer, we place the order - the traditional desk busy businessmen rely on, at no charge",
   },
   {
     icon: TrendingUp,
@@ -42,9 +42,9 @@ const usps = [
     description: "Daily research reports, stock picks, and market analysis from our SEBI-registered analysts",
   },
   {
-    icon: Briefcase,
-    title: "Complete Services",
-    description: "Equity, F&O, Commodity, Currency, Mutual Funds, IPO, Insurance - all under one roof",
+    icon: Percent,
+    title: "Custom Brokerage & MTF",
+    description: "Brokerage plans and margin (MTF) relationships tailored to your trading volume and needs",
   },
 ];
 

@@ -7,7 +7,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import PageTransition from "@/components/PageTransition";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
-import { IndianRupee, BadgeCheck, Calculator, ArrowRight, Phone, Info } from "lucide-react";
+import { IndianRupee, BadgeCheck, Calculator, ArrowRight, Phone, Info, Percent, Scale, PhoneCall, FileText } from "lucide-react";
 
 // Published tariff for Shri Parasram Holdings (as listed on broker-data
 // aggregators sourced from the firm's tariff sheet). Keep in sync with the
@@ -36,6 +36,30 @@ const otherCharges = [
   { item: "Account Closure", value: "₹35 per instruction" },
 ];
 
+// The branch's real differentiators - services a discount broker can't match.
+const usps = [
+  {
+    icon: Percent,
+    title: "Custom Brokerage Plans",
+    desc: "Rates tailored to your needs and trading volume - not one-size-fits-all. Reviewed as your activity grows.",
+  },
+  {
+    icon: Scale,
+    title: "Flexible MTF & Margins",
+    desc: "Customised margin trading facility (MTF) and margin relationships structured around your portfolio and risk profile.",
+  },
+  {
+    icon: PhoneCall,
+    title: "Free ₹0 Call-to-Trade",
+    desc: "The traditional dealer desk, free of charge. Call, tell us the order, we execute - built for busy businessmen and industrialists.",
+  },
+  {
+    icon: FileText,
+    title: "Tax & Paperwork Assistance",
+    desc: "Capital gains statements, P&L reports, help with tax-filing paperwork and related finance tasks - plus research-backed recommendations.",
+  },
+];
+
 const faqs = [
   {
     q: "Is the Demat account really free to open?",
@@ -50,8 +74,16 @@ const faqs = [
     a: "No. Beyond brokerage you pay only the standard statutory levies (STT, exchange charges, SEBI fees, stamp duty, GST) that apply at every Indian broker. Use our brokerage calculator for an exact breakdown before you trade.",
   },
   {
-    q: "Can I negotiate brokerage for high volumes?",
-    a: "Active traders and HNI clients can discuss customised brokerage plans at our Panipat branch - call +91 9416400314 or visit us at Shakuntala Complex, Palika Bazaar.",
+    q: "Is call-to-trade really free?",
+    a: "Yes. Unlike most brokers who charge ₹20-50 per call-to-trade order, our traditional dealer desk is free (₹0). Call your dealer, place the order, and get a confirmation - ideal for busy professionals who can't watch screens.",
+  },
+  {
+    q: "Do you offer MTF (Margin Trading Facility)?",
+    a: "Yes. MTF and trading margins are structured individually based on your portfolio, trading segments and risk profile. Speak to the branch to set up a margin relationship that fits how you trade.",
+  },
+  {
+    q: "Do you offer custom brokerage plans?",
+    a: "Yes - custom brokerage plans are a standard offering, not an exception. We tailor rates to your trading volume, segments and order profile. Call +91 9416400314 or visit the branch at Shakuntala Complex, Palika Bazaar to set one up.",
   },
 ];
 
@@ -119,8 +151,8 @@ const PricingPage = () => {
               Brokerage Charges, <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-brand-gold">No Surprises</span>
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Every charge published upfront - the same full-service research and
-              branch support, at rates that reward long-term investors.
+              Every charge published upfront - and if you trade actively, we tailor
+              brokerage to your volume and order profile.
             </p>
           </motion.div>
 
@@ -141,6 +173,66 @@ const PricingPage = () => {
             <ChargesTable title="Brokerage by Segment" rows={brokerageCharges} cols={["Segment", "Brokerage"]} />
             <ChargesTable title="Other Charges" rows={otherCharges} cols={["Item", "Charge"]} />
           </div>
+
+          {/* What sets us apart */}
+          <section className="mt-12">
+            <motion.div
+              className="text-center mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
+                What Sets Us <span className="text-secondary">Apart</span>
+              </h2>
+              <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+                Low brokerage is the start. The real value is a branch that works
+                the way a personal finance office would.
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="grid sm:grid-cols-2 gap-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-40px" }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+            >
+              {usps.map((u) => (
+                <motion.div
+                  key={u.title}
+                  className="group bg-card border border-border/50 rounded-2xl p-5 hover:border-secondary/40 hover:shadow-lg transition-all"
+                  variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45 } } }}
+                >
+                  <div className="w-11 h-11 rounded-xl bg-secondary/10 flex items-center justify-center mb-3 group-hover:bg-secondary/20 group-hover:scale-110 transition-all">
+                    <u.icon className="w-5 h-5 text-secondary" />
+                  </div>
+                  <h3 className="font-heading text-base font-bold text-foreground mb-1.5 group-hover:text-secondary transition-colors">
+                    {u.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{u.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <motion.div
+              className="mt-5 border-beam bg-gradient-to-br from-secondary/5 to-brand-gold/5 border border-secondary/20 rounded-2xl px-6 py-5 text-center"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-sm text-muted-foreground mb-3">
+                …and the dozens of small tasks a real branch quietly handles for you -
+                nominations, transmissions, KYC updates, pledges and more.
+              </p>
+              <a
+                href="tel:+919416400314"
+                className="inline-flex items-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary font-bold text-sm px-5 py-2.5 rounded-xl transition-colors"
+              >
+                <Phone className="w-4 h-4" /> Discuss your plan: +91 9416400314
+              </a>
+            </motion.div>
+          </section>
 
           {/* Calculator cross-links */}
           <motion.div
