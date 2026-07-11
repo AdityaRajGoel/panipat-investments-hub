@@ -56,14 +56,19 @@ const Header = () => {
       {/* Top bar */}
       <div className="bg-hero text-primary-foreground py-1.5 hidden sm:block">
         <div className="container mx-auto px-4 flex justify-between items-center text-xs">
-          <div className="flex items-center gap-4">
-            <a href="tel:+919416400314" className="flex items-center gap-1.5 hover:text-secondary transition-colors font-medium">
-              <Phone className="w-3.5 h-3.5" /><span>+91 9416400314</span>
-            </a>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-secondary" />
+              <a href="tel:+919416400314" className="hover:text-secondary transition-colors font-medium">+91 9416400314</a>
+              <span className="hidden lg:inline text-primary-foreground/30">·</span>
+              <a href="tel:+919999790011" className="hidden lg:inline hover:text-secondary transition-colors">9999790011</a>
+              <span className="hidden lg:inline text-primary-foreground/30">·</span>
+              <a href="tel:+919416400277" className="hidden lg:inline hover:text-secondary transition-colors">9416400277</a>
+            </span>
             <a href="mailto:parasrampnp@gmail.com" className="hidden md:flex items-center gap-1.5 hover:text-secondary transition-colors">
               <Mail className="w-3.5 h-3.5" /><span>parasrampnp@gmail.com</span>
             </a>
-            <span className="hidden lg:flex items-center gap-1.5 text-primary-foreground/60">
+            <span className="hidden xl:flex items-center gap-1.5 text-primary-foreground/60">
               <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
               SEBI Registered · Since 1970
             </span>

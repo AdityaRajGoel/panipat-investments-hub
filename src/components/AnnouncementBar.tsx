@@ -1,14 +1,15 @@
-import { Flame, TrendingUp, Shield, Zap, ArrowRight, Gift, X } from "lucide-react";
+import { Flame, TrendingUp, Shield, Zap, ArrowRight, X, IndianRupee, PhoneCall } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 const announcements = [
   { icon: Flame, text: "Open a FREE Demat Account", cta: "Start", href: "/open-account", color: "text-brand-gold" },
+  { icon: IndianRupee, text: "Transparent Pricing - every charge published", cta: "See Charges", href: "/pricing", color: "text-secondary" },
   { icon: TrendingUp, text: "IPOs Open - Apply Online", cta: "Apply", href: "/services", color: "text-secondary" },
+  { icon: PhoneCall, text: "Free ₹0 Call-to-Trade Desk", cta: "Know More", href: "/pricing", color: "text-amber-400" },
   { icon: Shield, text: "SEBI Registered · NSE · BSE · MCX", cta: null, href: null, color: "text-sky-400" },
-  { icon: Gift, text: "Refer & Earn Rewards", cta: "Refer", href: "/open-account", color: "text-purple-400" },
-  { icon: Zap, text: "Pre-IPO & Unlisted Shares", cta: "Explore", href: "/unlisted-space", color: "text-amber-400" },
+  { icon: Zap, text: "Pre-IPO & Unlisted Shares", cta: "Explore", href: "/unlisted-space", color: "text-purple-400" },
 ];
 
 const DISMISS_KEY = "pnp_announcement_dismissed";
@@ -90,17 +91,23 @@ const AnnouncementBar = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
               transition={{ duration: 0.35 }}
-              className="inline-flex items-center gap-2 md:gap-3 absolute"
+              className="absolute"
             >
-              <Icon className={`w-3.5 h-3.5 shrink-0 ${item.color}`} />
-              <span className="text-white/80 text-[11px] md:text-xs font-medium whitespace-nowrap">{item.text}</span>
-              {item.cta && item.href && (
-                <Link
-                  to={item.href}
-                  className={`inline-flex items-center gap-1 text-[11px] md:text-xs font-bold ${item.color} hover:underline transition-all`}
-                >
-                  {item.cta} <ArrowRight className="w-2.5 h-2.5" />
+              {item.href ? (
+                <Link to={item.href} className="group inline-flex items-center gap-2 md:gap-3">
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${item.color}`} />
+                  <span className="text-white/80 group-hover:text-white text-[11px] md:text-xs font-medium whitespace-nowrap transition-colors">{item.text}</span>
+                  {item.cta && (
+                    <span className={`inline-flex items-center gap-1 text-[10px] md:text-[11px] font-bold ${item.color} bg-white/10 group-hover:bg-white/15 rounded-full px-2 py-0.5 transition-colors`}>
+                      {item.cta} <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
+                    </span>
+                  )}
                 </Link>
+              ) : (
+                <span className="inline-flex items-center gap-2 md:gap-3">
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${item.color}`} />
+                  <span className="text-white/80 text-[11px] md:text-xs font-medium whitespace-nowrap">{item.text}</span>
+                </span>
               )}
             </motion.div>
           </AnimatePresence>
@@ -109,11 +116,24 @@ const AnnouncementBar = () => {
         {/* Progress dots + dismiss */}
         <div className="flex items-center gap-2 shrink-0 pr-2 md:pr-3">
           <div className="hidden sm:flex items-center gap-1">
-            {announcements.map((_, i) => (
-              <span
+            {announcements.map((a, i) => (
+              <button
                 key={i}
-                className={`h-1 rounded-full transition-all duration-300 ${i === index ? "w-3 bg-brand-gold/80" : "w-1 bg-white/25"}`}
-              />
+                onClick={() => setIndex(i)}
+                aria-label={`Show announcement: ${a.text}`}
+                className={`relative h-1.5 rounded-full overflow-hidden transition-all duration-300 ${i === index ? "w-5 bg-white/20" : "w-1.5 bg-white/25 hover:bg-white/40"}`}
+              >
+                {i === index && !paused && (
+                  <motion.span
+                    key={`fill-${index}`}
+                    className="absolute inset-y-0 left-0 bg-brand-gold/90 rounded-full"
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 5, ease: "linear" }}
+                  />
+                )}
+                {i === index && paused && <span className="absolute inset-0 bg-brand-gold/70 rounded-full" />}
+              </button>
             ))}
           </div>
           <button
