@@ -507,7 +507,7 @@ const LearningCenterPage = () => {
                 <div className="flex gap-1.5">
                   {["all", "Beginner", "Intermediate", "Advanced"].map(d => (
                     <button key={d} onClick={() => setDifficulty(d)}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition-all font-medium whitespace-nowrap ${
+                      className={`text-xs px-3 py-2.5 md:py-1.5 rounded-full border transition-all font-medium whitespace-nowrap ${
                         difficulty === d
                           ? d === "Beginner" ? "bg-secondary text-secondary-foreground border-secondary"
                             : d === "Intermediate" ? "bg-brand-gold text-black border-brand-gold"
@@ -581,7 +581,7 @@ const LearningCenterPage = () => {
                                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                                   <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{article.read_time} min read</span>
                                   {LEARN_ARTICLES[article.slug] ? (
-                                    <Link to={`/learn/${article.slug}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 text-primary font-medium hover:gap-2 transition-all">Read guide <ChevronRight className="w-3.5 h-3.5" /></Link>
+                                    <Link to={`/learn/${article.slug}`} onClick={(e) => e.stopPropagation()} className="relative z-10 flex items-center gap-1 py-3.5 -my-3.5 pr-3 -mr-3 text-primary font-medium hover:gap-2 transition-all">Read guide <ChevronRight className="w-3.5 h-3.5" /></Link>
                                   ) : (
                                     <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3.5 h-3.5" /></span>
                                   )}
@@ -638,7 +638,7 @@ const LearningCenterPage = () => {
                                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{article.read_time} min</span>
                                   {LEARN_ARTICLES[article.slug] ? (
-                                    <Link to={`/learn/${article.slug}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 text-primary font-medium hover:gap-2 transition-all">Read guide <ChevronRight className="w-3 h-3" /></Link>
+                                    <Link to={`/learn/${article.slug}`} onClick={(e) => e.stopPropagation()} className="relative z-10 flex items-center gap-1 py-3.5 -my-3.5 pr-3 -mr-3 text-primary font-medium hover:gap-2 transition-all">Read guide <ChevronRight className="w-3 h-3" /></Link>
                                   ) : (
                                     <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">Read <ChevronRight className="w-3 h-3" /></span>
                                   )}

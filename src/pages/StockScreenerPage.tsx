@@ -477,7 +477,7 @@ const StockScreenerPage = () => {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs h-8 px-3"
+                              className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs min-h-[44px] md:min-h-0 md:h-8 px-3"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setAnalyzingStock(s);

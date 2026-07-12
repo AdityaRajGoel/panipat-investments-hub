@@ -276,7 +276,7 @@ const PricingPage = () => {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.06 }}
                 >
-                  <summary className="font-semibold text-sm text-foreground cursor-pointer list-none flex items-center justify-between">
+                  <summary className="font-semibold text-sm text-foreground cursor-pointer list-none flex items-center justify-between min-h-[44px] md:min-h-0">
                     {f.q}
                     <span className="text-secondary group-open:rotate-45 transition-transform text-lg leading-none">+</span>
                   </summary>

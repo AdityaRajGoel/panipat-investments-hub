@@ -32,7 +32,7 @@ export const LEARN_ARTICLES: Record<string, LearnArticle> = {
       "In India, Demat accounts are held with CDSL or NSDL through a SEBI-registered broker (Depository Participant).",
       "Opening is fully online with PAN, Aadhaar, a bank proof and a photo - and is free at Parasram India.",
     ],
-    related: ["mutual-funds-guide", "ipo-guide", "power-of-compounding"],
+    related: ["full-service-vs-discount-broker", "mutual-funds-guide", "ipo-guide"],
     content: `## What is a Demat account?
 
 A **Demat account** (short for "dematerialised account") holds the shares, bonds, mutual funds, ETFs and other securities you own in **electronic form**. Before 1996, Indian investors received physical share certificates on paper - slow to transfer, easy to lose, and prone to forgery. Today, everything sits safely in your Demat account, just like money sits in your bank account.
@@ -98,7 +98,7 @@ Without a Demat account you simply cannot buy or hold shares, apply for IPOs, or
       "Always compare a company's P/E to its own history and to its sector peers - never in isolation.",
       "P/E is useless for loss-making companies and can be distorted by one-off profits.",
     ],
-    related: ["financial-statements", "fundamental-vs-technical", "mutual-funds-guide"],
+    related: ["tax-on-share-market-income", "fno-basics", "mutual-funds-guide"],
     content: `## What is the P/E ratio?
 
 The **Price-to-Earnings (P/E) ratio** is the single most popular way to judge whether a stock is cheaply or expensively priced. It answers a simple question: *how many rupees am I paying for every ₹1 of the company's annual profit?*
@@ -163,7 +163,7 @@ The P/E ratio is a brilliant *first filter*, not a *final verdict*. Use it to sh
       "Lumpsum can outperform when markets are near a bottom, but requires a large idle corpus and strong nerves.",
       "For most Indian investors building wealth from monthly income, a disciplined SIP wins on consistency.",
     ],
-    related: ["mutual-funds-guide", "power-of-compounding", "portfolio-diversification"],
+    related: ["mutual-funds-guide", "power-of-compounding", "tax-on-share-market-income"],
     content: `## Two ways to invest the same money
 
 Say you have **₹1,20,000** to invest in a mutual fund this year. You have two choices:
@@ -219,7 +219,7 @@ The most important factor isn't SIP vs lumpsum - it's **staying invested for the
       "The Rule of 72 estimates how long money takes to double: 72 ÷ annual return %.",
       "Small monthly SIPs, left untouched for decades, can grow into crores.",
     ],
-    related: ["sip-vs-lumpsum", "mutual-funds-guide", "portfolio-diversification"],
+    related: ["sip-vs-lumpsum", "mutual-funds-guide", "full-service-vs-discount-broker"],
     content: `## What is compounding?
 
 Albert Einstein reportedly called compound interest the *"eighth wonder of the world."* Whether or not he said it, the idea is powerful: **compounding is when your investment returns start generating their own returns.**
@@ -284,7 +284,7 @@ At a 12% return, ₹1 lakh becomes ₹2 lakh in 6 years, ₹4 lakh in 12 years, 
       "NAV is the per-unit price; expense ratio is the annual fee - lower is better for long-term returns.",
       "Direct plans have lower fees than regular plans because they skip distributor commission.",
     ],
-    related: ["sip-vs-lumpsum", "index-vs-active", "power-of-compounding"],
+    related: ["sip-vs-lumpsum", "tax-on-share-market-income", "power-of-compounding"],
     content: `## What is a mutual fund?
 
 A **mutual fund** pools money from thousands of investors and hands it to a professional **fund manager**, who invests it across a basket of stocks, bonds or other assets. When you buy a mutual fund, you own a small slice of that entire basket - instant diversification, even with just ₹500.
@@ -347,7 +347,7 @@ The Securities and Exchange Board of India (**SEBI**) strictly regulates every m
       "Applications are in lots; oversubscribed IPOs allot via a lottery, so you may get partial or no allotment.",
       "Grey Market Premium (GMP) is an unofficial signal of demand - informative but never a guarantee.",
     ],
-    related: ["demat-account", "mutual-funds-guide", "fundamental-vs-technical"],
+    related: ["how-to-buy-unlisted-shares", "demat-account", "mutual-funds-guide"],
     content: `## What is an IPO?
 
 An **IPO (Initial Public Offering)** is the moment a private company offers its shares to the general public for the first time and gets **listed on a stock exchange** like the NSE or BSE. The company raises money to grow, and everyday investors get a chance to own a piece of it.

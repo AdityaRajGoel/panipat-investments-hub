@@ -280,8 +280,8 @@ const Footer = () => {
               </div>
               <p className="text-primary-foreground/60 text-xs leading-relaxed">
                 <strong className="text-primary-foreground/80">Mr. Vivek Sheel Aggarwal</strong><br />
-                Email: <a href="mailto:compliance@sphpl.com" className="hover:text-secondary transition-colors">compliance@sphpl.com</a><br />
-                Phone: <a href="tel:01147000044" className="hover:text-secondary transition-colors">011-47000044</a>, <a href="tel:+919999796260" className="hover:text-secondary transition-colors">9999796260</a> (Corporate Office)<br />
+                Email: <a href="mailto:compliance@sphpl.com" className="tap-area hover:text-secondary transition-colors">compliance@sphpl.com</a><br />
+                Phone: <a href="tel:01147000044" className="tap-area hover:text-secondary transition-colors">011-47000044</a>, <a href="tel:+919999796260" className="tap-area hover:text-secondary transition-colors">9999796260</a> (Corporate Office)<br />
                 Hours: Mon – Sat, 9AM – 6PM
               </p>
             </div>
@@ -338,9 +338,9 @@ const Footer = () => {
             </a>
             <div className="text-center text-xs text-primary-foreground/50 max-w-3xl">
               <p className="mb-2 text-primary-foreground/70">
-                <Link to="/privacy-policy" className="hover:text-secondary hover:underline transition-colors">Privacy Policy</Link>
+                <Link to="/privacy-policy" className="tap-area hover:text-secondary hover:underline transition-colors">Privacy Policy</Link>
                 <span className="mx-2">|</span>
-                <Link to="/cookie-policy" className="hover:text-secondary hover:underline transition-colors">Cookie Policy</Link>
+                <Link to="/cookie-policy" className="tap-area hover:text-secondary hover:underline transition-colors">Cookie Policy</Link>
                 <span className="mx-2">|</span>
                 <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Sitemap</a>
                 <span className="mx-2">|</span>

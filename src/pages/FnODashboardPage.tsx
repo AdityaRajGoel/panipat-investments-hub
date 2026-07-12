@@ -498,8 +498,9 @@ const FnODashboardPage = () => {
             F&amp;O segment incurred net losses.
           </p>
           <p className="text-xs text-muted-foreground mt-1.5">
-            Derivatives are leveraged instruments. Trade with defined risk, and consult our
-            SEBI-registered research desk before taking positions.
+            Derivatives are leveraged instruments. New to derivatives? Start with our{" "}
+            <a href="/learn/fno-basics" className="text-secondary font-semibold hover:underline">F&amp;O basics guide</a>{" "}
+            and consult our SEBI-registered research desk before taking positions.
           </p>
         </div>
 

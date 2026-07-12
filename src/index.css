@@ -281,6 +281,19 @@
     100% { background-position: 100% center; }
   }
 
+  /* Expand touch target without visual/layout change (mobile a11y).
+     Uses ::before so it never clashes with ::after decorations (btn-shine). */
+  .tap-area {
+    position: relative;
+  }
+  .tap-area::before {
+    content: "";
+    position: absolute;
+    /* generous vertically (17px text -> 45px+ hit), modest horizontally so
+       adjacent inline links don't fully overlap */
+    inset: -14px -6px;
+  }
+
   /* Pause marquees while the user reads/hovers */
   .marquee-pause:hover .animate-marquee-scroll {
     animation-play-state: paused;

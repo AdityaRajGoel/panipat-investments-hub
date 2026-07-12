@@ -44,7 +44,7 @@ const VisibleBreadcrumbs = ({ items, className = "" }: VisibleBreadcrumbsProps) 
               ) : (
                 <Link
                   to={item.url}
-                  className="hover:text-secondary transition-colors truncate max-w-[200px] inline-flex items-center gap-1"
+                  className="tap-area hover:text-secondary transition-colors truncate max-w-[200px] inline-flex items-center gap-1"
                 >
                   {isHome && <Home className="w-3.5 h-3.5 flex-shrink-0" />}
                   {item.name}

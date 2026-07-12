@@ -99,6 +99,12 @@ const UnlistedSpacePage = () => {
             <h2 id="unlisted-how-heading" className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
               How Unlisted Investing Works
             </h2>
+            <p className="text-sm text-muted-foreground -mt-1 mb-2">
+              Want the full picture first? Read our{" "}
+              <a href="/learn/how-to-buy-unlisted-shares" className="text-secondary font-semibold hover:underline">
+                guide to buying unlisted shares in India
+              </a>{" "}- process, risks and taxation.
+            </p>
             <motion.div
               className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full"
               initial={{ width: 0 }}
