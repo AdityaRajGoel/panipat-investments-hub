@@ -70,12 +70,17 @@ const Index = () => {
       <Suspense fallback={<SectionSkeleton height="h-80" />}>
         <MarketDashboard />
       </Suspense>
-      <Suspense fallback={<SectionSkeleton height="h-32" />}>
-        <TrustBadges />
-      </Suspense>
-      <Suspense fallback={<SectionSkeleton height="h-64" />}>
-        <AwardsSection />
-      </Suspense>
+      {/* Desktop-only: mobile keeps the home page short and conversion-focused */}
+      <div className="hidden md:block">
+        <Suspense fallback={<SectionSkeleton height="h-32" />}>
+          <TrustBadges />
+        </Suspense>
+      </div>
+      <div className="hidden md:block">
+        <Suspense fallback={<SectionSkeleton height="h-64" />}>
+          <AwardsSection />
+        </Suspense>
+      </div>
       <Suspense fallback={<SectionSkeleton height="h-64" />}>
         <WhyChooseUs />
       </Suspense>

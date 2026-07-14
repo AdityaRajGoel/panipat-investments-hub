@@ -1,13 +1,17 @@
-import { TrendingUp, BarChart3, Wallet, Globe, FileText, Smartphone, ArrowUpRight } from "lucide-react";
+import { TrendingUp, BarChart3, Wallet, Globe, FileText, Smartphone, ArrowUpRight, Vault, Building2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, Variants, useScroll, useTransform } from "motion/react";
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
+// Every service links to the page that actually explains it - the cards show a
+// "go" arrow, so they must be real links.
 const services = [
   {
     icon: TrendingUp,
     title: "Equity Trading",
     id: "equity-trading",
+    href: "/pricing",
     description: "Trade in NSE & BSE with our advanced trading platforms and expert guidance.",
     stat: "50+ Years",
     statLabel: "Market Expertise",
@@ -16,6 +20,7 @@ const services = [
     icon: BarChart3,
     title: "Derivatives",
     id: "derivatives",
+    href: "/fno",
     description: "Futures & Options trading with comprehensive research and market analysis.",
     stat: "Real-Time",
     statLabel: "Market Data",
@@ -24,6 +29,7 @@ const services = [
     icon: Globe,
     title: "Currency Trading",
     id: "currency-trading",
+    href: "/pricing",
     description: "Trade in currency derivatives with competitive pricing and real-time quotes.",
     stat: "24/5",
     statLabel: "Market Access",
@@ -32,6 +38,7 @@ const services = [
     icon: Wallet,
     title: "Mutual Funds",
     id: "mutual-funds",
+    href: "/learn/mutual-funds-guide",
     description: "Invest in top-performing mutual funds with expert portfolio management.",
     stat: "500+",
     statLabel: "Fund Options",
@@ -40,14 +47,34 @@ const services = [
     icon: FileText,
     title: "IPO Services",
     id: "ipo-services",
+    href: "/learn/ipo-guide",
     description: "Get early access to IPOs and expert recommendations for your investments.",
     stat: "Priority",
     statLabel: "Allotment Access",
   },
   {
+    icon: Building2,
+    title: "Unlisted Shares",
+    id: "unlisted-shares",
+    href: "/unlisted-space",
+    description: "Buy pre-IPO and unlisted company shares, transferred straight to your Demat.",
+    stat: "50+",
+    statLabel: "Verified Companies",
+  },
+  {
+    icon: Vault,
+    title: "Depository Services",
+    id: "depository-services",
+    href: "/depository-services",
+    description: "NSDL & CDSL Demat account with seamless transfers and margin pledging.",
+    stat: "NSDL · CDSL",
+    statLabel: "Registered DP",
+  },
+  {
     icon: Smartphone,
     title: "Mobile Trading",
     id: "mobile-trading",
+    href: "/open-account",
     description: "Trade on-the-go with our powerful Parasram Trade mobile app.",
     stat: "100K+",
     statLabel: "App Downloads",
@@ -169,6 +196,11 @@ const Services = () => {
               onHoverStart={() => setHoveredIndex(index)}
               onHoverEnd={() => setHoveredIndex(null)}
             >
+              <Link
+                to={service.href}
+                aria-label={`${service.title} - learn more`}
+                className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
+              >
               <Card className="group bg-card hover:shadow-2xl transition-all duration-300 border-border/50 hover:border-secondary/50 overflow-hidden h-full relative">
                 {/* Gradient overlay on hover */}
                 <motion.div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-brand-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -217,6 +249,7 @@ const Services = () => {
                   transition={{ duration: 0.3 }}
                 />
               </Card>
+              </Link>
             </motion.div>
           ))}
         </motion.div>
@@ -228,21 +261,30 @@ const Services = () => {
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
         >
-          <motion.a
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/open-account"
+              className="btn-shine inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full bg-brand-green text-white font-semibold hover:opacity-90 transition-opacity"
+            >
+              Open a Free Demat Account
+              <ArrowUpRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/pricing"
+              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-3 rounded-full border border-border text-foreground font-semibold hover:border-secondary hover:text-secondary transition-colors"
+            >
+              See Brokerage Charges
+            </Link>
+          </div>
+          <a
             href="https://parasramindia.com/services"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-secondary font-semibold hover:gap-4 transition-all duration-300"
-            whileHover={{ x: 5 }}
+            className="mt-5 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-secondary transition-colors"
           >
-            View All Services on Main Website
-            <motion.span
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              →
-            </motion.span>
-          </motion.a>
+            View all services on our main website
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </a>
         </motion.div>
       </div>
     </section>
