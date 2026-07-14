@@ -40,6 +40,8 @@ const urls = [
   { loc: '/careers',             changefreq: 'monthly', priority: '0.5',  lastmod: today },
   { loc: '/privacy-policy',      changefreq: 'yearly',  priority: '0.3',  lastmod: '2026-01-01' },
   { loc: '/cookie-policy',       changefreq: 'yearly',  priority: '0.3',  lastmod: '2026-01-01' },
+  { loc: '/terms',               changefreq: 'yearly',  priority: '0.3',  lastmod: '2026-01-01' },
+  { loc: '/disclaimer',          changefreq: 'yearly',  priority: '0.3',  lastmod: '2026-01-01' },
 ];
 
 const BASE = 'https://www.sphpnp.com';

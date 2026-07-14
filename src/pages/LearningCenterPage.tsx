@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
+import PageTransition from "@/components/PageTransition";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
@@ -426,7 +427,8 @@ const LearningCenterPage = () => {
   const currentNews = newsTab === "indian" ? indianNews : worldNews;
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead 
         title="Stock Market Learning Center | Invest Smarter | Parasram India"
         description="Learn about stock market investing, trading strategies, technical analysis, and personal finance. Free educational resources, live market news, and business TV." 
@@ -801,7 +803,8 @@ const LearningCenterPage = () => {
       </main>
       <Footer />
       <WhatsAppButton />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

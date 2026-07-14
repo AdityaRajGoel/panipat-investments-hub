@@ -39,7 +39,9 @@ const routes = [
   '/holidays',
   '/careers',
   '/privacy-policy',
-  '/cookie-policy'
+  '/cookie-policy',
+  '/terms',
+  '/disclaimer'
 ];
 
 async function prerender() {

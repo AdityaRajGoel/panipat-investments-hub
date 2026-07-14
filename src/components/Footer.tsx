@@ -342,11 +342,13 @@ const Footer = () => {
                 <span className="mx-2">|</span>
                 <Link to="/cookie-policy" className="tap-area hover:text-secondary hover:underline transition-colors">Cookie Policy</Link>
                 <span className="mx-2">|</span>
+                <Link to="/terms" className="tap-area hover:text-secondary hover:underline transition-colors">Terms of Use</Link>
+                <span className="mx-2">|</span>
+                <Link to="/disclaimer" className="tap-area hover:text-secondary hover:underline transition-colors">Disclaimer</Link>
+                <span className="mx-2">|</span>
                 <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Sitemap</a>
                 <span className="mx-2">|</span>
                 <a href="https://parasramindia.com/investor-charter" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Investor Charter</a>
-                <span className="mx-2">|</span>
-                <a href="https://parasramindia.com/disclaimer" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Disclaimer</a>
               </p>
               <p className="text-primary-foreground/40">
                 Investments in securities market are subject to market risks. Read all related documents carefully before investing.

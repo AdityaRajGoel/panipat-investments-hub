@@ -9,10 +9,12 @@ import ClientMarquee from "@/components/ClientMarquee";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import SEOHead from "@/components/SEOHead";
+import PageTransition from "@/components/PageTransition";
 
 const ServicesPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead
         title="Stock Broking Services in Panipat | Parasram India"
         description="Equity trading, mutual funds, SIP, IPO applications, F&O, commodities and unlisted shares in Panipat. SEBI-registered broker since 1970 with 10L+ happy clients."
@@ -142,7 +144,8 @@ const ServicesPage = () => {
       <MobileApp />
       <Footer />
       <WhatsAppButton />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

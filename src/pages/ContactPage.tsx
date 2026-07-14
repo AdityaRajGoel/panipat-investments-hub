@@ -6,6 +6,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import FAQ from "@/components/FAQ";
 import SEOHead from "@/components/SEOHead";
+import PageTransition from "@/components/PageTransition";
 import { motion } from "motion/react";
 import { MessageCircle, MapPin, Phone, Mail, Clock, ExternalLink, Instagram, Facebook, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,7 +29,8 @@ const quickContacts = [
 
 const ContactPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Parasram India Panipat | Stock Broker Office"
         description="Contact Parasram India Panipat at Shakuntala Complex, Palika Bazaar. Call +91 9416400314. Open Mon-Sat. Free Demat account opening and investment consultation."
@@ -229,7 +231,8 @@ const ContactPage = () => {
       />
       <Footer />
       <WhatsAppButton />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

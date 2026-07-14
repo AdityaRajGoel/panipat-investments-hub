@@ -6,6 +6,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import CompanyValues from "@/components/CompanyValues";
 import FAQ from "@/components/FAQ";
 import SEOHead from "@/components/SEOHead";
+import PageTransition from "@/components/PageTransition";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -173,7 +174,8 @@ const TeamPage = () => {
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead
         title="Our Team | Financial Advisors Panipat - Parasram India"
         description="Meet the experienced financial advisors at Parasram India Panipat. 35+ years of combined expertise in equity, mutual funds, IPOs, and wealth management."
@@ -399,7 +401,8 @@ const TeamPage = () => {
       />
       <Footer />
       <WhatsAppButton />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

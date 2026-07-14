@@ -96,10 +96,10 @@ const DepositoryServicesPage = () => {
         <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "Depository Services" }]} />
         
         {/* Hero Section */}
-        <section className="pt-16 pb-8 md:pt-24 md:pb-16 bg-gradient-to-br from-brand-navy to-background text-primary-foreground text-center">
+        <section className="pt-16 pb-8 md:pt-24 md:pb-16 bg-hero text-primary-foreground text-center">
           <div className="container mx-auto px-4 z-10 relative">
             <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 text-foreground"
+              className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 text-white"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
@@ -107,7 +107,7 @@ const DepositoryServicesPage = () => {
               Depository <span className="text-secondary">Services</span>
             </motion.h1>
             <motion.p 
-              className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
+              className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}

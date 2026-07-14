@@ -7,6 +7,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import FAQ from "@/components/FAQ";
 import SEOHead from "@/components/SEOHead";
+import PageTransition from "@/components/PageTransition";
 import { motion } from "motion/react";
 import { Phone, Search, BadgeCheck, Vault, TrendingUp } from "lucide-react";
 import ScrollySteps, { ScrollyStep } from "@/components/ScrollySteps";
@@ -30,7 +31,8 @@ const unlistedFAQs = [
 
 const UnlistedSpacePage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <PageTransition>
+      <div className="min-h-screen bg-background">
       <SEOHead
         title="Buy Pre-IPO & Unlisted Shares in India | Parasram India"
         description="Buy pre-IPO and unlisted shares via Parasram India. Secure SEBI-registered framework, instant Demat transfers, verified companies. Invest before the IPO."
@@ -166,7 +168,8 @@ const UnlistedSpacePage = () => {
       />
       <Footer />
       <WhatsAppButton />
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 
