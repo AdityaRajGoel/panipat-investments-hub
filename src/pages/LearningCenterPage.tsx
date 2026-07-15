@@ -13,7 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Search, Clock, ChevronRight, TrendingUp, GraduationCap, BarChart3, Shield, ExternalLink, Newspaper, Radio, RefreshCw, Globe, IndianRupee, AlertTriangle, Star, CheckCircle2 } from "lucide-react";
+import { BookOpen, Search, Clock, ChevronRight, TrendingUp, GraduationCap, BarChart3, Shield, ExternalLink, Newspaper, Radio, RefreshCw, Globe, IndianRupee, AlertTriangle, Star, CheckCircle2, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type Article = {
@@ -308,8 +308,11 @@ const LearningCenterPage = () => {
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsTab, setNewsTab] = useState<"indian" | "world">("indian");
   const [liveLoading, setLiveLoading] = useState(false);
-  const [liveEmbeds, setLiveEmbeds] = useState<Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>>({});
+  const [liveEmbeds, setLiveEmbeds] = useState<Record<string, { embedUrl: string | null; watchUrl: string; title?: string | null }>>({});
   const [iframeErrors, setIframeErrors] = useState<Record<string, boolean>>({});
+  // Facade pattern: the heavy YouTube player only mounts after the user clicks
+  // play, so an offline/non-embeddable stream can never render a broken frame on load.
+  const [activePlayers, setActivePlayers] = useState<Record<string, boolean>>({});
   const healthCheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Respond to hash changes
@@ -353,9 +356,11 @@ const LearningCenterPage = () => {
     try {
       const { data, error } = await supabase.functions.invoke('fetch-live-broadcasts');
       if (!error && data?.success && Array.isArray(data.channels)) {
-        const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string; watchUrl: string; title?: string | null }>, channel: { channelId: string; embedUrl?: string; watchUrl?: string; title?: string | null }) => {
+        const nextEmbeds = data.channels.reduce((acc: Record<string, { embedUrl: string | null; watchUrl: string; title?: string | null }>, channel: { channelId: string; handle?: string; embedUrl?: string; watchUrl?: string; liveUrl?: string; title?: string | null }) => {
           acc[channel.channelId] = {
-            embedUrl: channel.embedUrl || `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`,
+            // Only a resolved videoId embed is trustworthy; if none, treat as offline
+            // and show the watch-on-YouTube state instead of a guaranteed-broken frame.
+            embedUrl: channel.embedUrl || null,
             watchUrl: channel.watchUrl || channel.liveUrl || `https://www.youtube.com/@${channel.handle}/live`,
             title: channel.title || null,
           };
@@ -375,37 +380,35 @@ const LearningCenterPage = () => {
     setIframeErrors(prev => ({ ...prev, [channelId]: true }));
   };
 
-  // Auto-refresh every 60s when live tab is active, and auto-recover on iframe errors
+  // Resolve broadcasts when the Live tab opens, then refresh the "now playing"
+  // metadata every 2 min - but skip the refresh while a player is active so we
+  // never reload a stream the user is actually watching.
   useEffect(() => {
-    if (activeSection === "live") {
-      if (Object.keys(liveEmbeds).length === 0) {
-        fetchLiveBroadcasts();
-      }
-
-      healthCheckRef.current = setInterval(() => {
-        const hasErrors = Object.values(iframeErrors).some(Boolean);
-        if (hasErrors) {
-          fetchLiveBroadcasts();
-        }
-      }, 30000); // Check every 30s
-
-      // Full refresh every 90s regardless
-      const fullRefresh = setInterval(() => {
-        fetchLiveBroadcasts();
-      }, 90000);
-
-      return () => {
-        if (healthCheckRef.current) clearInterval(healthCheckRef.current);
-        clearInterval(fullRefresh);
-      };
-    } else {
+    if (activeSection !== "live") {
       if (healthCheckRef.current) {
         clearInterval(healthCheckRef.current);
         healthCheckRef.current = null;
       }
+      return;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on symbol/mount by design; object identities change every render
-  }, [activeSection, iframeErrors]);
+
+    if (Object.keys(liveEmbeds).length === 0) {
+      fetchLiveBroadcasts();
+    }
+
+    healthCheckRef.current = setInterval(() => {
+      setActivePlayers((current) => {
+        if (Object.values(current).some(Boolean)) return current; // someone is watching
+        fetchLiveBroadcasts();
+        return current;
+      });
+    }, 120000);
+
+    return () => {
+      if (healthCheckRef.current) clearInterval(healthCheckRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch helper is stable by design; re-run only on tab switch
+  }, [activeSection]);
 
   useEffect(() => {
     if (activeSection === "news" && indianNews.length === 0) {
@@ -735,33 +738,57 @@ const LearningCenterPage = () => {
               <div className="grid md:grid-cols-2 gap-6">
                 {LIVE_CHANNELS.map((channel) => {
                   const channelEmbed = liveEmbeds[channel.channelId];
-                  const embedUrl = channelEmbed?.embedUrl || `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}`;
-                  const embedSrc = `${embedUrl}${embedUrl.includes("?") ? "&" : "?"}autoplay=0&mute=1&playsinline=1&rel=0&modestbranding=1`;
                   const watchUrl = channelEmbed?.watchUrl || `https://www.youtube.com/@${channel.handle}/live`;
+                  const hasError = iframeErrors[channel.channelId];
+                  // Only a resolved videoId embed is trustworthy; use the privacy-friendly
+                  // nocookie host. Null => offline/non-embeddable => show a link-out state.
+                  const embedUrl = !hasError && channelEmbed?.embedUrl
+                    ? channelEmbed.embedUrl.replace("www.youtube.com", "www.youtube-nocookie.com")
+                    : null;
+                  const isPlaying = !!activePlayers[channel.channelId];
 
                   return (
                     <Card key={channel.name} className="overflow-hidden">
-                      <div className="aspect-video bg-muted relative">
-                        {iframeErrors[channel.channelId] ? (
-                          <div className="w-full h-full absolute inset-0 flex flex-col items-center justify-center bg-muted gap-3">
-                            <AlertTriangle className="w-8 h-8 text-brand-orange" />
-                            <p className="text-sm text-muted-foreground font-medium">Stream unavailable - auto-retrying...</p>
-                            <a href={watchUrl} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
-                              <ExternalLink className="w-3 h-3" /> Watch on YouTube instead
-                            </a>
-                          </div>
-                        ) : (
+                      <div className="aspect-video bg-gradient-to-br from-brand-navy to-primary relative overflow-hidden">
+                        {isPlaying && embedUrl ? (
                           <iframe
-                            src={embedSrc}
+                            src={`${embedUrl}${embedUrl.includes("?") ? "&" : "?"}autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1`}
                             title={`${channel.name} Live`}
                             className="w-full h-full absolute inset-0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerPolicy="strict-origin-when-cross-origin"
                             allowFullScreen
-                            loading="lazy"
                             onError={() => handleIframeError(channel.channelId)}
                           />
+                        ) : embedUrl ? (
+                          // Resolved broadcast available - facade: load the heavy player only on click.
+                          <button
+                            type="button"
+                            onClick={() => setActivePlayers((p) => ({ ...p, [channel.channelId]: true }))}
+                            aria-label={`Play ${channel.name}`}
+                            className="group w-full h-full absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/90 hover:text-white transition-colors"
+                          >
+                            <span className="w-16 h-16 rounded-full bg-white/15 group-hover:bg-brand-orange flex items-center justify-center transition-colors">
+                              <Play className="w-7 h-7 ml-0.5" fill="currentColor" />
+                            </span>
+                            <span className="text-sm font-semibold px-4 text-center line-clamp-2">
+                              {channelEmbed?.title || `Watch ${channel.name}`}
+                            </span>
+                          </button>
+                        ) : (
+                          // No embeddable broadcast resolved - honest offline state, link out.
+                          <a
+                            href={watchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group w-full h-full absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/80 hover:text-white transition-colors"
+                          >
+                            <AlertTriangle className="w-8 h-8 text-brand-gold" />
+                            <span className="text-sm font-medium">Currently offline</span>
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold">
+                              <ExternalLink className="w-3.5 h-3.5" /> Watch latest on YouTube
+                            </span>
+                          </a>
                         )}
                       </div>
                       <div className="p-4">
@@ -793,7 +820,8 @@ const LearningCenterPage = () => {
                   <Radio className="w-8 h-8 text-brand-orange mx-auto mb-3" />
                   <h3 className="font-semibold text-foreground mb-2">Live Business News Broadcast</h3>
                   <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-                    Workaround enabled: we now load each channel's latest broadcast feed dynamically so the player remains playable even when standard live channel embeds fail.
+                    Tap a channel to start its latest broadcast. When a channel is off-air, we link
+                    you straight to its live page on YouTube - so you never hit a broken player.
                   </p>
                 </div>
               </Card>
