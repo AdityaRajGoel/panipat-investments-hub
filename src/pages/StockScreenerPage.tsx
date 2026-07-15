@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router-dom";
 import { useScreenerStocks, type ScreenerStock } from "@/hooks/useScreenerStocks";
+import { useBhavcopy, buildDeliveryMap } from "@/hooks/useBhavcopy";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
 const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
@@ -112,7 +113,7 @@ const TableRowSkeleton = ({ index }: { index: number }) => (
     transition={{ delay: index * 0.05 }}
     className="border-b border-border/50"
   >
-    {[32, 20, 16, 20, 12, 40, 16].map((w, j) => (
+    {[32, 20, 16, 20, 12, 40, 16, 14].map((w, j) => (
       <td key={j} className="px-4 py-3">
         <motion.div
           className={`h-5 bg-muted rounded ${j === 6 ? "ml-auto" : ""}`}
@@ -127,6 +128,9 @@ const TableRowSkeleton = ({ index }: { index: number }) => (
 
 const StockScreenerPage = () => {
   const { stocks, loading, refreshing: bgRefreshing, updatedAt, error, refresh } = useScreenerStocks();
+  // Delivery % per symbol from the daily EOD bhavcopy (empty until the pipeline is deployed).
+  const { rows: bhavRows } = useBhavcopy();
+  const deliveryMap = useMemo(() => buildDeliveryMap(bhavRows), [bhavRows]);
   // Filters live in the URL so a configured screen can be shared/bookmarked.
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
@@ -433,6 +437,7 @@ const StockScreenerPage = () => {
                       ))}
                       <th className="text-left px-4 py-3 font-medium text-muted-foreground">52W Range</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">Volume</th>
+                      <th className="text-right px-4 py-3 font-medium text-muted-foreground" title="Delivery % (EOD)">Deliv %</th>
                       <th className="text-right px-4 py-3 font-medium text-muted-foreground">Action</th>
                     </tr>
                   </thead>
@@ -473,8 +478,13 @@ const StockScreenerPage = () => {
                           <td className="px-4 py-3 text-right font-mono text-muted-foreground">
                             {s.volume > 0 ? `${(s.volume / 1000000).toFixed(1)}M` : "-"}
                           </td>
+                          <td className="px-4 py-3 text-right font-mono">
+                            {deliveryMap[s.symbol] != null
+                              ? <span className={deliveryMap[s.symbol] >= 60 ? "text-secondary font-semibold" : "text-muted-foreground"}>{deliveryMap[s.symbol].toFixed(1)}%</span>
+                              : <span className="text-muted-foreground text-xs">-</span>}
+                          </td>
                           <td className="px-4 py-3 text-right">
-                            <Button 
+                            <Button
                               variant="outline" 
                               size="sm" 
                               className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs min-h-[44px] md:min-h-0 md:h-8 px-3"

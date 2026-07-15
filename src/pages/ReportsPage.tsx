@@ -11,6 +11,8 @@ import {
   FileDown, ExternalLink, BarChart3, LineChart, Table2, TrendingUp,
   CalendarDays, Building2, Info, ArrowRight,
 } from "lucide-react";
+import { useBhavcopy } from "@/hooks/useBhavcopy";
+import { downloadCsv } from "@/lib/exportData";
 
 type LinkItem = {
   label: string;
@@ -74,6 +76,65 @@ const iconFor = (label: string) => {
   return FileDown;
 };
 
+// Our own EOD delivery dataset (fed by sync-bhavcopy). Real, downloadable data -
+// degrades to a "coming soon" note until the pipeline is deployed and first run.
+const EODDeliveryPanel = () => {
+  const { rows, asOf, loading } = useBhavcopy();
+  if (loading) return null;
+
+  if (!asOf || rows.length === 0) {
+    return (
+      <div className="mb-10 rounded-2xl border border-border/60 bg-card p-5">
+        <div className="flex items-center gap-2 text-foreground font-semibold">
+          <Table2 className="w-5 h-5 text-secondary" /> EOD Delivery Data
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
+          Our own daily NSE delivery dataset is being set up. Until then, use the official
+          bhavcopy links below.
+        </p>
+      </div>
+    );
+  }
+
+  const handleDownload = () => {
+    const headers = ["Symbol", "Series", "Date", "Close", "Prev Close", "Traded Qty", "Delivery Qty", "Delivery %"];
+    const body = rows.map((r) => [r.symbol, r.series, r.trade_date, r.close, r.prev_close, r.ttl_trd_qty, r.deliv_qty, r.deliv_per]);
+    downloadCsv(`nse-eod-bhavcopy-${asOf}`, headers, body);
+  };
+
+  const leaders = rows.filter((r) => r.series === "EQ" && r.deliv_per != null).slice(0, 8);
+
+  return (
+    <div className="mb-10 rounded-2xl border border-secondary/30 bg-secondary/5 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <div className="flex items-center gap-2 text-foreground font-bold">
+            <Table2 className="w-5 h-5 text-secondary" /> NSE EOD Bhavcopy &amp; Delivery
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Security-wise price + delivery. As of {asOf} · {rows.length.toLocaleString("en-IN")} securities.
+          </p>
+        </div>
+        <button
+          onClick={handleDownload}
+          className="inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-full bg-brand-green text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+        >
+          <FileDown className="w-4 h-4" /> Download CSV
+        </button>
+      </div>
+      <div className="text-xs font-semibold text-muted-foreground mb-2">Highest delivery % today</div>
+      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1">
+        {leaders.map((r) => (
+          <div key={r.symbol} className="flex items-center justify-between text-sm border-b border-border/30 py-1.5">
+            <span className="font-medium text-foreground truncate">{r.symbol}</span>
+            <span className="font-mono text-secondary font-semibold">{r.deliv_per?.toFixed(1)}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const ReportsPage = () => {
   return (
     <PageTransition>
@@ -120,6 +181,7 @@ const ReportsPage = () => {
         </section>
 
         <main className="container mx-auto px-4 py-10 md:py-14 max-w-5xl">
+          <EODDeliveryPanel />
           {sections.map((section, si) => (
             <motion.section
               key={section.title}

@@ -306,6 +306,9 @@ const LiveChart = () => {
   const [volumeData, setVolumeData] = useState<number[]>([]);
   const [timestamps, setTimestamps] = useState<number[]>([]);
   const [loadingChart, setLoadingChart] = useState(false);
+  // Bumped on a timer so intraday charts extend to the current time instead of
+  // freezing at the last session's 15:30 close when the page is left open.
+  const [chartRefreshTick, setChartRefreshTick] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -354,7 +357,16 @@ const LiveChart = () => {
     };
     fetchChart();
     return () => { active = false; };
-  }, [activeIndexKey, activeTimeframe, currentUp, idxPosition]);
+  }, [activeIndexKey, activeTimeframe, currentUp, idxPosition, chartRefreshTick]);
+
+  // Keep intraday charts current: refetch every 60s while the market is open so
+  // the line advances to "now" rather than stalling at the previous 15:30 close.
+  useEffect(() => {
+    const isIntraday = activeTimeframe === "1D" || activeTimeframe === "1W";
+    if (!marketOpen || !isIntraday) return;
+    const id = setInterval(() => setChartRefreshTick((t) => t + 1), 60000);
+    return () => clearInterval(id);
+  }, [marketOpen, activeTimeframe]);
 
   // Parse prices for range bars
   const parsePrice = (p?: string) => p ? parseFloat(p.replace(/,/g, '')) : 0;

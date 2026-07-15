@@ -1,0 +1,28 @@
+# Daily EOD bhavcopy sync: triggers sync-bhavcopy after NSE publishes the
+# security-wise delivery file (sec_bhavdata_full), which lands ~19:00 IST.
+#
+# Reuses the same repo secrets as the market-feed workflow:
+#   SUPABASE_ANON_KEY   - the project's anon/publishable key (passes the edge gateway)
+#   MARKET_SYNC_SECRET  - must match the SYNC_SECRET set on the edge function
+name: Bhavcopy Sync
+
+on:
+  schedule:
+    # 14:00 UTC = 19:30 IST (primary) and 16:00 UTC = 21:30 IST (retry), Mon-Fri
+    - cron: "0 14 * * 1-5"
+    - cron: "0 16 * * 1-5"
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync-bhavcopy
+        run: |
+          resp=$(curl -sS -w "\n%{http_code}" --max-time 180 \
+            -X POST "https://zbkjbbujsdlpujotgltm.supabase.co/functions/v1/sync-bhavcopy" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "x-sync-secret: ${{ secrets.MARKET_SYNC_SECRET }}")
+          body=$(echo "$resp" | sed '$d'); code=$(echo "$resp" | tail -1)
+          echo "$body"
+          [ "$code" = "200" ] || exit 1
