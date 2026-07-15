@@ -55,6 +55,7 @@ const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
 const CookiePolicyPage = lazy(() => import("./pages/CookiePolicyPage"));
 const TermsOfUsePage = lazy(() => import("./pages/TermsOfUsePage"));
 const DisclaimerPage = lazy(() => import("./pages/DisclaimerPage"));
+const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 const StockRecommendationsPage = lazy(() => import("./pages/StockRecommendationsPage"));
 const ArticlePage = lazy(() => import("./pages/ArticlePage"));
 
@@ -169,6 +170,7 @@ const AnimatedRoutes = () => {
         <Route path="/cookie-policy" element={<CookiePolicyPage />} />
         <Route path="/terms" element={<TermsOfUsePage />} />
         <Route path="/disclaimer" element={<DisclaimerPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
         <Route path="/learn/recommendations" element={<StockRecommendationsPage />} />
         <Route path="/learn/:slug" element={<ArticlePage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

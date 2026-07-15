@@ -31,6 +31,7 @@ const toolLinks: FooterLink[] = [
   { label: "Margin Calculator", href: "/margin-calculator" },
   { label: "Brokerage Calculator", href: "/brokerage-calculator" },
   { label: "Holiday Calendar", href: "/holidays" },
+  { label: "Reports & Downloads", href: "/reports" },
 ];
 
 const importantLinks: FooterLink[] = [

@@ -11,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, TrendingDown, Activity, Target, BarChart3, RefreshCw, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, Target, BarChart3, RefreshCw, Loader2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { downloadCsv, todayStamp } from "@/lib/exportData";
 
 type OptionRow = {
   strike: number;
@@ -187,6 +188,19 @@ const FnODashboardPage = () => {
     fetchData(symbol, expiry || undefined);
   };
 
+  const handleExport = () => {
+    if (!data || data.chain.length === 0) return;
+    const headers = [
+      "Strike", "Call OI", "Call Chg", "Call LTP", "Call IV%",
+      "Put OI", "Put Chg", "Put LTP", "Put IV%",
+    ];
+    const rows = data.chain.map((r) => [
+      r.strike, r.callOI, r.callChange, r.callLTP, r.callIV,
+      r.putOI, r.putChange, r.putLTP, r.putIV,
+    ]);
+    downloadCsv(`parasram-optionchain-${symbol}-${todayStamp()}`, headers, rows);
+  };
+
   const chain = data?.chain || [];
   const spot = data?.spot || 0;
   const maxPain = data?.maxPain || 0;
@@ -277,6 +291,11 @@ const FnODashboardPage = () => {
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw className={`w-4 h-4 mr-1 ${refreshing ? "animate-spin" : ""}`} />
             Refresh
+          </Button>
+
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={!data || chain.length === 0}>
+            <Download className="w-4 h-4 mr-1" />
+            Export CSV
           </Button>
 
           {data?.fetchedAt && (

@@ -37,6 +37,7 @@ const routes = [
   '/team',
   '/contact',
   '/holidays',
+  '/reports',
   '/careers',
   '/privacy-policy',
   '/cookie-policy',
