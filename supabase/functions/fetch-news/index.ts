@@ -61,17 +61,49 @@ async function fetchRss(url: string, sourceName: string, defaultCategory: string
   }
 }
 
-async function getLiveNews() {
-  // Fetch Indian News
-  const etMarkets = await fetchRss("https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms", "Economic Times", "Markets");
-  const moneyControl = await fetchRss("https://www.moneycontrol.com/rss/MCtopnews.xml", "Moneycontrol", "Business");
-  
-  // Fetch World News
-  const cnbcWorld = await fetchRss("https://search.cnbc.com/rs/search/combinedcms/view.xml?profile=120000000&id=10000664", "CNBC", "Global");
-  const yahooFinance = await fetchRss("https://query2.finance.yahoo.com/v1/finance/rss/news", "Yahoo Finance", "Markets");
+// Round-robin interleave so no single source dominates the feed, then dedupe by title.
+function interleave<T extends { title: string }>(groups: T[][], limit: number): T[] {
+  const out: T[] = [];
+  const seen = new Set<string>();
+  const maxLen = Math.max(0, ...groups.map((g) => g.length));
+  for (let i = 0; i < maxLen && out.length < limit; i++) {
+    for (const g of groups) {
+      const item = g[i];
+      if (!item) continue;
+      const key = item.title.trim().toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(item);
+      if (out.length >= limit) break;
+    }
+  }
+  return out;
+}
 
-  const indian = [...etMarkets, ...moneyControl].slice(0, 8);
-  const world = [...cnbcWorld, ...yahooFinance].slice(0, 8);
+async function getLiveNews() {
+  // Reputed Indian market-news sources (RSS). fetchRss fails soft -> [] on error,
+  // so an occasionally-down feed never breaks the response.
+  const [
+    etMarkets, moneyControl, businessStandard, liveMint, financialExpress, ndtvProfit, zeeBusiness,
+    cnbcWorld, yahooFinance,
+  ] = await Promise.all([
+    fetchRss("https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms", "Economic Times", "Markets"),
+    fetchRss("https://www.moneycontrol.com/rss/MCtopnews.xml", "Moneycontrol", "Business"),
+    fetchRss("https://www.business-standard.com/rss/markets-106.rss", "Business Standard", "Markets"),
+    fetchRss("https://www.livemint.com/rss/markets", "LiveMint", "Markets"),
+    fetchRss("https://www.financialexpress.com/market/feed/", "Financial Express", "Markets"),
+    fetchRss("https://feeds.feedburner.com/ndtvprofit-latest", "NDTV Profit", "Markets"),
+    fetchRss("https://www.zeebiz.com/rss/india.xml", "Zee Business", "Business"),
+    // World
+    fetchRss("https://search.cnbc.com/rs/search/combinedcms/view.xml?profile=120000000&id=10000664", "CNBC", "Global"),
+    fetchRss("https://query2.finance.yahoo.com/v1/finance/rss/news", "Yahoo Finance", "Markets"),
+  ]);
+
+  const indian = interleave(
+    [etMarkets, moneyControl, businessStandard, liveMint, financialExpress, ndtvProfit, zeeBusiness],
+    12,
+  );
+  const world = interleave([cnbcWorld, yahooFinance], 8);
 
   return { indian, world };
 }

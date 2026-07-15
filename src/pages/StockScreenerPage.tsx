@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router-dom";
 import { useScreenerStocks, type ScreenerStock } from "@/hooks/useScreenerStocks";
 import { useBhavcopy, buildDeliveryMap } from "@/hooks/useBhavcopy";
+import { useLiveMarket } from "@/hooks/useLiveMarket";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
 const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
@@ -125,6 +126,45 @@ const TableRowSkeleton = ({ index }: { index: number }) => (
     ))}
   </motion.tr>
 );
+
+// Exchange-homepage-style market snapshot: index strip + market breadth + status.
+const MarketSnapshot = () => {
+  const { indices, marketOverview, marketOpen, marketStatusText } = useLiveMarket();
+  const adv = marketOverview?.advances ?? 0;
+  const dec = marketOverview?.declines ?? 0;
+  const advPct = adv + dec > 0 ? (adv / (adv + dec)) * 100 : 50;
+
+  return (
+    <div className="mb-6 rounded-2xl border border-border/60 bg-card p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${marketOpen ? "bg-secondary animate-pulse" : "bg-muted-foreground"}`} />
+          <span className="text-xs font-semibold text-foreground">
+            {marketStatusText || (marketOpen ? "Market Open" : "Market Closed")}
+          </span>
+        </div>
+        {adv + dec > 0 && (
+          <div className="hidden sm:flex items-center gap-2 text-xs" title="Advances vs Declines">
+            <span className="text-secondary font-semibold">{adv} Adv</span>
+            <div className="w-24 h-1.5 rounded-full bg-destructive/40 overflow-hidden">
+              <div className="h-full bg-secondary/70" style={{ width: `${advPct}%` }} />
+            </div>
+            <span className="text-destructive font-semibold">{dec} Dec</span>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2 overflow-x-auto pb-1 -mb-1">
+        {indices.map((idx) => (
+          <div key={idx.key ?? idx.name} className="shrink-0 rounded-xl bg-muted/40 px-3 py-2 min-w-[118px]">
+            <div className="text-[10px] text-muted-foreground font-medium truncate">{idx.name}</div>
+            <div className="text-sm font-bold font-mono text-foreground">{idx.price}</div>
+            <div className={`text-[10px] font-semibold ${idx.up ? "text-secondary" : "text-destructive"}`}>{idx.change}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const StockScreenerPage = () => {
   const { stocks, loading, refreshing: bgRefreshing, updatedAt, error, refresh } = useScreenerStocks();
@@ -271,6 +311,9 @@ const StockScreenerPage = () => {
             </Button>
           </div>
         </motion.div>
+
+        {/* Exchange-style market snapshot */}
+        <MarketSnapshot />
 
         {/* Global Stock Search */}
         <GlobalStockSearch className="mb-6" />
