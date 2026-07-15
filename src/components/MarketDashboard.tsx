@@ -323,6 +323,51 @@ const GlobalMarkets = memo(() => {
   );
 });
 
+// Pre-market synthesis of overnight global cues. Purely descriptive - a tally of
+// the world indices we already fetch, not a prediction or recommendation.
+const GlobalCues = memo(() => {
+  const { globalMarkets } = useLiveMarket();
+  const total = globalMarkets.length;
+  const up = globalMarkets.filter((m) => m.up).length;
+  const ratio = total > 0 ? up / total : 0.5;
+  const tone =
+    ratio >= 0.6
+      ? { label: "Positive cues", cls: "text-secondary", bg: "bg-secondary/10" }
+      : ratio <= 0.4
+      ? { label: "Weak cues", cls: "text-destructive", bg: "bg-destructive/10" }
+      : { label: "Mixed cues", cls: "text-brand-gold", bg: "bg-brand-gold/10" };
+
+  return (
+    <Card className="border-border/50 overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <Globe className="w-4 h-4 text-brand-orange" />
+            Global Cues
+            <span className="text-[10px] font-normal text-muted-foreground">Pre-market</span>
+          </h3>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${tone.bg} ${tone.cls}`}>{tone.label}</span>
+        </div>
+        <div className="flex items-baseline gap-2">
+          <div className="text-3xl font-bold font-mono text-foreground">
+            {up}
+            <span className="text-base text-muted-foreground">/{total || "-"}</span>
+          </div>
+          <div className="text-xs text-muted-foreground">world markets trading higher</div>
+        </div>
+        <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden flex">
+          <div className="h-full bg-secondary/60" style={{ width: `${ratio * 100}%` }} />
+          <div className="h-full bg-destructive/50" style={{ width: `${(1 - ratio) * 100}%` }} />
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
+          Overnight moves in global indices, for context only - not a prediction of the Indian
+          market open or investment advice.
+        </p>
+      </CardContent>
+    </Card>
+  );
+});
+
 // NEW: Currency Dashboard
 const CurrencyDashboard = memo(() => {
   const { commodities } = useLiveMarket();
@@ -485,6 +530,9 @@ const MarketDashboard = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.35 }}>
+            <GlobalCues />
+          </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}>
             <SectorHeatmap />
           </motion.div>
