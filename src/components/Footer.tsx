@@ -1,4 +1,5 @@
 import { useState, ReactNode } from "react";
+import { useT } from "@/i18n/LanguageContext";
 import { ExternalLink, Instagram, Phone, Mail, Facebook, ArrowUp, Twitter, Shield, AlertCircle, ChevronDown, ArrowRight, BadgeCheck } from "lucide-react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
@@ -111,6 +112,7 @@ const FooterLinks = ({ links }: { links: FooterLink[] }) => (
 );
 
 const Footer = () => {
+  const { t } = useT();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const toggleSection = (section: string) =>
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
@@ -154,7 +156,7 @@ const Footer = () => {
                 to="/open-account"
                 className="inline-flex items-center gap-2 btn-shine bg-gradient-to-r from-secondary to-brand-green text-secondary-foreground font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-secondary/20 hover:scale-[1.03] transition-transform"
               >
-                Open Free Demat Account <ArrowRight className="w-4 h-4" />
+                {t("footer.ctaBand")} <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </motion.div>
@@ -200,19 +202,19 @@ const Footer = () => {
             </div>
           </motion.div>
 
-          <FooterColumn title="Company" open={!!openSections.company} onToggle={() => toggleSection("company")} delay={0.1}>
+          <FooterColumn title={t("footer.col.company")} open={!!openSections.company} onToggle={() => toggleSection("company")} delay={0.1}>
             <FooterLinks links={companyLinks} />
           </FooterColumn>
 
-          <FooterColumn title="Markets & Tools" open={!!openSections.tools} onToggle={() => toggleSection("tools")} delay={0.15}>
+          <FooterColumn title={t("footer.col.tools")} open={!!openSections.tools} onToggle={() => toggleSection("tools")} delay={0.15}>
             <FooterLinks links={toolLinks} />
           </FooterColumn>
 
-          <FooterColumn title="Important Links" open={!!openSections.important} onToggle={() => toggleSection("important")} delay={0.2}>
+          <FooterColumn title={t("footer.col.important")} open={!!openSections.important} onToggle={() => toggleSection("important")} delay={0.2}>
             <FooterLinks links={importantLinks} />
           </FooterColumn>
 
-          <FooterColumn title="Panipat Branch" open={!!openSections.branch} onToggle={() => toggleSection("branch")} delay={0.25}>
+          <FooterColumn title={t("footer.col.branch")} open={!!openSections.branch} onToggle={() => toggleSection("branch")} delay={0.25}>
             <div className="text-sm">
               <p className="text-primary-foreground/70 mb-3">
                 Shri Parasram Holdings<br />

@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, useMemo, memo } from "react";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useT } from "@/i18n/LanguageContext";
 import platformImg from "@/assets/parasram-india.webp";
 
 type IndexData = { name: string; price: string; change: string; up: boolean };
@@ -138,6 +139,7 @@ const Hero = () => {
   ], []);
 
   const [tipIndex, setTipIndex] = useState(0);
+  const { t } = useT();
   useEffect(() => {
     const t = setInterval(() => setTipIndex(i => (i + 1) % dynamicTips.length), 3500);
     return () => clearInterval(t);
@@ -271,16 +273,15 @@ const Hero = () => {
             </div>
 
             <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-primary-foreground mb-4 md:mb-8 2xl:mb-12 leading-[1.1] 2xl:leading-[1.15]" style={{ minHeight: '2.6em' }}>
-              Your Trusted Partner
+              {t("hero.title1")}
               <br />
               <span className="text-shimmer text-transparent bg-clip-text bg-gradient-to-r from-secondary via-brand-gold to-secondary pb-1 2xl:pb-2 block">
-                for Smart Investments
+                {t("hero.title2")}
               </span>
             </h1>
 
             <p className="text-sm md:text-xl 2xl:text-2xl text-primary-foreground/80 mb-3 md:mb-6 2xl:mb-10 max-w-xl 2xl:max-w-3xl leading-snug md:leading-relaxed line-clamp-3 md:line-clamp-none">
-              Parasram India brings decades of stock broking expertise to Panipat.
-              Join thousands of investors who trust us with their financial future.
+              {t("hero.subtitle")}
             </p>
 
             {/* Rotating investment tip */}
@@ -298,7 +299,7 @@ const Hero = () => {
                 className="btn-shine bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold text-sm md:text-lg 2xl:text-xl px-6 md:px-10 2xl:px-14 py-4 md:py-6 2xl:py-8 shadow-xl shadow-secondary/30 transition-all duration-300 w-full sm:w-auto"
               >
                 <Link to="/open-account">
-                  Start Investing Today
+                  {t("hero.ctaInvest")}
                   <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 2xl:w-6 2xl:h-6" />
                 </Link>
               </Button>
@@ -308,7 +309,7 @@ const Hero = () => {
                 size="lg"
                 className="border-2 border-secondary/60 text-primary-foreground bg-secondary/20 hover:bg-secondary/40 font-bold text-sm md:text-lg 2xl:text-xl px-6 md:px-10 2xl:px-14 py-4 md:py-6 2xl:py-8 backdrop-blur-sm transition-all duration-300 w-full sm:w-auto"
               >
-                <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer">Start Trading Now</a>
+                <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer">{t("hero.ctaTrade")}</a>
               </Button>
             </div>
 
