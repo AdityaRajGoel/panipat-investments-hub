@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Send, Clock, TrendingUp, TrendingDown, AlertTriangle, Shield, RefreshCw, ArrowUpRight, Repeat2, MessageSquare, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useT } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -275,6 +276,7 @@ interface TelegramChannelProps {
 const FILTER_ORDER: MessageCategory[] = ["buy", "sell", "target", "hold", "update"];
 
 const TelegramChannel = ({ limit = 10, showViewAll = false, showFilters = false }: TelegramChannelProps) => {
+  const { t } = useT();
   const [messages, setMessages] = useState<TelegramMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -363,7 +365,7 @@ const TelegramChannel = ({ limit = 10, showViewAll = false, showFilters = false 
             Live Updates
           </motion.span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Stock Recommendations
+            {t("page.recommendations")}
           </h2>
           <motion.div
             className="w-20 h-1 bg-gradient-to-r from-[#229ED9] to-[#1a7aab] mx-auto rounded-full mb-4"

@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion, Variants, useScroll, useTransform } from "motion/react";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useT } from "@/i18n/LanguageContext";
 
 // Every service links to the page that actually explains it - the cards show a
 // "go" arrow, so they must be real links.
@@ -82,6 +83,7 @@ const services = [
 ];
 
 const Services = () => {
+  const { t } = useT();
   const sectionRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { scrollYProgress } = useScroll({
@@ -163,7 +165,7 @@ const Services = () => {
             What We Offer
           </motion.span>
           <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Our Services
+            {t("page.services")}
           </h1>
           <motion.div
             className="w-20 h-1 bg-gradient-to-r from-secondary to-brand-gold mx-auto rounded-full mb-4"

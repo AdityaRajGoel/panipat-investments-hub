@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useT } from "@/i18n/LanguageContext";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import PageTransition from "@/components/PageTransition";
@@ -261,6 +262,7 @@ const LIVE_CHANNELS = [
 ];
 
 const LearningCenterPage = () => {
+  const { t } = useT();
   const location = useLocation();
   const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>(REAL_ARTICLES);
@@ -468,7 +470,7 @@ const LearningCenterPage = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <BookOpen className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground">Learning Center</h1>
+            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground">{t("page.learn")}</h1>
           </div>
           <p className="text-muted-foreground">Educational resources, live market news & business TV</p>
         </motion.div>

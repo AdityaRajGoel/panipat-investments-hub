@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useT } from "@/i18n/LanguageContext";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -167,6 +168,7 @@ const MarketSnapshot = () => {
 };
 
 const StockScreenerPage = () => {
+  const { t } = useT();
   const { stocks, loading, refreshing: bgRefreshing, updatedAt, error, refresh } = useScreenerStocks();
   // Delivery % per symbol from the daily EOD bhavcopy (empty until the pipeline is deployed).
   const { rows: bhavRows } = useBhavcopy();
@@ -287,7 +289,7 @@ const StockScreenerPage = () => {
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">Stock Screener</h1>
+            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">{t("page.screener")}</h1>
             <p className="text-muted-foreground">Live prices for {stocks.length}+ NSE stocks • Filter by sector, market cap, P/E & more</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">

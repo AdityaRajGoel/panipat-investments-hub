@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useT } from "@/i18n/LanguageContext";
 import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -134,6 +135,7 @@ const MetricSkeleton = () => (
 );
 
 const FnODashboardPage = () => {
+  const { t } = useT();
   const [symbol, setSymbol] = useState("NIFTY");
   const [expiry, setExpiry] = useState<string>("");
   const [data, setData] = useState<FnOData | null>(null);
@@ -256,7 +258,7 @@ const FnODashboardPage = () => {
       <VisibleBreadcrumbs items={[{ name: "Home", url: "/" }, { name: "F&O Dashboard" }]} />
       <main className="container mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">F&O Dashboard</h1>
+          <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">{t("page.fno")}</h1>
           <p className="text-muted-foreground">Live options chain, Put-Call Ratio & Max Pain analysis</p>
         </motion.div>
 

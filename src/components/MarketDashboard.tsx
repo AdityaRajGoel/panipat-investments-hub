@@ -8,6 +8,7 @@ import {
   Calendar, Percent, IndianRupee, Coins
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useT } from "@/i18n/LanguageContext";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import { useMarketFlows } from "@/hooks/useMarketFeed";
 
@@ -504,6 +505,7 @@ const SectionLabel = ({ icon: Icon, title }: { icon: React.ComponentType<{ class
 );
 
 const MarketDashboard = () => {
+  const { t } = useT();
   const { marketOverview, commodities } = useLiveMarket();
   return (
     <section className="py-8 md:py-16 bg-background relative overflow-hidden">
@@ -518,7 +520,7 @@ const MarketDashboard = () => {
             <BarChart3 className="w-3.5 h-3.5" />
             Research & Analytics
           </motion.span>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-2">Market Intelligence</h2>
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-2">{t("page.marketIntel")}</h2>
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">
             Live market insights, institutional flows, and derivatives analytics
           </p>

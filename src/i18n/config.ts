@@ -36,6 +36,12 @@ export const translations: Record<Lang, Record<string, string>> = {
     "footer.col.tools": "Markets & Tools",
     "footer.col.important": "Important Links",
     "footer.col.branch": "Panipat Branch",
+    "page.services": "Our Services",
+    "page.fno": "F&O Dashboard",
+    "page.learn": "Learning Center",
+    "page.screener": "Stock Screener",
+    "page.marketIntel": "Market Intelligence",
+    "page.recommendations": "Stock Recommendations",
   },
   hi: {
     "nav.services": "सेवाएँ",
@@ -59,6 +65,12 @@ export const translations: Record<Lang, Record<string, string>> = {
     "footer.col.tools": "बाज़ार और टूल्स",
     "footer.col.important": "महत्वपूर्ण लिंक",
     "footer.col.branch": "पानीपत शाखा",
+    "page.services": "हमारी सेवाएँ",
+    "page.fno": "एफ&ओ डैशबोर्ड",
+    "page.learn": "लर्निंग सेंटर",
+    "page.screener": "स्टॉक स्क्रीनर",
+    "page.marketIntel": "मार्केट इंटेलिजेंस",
+    "page.recommendations": "स्टॉक अनुशंसाएँ",
   },
 };
 
