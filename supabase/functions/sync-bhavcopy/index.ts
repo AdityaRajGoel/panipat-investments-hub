@@ -61,22 +61,54 @@ type BhavRow = {
   deliv_qty: number | null; deliv_per: number | null;
 };
 
+// NSE archives live on nsearchives.nseindia.com now; keep the old host as a fallback.
+const ARCHIVE_HOSTS = ["https://nsearchives.nseindia.com", "https://archives.nseindia.com"];
+
+// NSE sometimes blocks cloud IPs until a homepage cookie is presented.
+async function warmupCookie(): Promise<string> {
+  try {
+    const home = await fetch("https://www.nseindia.com", { headers: BROWSER_HEADERS });
+    return home.headers.get("set-cookie")?.split(";")[0] ?? "";
+  } catch {
+    return "";
+  }
+}
+
+async function fetchCsv(url: string, cookie: string): Promise<string | null> {
+  const headers = cookie ? { ...BROWSER_HEADERS, Cookie: cookie } : BROWSER_HEADERS;
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) return null;
+    const csv = await res.text();
+    return csv.includes("DELIV_PER") || csv.includes("DELIV_QTY") ? csv : null;
+  } catch {
+    return null;
+  }
+}
+
 // Walk back from today (skip weekends/holidays) to find the newest published file.
 async function fetchLatestBhavcopy(): Promise<{ csv: string; ddmmyyyy: string } | null> {
   const now = new Date();
-  for (let back = 0; back < 6; back++) {
+  let cookie = "";
+  let warmedUp = false;
+
+  for (let back = 0; back < 7; back++) {
     const d = new Date(now.getTime() - back * 86400000);
     const dow = d.getUTCDay();
     if (dow === 0 || dow === 6) continue; // Sun/Sat
     const ddmmyyyy = `${pad2(d.getUTCDate())}${pad2(d.getUTCMonth() + 1)}${d.getUTCFullYear()}`;
-    const url = `https://archives.nseindia.com/products/content/sec_bhavdata_full_${ddmmyyyy}.csv`;
-    try {
-      const res = await fetch(url, { headers: BROWSER_HEADERS });
-      if (res.ok) {
-        const csv = await res.text();
-        if (csv.includes("DELIV_PER") || csv.includes("DELIV_QTY")) return { csv, ddmmyyyy };
+
+    for (const host of ARCHIVE_HOSTS) {
+      const url = `${host}/products/content/sec_bhavdata_full_${ddmmyyyy}.csv`;
+      // First attempt without a cookie; if it fails, warm one up once and retry.
+      let csv = await fetchCsv(url, cookie);
+      if (!csv && !warmedUp) {
+        cookie = await warmupCookie();
+        warmedUp = true;
+        csv = await fetchCsv(url, cookie);
       }
-    } catch (_) { /* try previous day */ }
+      if (csv) return { csv, ddmmyyyy };
+    }
   }
   return null;
 }
