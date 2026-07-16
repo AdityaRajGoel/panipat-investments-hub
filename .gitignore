@@ -27,3 +27,4 @@ dist-ssr
 
 # graphify knowledge-graph output
 graphify-out/
+scripts/i18n-out.json
