@@ -2,15 +2,21 @@
 // Phase 1 covers the global chrome (nav + primary actions). Add more keys as
 // surfaces are translated; add a new language by adding its column below.
 
-export type Lang = "en" | "hi";
+export type Lang = "en" | "hi" | "pa" | "gu";
 
 export const DEFAULT_LANG: Lang = "en";
 
 export const LANGUAGES: { code: Lang; label: string; native: string }[] = [
   { code: "en", label: "English", native: "English" },
   { code: "hi", label: "Hindi", native: "हिन्दी" },
-  // Punjabi (pa) and Gujarati (gu) drop in here once translations are ready.
+  { code: "pa", label: "Punjabi", native: "ਪੰਜਾਬੀ" },
+  { code: "gu", label: "Gujarati", native: "ગુજરાતી" },
 ];
+
+// BCP-47 tags for the <html lang> attribute.
+export const HTML_LANG: Record<Lang, string> = {
+  en: "en-IN", hi: "hi-IN", pa: "pa-IN", gu: "gu-IN",
+};
 
 // Keys are stable ids; English is the source of truth and the fallback.
 export const translations: Record<Lang, Record<string, string>> = {
@@ -71,6 +77,66 @@ export const translations: Record<Lang, Record<string, string>> = {
     "page.screener": "स्टॉक स्क्रीनर",
     "page.marketIntel": "मार्केट इंटेलिजेंस",
     "page.recommendations": "स्टॉक अनुशंसाएँ",
+  },
+  // Punjabi + Gujarati: hand-translated common UI terms. Have a native speaker
+  // review before a public launch, especially any finance-specific phrasing.
+  pa: {
+    "nav.services": "ਸੇਵਾਵਾਂ",
+    "nav.unlistedSpace": "ਅਨਲਿਸਟਿਡ ਸ਼ੇਅਰ",
+    "nav.markets": "ਬਾਜ਼ਾਰ",
+    "nav.tools": "ਟੂਲਸ",
+    "nav.learn": "ਸਿੱਖੋ",
+    "nav.about": "ਸਾਡੇ ਬਾਰੇ",
+    "nav.contact": "ਸੰਪਰਕ ਕਰੋ",
+    "cta.clientLogin": "ਕਲਾਇੰਟ ਲੌਗਿਨ",
+    "cta.webTrade": "ਵੈੱਬ ਟ੍ਰੇਡ",
+    "cta.openAccount": "ਖਾਤਾ ਖੋਲ੍ਹੋ",
+    "lang.label": "ਭਾਸ਼ਾ",
+    "hero.title1": "ਤੁਹਾਡਾ ਭਰੋਸੇਯੋਗ ਸਾਥੀ",
+    "hero.title2": "ਸਮਾਰਟ ਨਿਵੇਸ਼ ਲਈ",
+    "hero.subtitle": "ਪਾਰਸਰਾਮ ਇੰਡੀਆ ਪਾਨੀਪਤ ਵਿੱਚ ਦਹਾਕਿਆਂ ਦਾ ਸਟਾਕ ਬ੍ਰੋਕਿੰਗ ਤਜਰਬਾ ਲਿਆਉਂਦਾ ਹੈ। ਹਜ਼ਾਰਾਂ ਨਿਵੇਸ਼ਕਾਂ ਨਾਲ ਜੁੜੋ ਜੋ ਆਪਣੇ ਵਿੱਤੀ ਭਵਿੱਖ ਲਈ ਸਾਡੇ 'ਤੇ ਭਰੋਸਾ ਕਰਦੇ ਹਨ।",
+    "hero.ctaInvest": "ਅੱਜ ਹੀ ਨਿਵੇਸ਼ ਸ਼ੁਰੂ ਕਰੋ",
+    "hero.ctaTrade": "ਹੁਣੇ ਟ੍ਰੇਡਿੰਗ ਸ਼ੁਰੂ ਕਰੋ",
+    "footer.ctaBand": "ਮੁਫ਼ਤ ਡੀਮੈਟ ਖਾਤਾ ਖੋਲ੍ਹੋ",
+    "footer.col.company": "ਕੰਪਨੀ",
+    "footer.col.tools": "ਬਾਜ਼ਾਰ ਅਤੇ ਟੂਲਸ",
+    "footer.col.important": "ਮਹੱਤਵਪੂਰਨ ਲਿੰਕ",
+    "footer.col.branch": "ਪਾਨੀਪਤ ਸ਼ਾਖਾ",
+    "page.services": "ਸਾਡੀਆਂ ਸੇਵਾਵਾਂ",
+    "page.fno": "ਐਫ&ਓ ਡੈਸ਼ਬੋਰਡ",
+    "page.learn": "ਲਰਨਿੰਗ ਸੈਂਟਰ",
+    "page.screener": "ਸਟਾਕ ਸਕ੍ਰੀਨਰ",
+    "page.marketIntel": "ਮਾਰਕੀਟ ਇੰਟੈਲੀਜੈਂਸ",
+    "page.recommendations": "ਸਟਾਕ ਸਿਫ਼ਾਰਸ਼ਾਂ",
+  },
+  gu: {
+    "nav.services": "સેવાઓ",
+    "nav.unlistedSpace": "અનલિસ્ટેડ શેર",
+    "nav.markets": "બજાર",
+    "nav.tools": "ટૂલ્સ",
+    "nav.learn": "શીખો",
+    "nav.about": "અમારા વિશે",
+    "nav.contact": "સંપર્ક કરો",
+    "cta.clientLogin": "ક્લાયન્ટ લૉગિન",
+    "cta.webTrade": "વેબ ટ્રેડ",
+    "cta.openAccount": "ખાતું ખોલો",
+    "lang.label": "ભાષા",
+    "hero.title1": "તમારો વિશ્વસનીય ભાગીદાર",
+    "hero.title2": "સ્માર્ટ રોકાણ માટે",
+    "hero.subtitle": "પારસરામ ઈન્ડિયા પાનીપતમાં દાયકાઓનો સ્ટોક બ્રોકિંગ અનુભવ લાવે છે. હજારો રોકાણકારો સાથે જોડાઓ જેઓ પોતાના નાણાકીય ભવિષ્ય માટે અમારા પર વિશ્વાસ કરે છે.",
+    "hero.ctaInvest": "આજે જ રોકાણ શરૂ કરો",
+    "hero.ctaTrade": "હમણાં જ ટ્રેડિંગ શરૂ કરો",
+    "footer.ctaBand": "મફત ડીમેટ ખાતું ખોલો",
+    "footer.col.company": "કંપની",
+    "footer.col.tools": "બજાર અને ટૂલ્સ",
+    "footer.col.important": "મહત્વપૂર્ણ લિંક્સ",
+    "footer.col.branch": "પાનીપત શાખા",
+    "page.services": "અમારી સેવાઓ",
+    "page.fno": "એફ&ઓ ડેશબોર્ડ",
+    "page.learn": "લર્નિંગ સેન્ટર",
+    "page.screener": "સ્ટોક સ્ક્રીનર",
+    "page.marketIntel": "માર્કેટ ઈન્ટેલિજન્સ",
+    "page.recommendations": "સ્ટોક ભલામણો",
   },
 };
 

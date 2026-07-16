@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
-import { type Lang, DEFAULT_LANG, LANGUAGES, translations } from "./config";
+import { type Lang, DEFAULT_LANG, LANGUAGES, translations, HTML_LANG } from "./config";
 
 type LanguageContextValue = {
   lang: Lang;
@@ -22,7 +22,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(readInitialLang);
 
   useEffect(() => {
-    document.documentElement.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    document.documentElement.lang = HTML_LANG[lang];
   }, [lang]);
 
   const setLang = useCallback((next: Lang) => {
