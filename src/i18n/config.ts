@@ -48,6 +48,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "page.screener": "Stock Screener",
     "page.marketIntel": "Market Intelligence",
     "page.recommendations": "Stock Recommendations",
+    "mi.sentiment": "Sentiment & Institutional Flows",
+    "mi.global": "Global Cues & Sectors",
+    "mi.movers": "Movers & Commodities",
+    "mi.currency": "Currency & Fund Flows",
   },
   hi: {
     "nav.services": "सेवाएँ",
@@ -77,6 +81,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "page.screener": "स्टॉक स्क्रीनर",
     "page.marketIntel": "मार्केट इंटेलिजेंस",
     "page.recommendations": "स्टॉक अनुशंसाएँ",
+    "mi.sentiment": "सेंटिमेंट और संस्थागत प्रवाह",
+    "mi.global": "वैश्विक संकेत और सेक्टर",
+    "mi.movers": "मूवर्स और कमोडिटीज़",
+    "mi.currency": "करेंसी और फंड फ्लो",
   },
   // Punjabi + Gujarati: hand-translated common UI terms. Have a native speaker
   // review before a public launch, especially any finance-specific phrasing.
@@ -108,6 +116,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "page.screener": "ਸਟਾਕ ਸਕ੍ਰੀਨਰ",
     "page.marketIntel": "ਮਾਰਕੀਟ ਇੰਟੈਲੀਜੈਂਸ",
     "page.recommendations": "ਸਟਾਕ ਸਿਫ਼ਾਰਸ਼ਾਂ",
+    "mi.sentiment": "ਸੈਂਟੀਮੈਂਟ ਅਤੇ ਸੰਸਥਾਗਤ ਪ੍ਰਵਾਹ",
+    "mi.global": "ਗਲੋਬਲ ਸੰਕੇਤ ਅਤੇ ਸੈਕਟਰ",
+    "mi.movers": "ਮੂਵਰਸ ਅਤੇ ਕਮੋਡਿਟੀਜ਼",
+    "mi.currency": "ਕਰੰਸੀ ਅਤੇ ਫੰਡ ਫਲੋ",
   },
   gu: {
     "nav.services": "સેવાઓ",
@@ -137,6 +149,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     "page.screener": "સ્ટોક સ્ક્રીનર",
     "page.marketIntel": "માર્કેટ ઈન્ટેલિજન્સ",
     "page.recommendations": "સ્ટોક ભલામણો",
+    "mi.sentiment": "સેન્ટિમેન્ટ અને સંસ્થાગત પ્રવાહ",
+    "mi.global": "વૈશ્વિક સંકેતો અને સેક્ટર",
+    "mi.movers": "મૂવર્સ અને કોમોડિટીઝ",
+    "mi.currency": "કરન્સી અને ફંડ ફ્લો",
   },
 };
 

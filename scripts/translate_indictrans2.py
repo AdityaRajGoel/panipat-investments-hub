@@ -64,6 +64,10 @@ EN = {
     "page.screener": "Stock Screener",
     "page.marketIntel": "Market Intelligence",
     "page.recommendations": "Stock Recommendations",
+    "mi.sentiment": "Sentiment and Institutional Flows",
+    "mi.global": "Global Cues and Sectors",
+    "mi.movers": "Movers and Commodities",
+    "mi.currency": "Currency and Fund Flows",
 }
 
 

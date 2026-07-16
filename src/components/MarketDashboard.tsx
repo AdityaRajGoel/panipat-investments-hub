@@ -530,7 +530,7 @@ const MarketDashboard = () => {
           <TrendingStocks />
         </motion.div>
 
-        <SectionLabel icon={Activity} title="Sentiment & Institutional Flows" />
+        <SectionLabel icon={Activity} title={t("mi.sentiment")} />
         <div className="grid lg:grid-cols-3 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
             <FearGreedGauge />
@@ -543,7 +543,7 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
-        <SectionLabel icon={Globe} title="Global Cues & Sectors" />
+        <SectionLabel icon={Globe} title={t("mi.global")} />
         <div className="grid lg:grid-cols-2 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.35 }}>
             <GlobalCues />
@@ -556,7 +556,7 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
-        <SectionLabel icon={TrendingUp} title="Movers & Commodities" />
+        <SectionLabel icon={TrendingUp} title={t("mi.movers")} />
         <div className="grid lg:grid-cols-3 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
             <Card className="border-border/50 overflow-hidden h-full">
@@ -660,7 +660,7 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
-        <SectionLabel icon={Coins} title="Currency & Fund Flows" />
+        <SectionLabel icon={Coins} title={t("mi.currency")} />
         <div className="grid lg:grid-cols-2 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.9 }}>
             <CurrencyDashboard />
