@@ -8,6 +8,9 @@ import logo160 from "@/assets/logo-160.webp";
 import ThemeToggle from "@/components/ThemeToggle";
 import MegaDropdown from "@/components/header/MegaDropdown";
 import { megaMenuItems } from "@/components/header/megaMenuData";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useT } from "@/i18n/LanguageContext";
+import { NAV_LABEL_KEYS } from "@/i18n/config";
 import { useWatchlist } from "@/hooks/useWatchlist";
 
 const Header = () => {
@@ -15,6 +18,7 @@ const Header = () => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [expandedMobileSection, setExpandedMobileSection] = useState<string | null>(null);
   const location = useLocation();
+  const { t } = useT();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { watchlist } = useWatchlist();
   const [scrolled, setScrolled] = useState(false);
@@ -49,6 +53,12 @@ const Header = () => {
   const isActive = (item: typeof megaMenuItems[0]) => {
     if (item.href && location.pathname === item.href) return true;
     return item.subItems?.some(sub => location.pathname === sub.href) ?? false;
+  };
+
+  // Translate a top-level nav label when a key exists; fall back to the English label.
+  const navLabel = (label: string) => {
+    const key = NAV_LABEL_KEYS[label];
+    return key ? t(key) : label;
   };
 
   return (
@@ -129,7 +139,7 @@ const Header = () => {
                         : "text-foreground hover:text-secondary hover:bg-accent/50"
                     }`}
                   >
-                    {item.label}
+                    {navLabel(item.label)}
                   </Link>
                 ) : (
                   <div
@@ -140,8 +150,8 @@ const Header = () => {
                     }`}
                   >
                     {item.href ? (
-                      <Link to={item.href} className="hover:text-secondary inset-0 flex items-center">{item.label}</Link>
-                    ) : item.label}
+                      <Link to={item.href} className="hover:text-secondary inset-0 flex items-center">{navLabel(item.label)}</Link>
+                    ) : navLabel(item.label)}
                     {item.subItems && (
                       <ChevronDown className={`w-3.5 h-3.5 ml-0.5 transition-transform duration-200 ${activeMenu === item.label ? "rotate-180" : ""}`} />
                     )}
@@ -160,6 +170,7 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             {watchlist.length > 0 && (
               <motion.div
@@ -178,16 +189,16 @@ const Header = () => {
             )}
             <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold">
               <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer">
-                <LogIn className="w-4 h-4 mr-1" />Client Login
+                <LogIn className="w-4 h-4 mr-1" />{t("cta.clientLogin")}
               </a>
             </Button>
             <Button asChild size="sm" className="hidden sm:inline-flex bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold">
               <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer">
-                <BarChart3 className="w-4 h-4 mr-1" />Web Trade
+                <BarChart3 className="w-4 h-4 mr-1" />{t("cta.webTrade")}
               </a>
             </Button>
             <Button asChild className="hidden sm:inline-flex btn-shine bg-gradient-to-r from-secondary to-brand-green hover:from-secondary/90 hover:to-brand-green/90 text-secondary-foreground font-bold shadow-md shadow-secondary/25 hover:shadow-lg hover:shadow-secondary/30 hover:scale-[1.03] active:scale-95 transition-all duration-200">
-              <Link to="/open-account">Open Account</Link>
+              <Link to="/open-account">{t("cta.openAccount")}</Link>
             </Button>
             <button
               className="lg:hidden p-2 text-foreground hover:text-secondary transition-colors"
@@ -240,7 +251,7 @@ const Header = () => {
                             isActive(item) ? "text-secondary" : "text-foreground"
                           }`}
                         >
-                          {item.label}
+                          {navLabel(item.label)}
                           <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedMobileSection === item.label ? "rotate-180" : ""}`} />
                         </button>
                         <AnimatePresence>
@@ -305,7 +316,7 @@ const Header = () => {
                         }`}
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        {item.label}
+                        {navLabel(item.label)}
                       </Link>
                     )}
                   </motion.div>
@@ -314,16 +325,16 @@ const Header = () => {
                 <div className="flex flex-col gap-2 mt-3">
                   <Button asChild variant="outline" className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-semibold w-full">
                     <a href="https://dashboard.parasramindia.com/Account/Login" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
-                      <LogIn className="w-4 h-4 mr-1" />Client Login
+                      <LogIn className="w-4 h-4 mr-1" />{t("cta.clientLogin")}
                     </a>
                   </Button>
                   <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold w-full">
                     <a href="https://webtrade.parasramindia.com/#!/app" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
-                      <BarChart3 className="w-4 h-4 mr-1" />Web Trade
+                      <BarChart3 className="w-4 h-4 mr-1" />{t("cta.webTrade")}
                     </a>
                   </Button>
                   <Button asChild className="bg-brand-navy hover:bg-brand-navy/90 text-white font-semibold w-full">
-                    <Link to="/open-account" onClick={() => setMobileMenuOpen(false)}>Open Account</Link>
+                    <Link to="/open-account" onClick={() => setMobileMenuOpen(false)}>{t("cta.openAccount")}</Link>
                   </Button>
                 </div>
               </nav>

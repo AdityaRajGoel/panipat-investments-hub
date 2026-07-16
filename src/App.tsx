@@ -8,6 +8,7 @@ import { LiveMarketProvider } from "@/hooks/useLiveMarket";
 import { lazy, Suspense } from "react";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -184,6 +185,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <HelmetProvider>
+    <LanguageProvider>
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
       <TooltipProvider>
@@ -211,6 +213,7 @@ const App = () => (
     </TooltipProvider>
       </MotionConfig>
   </QueryClientProvider>
+    </LanguageProvider>
   </HelmetProvider>
 );
 
