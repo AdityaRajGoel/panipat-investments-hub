@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Send, Clock, TrendingUp, TrendingDown, AlertTriangle, Shield, RefreshCw, ArrowUpRight, Repeat2, MessageSquare, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -268,12 +268,28 @@ const MessageSkeleton = () => (
 interface TelegramChannelProps {
   limit?: number;
   showViewAll?: boolean;
+  showFilters?: boolean;
 }
 
-const TelegramChannel = ({ limit = 10, showViewAll = false }: TelegramChannelProps) => {
+// Chip order for the category filter (dedicated recommendations page).
+const FILTER_ORDER: MessageCategory[] = ["buy", "sell", "target", "hold", "update"];
+
+const TelegramChannel = ({ limit = 10, showViewAll = false, showFilters = false }: TelegramChannelProps) => {
   const [messages, setMessages] = useState<TelegramMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [filter, setFilter] = useState<MessageCategory | "all">("all");
+
+  // Classify once, tally per category, and derive the visible list.
+  const { counts, visible } = useMemo(() => {
+    const tally: Record<string, number> = {};
+    for (const m of messages) {
+      const c = detectCategory(m.message_text);
+      tally[c] = (tally[c] ?? 0) + 1;
+    }
+    const list = filter === "all" ? messages : messages.filter((m) => detectCategory(m.message_text) === filter);
+    return { counts: tally, visible: list };
+  }, [messages, filter]);
 
   const fetchMessages = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -380,6 +396,35 @@ const TelegramChannel = ({ limit = 10, showViewAll = false }: TelegramChannelPro
           </Button>
         </motion.div>
 
+        {/* Category filter chips (dedicated recommendations page) */}
+        {showFilters && !loading && messages.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            <button
+              type="button"
+              onClick={() => setFilter("all")}
+              className={`min-h-[40px] px-4 rounded-full text-xs font-bold transition-colors ${filter === "all" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+            >
+              All <span className="opacity-70">{messages.length}</span>
+            </button>
+            {FILTER_ORDER.filter((c) => (counts[c] ?? 0) > 0).map((c) => {
+              const cfg = categoryConfig[c];
+              const CIcon = cfg.icon;
+              const active = filter === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setFilter(c)}
+                  className={`inline-flex items-center gap-1.5 min-h-[40px] px-4 rounded-full text-xs font-bold border transition-colors ${active ? `${cfg.bgColor} ${cfg.color} ${cfg.borderColor}` : "bg-card text-muted-foreground border-border/60 hover:bg-muted/50"}`}
+                >
+                  <CIcon className="w-3.5 h-3.5" />
+                  {cfg.label} <span className="opacity-70">{counts[c]}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Messages grid */}
         {loading ? (
           <div className="grid md:grid-cols-2 gap-4">
@@ -404,9 +449,9 @@ const TelegramChannel = ({ limit = 10, showViewAll = false }: TelegramChannelPro
             </p>
           </motion.div>
         ) : (
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             <div className="grid md:grid-cols-2 gap-4">
-              {messages.map((msg, i) => (
+              {visible.map((msg, i) => (
                 <MessageCard key={msg.id} message={msg} index={i} />
               ))}
             </div>

@@ -492,6 +492,17 @@ const MutualFundFlows = memo(() => {
 });
 
 // Main Dashboard
+// Labelled divider that groups the dashboard into scannable sub-sections.
+const SectionLabel = ({ icon: Icon, title }: { icon: React.ComponentType<{ className?: string }>; title: string }) => (
+  <div className="flex items-center gap-2.5 mb-4 mt-9 first:mt-0">
+    <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+      <Icon className="w-4 h-4" />
+    </div>
+    <h3 className="font-heading text-base md:text-lg font-bold text-foreground whitespace-nowrap">{title}</h3>
+    <div className="flex-1 h-px bg-border/60" />
+  </div>
+);
+
 const MarketDashboard = () => {
   const { marketOverview, commodities } = useLiveMarket();
   return (
@@ -517,6 +528,7 @@ const MarketDashboard = () => {
           <TrendingStocks />
         </motion.div>
 
+        <SectionLabel icon={Activity} title="Sentiment & Institutional Flows" />
         <div className="grid lg:grid-cols-3 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
             <FearGreedGauge />
@@ -529,7 +541,8 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 mt-6">
+        <SectionLabel icon={Globe} title="Global Cues & Sectors" />
+        <div className="grid lg:grid-cols-2 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.35 }}>
             <GlobalCues />
           </motion.div>
@@ -541,8 +554,8 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
-        {/* Top Gainers & Losers + IPO GMP */}
-        <div className="grid lg:grid-cols-3 gap-6 mt-6">
+        <SectionLabel icon={TrendingUp} title="Movers & Commodities" />
+        <div className="grid lg:grid-cols-3 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
             <Card className="border-border/50 overflow-hidden h-full">
               <CardContent className="p-5">
@@ -645,8 +658,8 @@ const MarketDashboard = () => {
           </motion.div>
         </div>
 
-        {/* Currency & MF */}
-        <div className="grid lg:grid-cols-2 gap-6 mt-6">
+        <SectionLabel icon={Coins} title="Currency & Fund Flows" />
+        <div className="grid lg:grid-cols-2 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.9 }}>
             <CurrencyDashboard />
           </motion.div>

@@ -49,8 +49,8 @@ const StockRecommendationsPage = () => {
             </div>
           </div>
           
-          {/* We use a high limit for the dedicated page and hide the view all button */}
-          <TelegramChannel limit={50} showViewAll={false} />
+          {/* Dedicated page: high limit, category filter chips, no view-all button */}
+          <TelegramChannel limit={50} showViewAll={false} showFilters={true} />
         </main>
         <Footer />
       </div>
