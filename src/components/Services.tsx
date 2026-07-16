@@ -162,7 +162,7 @@ const Services = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
-            What We Offer
+            {t("services.eyebrow")}
           </motion.span>
           <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             {t("page.services")}

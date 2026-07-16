@@ -68,6 +68,9 @@ EN = {
     "mi.global": "Global Cues and Sectors",
     "mi.movers": "Movers and Commodities",
     "mi.currency": "Currency and Fund Flows",
+    "mi.eyebrow": "Research and Analytics",
+    "mi.subtitle": "Live market insights, institutional flows, and derivatives analytics",
+    "services.eyebrow": "What We Offer",
 }
 
 

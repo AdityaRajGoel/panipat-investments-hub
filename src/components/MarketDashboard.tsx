@@ -518,11 +518,11 @@ const MarketDashboard = () => {
         <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <motion.span className="inline-flex items-center gap-1.5 bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full mb-3">
             <BarChart3 className="w-3.5 h-3.5" />
-            Research & Analytics
+            {t("mi.eyebrow")}
           </motion.span>
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-2">{t("page.marketIntel")}</h2>
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-            Live market insights, institutional flows, and derivatives analytics
+            {t("mi.subtitle")}
           </p>
         </motion.div>
 

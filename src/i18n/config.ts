@@ -52,6 +52,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     "mi.global": "Global Cues & Sectors",
     "mi.movers": "Movers & Commodities",
     "mi.currency": "Currency & Fund Flows",
+    "mi.eyebrow": "Research & Analytics",
+    "mi.subtitle": "Live market insights, institutional flows, and derivatives analytics",
+    "services.eyebrow": "What We Offer",
   },
   hi: {
     "nav.services": "हमारी सेवाएँ",
