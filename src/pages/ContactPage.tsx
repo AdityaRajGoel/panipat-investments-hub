@@ -6,6 +6,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
 import FAQ from "@/components/FAQ";
 import SEOHead from "@/components/SEOHead";
+import { useT } from "@/i18n/LanguageContext";
 import PageTransition from "@/components/PageTransition";
 import { motion } from "motion/react";
 import { MessageCircle, MapPin, Phone, Mail, Clock, ExternalLink, Instagram, Facebook, ArrowRight } from "lucide-react";
@@ -28,6 +29,7 @@ const quickContacts = [
 ];
 
 const ContactPage = () => {
+  const { t } = useT();
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
@@ -78,7 +80,7 @@ const ContactPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            Get In <span className="text-secondary">Touch</span>
+            {t("contact.title1")} <span className="text-secondary">{t("contact.title2")}</span>
           </motion.h1>
           <motion.p
             className="text-primary-foreground/70 text-lg max-w-xl mx-auto"
@@ -86,7 +88,7 @@ const ContactPage = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Visit our Panipat branch, call us, or send a message. We're here to help with all your investment needs.
+            {t("contact.subtitle")}
           </motion.p>
         </div>
       </section>

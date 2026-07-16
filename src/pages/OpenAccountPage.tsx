@@ -7,6 +7,7 @@ import {
   Shield, Award, TrendingUp, MapPin, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -27,6 +28,7 @@ const benefits = [
 ];
 
 const OpenAccountPage = () => {
+  const { t } = useT();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -221,10 +223,10 @@ const OpenAccountPage = () => {
             <TrendingUp className="w-3.5 h-3.5 text-secondary" /> Free Demat Account
           </motion.span>
           <motion.h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            Open Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-brand-gold">Demat Account</span>
+            {t("openAccount.title1")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-brand-gold">{t("openAccount.title2")}</span>
           </motion.h1>
           <motion.p className="text-lg text-primary-foreground/80 max-w-xl mx-auto" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            Start your investment journey with Parasram India - Panipat's most trusted stockbroker since 1970.
+            {t("openAccount.subtitle")}
           </motion.p>
         </div>
       </section>

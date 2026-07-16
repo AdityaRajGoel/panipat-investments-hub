@@ -55,6 +55,12 @@ export const translations: Record<Lang, Record<string, string>> = {
     "mi.eyebrow": "Research & Analytics",
     "mi.subtitle": "Live market insights, institutional flows, and derivatives analytics",
     "services.eyebrow": "What We Offer",
+    "contact.title1": "Get In",
+    "contact.title2": "Touch",
+    "contact.subtitle": "Visit our Panipat branch, call us, or send a message. We're here to help with all your investment needs.",
+    "openAccount.title1": "Open Your",
+    "openAccount.title2": "Demat Account",
+    "openAccount.subtitle": "Start your investment journey with Parasram India - Panipat's most trusted stockbroker since 1970.",
   },
   hi: {
     "nav.services": "हमारी सेवाएँ",
