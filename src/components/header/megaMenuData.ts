@@ -28,6 +28,7 @@ export const megaMenuItems: MegaMenuItem[] = [
     href: "/services",
     subItems: [
       { label: "All Services Overview", href: "/services", icon: Briefcase, description: "View our complete range of services" },
+      { label: "Pricing & Charges", href: "/pricing", icon: Percent, description: "Brokerage rates & account charges" },
       { label: "F&O Trading", href: "/fno", icon: Activity, description: "Futures & Options dashboard" },
       { label: "Unlisted Shares", href: "/unlisted-space", icon: Flame, description: "Pre-IPO & unlisted opportunities" },
       { label: "Mutual Funds", href: "https://parasrammf.com/", icon: PieChart, description: "Invest in top-performing mutual funds", external: true },
@@ -50,6 +51,7 @@ export const megaMenuItems: MegaMenuItem[] = [
       { label: "Stock Comparison", href: "/compare", icon: GitCompare, description: "Compare two stocks side-by-side" },
       { label: "52 Week Tracker", href: "/52-week-tracker", icon: ArrowUpDown, description: "Stocks near 52-week highs/lows" },
       { label: "F&O Dashboard", href: "/fno", icon: Activity, description: "Live options chain & OI analysis" },
+      { label: "Reports & Downloads", href: "/reports", icon: FileText, description: "NSE/BSE/MCX bhavcopy, delivery & data" },
     ],
   },
   {
