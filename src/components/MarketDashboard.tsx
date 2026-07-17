@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import type { LucideIcon } from "lucide-react";
-import { memo } from "react";
+import { memo, useState } from "react";
 import {
   TrendingUp, TrendingDown, Activity, Gauge, BarChart3, PieChart,
   ArrowUpRight, ArrowDownRight, Zap, Globe, Building2, Cpu, Heart,
@@ -492,21 +492,21 @@ const MutualFundFlows = memo(() => {
   );
 });
 
-// Main Dashboard
-// Labelled divider that groups the dashboard into scannable sub-sections.
-const SectionLabel = ({ icon: Icon, title }: { icon: React.ComponentType<{ className?: string }>; title: string }) => (
-  <div className="flex items-center gap-2.5 mb-4 mt-9 first:mt-0">
-    <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-      <Icon className="w-4 h-4" />
-    </div>
-    <h3 className="font-heading text-base md:text-lg font-bold text-foreground whitespace-nowrap">{title}</h3>
-    <div className="flex-1 h-px bg-border/60" />
-  </div>
-);
+// Main Dashboard — one tabbed board instead of four stacked sections, so the
+// whole intelligence surface fits above the fold with no dead space.
+const MI_TABS = [
+  { id: "sentiment", labelKey: "mi.sentiment", icon: Activity },
+  { id: "global", labelKey: "mi.global", icon: Globe },
+  { id: "movers", labelKey: "mi.movers", icon: TrendingUp },
+  { id: "currency", labelKey: "mi.currency", icon: Coins },
+] as const;
+
+type MiTabId = (typeof MI_TABS)[number]["id"];
 
 const MarketDashboard = () => {
   const { t } = useT();
   const { marketOverview, commodities } = useLiveMarket();
+  const [activeTab, setActiveTab] = useState<MiTabId>("sentiment");
   return (
     <section className="py-8 md:py-16 bg-background relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -530,34 +530,42 @@ const MarketDashboard = () => {
           <TrendingStocks />
         </motion.div>
 
-        <SectionLabel icon={Activity} title={t("mi.sentiment")} />
-        <div className="grid lg:grid-cols-3 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-            <FearGreedGauge />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-            <PutCallRatio />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
-            <FIIDIIFlow />
-          </motion.div>
+        {/* Tab bar */}
+        <div className="flex gap-2 overflow-x-auto pb-1 mb-6 md:justify-center">
+          {MI_TABS.map((tb) => {
+            const Icon = tb.icon;
+            const active = activeTab === tb.id;
+            return (
+              <button
+                key={tb.id}
+                onClick={() => setActiveTab(tb.id)}
+                className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${active ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-primary/40"}`}
+              >
+                <Icon className="w-4 h-4" />
+                {t(tb.labelKey)}
+              </button>
+            );
+          })}
         </div>
 
-        <SectionLabel icon={Globe} title={t("mi.global")} />
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.35 }}>
-            <GlobalCues />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}>
-            <SectorHeatmap />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.5 }}>
-            <GlobalMarkets />
-          </motion.div>
-        </div>
-
-        <SectionLabel icon={TrendingUp} title={t("mi.movers")} />
-        <div className="grid lg:grid-cols-3 gap-6">
+        <AnimatePresence mode="wait">
+          <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}>
+            {activeTab === "sentiment" && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <FearGreedGauge />
+                <PutCallRatio />
+                <FIIDIIFlow />
+              </div>
+            )}
+            {activeTab === "global" && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <GlobalCues />
+                <SectorHeatmap />
+                <GlobalMarkets />
+              </div>
+            )}
+            {activeTab === "movers" && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
             <Card className="border-border/50 overflow-hidden h-full">
               <CardContent className="p-5">
@@ -658,17 +666,16 @@ const MarketDashboard = () => {
               </CardContent>
             </Card>
           </motion.div>
-        </div>
-
-        <SectionLabel icon={Coins} title={t("mi.currency")} />
-        <div className="grid lg:grid-cols-2 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.9 }}>
-            <CurrencyDashboard />
+              </div>
+            )}
+            {activeTab === "currency" && (
+              <div className="grid md:grid-cols-2 gap-6">
+                <CurrencyDashboard />
+                <MutualFundFlows />
+              </div>
+            )}
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 1.0 }}>
-            <MutualFundFlows />
-          </motion.div>
-        </div>
+        </AnimatePresence>
       </div>
     </section>
   );

@@ -19,6 +19,7 @@ import { useBhavcopy, buildDeliveryMap } from "@/hooks/useBhavcopy";
 import { useLiveMarket } from "@/hooks/useLiveMarket";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
+import MarketMovers from "@/components/MarketMovers";
 const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
 const ChartCompare = lazy(() => import("@/components/ChartCompare"));
 
@@ -342,6 +343,11 @@ const StockScreenerPage = () => {
 
         {/* Exchange-style market snapshot */}
         <MarketSnapshot />
+
+        {/* Exchange-homepage-style movers board */}
+        {!loading && stocks.length > 0 && (
+          <MarketMovers stocks={stocks} onPick={addToChart} />
+        )}
 
         {/* Global Stock Search */}
         <GlobalStockSearch className="mb-6" />
