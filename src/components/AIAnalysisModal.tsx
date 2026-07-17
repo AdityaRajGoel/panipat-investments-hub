@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   X, BrainCircuit, TrendingUp, TrendingDown, Activity, AlertTriangle,
   CheckCircle2, Bot, Info, Star, Share2, BarChart2, Zap, Sparkles, MessageSquare, Send, Users,
-  Database, LineChart, Scale, Cpu, FileText, Check
+  Database, LineChart, Scale, Cpu, FileText, Check, Newspaper, ExternalLink
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -222,6 +222,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       };
       data_source?: string;
       detected_patterns?: string[];
+      news_headlines?: { title: string; publisher: string; ageDays: number | null; link: string }[];
     }
   } | null>(null);
   const [chatHistory, setChatHistory] = useState<{role: 'user' | 'ai', text: string}[]>([]);
@@ -876,6 +877,39 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                             </div>
                           </div>
                         ) : null}
+
+                        {/* Recent News - headlines fed into the verdict (Yahoo Finance) */}
+                        {geminiVerdict.structured.news_headlines && geminiVerdict.structured.news_headlines.length > 0 && (
+                          <div className="bg-muted/30 border border-border/50 rounded-xl p-4">
+                            <div className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-2 mb-3">
+                              <Newspaper className="w-3 h-3" /> Recent News
+                              <span className="text-[9px] font-normal normal-case">factored into this verdict</span>
+                            </div>
+                            <ul className="space-y-2">
+                              {geminiVerdict.structured.news_headlines.slice(0, 5).map((n, i) => {
+                                const href = n.link && /^https?:\/\//.test(n.link) ? n.link : undefined;
+                                const Row = href ? "a" : "div";
+                                return (
+                                  <li key={i}>
+                                    <Row
+                                      {...(href ? { href, target: "_blank", rel: "noopener noreferrer" } : {})}
+                                      className={`flex items-start gap-2 text-xs leading-snug ${href ? "group hover:text-secondary transition-colors" : ""}`}
+                                    >
+                                      <span className="text-[9px] font-semibold text-muted-foreground/70 mt-0.5 shrink-0 tabular-nums">
+                                        {n.ageDays != null ? `${n.ageDays}d` : "•"}
+                                      </span>
+                                      <span className="flex-1 text-foreground">
+                                        {n.title}
+                                        {n.publisher && <span className="text-muted-foreground/60 font-normal"> · {n.publisher}</span>}
+                                      </span>
+                                      {href && <ExternalLink className="w-3 h-3 text-muted-foreground/40 group-hover:text-secondary shrink-0 mt-0.5" />}
+                                    </Row>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        )}
 
                         {/* Quant Score Breakdown - shows how the composite rating was built */}
                         {geminiVerdict.structured.score_breakdown && (

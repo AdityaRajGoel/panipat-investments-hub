@@ -484,6 +484,40 @@ async function fetchYahooFundamentals(symbol: string) {
   } catch { return null; }
 }
 
+// ─────────────────────────────────────────────────────────────
+// Recent per-symbol news headlines (Yahoo Finance search endpoint).
+// Crumb-free; fails soft -> [] so a news outage never blocks a report.
+// ─────────────────────────────────────────────────────────────
+type NewsHeadline = { title: string; publisher: string; ageDays: number | null; link: string };
+
+async function fetchYahooNews(symbol: string): Promise<NewsHeadline[]> {
+  try {
+    let ySymbol = symbol;
+    if (!symbol.includes('.') && !symbol.startsWith('^') && !symbol.includes('=')) ySymbol = `${symbol}.NS`;
+    const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(ySymbol)}&newsCount=8&quotesCount=0&enableFuzzyQuery=false`;
+    const res = await fetch(url, { headers: { "User-Agent": YAHOO_UA } });
+    if (!res.ok) return [];
+    const json = await res.json();
+    const news = json?.news;
+    if (!Array.isArray(news)) return [];
+    const now = Date.now();
+    return news
+      .filter((n: any) => n?.title)
+      .slice(0, 6)
+      .map((n: any) => {
+        const ts = typeof n.providerPublishTime === "number" ? n.providerPublishTime * 1000 : null;
+        return {
+          title: String(n.title).trim(),
+          publisher: typeof n.publisher === "string" ? n.publisher : "",
+          ageDays: ts ? Math.floor((now - ts) / 86_400_000) : null,
+          link: typeof n.link === "string" && /^https?:\/\//.test(n.link) ? n.link : "",
+        };
+      })
+      // Drop anything older than ~45 days so the report reflects current events.
+      .filter((n: NewsHeadline) => n.ageDays == null || n.ageDays <= 45);
+  } catch { return []; }
+}
+
 // ── Real Technical Indicator Calculations ──
 function _calcEMA(data: number[], period: number): number[] {
   const k = 2 / (period + 1);
@@ -657,7 +691,7 @@ function computeTargets(s: any, atr: number, f: any, verdictUI: string) {
 // ─────────────────────────────────────────────────────────────
 // Enrich stock data - uses REAL historical data when available
 // ─────────────────────────────────────────────────────────────
-async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = {}) {
+async function enrichStockData(raw: any, opts: { withFundamentals?: boolean; withNews?: boolean } = {}) {
   const price = parseFloat(String(raw.price).replace(/[₹,]/g, '')) || 0;
   const high52 = raw.high_52 || price * 1.15;
   const low52 = raw.low_52 || price * 0.85;
@@ -682,10 +716,11 @@ async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = 
   const mcap = raw.market_cap || 0;
   const mcapTier = mcap > 100000 ? "Large Cap" : mcap > 20000 ? "Mid Cap" : mcap > 5000 ? "Small Cap" : "Micro Cap";
 
-  // ── Fetch REAL historical data + real fundamentals in parallel ──
-  const [hist, fundamentals] = await Promise.all([
+  // ── Fetch REAL historical data + fundamentals + recent news in parallel ──
+  const [hist, fundamentals, newsItems] = await Promise.all([
     fetchHistoricalData(raw.symbol),
     opts.withFundamentals ? fetchYahooFundamentals(raw.symbol) : Promise.resolve(null),
+    opts.withNews ? fetchYahooNews(raw.symbol) : Promise.resolve([] as NewsHeadline[]),
   ]);
   let rsiVal = 50, rsiSignal = "N/A";
   let sma20 = 0, sma50 = 0, sma200 = 0;
@@ -768,6 +803,7 @@ async function enrichStockData(raw: any, opts: { withFundamentals?: boolean } = 
     roe: fundamentals?.roe ?? raw.roe ?? null,
     debt_equity: fundamentals?.debtToEquity ?? raw.debt_equity ?? null,
     fundamentals,
+    newsItems,
   };
 
   // Deterministic quant engine - authoritative score/verdict/targets
@@ -848,6 +884,11 @@ ${s.fundamentals ? `## Real Fundamentals (Yahoo Finance)
 ${s.fundamentals?.numAnalysts ? `## Wall Street Analyst Consensus (${s.fundamentals.numAnalysts} analysts)
 - Recommendation: **${(s.fundamentals.analystRecKey || "N/A").toUpperCase()}** (mean ${s.fundamentals.analystRecMean}/5 - 1=Strong Buy, 5=Sell)
 - Price Targets → Mean ₹${s.fundamentals.targetMean ?? "N/A"} · High ₹${s.fundamentals.targetHigh ?? "N/A"} · Low ₹${s.fundamentals.targetLow ?? "N/A"}` : ""}
+
+${s.newsItems && s.newsItems.length > 0 ? `## 📰 Recent News & Events (Yahoo Finance, last ~45 days)
+${s.newsItems.map((n: NewsHeadline) => `- ${n.ageDays != null ? `${n.ageDays}d ago` : "recent"}: ${n.title}${n.publisher ? ` (${n.publisher})` : ""}`).join("\n")}
+
+Factor these headlines into your Executive Summary, Risk Factors and Verdict reasoning. If any headline signals a material event (quarterly result, regulatory/SEBI action, management change, rating downgrade/upgrade, large order win/loss, M&A, fraud/probe), call it out explicitly and let it shape your conviction and the risk section. A materially negative event MUST appear as a key risk and should temper conviction; a strong positive catalyst should be noted as support. Do NOT let a single headline override the QUANT ENGINE score below, but your narrative verdict must acknowledge the news backdrop.` : "## 📰 Recent News\nNo recent headlines retrieved - base the verdict on price action, technicals and fundamentals."}
 
 ## ⚙️ QUANT ENGINE OUTPUT - AUTHORITATIVE (computed deterministically from the real data above)
 - **Composite Score: ${s.quant.composite}/100** - Technical ${s.quant.tech} · Fundamental ${s.quant.fundAvail ? s.quant.fund : "N/A"} · Analyst ${s.quant.analyst ?? "N/A"}
@@ -978,7 +1019,7 @@ serve(async (req) => {
     }
 
     // Enrich stock data with REAL historical indicators from Yahoo Finance
-    const enriched = await enrichStockData(stockData, { withFundamentals: !is_chat });
+    const enriched = await enrichStockData(stockData, { withFundamentals: !is_chat, withNews: !is_chat });
     let finalPrompt = "";
 
     if (is_chat) {
@@ -1082,6 +1123,9 @@ serve(async (req) => {
       }
       sd.data_source = enriched.dataSource;
       sd.detected_patterns = enriched.patterns || [];
+      sd.news_headlines = (enriched.newsItems || []).map((n: NewsHeadline) => ({
+        title: n.title, publisher: n.publisher, ageDays: n.ageDays, link: n.link,
+      }));
       (result.result as any).structured_data = sd;
     }
 
