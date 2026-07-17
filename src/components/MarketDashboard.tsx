@@ -544,7 +544,7 @@ const MarketDashboard = () => {
         </div>
 
         <SectionLabel icon={Globe} title={t("mi.global")} />
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.35 }}>
             <GlobalCues />
           </motion.div>
