@@ -5,9 +5,9 @@ import VisibleBreadcrumbs from "@/components/VisibleBreadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollProgress from "@/components/ScrollProgress";
-import { useState, useMemo, useEffect, lazy, Suspense } from "react";
+import { useState, useMemo, useEffect, useRef, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar, X, Download } from "lucide-react";
+import { Search, Filter, TrendingUp, TrendingDown, ArrowUpDown, RefreshCw, Loader2, BarChart3, Bot, LayoutGrid, List, Landmark, Cpu, Car, Building2, ShoppingCart, Activity, Zap, PiggyBank, Radar, X, Download, LineChart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,9 @@ import { useLiveMarket } from "@/hooks/useLiveMarket";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
 const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
+const ChartCompare = lazy(() => import("@/components/ChartCompare"));
+
+const MAX_COMPARE = 4;
 
 const THEMATIC_BASKETS = [
   { id: "banking", name: "Banking & Finance", desc: "Top private & PSU banks", icon: Landmark, filter: (s: ScreenerStock) => s.sector === "Banking" || s.sector === "NBFC" || s.sector === "Insurance" },
@@ -185,7 +188,29 @@ const StockScreenerPage = () => {
   const [analyzingStock, setAnalyzingStock] = useState<ScreenerStock | null>(null);
   const [activeBasket, setActiveBasket] = useState<string | null>(searchParams.get("basket"));
   const [activeScanner, setActiveScanner] = useState<string | null>(searchParams.get("scan"));
-  const [viewMode, setViewMode] = useState<"list" | "heatmap">("list");
+  const [viewMode, setViewMode] = useState<"list" | "heatmap" | "chart">("list");
+  const [compareSymbols, setCompareSymbols] = useState<string[]>([]);
+
+  // Seed the chart comparison with the two largest-cap stocks the first time
+  // data arrives, so the Chart tab is never empty on first open.
+  const seededCompare = useRef(false);
+  useEffect(() => {
+    if (seededCompare.current || stocks.length === 0) return;
+    seededCompare.current = true;
+    const topByCap = [...stocks].sort((a, b) => b.market_cap - a.market_cap).slice(0, 2).map(s => s.symbol);
+    setCompareSymbols(topByCap);
+  }, [stocks]);
+
+  // Universe for the chart's search box (symbol + name), largest-cap first.
+  const compareUniverse = useMemo(
+    () => [...stocks].sort((a, b) => b.market_cap - a.market_cap).map(s => ({ symbol: s.symbol, name: s.name })),
+    [stocks],
+  );
+
+  const addToChart = (symbol: string) => {
+    setCompareSymbols(prev => (prev.includes(symbol) ? prev : [...prev, symbol].slice(0, MAX_COMPARE)));
+    setViewMode("chart");
+  };
 
   // Reflect filters into the URL (replace - no history spam)
   useEffect(() => {
@@ -279,6 +304,7 @@ const StockScreenerPage = () => {
             "Thematic baskets - Banking, IT, Auto, PSU, FMCG",
             "Technical scanners - Volume Shockers, Momentum, Value Buys",
             "Stock heatmap view",
+            "Multi-stock chart comparison with SMA & RSI indicators",
             "AI-powered stock analysis"
           ]
         }}
@@ -457,16 +483,28 @@ const StockScreenerPage = () => {
                   >
                     <List className="w-4 h-4" /> List
                   </button>
-                  <button 
-                    onClick={() => setViewMode("heatmap")} 
+                  <button
+                    onClick={() => setViewMode("heatmap")}
                     className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-2 ${viewMode === "heatmap" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     <LayoutGrid className="w-4 h-4" /> Heatmap
                   </button>
+                  <button
+                    onClick={() => setViewMode("chart")}
+                    className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-2 ${viewMode === "chart" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <LineChart className="w-4 h-4" /> Chart
+                  </button>
                 </div>
               </div>
 
-              {viewMode === "heatmap" ? (
+              {viewMode === "chart" ? (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="min-h-[50vh]">
+                  <Suspense fallback={<StockLoadingAnimation />}>
+                    <ChartCompare stocks={compareUniverse} selected={compareSymbols} onChange={setCompareSymbols} />
+                  </Suspense>
+                </motion.div>
+              ) : viewMode === "heatmap" ? (
                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="min-h-[50vh]">
                   <StockHeatmap stocks={filtered} maxItems={150} />
                 </motion.div>
@@ -529,17 +567,29 @@ const StockScreenerPage = () => {
                               : <span className="text-muted-foreground text-xs">-</span>}
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <Button
-                              variant="outline" 
-                              size="sm" 
-                              className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs min-h-[44px] md:min-h-0 md:h-8 px-3"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setAnalyzingStock(s);
-                              }}
-                            >
-                              <Bot className="w-3.5 h-3.5 mr-1" /> AI Edit
-                            </Button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                title={compareSymbols.includes(s.symbol) ? "In chart comparison" : "Add to chart comparison"}
+                                aria-label={`Add ${s.symbol} to chart comparison`}
+                                className={`border-primary/30 bg-transparent min-h-[44px] md:min-h-0 md:h-8 w-9 p-0 ${compareSymbols.includes(s.symbol) ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-primary/10"}`}
+                                onClick={(e) => { e.stopPropagation(); addToChart(s.symbol); }}
+                              >
+                                <LineChart className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-brand-orange border-brand-orange/30 hover:bg-brand-orange/10 bg-transparent text-xs min-h-[44px] md:min-h-0 md:h-8 px-3"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAnalyzingStock(s);
+                                }}
+                              >
+                                <Bot className="w-3.5 h-3.5 mr-1" /> AI Edit
+                              </Button>
+                            </div>
                           </td>
                         </motion.tr>
                       );

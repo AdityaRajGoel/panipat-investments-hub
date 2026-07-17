@@ -19,7 +19,13 @@ async function fetchRss(url: string, sourceName: string, defaultCategory: string
       const titleMatch = itemStr.match(/<title>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/title>/i) || itemStr.match(/<title>\s*([\s\S]*?)\s*<\/title>/i);
       const descMatch = itemStr.match(/<description>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/description>/i) || itemStr.match(/<description>\s*([\s\S]*?)\s*<\/description>/i);
       const dateMatch = itemStr.match(/<pubDate>\s*([\s\S]*?)\s*<\/pubDate>/i);
-      
+      // Article link: <link> text, or an atom <link href="..."/>. Only keep http(s).
+      const linkMatch = itemStr.match(/<link>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/link>/i)
+        || itemStr.match(/<link>\s*([\s\S]*?)\s*<\/link>/i)
+        || itemStr.match(/<link[^>]*href=["']([^"']+)["']/i);
+      const rawUrl = linkMatch ? linkMatch[1].trim() : "";
+      const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : "";
+
       const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : "Market Update";
       let summary = descMatch ? descMatch[1].replace(/<[^>]+>/g, '').trim() : "Click to read more details about this market event.";
       
@@ -52,7 +58,8 @@ async function fetchRss(url: string, sourceName: string, defaultCategory: string
         category: defaultCategory,
         timeAgo,
         timestamp: date.toISOString(),
-        source: sourceName
+        source: sourceName,
+        url
       };
     }).filter(i => i.title !== "Market Update");
   } catch (e) {

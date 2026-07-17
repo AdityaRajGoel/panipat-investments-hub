@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Newspaper, Globe, TrendingUp, Clock, ChevronRight, RefreshCw } from "lucide-react";
+import { Newspaper, Globe, TrendingUp, Clock, ChevronRight, RefreshCw, Search, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
 type NewsItem = {
@@ -12,6 +13,7 @@ type NewsItem = {
   timeAgo: string;
   timestamp?: string;
   source: string;
+  url?: string;
 };
 
 const fallbackIndian: NewsItem[] = [
@@ -43,58 +45,97 @@ const categoryColors: Record<string, string> = {
   Commodities: "bg-brand-green/20 text-brand-green",
 };
 
-const NewsCard = ({ item, index }: { item: NewsItem; index: number }) => {
-  const [displayTime, setDisplayTime] = useState(item.timeAgo);
+// Only allow http(s) links through to href (defends against javascript:/data:).
+const safeUrl = (url?: string): string | undefined =>
+  url && /^https?:\/\//i.test(url) ? url : undefined;
 
+// Live "x ago" label from a timestamp, falling back to the pre-baked string.
+function useTimeAgo(item: NewsItem): string {
+  const [display, setDisplay] = useState(item.timeAgo);
   useEffect(() => {
     if (!item.timestamp) return;
-    
-    const updateTime = () => {
-      const diffMs = new Date().getTime() - new Date(item.timestamp!).getTime();
-      const diffHrs = diffMs / (1000 * 60 * 60);
-      if (diffHrs < 1) {
-        setDisplayTime(`${Math.floor(diffHrs * 60)}m ago`);
-      } else if (diffHrs < 24) {
-        setDisplayTime(`${Math.floor(diffHrs)}h ago`);
-      } else {
-        setDisplayTime(`${Math.floor(diffHrs / 24)}d ago`);
-      }
+    const update = () => {
+      const diffHrs = (Date.now() - new Date(item.timestamp!).getTime()) / 3_600_000;
+      if (diffHrs < 1) setDisplay(`${Math.max(0, Math.floor(diffHrs * 60))}m ago`);
+      else if (diffHrs < 24) setDisplay(`${Math.floor(diffHrs)}h ago`);
+      else setDisplay(`${Math.floor(diffHrs / 24)}d ago`);
     };
-
-    updateTime();
-    const interval = setInterval(updateTime, 60000); // update every minute
+    update();
+    const interval = setInterval(update, 60_000);
     return () => clearInterval(interval);
   }, [item.timestamp, item.timeAgo]);
+  return display;
+}
 
+const CategoryTag = ({ category }: { category: string }) => (
+  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${categoryColors[category] || "bg-muted text-muted-foreground"}`}>
+    {category}
+  </span>
+);
+
+// Featured lead story — larger, top of the feed (Moneycontrol-style hero).
+const FeaturedCard = ({ item }: { item: NewsItem }) => {
+  const displayTime = useTimeAgo(item);
+  const href = safeUrl(item.url);
+  const Wrapper = href ? "a" : "div";
+  const linkProps = href ? { href, target: "_blank", rel: "noopener noreferrer" } : {};
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.08, duration: 0.4 }}
-    >
-      <Card className="bg-card hover:shadow-lg hover:border-secondary/30 transition-all duration-300 group cursor-pointer border-border/50">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${categoryColors[item.category] || "bg-muted text-muted-foreground"}`}>
-                  {item.category}
-                </span>
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-2.5 h-2.5" />
-                  {displayTime}
-                </span>
-              </div>
-              <h3 className="font-heading font-semibold text-sm text-foreground leading-snug group-hover:text-secondary transition-colors line-clamp-2">
-                {item.title}
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{item.summary}</p>
-              <p className="text-[10px] text-muted-foreground/60 mt-2 font-medium">{item.source}</p>
+    <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
+      <Card className="group overflow-hidden border-border/50 hover:border-secondary/40 hover:shadow-xl transition-all duration-300">
+        <Wrapper {...linkProps} className="block">
+          <CardContent className="p-5 md:p-7">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">Top Story</span>
+              <CategoryTag category={item.category} />
+              <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Clock className="w-3 h-3" />{displayTime}
+              </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-secondary transition-colors flex-shrink-0 mt-1" />
-          </div>
-        </CardContent>
+            <h3 className="font-heading font-bold text-xl md:text-2xl text-foreground leading-tight group-hover:text-secondary transition-colors">
+              {item.title}
+            </h3>
+            <p className="text-sm md:text-base text-muted-foreground mt-2.5 line-clamp-3 max-w-3xl">{item.summary}</p>
+            <div className="flex items-center gap-2 mt-4 text-xs font-semibold text-muted-foreground">
+              <span>{item.source}</span>
+              {href && <span className="inline-flex items-center gap-1 text-secondary group-hover:gap-1.5 transition-all">Read <ExternalLink className="w-3 h-3" /></span>}
+            </div>
+          </CardContent>
+        </Wrapper>
+      </Card>
+    </motion.div>
+  );
+};
+
+const NewsCard = ({ item, index }: { item: NewsItem; index: number }) => {
+  const displayTime = useTimeAgo(item);
+  const href = safeUrl(item.url);
+  const Wrapper = href ? "a" : "div";
+  const linkProps = href ? { href, target: "_blank", rel: "noopener noreferrer" } : {};
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: Math.min(index, 6) * 0.06, duration: 0.4 }}>
+      <Card className="h-full bg-card hover:shadow-lg hover:border-secondary/30 transition-all duration-300 group border-border/50">
+        <Wrapper {...linkProps} className="block h-full">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <CategoryTag category={item.category} />
+                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Clock className="w-2.5 h-2.5" />{displayTime}
+                  </span>
+                </div>
+                <h3 className="font-heading font-semibold text-sm text-foreground leading-snug group-hover:text-secondary transition-colors line-clamp-2">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{item.summary}</p>
+                <p className="text-[10px] text-muted-foreground/60 mt-2 font-medium flex items-center gap-1">
+                  {item.source}{href && <ExternalLink className="w-2.5 h-2.5" />}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-secondary transition-colors flex-shrink-0 mt-1" />
+            </div>
+          </CardContent>
+        </Wrapper>
       </Card>
     </motion.div>
   );
@@ -105,11 +146,13 @@ const MarketNews = () => {
   const [indianNews, setIndianNews] = useState<NewsItem[]>(fallbackIndian);
   const [worldNews, setWorldNews] = useState<NewsItem[]>(fallbackWorld);
   const [loading, setLoading] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [query, setQuery] = useState("");
 
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-news'); // Changed supabase to supabase
+      const { data, error } = await supabase.functions.invoke("fetch-news");
       if (!error && data?.success) {
         if (data.indian?.length > 0) setIndianNews(data.indian);
         if (data.world?.length > 0) setWorldNews(data.world);
@@ -123,125 +166,116 @@ const MarketNews = () => {
 
   useEffect(() => {
     fetchNews();
-    const interval: ReturnType<typeof setInterval> | null = setInterval(() => {
+    const interval = setInterval(() => {
       if (!document.hidden) fetchNews();
     }, 5 * 60 * 1000);
-
-    const handleVisibility = () => {
-      if (!document.hidden) fetchNews();
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-
+    const handleVisibility = () => { if (!document.hidden) fetchNews(); };
+    document.addEventListener("visibilitychange", handleVisibility);
     return () => {
-      if (interval) clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibility);
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
   const news = activeTab === "indian" ? indianNews : worldNews;
 
+  // Category chips from whatever the feed actually returned for this tab.
+  const categories = useMemo(() => {
+    const seen = new Set<string>();
+    news.forEach((n) => seen.add(n.category));
+    return ["All", ...[...seen].sort()];
+  }, [news]);
+
+  // Reset the category filter when it no longer exists in the current tab.
+  useEffect(() => {
+    if (activeCategory !== "All" && !categories.includes(activeCategory)) setActiveCategory("All");
+  }, [categories, activeCategory]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return news.filter((n) => {
+      if (activeCategory !== "All" && n.category !== activeCategory) return false;
+      if (q && !(n.title.toLowerCase().includes(q) || n.summary.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }, [news, activeCategory, query]);
+
+  const [featured, ...rest] = filtered;
+
   return (
     <section id="news" className="py-10 md:py-20 bg-background relative overflow-hidden">
-      {/* Background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-20 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"
-        />
-        <div
-          className="absolute bottom-20 left-10 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl"
-        />
+        <div className="absolute top-20 right-10 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          className="text-center mb-10"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.span className="inline-block text-secondary font-semibold text-sm uppercase tracking-wider mb-3">
-            Stay Informed
-          </motion.span>
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Market News & Updates
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Latest financial news from India and around the world
-          </p>
+        <motion.div className="text-center mb-8" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+          <span className="inline-block text-secondary font-semibold text-sm uppercase tracking-wider mb-3">Stay Informed</span>
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">Market News &amp; Updates</h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Latest financial news from India and around the world</p>
         </motion.div>
 
-        {/* Tab switcher */}
-        <motion.div
-          className="flex items-center justify-center gap-2 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-        >
+        {/* Tab switcher + refresh */}
+        <div className="flex items-center justify-center gap-2 mb-5">
           <div className="inline-flex bg-muted rounded-xl p-1 border border-border/50">
-            <button
-              onClick={() => setActiveTab("indian")}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                activeTab === "indian"
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <TrendingUp className="w-4 h-4" />
-              India
+            <button onClick={() => setActiveTab("indian")} className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === "indian" ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"}`}>
+              <TrendingUp className="w-4 h-4" />India
             </button>
-            <button
-              onClick={() => setActiveTab("world")}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                activeTab === "world"
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Globe className="w-4 h-4" />
-              World
+            <button onClick={() => setActiveTab("world")} className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === "world" ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"}`}>
+              <Globe className="w-4 h-4" />World
             </button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={fetchNews}
-            disabled={loading}
-            className="ml-2"
-            aria-label="Refresh news"
-          >
+          <Button variant="ghost" size="icon" onClick={fetchNews} disabled={loading} className="ml-1" aria-label="Refresh news">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
-        </motion.div>
+        </div>
 
-        {/* News grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            {news.map((item, i) => (
-              <NewsCard key={`${activeTab}-${i}`} item={item} index={i} />
+        {/* Category chips + search (Moneycontrol-style filter bar) */}
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-8">
+          <div className="flex gap-2 overflow-x-auto pb-1 flex-1 -mb-1">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`shrink-0 text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-colors ${activeCategory === cat ? "bg-secondary text-secondary-foreground border-secondary" : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-secondary/40"}`}
+              >
+                {cat}
+              </button>
             ))}
+          </div>
+          <div className="relative w-full lg:w-64 shrink-0">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search headlines..." className="pl-9 h-9 text-sm" aria-label="Search news headlines" />
+          </div>
+        </div>
+
+        {/* Feed */}
+        <AnimatePresence mode="wait">
+          <motion.div key={`${activeTab}-${activeCategory}-${query}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+            {filtered.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                <Newspaper className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                <p className="font-semibold">No stories match your filter</p>
+                <p className="text-sm">Try a different category or clear the search</p>
+              </div>
+            ) : (
+              <>
+                {featured && <div className="mb-4"><FeaturedCard item={featured} /></div>}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {rest.map((item, i) => (
+                    <NewsCard key={`${activeTab}-${item.title}-${i}`} item={item} index={i} />
+                  ))}
+                </div>
+              </>
+            )}
           </motion.div>
         </AnimatePresence>
 
-        {/* Powered by line */}
-        <motion.p
-          className="text-center text-xs text-muted-foreground/50 mt-8"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
+        <p className="text-center text-xs text-muted-foreground/50 mt-8">
           <Newspaper className="w-3 h-3 inline mr-1" />
-          News auto-refreshes every 5 minutes • Sources: ET, Moneycontrol, Reuters, Bloomberg
-        </motion.p>
+          News auto-refreshes every 5 minutes • Sources: ET, Moneycontrol, Business Standard, LiveMint, Reuters, Bloomberg
+        </p>
       </div>
     </section>
   );
