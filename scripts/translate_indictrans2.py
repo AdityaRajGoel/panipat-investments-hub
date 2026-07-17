@@ -33,7 +33,7 @@ MODEL = os.environ.get("IT2_MODEL", "ai4bharat/indictrans2-en-indic-dist-200M")
 TOKENIZER = os.environ.get("IT2_TOKENIZER", MODEL)
 
 # IndicTrans2 target language codes.
-TARGETS = {"hi": "hin_Deva", "pa": "pan_Guru", "gu": "guj_Gujr"}
+TARGETS = {"hi": "hin_Deva"}
 
 # English source strings, keyed by the i18n key (keep in sync with config.ts `en`).
 EN = {
