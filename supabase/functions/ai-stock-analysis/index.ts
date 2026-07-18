@@ -490,31 +490,57 @@ async function fetchYahooFundamentals(symbol: string) {
 // ─────────────────────────────────────────────────────────────
 type NewsHeadline = { title: string; publisher: string; ageDays: number | null; link: string };
 
-async function fetchYahooNews(symbol: string): Promise<NewsHeadline[]> {
+function decodeEntities(s: string): string {
+  return s
+    .replace(/<!\[CDATA\[|\]\]>/g, "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(+d))
+    .trim();
+}
+
+// Recent per-symbol news headlines via Google News RSS (India edition).
+// A quoted company-name search (e.g. "Reliance Industries") on the IN edition
+// returns genuinely company-specific Indian-market news - earnings, broker
+// calls, regulatory actions - which Yahoo's US-centric feed does not. Fails
+// soft to [] so a news outage never blocks a report.
+async function fetchStockNews(symbol: string, rawName?: string): Promise<NewsHeadline[]> {
+  const name = String(rawName || "").replace(/[.,]/g, " ").trim() || symbol;
   try {
-    let ySymbol = symbol;
-    if (!symbol.includes('.') && !symbol.startsWith('^') && !symbol.includes('=')) ySymbol = `${symbol}.NS`;
-    const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(ySymbol)}&newsCount=8&quotesCount=0&enableFuzzyQuery=false`;
+    const q = `"${name}" (stock OR shares OR results OR NSE) when:35d`;
+    const url = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-IN&gl=IN&ceid=IN:en`;
     const res = await fetch(url, { headers: { "User-Agent": YAHOO_UA } });
     if (!res.ok) return [];
-    const json = await res.json();
-    const news = json?.news;
-    if (!Array.isArray(news)) return [];
+    const xml = await res.text();
+    const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0, 10);
     const now = Date.now();
-    return news
-      .filter((n: any) => n?.title)
-      .slice(0, 6)
-      .map((n: any) => {
-        const ts = typeof n.providerPublishTime === "number" ? n.providerPublishTime * 1000 : null;
-        return {
-          title: String(n.title).trim(),
-          publisher: typeof n.publisher === "string" ? n.publisher : "",
-          ageDays: ts ? Math.floor((now - ts) / 86_400_000) : null,
-          link: typeof n.link === "string" && /^https?:\/\//.test(n.link) ? n.link : "",
-        };
-      })
-      // Drop anything older than ~45 days so the report reflects current events.
-      .filter((n: NewsHeadline) => n.ageDays == null || n.ageDays <= 45);
+    const seen = new Set<string>();
+    const out: NewsHeadline[] = [];
+    for (const [, block] of items) {
+      const rawTitle = block.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "";
+      const source = decodeEntities(block.match(/<source[^>]*>([\s\S]*?)<\/source>/)?.[1] ?? "");
+      let title = decodeEntities(rawTitle);
+      // Google News appends " - <Source>" to titles; strip it.
+      if (source && title.endsWith(` - ${source}`)) title = title.slice(0, -(source.length + 3)).trim();
+      if (!title) continue;
+      const key = title.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const pub = block.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1];
+      const ts = pub ? Date.parse(pub) : NaN;
+      const ageDays = Number.isNaN(ts) ? null : Math.floor((now - ts) / 86_400_000);
+      if (ageDays != null && ageDays > 45) continue;
+      const link = decodeEntities(block.match(/<link>([\s\S]*?)<\/link>/)?.[1] ?? "");
+      out.push({
+        title,
+        publisher: source,
+        ageDays,
+        link: /^https?:\/\//.test(link) ? link : "",
+      });
+      if (out.length >= 6) break;
+    }
+    return out;
   } catch { return []; }
 }
 
@@ -720,7 +746,7 @@ async function enrichStockData(raw: any, opts: { withFundamentals?: boolean; wit
   const [hist, fundamentals, newsItems] = await Promise.all([
     fetchHistoricalData(raw.symbol),
     opts.withFundamentals ? fetchYahooFundamentals(raw.symbol) : Promise.resolve(null),
-    opts.withNews ? fetchYahooNews(raw.symbol) : Promise.resolve([] as NewsHeadline[]),
+    opts.withNews ? fetchStockNews(raw.symbol, raw.name) : Promise.resolve([] as NewsHeadline[]),
   ]);
   let rsiVal = 50, rsiSignal = "N/A";
   let sma20 = 0, sma50 = 0, sma200 = 0;
