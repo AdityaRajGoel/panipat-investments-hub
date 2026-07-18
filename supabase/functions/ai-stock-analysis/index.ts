@@ -1162,16 +1162,30 @@ serve(async (req) => {
       // Standard cascade: free open-weight models → paid OpenRouter → Groq → Cerebras → Gemini
       const cascadeStart = Date.now();
 
-      // ── Committee mode (opt-in "Deep"): two free models in parallel, each
-      //    also giving an INDEPENDENT verdict. Agreement across models + quant
-      //    becomes a conviction signal. Falls back to the normal cascade when
-      //    fewer than one member responds. ──
-      if (committeeMode && OPENROUTER_API_KEY) {
+      // ── Committee mode (opt-in "Deep"): multiple free models in parallel,
+      //    each also giving an INDEPENDENT verdict. Members are drawn from
+      //    EVERY available free provider (OpenRouter free tier, Groq,
+      //    Cerebras) so the committee still convenes when one provider is
+      //    down. Falls back to the normal cascade when nobody responds. ──
+      if (committeeMode) {
         const committeePrompt = finalPrompt + `\n\nADDITIONALLY: in structured_data include "independent_verdict" (exactly one of BUY | SELL | HOLD | WATCH) - YOUR OWN independent judgement from the raw market data above, which MAY differ from the quant engine - and "independent_conviction" (a number 0-100). Everything else must still respect the quant engine as instructed.`;
-        const members = FREE_REPORT_MODELS.slice(0, 2);
-        console.log(`→ Committee: ${members.join(" + ")} in parallel...`);
+        const candidates: { name: string; run: () => Promise<{ result: unknown; model: string }> }[] = [];
+        if (OPENROUTER_API_KEY && FREE_REPORT_MODELS[0]) {
+          const m = FREE_REPORT_MODELS[0];
+          candidates.push({ name: m, run: () => askOpenRouter(committeePrompt, false, m) });
+        }
+        if (GROQ_API_KEY) {
+          // Prefer the last (most capable / most distinct) Groq model for diversity.
+          const gm = GROQ_MODELS[GROQ_MODELS.length - 1] ?? "llama-3.3-70b-versatile";
+          candidates.push({ name: `groq:${gm}`, run: () => askGroq(committeePrompt, false, gm) });
+        }
+        if (CEREBRAS_API_KEY) {
+          candidates.push({ name: `cerebras:${CEREBRAS_MODEL}`, run: () => askCerebras(committeePrompt, false) });
+        }
+        const chosen = candidates.slice(0, 3);
+        console.log(`→ Committee: ${chosen.map((c) => c.name).join(" + ")} in parallel...`);
         const settled = await Promise.allSettled(
-          members.map((m) => withTimeout(askOpenRouter(committeePrompt, false, m), FREE_MODEL_TIMEOUT_MS, m)),
+          chosen.map((c) => withTimeout(c.run(), FREE_MODEL_TIMEOUT_MS, c.name)),
         );
         for (const s of settled) {
           if (s.status !== "fulfilled") {
@@ -1187,7 +1201,7 @@ serve(async (req) => {
           });
           if (!result) result = s.value; // first fulfilled member authors the report
         }
-        console.log(`Committee members responded: ${committeeMembers.length}/${members.length}`);
+        console.log(`Committee members responded: ${committeeMembers.length}/${chosen.length}`);
       }
 
       // ── Free tier (reports AND chat) ──
