@@ -145,6 +145,100 @@ function parseBhavcopy(csv: string): BhavRow[] {
   return rows;
 }
 
+// ── NSE bulk & block deals (same public archive, same cookie) ───────────────
+// Format: Date,Symbol,Security Name,Client Name,Buy/Sell,Quantity Traded,
+//         Trade Price / Wght. Avg. Price[,Remarks]
+// Client names can contain commas, so split with a quote-aware parser.
+
+type DealRow = {
+  trade_date: string; deal_type: "bulk" | "block"; symbol: string;
+  security_name: string | null; client_name: string | null; buy_sell: string | null;
+  quantity: number | null; price: number | null;
+};
+
+function splitCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQ) {
+      if (c === '"') {
+        if (line[i + 1] === '"') { cur += '"'; i++; } else inQ = false;
+      } else cur += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ",") { out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out.map((s) => s.trim());
+}
+
+function parseDeals(csv: string, dealType: "bulk" | "block"): DealRow[] {
+  const lines = csv.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length < 2) return [];
+  const rows: DealRow[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const c = splitCsvLine(lines[i]);
+    const iso = nseDateToISO(c[0] ?? "");
+    const symbol = (c[1] ?? "").trim();
+    if (!iso || !symbol) continue; // covers the "NO RECORDS" placeholder row
+    rows.push({
+      trade_date: iso,
+      deal_type: dealType,
+      symbol,
+      security_name: (c[2] ?? "").trim() || null,
+      client_name: (c[3] ?? "").trim() || null,
+      buy_sell: (c[4] ?? "").trim().toUpperCase() || null,
+      quantity: int(c[5] ?? ""),
+      price: num(c[6] ?? ""),
+    });
+  }
+  return rows;
+}
+
+async function fetchDealsCsv(file: "bulk" | "block", cookie: string): Promise<string | null> {
+  const headers = cookie ? { ...BROWSER_HEADERS, Cookie: cookie } : BROWSER_HEADERS;
+  for (const host of ARCHIVE_HOSTS) {
+    try {
+      const res = await fetch(`${host}/content/equities/${file}.csv`, { headers });
+      if (!res.ok) continue;
+      const csv = await res.text();
+      if (csv.toUpperCase().includes("SYMBOL")) return csv;
+    } catch { /* try next host */ }
+  }
+  return null;
+}
+
+// Replace-all sync of bulk+block deals. Fails soft: a deals hiccup must never
+// break the bhavcopy sync this function primarily exists for.
+async function syncDeals(supabase: ReturnType<typeof createClient>): Promise<{ bulk: number; block: number } | { error: string }> {
+  try {
+    const cookie = await warmupCookie();
+    const [bulkCsv, blockCsv] = await Promise.all([
+      fetchDealsCsv("bulk", cookie),
+      fetchDealsCsv("block", cookie),
+    ]);
+    if (!bulkCsv && !blockCsv) return { error: "no deals csv reachable" };
+    const rows = [
+      ...(bulkCsv ? parseDeals(bulkCsv, "bulk") : []),
+      ...(blockCsv ? parseDeals(blockCsv, "block") : []),
+    ];
+    // Replace everything: the archive files carry only the latest published day.
+    await supabase.from("bulk_block_deals").delete().gte("id", 0);
+    for (let i = 0; i < rows.length; i += 500) {
+      const { error } = await supabase.from("bulk_block_deals").insert(rows.slice(i, i + 500));
+      if (error) return { error: `insert: ${error.message}` };
+    }
+    return {
+      bulk: rows.filter((r) => r.deal_type === "bulk").length,
+      block: rows.filter((r) => r.deal_type === "block").length,
+    };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
@@ -182,8 +276,11 @@ Deno.serve(async (req) => {
     // Keep only the latest trading day.
     await supabase.from("bhavcopy_eod").delete().neq("trade_date", tradeDate);
 
+    // Piggyback: bulk & block deals from the same archive (fail-soft).
+    const deals = await syncDeals(supabase);
+
     return new Response(
-      JSON.stringify({ success: true, trade_date: tradeDate, rows_upserted: upserted, file: file.ddmmyyyy }),
+      JSON.stringify({ success: true, trade_date: tradeDate, rows_upserted: upserted, file: file.ddmmyyyy, deals }),
       { headers: { ...cors, "Content-Type": "application/json" } },
     );
   } catch (e) {

@@ -10,6 +10,8 @@ export type BhavcopyRow = {
   trade_date: string;
   close: number | null;
   prev_close: number | null;
+  high: number | null;
+  low: number | null;
   ttl_trd_qty: number | null;
   deliv_qty: number | null;
   deliv_per: number | null;
@@ -27,7 +29,7 @@ export function useBhavcopy() {
     (async () => {
       try {
         const { data } = await bhavcopyTable()
-          .select("symbol, series, trade_date, close, prev_close, ttl_trd_qty, deliv_qty, deliv_per")
+          .select("symbol, series, trade_date, close, prev_close, high, low, ttl_trd_qty, deliv_qty, deliv_per")
           .order("deliv_per", { ascending: false })
           .limit(5000);
         if (cancelled) return;

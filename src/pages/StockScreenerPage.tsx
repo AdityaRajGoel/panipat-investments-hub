@@ -20,6 +20,8 @@ import { useLiveMarket } from "@/hooks/useLiveMarket";
 import StockHeatmap from "@/components/StockHeatmap";
 import GlobalStockSearch from "@/components/GlobalStockSearch";
 import MarketMovers from "@/components/MarketMovers";
+import BulkBlockDeals from "@/components/BulkBlockDeals";
+import CircuitWatch from "@/components/CircuitWatch";
 const AIAnalysisModal = lazy(() => import("@/components/AIAnalysisModal"));
 const ChartCompare = lazy(() => import("@/components/ChartCompare"));
 
@@ -175,7 +177,7 @@ const StockScreenerPage = () => {
   const { t } = useT();
   const { stocks, loading, refreshing: bgRefreshing, updatedAt, error, refresh } = useScreenerStocks();
   // Delivery % per symbol from the daily EOD bhavcopy (empty until the pipeline is deployed).
-  const { rows: bhavRows } = useBhavcopy();
+  const { rows: bhavRows, asOf: bhavAsOf } = useBhavcopy();
   const deliveryMap = useMemo(() => buildDeliveryMap(bhavRows), [bhavRows]);
   // Filters live in the URL so a configured screen can be shared/bookmarked.
   const [searchParams, setSearchParams] = useSearchParams();
@@ -348,6 +350,12 @@ const StockScreenerPage = () => {
         {!loading && stocks.length > 0 && (
           <MarketMovers stocks={stocks} onPick={addToChart} />
         )}
+
+        {/* EOD smart-money boards: bulk/block deals + circuit hitters */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8 empty:hidden">
+          <BulkBlockDeals />
+          <CircuitWatch rows={bhavRows} asOf={bhavAsOf} />
+        </div>
 
         {/* Global Stock Search */}
         <GlobalStockSearch className="mb-6" />

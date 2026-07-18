@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { TrendingUp, TrendingDown, Activity, ArrowUpToLine, ArrowDownToLine, LineChart } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, ArrowUpToLine, ArrowDownToLine, LineChart, IndianRupee } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export type MoverStock = {
@@ -13,12 +13,13 @@ export type MoverStock = {
   low_52: number;
 };
 
-type TabId = "gainers" | "losers" | "active" | "high" | "low";
+type TabId = "gainers" | "losers" | "active" | "turnover" | "high" | "low";
 
 const TABS: { id: TabId; label: string; icon: typeof TrendingUp; tone: string }[] = [
   { id: "gainers", label: "Top Gainers", icon: TrendingUp, tone: "text-secondary" },
   { id: "losers", label: "Top Losers", icon: TrendingDown, tone: "text-destructive" },
-  { id: "active", label: "Most Active", icon: Activity, tone: "text-brand-orange" },
+  { id: "active", label: "Most Active (Vol)", icon: Activity, tone: "text-brand-orange" },
+  { id: "turnover", label: "Most Active (Value)", icon: IndianRupee, tone: "text-brand-gold" },
   { id: "high", label: "Near 52W High", icon: ArrowUpToLine, tone: "text-secondary" },
   { id: "low", label: "Near 52W Low", icon: ArrowDownToLine, tone: "text-destructive" },
 ];
@@ -50,6 +51,11 @@ const MarketMovers = ({ stocks, onPick }: MarketMoversProps) => {
         return [...withPrice].sort((a, b) => a.change_pct - b.change_pct).slice(0, TOP_N);
       case "active":
         return [...withPrice].filter((s) => s.volume > 0).sort((a, b) => b.volume - a.volume).slice(0, TOP_N);
+      case "turnover":
+        return [...withPrice]
+          .filter((s) => s.volume > 0)
+          .sort((a, b) => b.price * b.volume - a.price * a.volume)
+          .slice(0, TOP_N);
       case "high":
         return [...withPrice]
           .filter((s) => s.high_52 > 0)
@@ -68,6 +74,7 @@ const MarketMovers = ({ stocks, onPick }: MarketMoversProps) => {
   // The metric shown on the right of each row depends on the active tab.
   const metric = (s: MoverStock) => {
     if (tab === "active") return { text: fmtVol(s.volume), cls: "text-brand-orange", sub: "Volume" };
+    if (tab === "turnover") return { text: `₹${((s.price * s.volume) / 1e7).toFixed(0)} Cr`, cls: "text-brand-gold", sub: "Turnover" };
     if (tab === "high") {
       const pct = s.high_52 > 0 ? ((s.price - s.high_52) / s.high_52) * 100 : 0;
       return { text: `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`, cls: "text-secondary", sub: "from 52W high" };
