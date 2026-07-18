@@ -15,6 +15,19 @@ const RATE_LIMIT_WINDOW_SECONDS = 60;
 // Report model is configurable via env (default: fast + cheap flash).
 // Set REPORT_MODEL to "google/gemini-2.5-pro" for deeper reasoning (higher cost/latency).
 const REPORT_MODEL = Deno.env.get("REPORT_MODEL") || "google/gemini-2.5-flash";
+// Free open-weight models tried BEFORE the paid model (OpenRouter ":free" tier,
+// zero cost). Order = preference. Overridable via FREE_REPORT_MODELS (comma-sep).
+// If a free model returns malformed JSON or errors, the cascade silently moves
+// on - the paid model remains the reliability backstop.
+const FREE_REPORT_MODELS = (Deno.env.get("FREE_REPORT_MODELS") ??
+  "nvidia/nemotron-3-super-120b-a12b:free,qwen/qwen3-next-80b-a3b-instruct:free,meta-llama/llama-3.3-70b-instruct:free")
+  .split(",").map((s) => s.trim()).filter(Boolean);
+// Per-attempt timeout for free models (they can be slower/oversubscribed).
+const FREE_MODEL_TIMEOUT_MS = 22_000;
+// Stop STARTING free-model attempts once this much of the 60s budget is spent
+// (worst case: attempt starts just under the deadline and runs its full
+// timeout, leaving the 12s minimum paid budget still inside the hard limit).
+const FREE_TIER_DEADLINE_MS = 24_000;
 // Gemini-direct fallback model name (strip the "google/" prefix if present).
 const GEMINI_REPORT_MODEL = (Deno.env.get("REPORT_MODEL") || "gemini-2.5-flash").replace(/^google\//, "");
 
@@ -185,13 +198,16 @@ function validateAndFixStructuredData(data: any): any {
 // ─────────────────────────────────────────────────────────────
 // Provider 1: OpenRouter (Primary)
 // ─────────────────────────────────────────────────────────────
-async function askOpenRouter(prompt: string, isChat: boolean = false) {
+async function askOpenRouter(prompt: string, isChat: boolean = false, modelOverride?: string) {
   if (!OPENROUTER_API_KEY) throw new Error("OpenRouter API key not configured");
 
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
-  const model = isChat
+  const model = modelOverride ?? (isChat
     ? "google/gemini-2.0-flash-lite-001"
-    : REPORT_MODEL;
+    : REPORT_MODEL);
+  // Free-tier models must produce parseable JSON or we fall through to the
+  // next provider; the paid default is allowed to degrade to raw markdown.
+  const strictJson = !isChat && !!modelOverride;
 
   const messages = [
     { role: "system", content: systemMsg },
@@ -231,12 +247,18 @@ async function askOpenRouter(prompt: string, isChat: boolean = false) {
     try {
       const cleaned = content.replace(/```json/g, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(cleaned);
+      // A structurally useless report (no markdown) also counts as a failure
+      // for strict free-tier attempts.
+      if (strictJson && typeof parsed.markdown_report !== "string") {
+        throw new Error("free model returned JSON without markdown_report");
+      }
       // Validate structured data
       if (parsed.structured_data) {
         parsed.structured_data = validateAndFixStructuredData(parsed.structured_data);
       }
       content = parsed;
     } catch (e) {
+      if (strictJson) throw new Error(`Malformed JSON from ${model}: ${e instanceof Error ? e.message : e}`);
       console.warn("OpenRouter JSON parse failed, wrapping:", e);
       content = { markdown_report: typeof content === 'string' ? content : "Report parsing error." };
     }
@@ -1072,11 +1094,32 @@ serve(async (req) => {
         errors.push(`Gemini Web Search Error: ${msg}`);
       }
     } else {
-      // Standard Cascading fallback: OpenRouter → Groq → Gemini
-      if (OPENROUTER_API_KEY) {
+      // Standard cascade: free open-weight models → paid OpenRouter → Groq → Gemini
+      const cascadeStart = Date.now();
+      if (OPENROUTER_API_KEY && !is_chat) {
+        for (const freeModel of FREE_REPORT_MODELS) {
+          if (Date.now() - cascadeStart > FREE_TIER_DEADLINE_MS) {
+            console.warn("Free-tier deadline reached; moving to paid model");
+            break;
+          }
+          try {
+            console.log(`→ OpenRouter FREE (${freeModel})...`);
+            result = await withTimeout(askOpenRouter(finalPrompt, false, freeModel), FREE_MODEL_TIMEOUT_MS, freeModel);
+            break;
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn(`✗ ${freeModel}:`, msg);
+            errors.push(`${freeModel}: ${msg.slice(0, 120)}`);
+          }
+        }
+      }
+
+      if (!result && OPENROUTER_API_KEY) {
         try {
-          console.log(`→ OpenRouter (gemini-2.5-flash)...`);
-          result = await withTimeout(askOpenRouter(finalPrompt, !!is_chat), 45000, "OpenRouter");
+          // Stay inside the 60s edge-function limit even after free-tier attempts.
+          const remaining = Math.max(12_000, 52_000 - (Date.now() - cascadeStart));
+          console.log(`→ OpenRouter (${REPORT_MODEL}, ${Math.round(remaining / 1000)}s budget)...`);
+          result = await withTimeout(askOpenRouter(finalPrompt, !!is_chat), remaining, "OpenRouter");
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error("✗ OpenRouter:", msg);
