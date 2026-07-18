@@ -28,6 +28,16 @@ const FREE_MODEL_TIMEOUT_MS = 22_000;
 // (worst case: attempt starts just under the deadline and runs its full
 // timeout, leaving the 12s minimum paid budget still inside the hard limit).
 const FREE_TIER_DEADLINE_MS = 24_000;
+// Free model tried first for Q&A chat (falls back to the paid chat model).
+const FREE_CHAT_MODEL = Deno.env.get("FREE_CHAT_MODEL") ?? "meta-llama/llama-3.3-70b-instruct:free";
+// Groq free-tier models, tried in order (a decommissioned model 404s and the
+// cascade just moves to the next one). Overridable via GROQ_MODELS (comma-sep).
+const GROQ_MODELS = (Deno.env.get("GROQ_MODELS") ?? "llama-3.3-70b-versatile,openai/gpt-oss-120b")
+  .split(",").map((s) => s.trim()).filter(Boolean);
+// Cerebras free tier (fastest inference available). Optional: skipped entirely
+// unless CEREBRAS_API_KEY is set as a Supabase secret.
+const CEREBRAS_API_KEY = Deno.env.get("CEREBRAS_API_KEY");
+const CEREBRAS_MODEL = Deno.env.get("CEREBRAS_MODEL") ?? "llama-3.3-70b";
 // Gemini-direct fallback model name (strip the "google/" prefix if present).
 const GEMINI_REPORT_MODEL = (Deno.env.get("REPORT_MODEL") || "gemini-2.5-flash").replace(/^google\//, "");
 
@@ -270,7 +280,7 @@ async function askOpenRouter(prompt: string, isChat: boolean = false, modelOverr
 // ─────────────────────────────────────────────────────────────
 // Provider 2: Groq (Fallback 1)
 // ─────────────────────────────────────────────────────────────
-async function askGroq(prompt: string, isChat: boolean = false) {
+async function askGroq(prompt: string, isChat: boolean = false, model = "llama-3.3-70b-versatile") {
   if (!GROQ_API_KEY) throw new Error("Groq API key not configured");
 
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
@@ -288,7 +298,7 @@ async function askGroq(prompt: string, isChat: boolean = false) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
+      model,
       messages: [
         { role: "system", content: systemMsg },
         { role: "user", content: truncatedPrompt + (isChat ? "" : "\n\nRespond with ONLY valid JSON.") }
@@ -320,7 +330,58 @@ async function askGroq(prompt: string, isChat: boolean = false) {
     }
   }
 
-  return { result: content, model: "llama-3.3-70b-versatile (Groq)" };
+  return { result: content, model: `${model} (Groq)` };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Provider: Cerebras (free tier, fastest inference). OpenAI-compatible.
+// Optional - skipped unless CEREBRAS_API_KEY is configured.
+// ─────────────────────────────────────────────────────────────
+async function askCerebras(prompt: string, isChat: boolean = false) {
+  if (!CEREBRAS_API_KEY) throw new Error("Cerebras API key not configured");
+
+  const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
+  const response = await fetch("https://api.cerebras.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${CEREBRAS_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: CEREBRAS_MODEL,
+      messages: [
+        { role: "system", content: systemMsg },
+        { role: "user", content: prompt + (isChat ? "" : "\n\nRespond with ONLY valid JSON. No text before or after the JSON object.") },
+      ],
+      temperature: isChat ? 0.35 : 0.1,
+      max_tokens: isChat ? 1024 : 6000,
+      ...(isChat ? {} : { response_format: { type: "json_object" } }),
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Cerebras API Error (${response.status}): ${err.slice(0, 100)}`);
+  }
+
+  const data = await response.json();
+  let content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error("Empty response from Cerebras");
+
+  if (!isChat) {
+    try {
+      const cleaned = content.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed.structured_data) {
+        parsed.structured_data = validateAndFixStructuredData(parsed.structured_data);
+      }
+      content = parsed;
+    } catch {
+      content = { markdown_report: typeof content === "string" ? content : "Report parsing error." };
+    }
+  }
+
+  return { result: content, model: `${CEREBRAS_MODEL} (Cerebras)` };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1007,7 +1068,8 @@ serve(async (req) => {
 
   try {
     const payload = await req.json();
-    const { is_chat, chat_message, chat_history, context, use_web_search, ...stockData } = payload;
+    const { is_chat, chat_message, chat_history, context, use_web_search, committee, ...stockData } = payload;
+    const committeeMode = !!committee && !is_chat;
 
     // Supabase client (service role) for the report cache
     const sb = createClient(
@@ -1041,8 +1103,10 @@ serve(async (req) => {
     }
 
     // ── Serve a fresh cached report if one exists and the price hasn't
-    //    drifted materially. One computation serves every viewer for the TTL. ──
-    if (!is_chat && stockData.symbol) {
+    //    drifted materially. One computation serves every viewer for the TTL.
+    //    Committee runs bypass the cache (the user explicitly asked for a
+    //    fresh multi-model read). ──
+    if (!is_chat && !committeeMode && stockData.symbol) {
       try {
         const { data: cached } = await sb
           .from("ai_stock_reports")
@@ -1080,6 +1144,7 @@ serve(async (req) => {
 
     let result;
     const errors: string[] = [];
+    const committeeMembers: { model: string; verdict: string | null; conviction: number | null }[] = [];
     const webSearchEnabled = !!use_web_search;
 
     if (webSearchEnabled) {
@@ -1094,17 +1159,48 @@ serve(async (req) => {
         errors.push(`Gemini Web Search Error: ${msg}`);
       }
     } else {
-      // Standard cascade: free open-weight models → paid OpenRouter → Groq → Gemini
+      // Standard cascade: free open-weight models → paid OpenRouter → Groq → Cerebras → Gemini
       const cascadeStart = Date.now();
-      if (OPENROUTER_API_KEY && !is_chat) {
-        for (const freeModel of FREE_REPORT_MODELS) {
+
+      // ── Committee mode (opt-in "Deep"): two free models in parallel, each
+      //    also giving an INDEPENDENT verdict. Agreement across models + quant
+      //    becomes a conviction signal. Falls back to the normal cascade when
+      //    fewer than one member responds. ──
+      if (committeeMode && OPENROUTER_API_KEY) {
+        const committeePrompt = finalPrompt + `\n\nADDITIONALLY: in structured_data include "independent_verdict" (exactly one of BUY | SELL | HOLD | WATCH) - YOUR OWN independent judgement from the raw market data above, which MAY differ from the quant engine - and "independent_conviction" (a number 0-100). Everything else must still respect the quant engine as instructed.`;
+        const members = FREE_REPORT_MODELS.slice(0, 2);
+        console.log(`→ Committee: ${members.join(" + ")} in parallel...`);
+        const settled = await Promise.allSettled(
+          members.map((m) => withTimeout(askOpenRouter(committeePrompt, false, m), FREE_MODEL_TIMEOUT_MS, m)),
+        );
+        for (const s of settled) {
+          if (s.status !== "fulfilled") {
+            const msg = s.reason instanceof Error ? s.reason.message : String(s.reason);
+            errors.push(`committee: ${msg.slice(0, 120)}`);
+            continue;
+          }
+          const sd = (s.value.result as any)?.structured_data ?? {};
+          committeeMembers.push({
+            model: s.value.model,
+            verdict: typeof sd.independent_verdict === "string" ? sd.independent_verdict.toUpperCase() : null,
+            conviction: typeof sd.independent_conviction === "number" ? Math.round(sd.independent_conviction) : null,
+          });
+          if (!result) result = s.value; // first fulfilled member authors the report
+        }
+        console.log(`Committee members responded: ${committeeMembers.length}/${members.length}`);
+      }
+
+      // ── Free tier (reports AND chat) ──
+      if (!result && OPENROUTER_API_KEY) {
+        const freeModels = is_chat ? [FREE_CHAT_MODEL] : FREE_REPORT_MODELS;
+        for (const freeModel of freeModels) {
           if (Date.now() - cascadeStart > FREE_TIER_DEADLINE_MS) {
             console.warn("Free-tier deadline reached; moving to paid model");
             break;
           }
           try {
             console.log(`→ OpenRouter FREE (${freeModel})...`);
-            result = await withTimeout(askOpenRouter(finalPrompt, false, freeModel), FREE_MODEL_TIMEOUT_MS, freeModel);
+            result = await withTimeout(askOpenRouter(finalPrompt, !!is_chat, freeModel), FREE_MODEL_TIMEOUT_MS, freeModel);
             break;
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
@@ -1128,13 +1224,27 @@ serve(async (req) => {
       }
 
       if (!result && GROQ_API_KEY) {
+        for (const groqModel of GROQ_MODELS) {
+          try {
+            console.log(`→ Groq (${groqModel})...`);
+            result = await withTimeout(askGroq(finalPrompt, !!is_chat, groqModel), 20000, `Groq:${groqModel}`);
+            break;
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn(`✗ Groq ${groqModel}:`, msg);
+            errors.push(`Groq ${groqModel}: ${msg.slice(0, 120)}`);
+          }
+        }
+      }
+
+      if (!result && CEREBRAS_API_KEY) {
         try {
-          console.log("→ Groq (llama-3.3-70b)...");
-          result = await withTimeout(askGroq(finalPrompt, !!is_chat), 20000, "Groq");
+          console.log(`→ Cerebras (${CEREBRAS_MODEL})...`);
+          result = await withTimeout(askCerebras(finalPrompt, !!is_chat), 20000, "Cerebras");
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
-          console.error("✗ Groq:", msg);
-          errors.push(`Groq: ${msg}`);
+          console.warn("✗ Cerebras:", msg);
+          errors.push(`Cerebras: ${msg.slice(0, 120)}`);
         }
       }
 
@@ -1195,6 +1305,20 @@ serve(async (req) => {
       sd.news_headlines = (enriched.newsItems || []).map((n: NewsHeadline) => ({
         title: n.title, publisher: n.publisher, ageDays: n.ageDays, link: n.link,
       }));
+      // Committee overlay: each member's independent verdict vs the quant engine.
+      if (committeeMembers.length > 0) {
+        const verdicts = committeeMembers.map((m) => m.verdict).filter((v): v is string => !!v);
+        const allAgreeQuant = verdicts.length > 0 && verdicts.every((v) => v === q.verdictUI);
+        const membersAgree = verdicts.length > 1 && verdicts.every((v) => v === verdicts[0]);
+        const agreement = allAgreeQuant
+          ? "Unanimous"
+          : membersAgree
+          ? "Models diverge from quant"
+          : verdicts.length <= 1
+          ? "Partial"
+          : "Split";
+        sd.committee = { members: committeeMembers, quant_verdict: q.verdictUI, agreement };
+      }
       (result.result as any).structured_data = sd;
     }
 

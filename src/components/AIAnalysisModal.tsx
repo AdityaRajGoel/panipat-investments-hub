@@ -223,6 +223,11 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       data_source?: string;
       detected_patterns?: string[];
       news_headlines?: { title: string; publisher: string; ageDays: number | null; link: string }[];
+      committee?: {
+        members: { model: string; verdict: string | null; conviction: number | null }[];
+        quant_verdict: string;
+        agreement: string;
+      };
     }
   } | null>(null);
   const [chatHistory, setChatHistory] = useState<{role: 'user' | 'ai', text: string}[]>([]);
@@ -230,6 +235,9 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   const [isChatting, setIsChatting] = useState(false);
   const [activeTab, setActiveTab] = useState<'report' | 'chat'>('report');
   const [useWebSearch, setUseWebSearch] = useState(false);
+  // Opt-in "Deep" mode: two open models answer in parallel and their
+  // independent verdicts are compared against the quant engine.
+  const [useCommittee, setUseCommittee] = useState(false);
   const [copied, setCopied] = useState(false);
   
   const sampleQuestions = [
@@ -334,9 +342,10 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
           roe: roeValue,
           debt_equity: deValue,
           patterns: analysis.patterns,
-          score: analysis.score, 
-          isBullish: analysis.isBullish, 
-          deep_report: true 
+          score: analysis.score,
+          isBullish: analysis.isBullish,
+          deep_report: true,
+          committee: useCommittee
         }
       })
         .then(({ data, error }) => {
@@ -654,9 +663,28 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
             ) : (
               <motion.div key="ready" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full">
                 {/* Tabs */}
-                <div className="px-5 border-b border-border/50 flex gap-6 bg-muted/20">
+                <div className="px-5 border-b border-border/50 flex items-center gap-6 bg-muted/20">
                   <button onClick={() => setActiveTab('report')} aria-label="View deep analysis report" className={`py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'report' ? 'border-brand-orange text-brand-orange' : 'border-transparent text-muted-foreground'}`}>Deep Analysis</button>
                   <button onClick={() => setActiveTab('chat')} aria-label="Ask AI questions" className={`py-3 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'chat' ? 'border-brand-orange text-brand-orange' : 'border-transparent text-muted-foreground'}`}><MessageSquare className="w-4 h-4" /> Ask AI Q&A</button>
+                  <button
+                    onClick={() => {
+                      const next = !useCommittee;
+                      setUseCommittee(next);
+                      // Re-run the analysis in the requested mode
+                      requestIdRef.current++;
+                      setGeminiVerdict(null);
+                      setIsAnalyzing(true);
+                      setLoadingStep(0);
+                      setMinTimeElapsed(false);
+                      setAiResponseReady(false);
+                      setRetryNonce(n => n + 1);
+                    }}
+                    title="Deep committee mode: two AI models analyse in parallel and their independent verdicts are compared"
+                    aria-pressed={useCommittee}
+                    className={`ml-auto my-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors ${useCommittee ? "bg-brand-orange text-white border-brand-orange" : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-brand-orange/40"}`}
+                  >
+                    <Cpu className="w-3 h-3" /> Committee
+                  </button>
                 </div>
 
                 {/* Tab: Report */}
@@ -908,6 +936,38 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
                                 );
                               })}
                             </ul>
+                          </div>
+                        )}
+
+                        {/* AI Committee - independent model verdicts vs the quant engine */}
+                        {geminiVerdict.structured.committee && geminiVerdict.structured.committee.members.length > 0 && (
+                          <div className="bg-gradient-to-r from-brand-orange/5 to-secondary/5 border border-brand-orange/20 rounded-xl p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-2">
+                                <Cpu className="w-3 h-3" /> AI Committee
+                                <span className="text-[9px] font-normal normal-case">independent second opinions</span>
+                              </div>
+                              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${geminiVerdict.structured.committee.agreement === "Unanimous" ? "bg-secondary/15 text-secondary border-secondary/30" : geminiVerdict.structured.committee.agreement === "Split" ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-brand-gold/15 text-brand-gold border-brand-gold/30"}`}>
+                                {geminiVerdict.structured.committee.agreement}
+                              </span>
+                            </div>
+                            <div className="space-y-1.5">
+                              {geminiVerdict.structured.committee.members.map((m, i) => (
+                                <div key={i} className="flex items-center justify-between gap-2 text-xs">
+                                  <span className="text-muted-foreground truncate flex-1" title={m.model}>{m.model.replace(/ \(OpenRouter\)$/, "").replace(/:free$/, "")}</span>
+                                  <span className={`font-black ${m.verdict === "BUY" ? "text-secondary" : m.verdict === "SELL" ? "text-destructive" : "text-foreground"}`}>
+                                    {m.verdict ?? "-"}
+                                  </span>
+                                  {m.conviction != null && <span className="text-[10px] text-muted-foreground font-mono w-8 text-right">{m.conviction}%</span>}
+                                </div>
+                              ))}
+                              <div className="flex items-center justify-between gap-2 text-xs pt-1.5 border-t border-border/40">
+                                <span className="text-muted-foreground font-semibold">Quant engine (authoritative)</span>
+                                <span className={`font-black ${geminiVerdict.structured.committee.quant_verdict === "BUY" ? "text-secondary" : geminiVerdict.structured.committee.quant_verdict === "SELL" ? "text-destructive" : "text-foreground"}`}>
+                                  {geminiVerdict.structured.committee.quant_verdict}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         )}
 
