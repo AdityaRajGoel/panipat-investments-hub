@@ -106,11 +106,13 @@ async function getLiveNews() {
     fetchRss("https://query2.finance.yahoo.com/v1/finance/rss/news", "Yahoo Finance", "Markets"),
   ]);
 
+  // Deep enough that the client's featured story + 9-card grid still leaves
+  // stories behind the "Show more" button.
   const indian = interleave(
     [etMarkets, moneyControl, businessStandard, liveMint, financialExpress, ndtvProfit, zeeBusiness],
-    12,
+    24,
   );
-  const world = interleave([cnbcWorld, yahooFinance], 8);
+  const world = interleave([cnbcWorld, yahooFinance], 14);
 
   return { indian, world };
 }

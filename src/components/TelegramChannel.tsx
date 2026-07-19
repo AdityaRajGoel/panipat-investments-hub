@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Send, Clock, TrendingUp, TrendingDown, AlertTriangle, Shield, RefreshCw, ArrowUpRight, Repeat2, MessageSquare, ExternalLink } from "lucide-react";
+import { Send, Clock, TrendingUp, TrendingDown, AlertTriangle, Shield, RefreshCw, ArrowUpRight, Repeat2, MessageSquare, ExternalLink, Search, Target } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useT } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -275,12 +276,27 @@ interface TelegramChannelProps {
 // Chip order for the category filter (dedicated recommendations page).
 const FILTER_ORDER: MessageCategory[] = ["buy", "sell", "target", "hold", "update"];
 
+// Bucket a message date into a feed section header.
+function dateBucket(dateStr: string): string {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diffDays = Math.round((startOfDay(now) - startOfDay(d)) / 86_400_000);
+  if (diffDays <= 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return "This Week";
+  return "Earlier";
+}
+
+const BUCKET_ORDER = ["Today", "Yesterday", "This Week", "Earlier"];
+
 const TelegramChannel = ({ limit = 10, showViewAll = false, showFilters = false }: TelegramChannelProps) => {
   const { t } = useT();
   const [messages, setMessages] = useState<TelegramMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<MessageCategory | "all">("all");
+  const [search, setSearch] = useState("");
 
   // Classify once, tally per category, and derive the visible list.
   const { counts, visible } = useMemo(() => {
@@ -289,9 +305,26 @@ const TelegramChannel = ({ limit = 10, showViewAll = false, showFilters = false 
       const c = detectCategory(m.message_text);
       tally[c] = (tally[c] ?? 0) + 1;
     }
-    const list = filter === "all" ? messages : messages.filter((m) => detectCategory(m.message_text) === filter);
+    const q = search.trim().toLowerCase();
+    const list = messages.filter((m) => {
+      if (filter !== "all" && detectCategory(m.message_text) !== filter) return false;
+      if (q && !(m.message_text ?? "").toLowerCase().includes(q)) return false;
+      return true;
+    });
     return { counts: tally, visible: list };
-  }, [messages, filter]);
+  }, [messages, filter, search]);
+
+  // Group the visible feed under date headers (dedicated page only).
+  const grouped = useMemo(() => {
+    if (!showFilters) return null;
+    const buckets = new Map<string, TelegramMessage[]>();
+    for (const m of visible) {
+      const b = dateBucket(m.message_date);
+      const arr = buckets.get(b) ?? [];
+      buckets.set(b, [...arr, m]);
+    }
+    return BUCKET_ORDER.filter((b) => buckets.has(b)).map((b) => ({ label: b, items: buckets.get(b)! }));
+  }, [visible, showFilters]);
 
   const fetchMessages = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -398,6 +431,40 @@ const TelegramChannel = ({ limit = 10, showViewAll = false, showFilters = false 
           </Button>
         </motion.div>
 
+        {/* Research-desk summary band (dedicated recommendations page) */}
+        {showFilters && !loading && messages.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            {[
+              { label: "Buy Calls", value: counts.buy ?? 0, icon: TrendingUp, cls: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/40" },
+              { label: "Sell / Exit Calls", value: counts.sell ?? 0, icon: TrendingDown, cls: "text-red-600 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/40" },
+              { label: "Targets Hit", value: counts.target ?? 0, icon: Target, cls: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/40" },
+              { label: "Total Updates", value: messages.length, icon: Send, cls: "text-[#229ED9]", bg: "bg-[#229ED9]/10" },
+            ].map(({ label, value, icon: TileIcon, cls, bg }) => (
+              <div key={label} className={`rounded-xl border border-border/50 ${bg} px-4 py-3 flex items-center gap-3`}>
+                <TileIcon className={`w-5 h-5 shrink-0 ${cls}`} />
+                <div>
+                  <div className={`text-xl font-black font-mono leading-none ${cls}`}>{value}</div>
+                  <div className="text-[10px] font-semibold text-muted-foreground mt-1">{label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Search (dedicated recommendations page) */}
+        {showFilters && !loading && messages.length > 0 && (
+          <div className="relative mb-4 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search stock or keyword..."
+              aria-label="Search recommendations"
+              className="pl-9 h-10"
+            />
+          </div>
+        )}
+
         {/* Category filter chips (dedicated recommendations page) */}
         {showFilters && !loading && messages.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -450,6 +517,30 @@ const TelegramChannel = ({ limit = 10, showViewAll = false, showFilters = false 
               Stock recommendations will appear here once published. Check back soon!
             </p>
           </motion.div>
+        ) : visible.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground py-12">
+            No updates match your filter - try clearing the search or category.
+          </p>
+        ) : grouped ? (
+          // Dedicated page: feed grouped under date headers
+          <AnimatePresence mode="popLayout">
+            <div className="space-y-8">
+              {grouped.map((g) => (
+                <div key={g.label}>
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <h3 className="text-sm font-heading font-bold text-foreground">{g.label}</h3>
+                    <span className="text-[10px] font-semibold text-muted-foreground bg-muted rounded-full px-2 py-0.5">{g.items.length}</span>
+                    <div className="flex-1 h-px bg-border/60" />
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {g.items.map((msg, i) => (
+                      <MessageCard key={msg.id} message={msg} index={i} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </AnimatePresence>
         ) : (
           <AnimatePresence mode="popLayout">
             <div className="grid md:grid-cols-2 gap-4">

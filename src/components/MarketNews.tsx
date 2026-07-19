@@ -49,6 +49,14 @@ const categoryColors: Record<string, string> = {
 const safeUrl = (url?: string): string | undefined =>
   url && /^https?:\/\//i.test(url) ? url : undefined;
 
+// Stories younger than this get a live "fresh" pulse dot.
+const FRESH_WINDOW_MS = 60 * 60 * 1000;
+const isFresh = (item: NewsItem): boolean =>
+  !!item.timestamp && Date.now() - new Date(item.timestamp).getTime() < FRESH_WINDOW_MS;
+
+// Cards shown before the "Show more" button reveals the rest.
+const INITIAL_GRID_COUNT = 9;
+
 // Live "x ago" label from a timestamp, falling back to the pre-baked string.
 function useTimeAgo(item: NewsItem): string {
   const [display, setDisplay] = useState(item.timeAgo);
@@ -123,6 +131,11 @@ const NewsCard = ({ item, index }: { item: NewsItem; index: number }) => {
                   <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                     <Clock className="w-2.5 h-2.5" />{displayTime}
                   </span>
+                  {isFresh(item) && (
+                    <span className="inline-flex items-center gap-1 text-[9px] font-bold text-secondary uppercase">
+                      <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />New
+                    </span>
+                  )}
                 </div>
                 <h3 className="font-heading font-semibold text-sm text-foreground leading-snug group-hover:text-secondary transition-colors line-clamp-2">
                   {item.title}
@@ -147,7 +160,9 @@ const MarketNews = () => {
   const [worldNews, setWorldNews] = useState<NewsItem[]>(fallbackWorld);
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeSource, setActiveSource] = useState("All");
   const [query, setQuery] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   const fetchNews = async () => {
     setLoading(true);
@@ -186,21 +201,39 @@ const MarketNews = () => {
     return ["All", ...[...seen].sort()];
   }, [news]);
 
-  // Reset the category filter when it no longer exists in the current tab.
+  // Source dropdown options from the live feed for this tab.
+  const sources = useMemo(() => {
+    const seen = new Set<string>();
+    news.forEach((n) => n.source && seen.add(n.source));
+    return ["All", ...[...seen].sort()];
+  }, [news]);
+
+  // Reset filters when they no longer exist in the current tab.
   useEffect(() => {
     if (activeCategory !== "All" && !categories.includes(activeCategory)) setActiveCategory("All");
   }, [categories, activeCategory]);
+  useEffect(() => {
+    if (activeSource !== "All" && !sources.includes(activeSource)) setActiveSource("All");
+  }, [sources, activeSource]);
+
+  // Collapse the expanded grid whenever the view changes.
+  useEffect(() => {
+    setShowAll(false);
+  }, [activeTab, activeCategory, activeSource, query]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return news.filter((n) => {
       if (activeCategory !== "All" && n.category !== activeCategory) return false;
+      if (activeSource !== "All" && n.source !== activeSource) return false;
       if (q && !(n.title.toLowerCase().includes(q) || n.summary.toLowerCase().includes(q))) return false;
       return true;
     });
-  }, [news, activeCategory, query]);
+  }, [news, activeCategory, activeSource, query]);
 
   const [featured, ...rest] = filtered;
+  const visibleRest = showAll ? rest : rest.slice(0, INITIAL_GRID_COUNT);
+  const hiddenCount = rest.length - visibleRest.length;
 
   return (
     <section id="news" className="py-10 md:py-20 bg-background relative overflow-hidden">
@@ -244,15 +277,27 @@ const MarketNews = () => {
               </button>
             ))}
           </div>
-          <div className="relative w-full lg:w-64 shrink-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search headlines..." className="pl-9 h-9 text-sm" aria-label="Search news headlines" />
+          <div className="flex gap-2 shrink-0">
+            <select
+              value={activeSource}
+              onChange={(e) => setActiveSource(e.target.value)}
+              aria-label="Filter by news source"
+              className="h-9 rounded-md border border-input bg-card px-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring max-w-[150px]"
+            >
+              {sources.map((s) => (
+                <option key={s} value={s}>{s === "All" ? "All Sources" : s}</option>
+              ))}
+            </select>
+            <div className="relative w-full lg:w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search headlines..." className="pl-9 h-9 text-sm" aria-label="Search news headlines" />
+            </div>
           </div>
         </div>
 
         {/* Feed */}
         <AnimatePresence mode="wait">
-          <motion.div key={`${activeTab}-${activeCategory}-${query}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+          <motion.div key={`${activeTab}-${activeCategory}-${activeSource}-${query}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
             {filtered.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <Newspaper className="w-10 h-10 mx-auto mb-3 opacity-20" />
@@ -263,10 +308,17 @@ const MarketNews = () => {
               <>
                 {featured && <div className="mb-4"><FeaturedCard item={featured} /></div>}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {rest.map((item, i) => (
+                  {visibleRest.map((item, i) => (
                     <NewsCard key={`${activeTab}-${item.title}-${i}`} item={item} index={i} />
                   ))}
                 </div>
+                {hiddenCount > 0 && (
+                  <div className="flex justify-center mt-6">
+                    <Button variant="outline" size="sm" onClick={() => setShowAll(true)} className="gap-1.5">
+                      Show {hiddenCount} more stories
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </motion.div>
