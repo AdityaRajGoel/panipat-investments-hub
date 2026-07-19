@@ -1,9 +1,20 @@
-import { Flame, TrendingUp, Shield, Zap, ArrowRight, X, IndianRupee, PhoneCall } from "lucide-react";
+import { Flame, TrendingUp, TrendingDown, Shield, Zap, ArrowRight, X, IndianRupee, PhoneCall } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { useLiveMarket } from "@/hooks/useLiveMarket";
 
-const announcements = [
+type Announcement = {
+  icon: typeof Flame;
+  text: string;
+  cta: string | null;
+  href: string | null;
+  color: string;
+  /** Rendered as the live NIFTY/SENSEX line instead of plain text. */
+  live?: boolean;
+};
+
+const announcements: Announcement[] = [
   { icon: Flame, text: "Open a FREE Demat Account", cta: "Start", href: "/open-account", color: "text-brand-gold" },
   { icon: IndianRupee, text: "Transparent Pricing - every charge published", cta: "See Charges", href: "/pricing", color: "text-secondary" },
   { icon: TrendingUp, text: "IPOs Open - Apply Online", cta: "Apply", href: "/services", color: "text-secondary" },
@@ -20,6 +31,19 @@ const AnnouncementBar = () => {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const { indices } = useLiveMarket();
+
+  // Lead slide: live NIFTY/SENSEX from the same feed as the rest of the site,
+  // so the "Live Updates" badge is literally true.
+  const nifty = indices.find((i) => i.key === "NIFTY");
+  const sensex = indices.find((i) => i.key === "SENSEX");
+  const items = useMemo<Announcement[]>(() => {
+    if (!nifty) return announcements;
+    return [
+      { icon: nifty.up ? TrendingUp : TrendingDown, text: "Live market snapshot", cta: "Markets", href: "/screener", color: nifty.up ? "text-emerald-400" : "text-red-400", live: true },
+      ...announcements,
+    ];
+  }, [nifty]);
 
   // Restore dismissal for this browsing session
   useEffect(() => {
@@ -31,9 +55,9 @@ const AnnouncementBar = () => {
   // Auto-rotate announcements (pauses on hover); static links, not a moving target
   useEffect(() => {
     if (paused) return;
-    const t = setInterval(() => setIndex((i) => (i + 1) % announcements.length), 5000);
+    const t = setInterval(() => setIndex((i) => (i + 1) % items.length), 5000);
     return () => clearInterval(t);
-  }, [paused]);
+  }, [paused, items.length]);
 
   // Auto-hide on mobile when scrolling down past 50px
   useEffect(() => {
@@ -56,8 +80,23 @@ const AnnouncementBar = () => {
 
   if (dismissed) return null;
 
-  const item = announcements[index];
+  const item = items[index % items.length];
   const Icon = item.icon;
+
+  // Live NIFTY/SENSEX line for the lead slide.
+  const liveLine = item.live && nifty && (
+    <>
+      <span className="text-white/90 text-[11px] md:text-xs font-semibold whitespace-nowrap">NIFTY {nifty.price}</span>
+      <span className={`text-[10px] md:text-[11px] font-bold whitespace-nowrap ${nifty.up ? "text-emerald-400" : "text-red-400"}`}>{nifty.change}</span>
+      {sensex && (
+        <span className="hidden sm:inline-flex items-center gap-1.5">
+          <span className="text-white/30">·</span>
+          <span className="text-white/90 text-[11px] md:text-xs font-semibold whitespace-nowrap">SENSEX {sensex.price}</span>
+          <span className={`text-[10px] md:text-[11px] font-bold whitespace-nowrap ${sensex.up ? "text-emerald-400" : "text-red-400"}`}>{sensex.change}</span>
+        </span>
+      )}
+    </>
+  );
 
   return (
     <div
@@ -96,7 +135,9 @@ const AnnouncementBar = () => {
               {item.href ? (
                 <Link to={item.href} className="group inline-flex items-center gap-2 md:gap-3">
                   <Icon className={`w-3.5 h-3.5 shrink-0 ${item.color}`} />
-                  <span className="text-white/80 group-hover:text-white text-[11px] md:text-xs font-medium whitespace-nowrap transition-colors">{item.text}</span>
+                  {liveLine || (
+                    <span className="text-white/80 group-hover:text-white text-[11px] md:text-xs font-medium whitespace-nowrap transition-colors">{item.text}</span>
+                  )}
                   {item.cta && (
                     <span className={`inline-flex items-center gap-1 text-[10px] md:text-[11px] font-bold ${item.color} bg-white/10 group-hover:bg-white/15 rounded-full px-2 py-0.5 transition-colors`}>
                       {item.cta} <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
@@ -116,7 +157,7 @@ const AnnouncementBar = () => {
         {/* Progress dots + dismiss */}
         <div className="flex items-center gap-2 shrink-0 pr-2 md:pr-3">
           <div className="hidden sm:flex items-center gap-1">
-            {announcements.map((a, i) => (
+            {items.map((a, i) => (
               <button
                 key={i}
                 onClick={() => setIndex(i)}

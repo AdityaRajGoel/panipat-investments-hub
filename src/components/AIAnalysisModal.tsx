@@ -39,13 +39,28 @@ interface AIAnalysisModalProps {
   stock: StockForAnalysis | null;
 }
 
-const analysisSteps: { text: string; Icon: LucideIcon }[] = [
-  { text: "Fetching live market data", Icon: Database },
-  { text: "Computing technical indicators", Icon: Activity },
+// Loading steps mirror the ACTUAL server pipeline (1Y OHLCV -> indicators ->
+// patterns -> news -> fundamentals/peers -> model(s) -> report). The model step
+// differs by mode: single reasoning model vs the parallel committee.
+const REPORT_STEPS: { text: string; Icon: LucideIcon }[] = [
+  { text: "Fetching 1-year price history", Icon: Database },
+  { text: "Computing RSI, MACD, SMA & ADX", Icon: Activity },
   { text: "Scanning candlestick patterns", Icon: LineChart },
-  { text: "Benchmarking sector peers", Icon: Scale },
+  { text: "Reading latest news & events", Icon: Newspaper },
+  { text: "Benchmarking fundamentals vs peers", Icon: Scale },
   { text: "Running the reasoning model", Icon: Cpu },
-  { text: "Generating the report", Icon: FileText },
+  { text: "Grounding verdict in the quant engine", Icon: FileText },
+];
+
+const COMMITTEE_STEPS: { text: string; Icon: LucideIcon }[] = [
+  { text: "Fetching 1-year price history", Icon: Database },
+  { text: "Computing RSI, MACD, SMA & ADX", Icon: Activity },
+  { text: "Scanning candlestick patterns", Icon: LineChart },
+  { text: "Reading latest news & events", Icon: Newspaper },
+  { text: "Benchmarking fundamentals vs peers", Icon: Scale },
+  { text: "Convening the AI committee in parallel", Icon: Cpu },
+  { text: "Comparing independent verdicts", Icon: Scale },
+  { text: "Grounding verdict in the quant engine", Icon: FileText },
 ];
 
 function IndicatorCard({ label, signal, desc, icon: Icon, delay }:
@@ -238,6 +253,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
   // Opt-in "Deep" mode: two open models answer in parallel and their
   // independent verdicts are compared against the quant engine.
   const [useCommittee, setUseCommittee] = useState(false);
+  const analysisSteps = useCommittee ? COMMITTEE_STEPS : REPORT_STEPS;
   const [copied, setCopied] = useState(false);
   
   const sampleQuestions = [
@@ -279,7 +295,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
       setLoadingStep(p => (p >= analysisSteps.length - 1 ? p : p + 1));
     }, 550);
     return () => clearInterval(interval);
-  }, [isOpen, isAnalyzing]);
+  }, [isOpen, isAnalyzing, analysisSteps]);
 
   // Short minimum on-screen time so the loader doesn't flash if the AI is instant
   useEffect(() => {
@@ -607,6 +623,11 @@ export const AIAnalysisModal = ({ isOpen, onClose, stock }: AIAnalysisModalProps
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="flex flex-col items-center justify-center py-8 md:py-14 p-6">
                 <AnalysisScanner />
+                {useCommittee && (
+                  <span className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full bg-brand-orange/10 border border-brand-orange/30 text-brand-orange text-[10px] font-bold uppercase tracking-wider">
+                    <Cpu className="w-3 h-3" /> Committee Mode · models in parallel
+                  </span>
+                )}
                 <div className="w-64 flex items-center justify-between mb-1.5">
                   <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Analyzing</span>
                   <span className="text-[11px] font-bold text-brand-orange tabular-nums">
