@@ -38,7 +38,7 @@ const toolLinks: FooterLink[] = [
 const importantLinks: FooterLink[] = [
   { label: "About Company", href: "https://www.parasramindia.com/about-us/", external: true },
   { label: "Research", href: "https://www.parasramindia.com/tools-and-research/", external: true },
-  { label: "Investor Charter", href: "https://parasramindia.com/investor-charter", external: true },
+  { label: "Investor Charter", href: "https://www.parasramindia.com/investor-charter/", external: true },
   { label: "Investor Corner", href: "/investor-corner" },
   { label: "SCORES Portal", href: "https://scores.sebi.gov.in", external: true, title: "SEBI Complaint Redressal" },
   { label: "SMART ODR", href: "https://smartodr.in/login", external: true, title: "SEBI Online Dispute Resolution" },
@@ -355,7 +355,7 @@ const Footer = () => {
                 <span className="mx-2">|</span>
                 <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Sitemap</a>
                 <span className="mx-2">|</span>
-                <a href="https://parasramindia.com/investor-charter" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Investor Charter</a>
+                <a href="https://www.parasramindia.com/investor-charter/" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Investor Charter</a>
               </p>
               <p className="text-primary-foreground/40">
                 Investments in securities market are subject to market risks. Read all related documents carefully before investing.

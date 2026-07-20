@@ -40,19 +40,6 @@ const Index = () => {
         title="Best Stock Broker in Panipat | Shri Parasram Holdings Panipat"
         description="SEBI-registered stock broker in Panipat since 1970. Open a free Demat account. Trade stocks, mutual funds, IPO, F&O, commodities and unlisted shares."
         breadcrumbs={[{ name: "Home", url: "/" }]}
-        jsonLd={{
-          "@type": "VideoObject",
-          "name": "Parasram India Panipat - SEBI Registered Stock Broker Since 1970",
-          "description": "Discover Parasram India, Panipat's most trusted SEBI-registered stock broker since 1970. Open a free Demat account and trade stocks, mutual funds, IPO, F&O and unlisted shares.",
-          "thumbnailUrl": "https://www.sphpnp.com/hero-bg.jpg",
-          "uploadDate": "2024-01-01",
-          "contentUrl": "https://www.sphpnp.com/video.mp4",
-          "publisher": {
-            "@type": "Organization",
-            "name": "Shri Parasram Holdings Panipat",
-            "logo": { "@type": "ImageObject", "url": "https://www.sphpnp.com/logo.png" }
-          }
-        }}
       />
       <BannerMessage />
       <ScrollProgress />

@@ -128,14 +128,7 @@ const PricingPage = () => {
           description="Transparent brokerage: free Demat account opening, 0.15% equity delivery, 0.02% intraday & futures, ₹30/lot options. Full charge sheet for Parasram India Panipat."
           canonical="https://www.sphpnp.com/pricing"
           breadcrumbs={[{ name: "Home", url: "/" }, { name: "Pricing & Charges" }]}
-          jsonLd={{
-            "@type": "FAQPage",
-            mainEntity: faqs.map((f) => ({
-              "@type": "Question",
-              name: f.q,
-              acceptedAnswer: { "@type": "Answer", text: f.a },
-            })),
-          }}
+          faqItems={faqs.map((f) => ({ question: f.q, answer: f.a }))}
         />
         <ScrollProgress />
         <Header />

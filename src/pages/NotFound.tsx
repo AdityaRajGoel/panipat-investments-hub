@@ -32,9 +32,10 @@ const NotFound = () => {
   }, []);
 
   const suggestedPages = [
-    { label: "Stock Screener", href: "/screener", icon: TrendingUp },
-    { label: "F&O Dashboard", href: "/fno", icon: Search },
-    { label: "Holiday Calendar", href: "/holidays", icon: HelpCircle },
+    { label: "Home", href: "/", icon: Home },
+    { label: "Open Account", href: "/open-account", icon: TrendingUp },
+    { label: "Services", href: "/services", icon: Search },
+    { label: "Contact Us", href: "/contact", icon: HelpCircle },
   ];
 
   return (

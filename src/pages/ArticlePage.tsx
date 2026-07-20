@@ -2,7 +2,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { motion } from "motion/react";
-import { BookOpen, Clock, ChevronRight, ArrowRight, CheckCircle2, GraduationCap } from "lucide-react";
+import { BookOpen, Clock, ChevronRight, ArrowRight, CheckCircle2, GraduationCap, Share2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -112,6 +112,37 @@ const ArticlePage = () => {
             is not investment advice. Investments in securities are subject to market risks. Please consult a
             SEBI-registered advisor before investing.
           </div>
+
+          {/* Share */}
+          {(() => {
+            const articleUrl = `https://www.sphpnp.com/learn/${article.slug}`;
+            const shareText = `${article.title} — ${article.metaDescription}`;
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${articleUrl}`)}`;
+            const twUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(articleUrl)}&via=ParasramPanipat`;
+            return (
+              <div className="mt-5 flex items-center gap-3">
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Share2 className="w-3.5 h-3.5" /> Share:
+                </span>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] text-xs font-medium transition-colors"
+                >
+                  WhatsApp
+                </a>
+                <a
+                  href={twUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-foreground/5 hover:bg-foreground/10 text-foreground text-xs font-medium transition-colors"
+                >
+                  𝕏 / Twitter
+                </a>
+              </div>
+            );
+          })()}
 
           {/* CTA */}
           <motion.div

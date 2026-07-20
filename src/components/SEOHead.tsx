@@ -106,9 +106,10 @@ const SEOHead = ({
       "worstRating": 1
     },
     "sameAs": [
-      "https://www.facebook.com/parasramindia",
+      "https://www.facebook.com/ParasramGroup/",
+      "https://www.instagram.com/parasrampanipat/",
       "https://twitter.com/ParasramPanipat",
-      "https://www.linkedin.com/company/parasramindia"
+      "https://www.linkedin.com/company/parasram"
     ]
   });
 
@@ -131,9 +132,10 @@ const SEOHead = ({
         "query-input": "required name=search_term_string"
       },
       "sameAs": [
-        "https://www.facebook.com/parasramindia",
+        "https://www.facebook.com/ParasramGroup/",
+        "https://www.instagram.com/parasrampanipat/",
         "https://twitter.com/ParasramPanipat",
-        "https://www.linkedin.com/company/parasramindia"
+        "https://www.linkedin.com/company/parasram"
       ]
     });
 
@@ -225,8 +227,8 @@ const SEOHead = ({
       <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
       
       <link rel="canonical" href={fullCanonical} />
-      <link rel="alternate" hreflang="en-IN" href={fullCanonical} />
-      <link rel="alternate" hreflang="x-default" href={fullCanonical} />
+      <link rel="alternate" hrefLang="en-IN" href={fullCanonical} />
+      <link rel="alternate" hrefLang="x-default" href={fullCanonical} />
 
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />

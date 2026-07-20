@@ -8,7 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import {
   ShieldCheck, AlertTriangle, Scale, CheckCircle2, XCircle, Snowflake,
   ExternalLink, FileText, Landmark, Vote, MessagesSquare, KeyRound, Phone, Mail,
-  Building2, Users, Banknote,
+  Building2, Users, Banknote, Printer,
 } from "lucide-react";
 
 // SEBI-mandated standard Risk Disclosure on Derivatives (verbatim per
@@ -127,11 +127,19 @@ const InvestorCornerPage = () => {
 
         <main className="flex-1 py-8 md:py-16">
           <div className="container mx-auto px-4 max-w-5xl">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary shrink-0">
-                <ShieldCheck className="w-6 h-6" />
+            <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <h1 className="text-3xl md:text-5xl font-heading font-bold text-foreground">Investor Corner</h1>
               </div>
-              <h1 className="text-3xl md:text-5xl font-heading font-bold text-foreground">Investor Corner</h1>
+              <button
+                onClick={() => window.print()}
+                className="print:hidden shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+              >
+                <Printer className="w-4 h-4" /> Print / Save PDF
+              </button>
             </div>
             <p className="text-muted-foreground max-w-3xl mb-4">
               SEBI-mandated disclosures, investor-protection advisories and official grievance channels for clients of
