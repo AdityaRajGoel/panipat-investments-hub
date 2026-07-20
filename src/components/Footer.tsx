@@ -351,6 +351,8 @@ const Footer = () => {
                 <span className="mx-2">|</span>
                 <Link to="/disclaimer" className="tap-area hover:text-secondary hover:underline transition-colors">Disclaimer</Link>
                 <span className="mx-2">|</span>
+                <Link to="/investor-corner" className="hover:text-secondary hover:underline transition-colors">Investor Corner</Link>
+                <span className="mx-2">|</span>
                 <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Sitemap</a>
                 <span className="mx-2">|</span>
                 <a href="https://parasramindia.com/investor-charter" target="_blank" rel="noopener noreferrer" className="hover:text-secondary hover:underline transition-colors">Investor Charter</a>

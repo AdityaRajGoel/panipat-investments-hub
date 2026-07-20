@@ -8,6 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import {
   ShieldCheck, AlertTriangle, Scale, CheckCircle2, XCircle, Snowflake,
   ExternalLink, FileText, Landmark, Vote, MessagesSquare, KeyRound, Phone, Mail,
+  Building2, Users, Banknote,
 } from "lucide-react";
 
 // SEBI-mandated standard Risk Disclosure on Derivatives (verbatim per
@@ -87,6 +88,12 @@ const OFFICIAL_LINKS: { label: string; desc: string; href: string; icon: typeof 
   { label: "NSDL e-Voting", desc: "Vote on company resolutions", href: "https://eservices.nsdl.com/", icon: Vote },
   { label: "Update KYC", desc: "Keep your details current online", href: "https://dashboard.parasramindia.com/Account/Login?Link=1006", icon: KeyRound },
   { label: "Fit & Proper Annexure", desc: "Contract-note annexure (PDF)", href: "https://www.parasramindia.com/wp-content/uploads/2025/06/Fit-and-Proper-Annexure-ContractNote.pdf", icon: FileText },
+  { label: "Member Details", desc: "Firm & exchange registration overview", href: "https://www.parasramindia.com/member-details/", icon: Building2 },
+  { label: "Basic Firm Details", desc: "Stock broker & depository participant details (PDF)", href: "https://www.parasramindia.com/wp-content/uploads/2023/11/Basic-Details-of-Stock-Broker-Depository-Participant.pdf", icon: FileText },
+  { label: "Key Managerial Personnel", desc: "Details of the management team (PDF)", href: "https://www.parasramindia.com/wp-content/uploads/2023/08/Details-of-Key-Managerial-Personnel.pdf", icon: Users },
+  { label: "Authorised Persons List", desc: "Current list of registered APs (PDF)", href: "https://www.parasramindia.com/wp-content/uploads/2026/03/APDETAILSASON07032026.pdf", icon: Users },
+  { label: "FATCA / CRS Guidance", desc: "Foreign Account Tax Compliance guidance note (PDF)", href: "https://www.parasramindia.com/wp-content/uploads/2022/07/GuidanceNoteonFATCAandCRSMay2016.pdf", icon: FileText },
+  { label: "Client Bank Account Details", desc: "Verified bank accounts for fund transfers (PDF)", href: "https://www.parasramindia.com/wp-content/uploads/2025/07/CLIENT-BANK-ACCOUNTS-2025.pdf", icon: Banknote },
 ];
 
 const SectionCard = ({ id, icon: Icon, title, children }: { id: string; icon: typeof Scale; title: string; children: React.ReactNode }) => (
