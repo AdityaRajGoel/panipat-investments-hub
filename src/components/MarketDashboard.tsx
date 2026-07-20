@@ -1,11 +1,11 @@
 import { motion, AnimatePresence } from "motion/react";
 import type { LucideIcon } from "lucide-react";
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import {
   TrendingUp, TrendingDown, Activity, Gauge, BarChart3, PieChart,
   ArrowUpRight, ArrowDownRight, Zap, Globe, Building2, Cpu, Heart,
   Fuel, Pill, ShoppingCart, Landmark, Factory, Pickaxe, DollarSign,
-  Calendar, Percent, IndianRupee, Coins
+  Calendar, Percent, IndianRupee, Coins, AlertTriangle
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useT } from "@/i18n/LanguageContext";
@@ -503,6 +503,45 @@ const MI_TABS = [
 
 type MiTabId = (typeof MI_TABS)[number]["id"];
 
+// Data older than this counts as delayed (live feed refreshes every 60s
+// while the market is open, 5 min when closed).
+const STALE_AFTER_MS = 10 * 60 * 1000;
+
+// Honesty badge: the dashboard seeds with fallback numbers and keeps the last
+// good fetch on errors, so surface whether what's on screen is actually live.
+const DataFreshness = memo(() => {
+  const { fetchedAt, loading } = useLiveMarket();
+  // Re-render each minute so the staleness judgement stays current.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((n) => n + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  if (loading) return null;
+
+  const fetchedMs = fetchedAt ? new Date(fetchedAt).getTime() : null;
+  const isLive = fetchedMs != null && Date.now() - fetchedMs < STALE_AFTER_MS;
+  const timeLabel = fetchedMs != null
+    ? new Date(fetchedMs).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
+    : null;
+
+  return isLive ? (
+    <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-secondary">
+      <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+      Live data · {timeLabel}
+    </span>
+  ) : (
+    <span
+      className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-brand-gold"
+      title="The live feed could not be refreshed - figures shown may be indicative or delayed."
+    >
+      <AlertTriangle className="w-3 h-3" />
+      Delayed data{timeLabel ? ` · last updated ${timeLabel}` : " · showing indicative figures"}
+    </span>
+  );
+});
+
 const MarketDashboard = () => {
   const { t } = useT();
   const { marketOverview, commodities } = useLiveMarket();
@@ -524,6 +563,9 @@ const MarketDashboard = () => {
           <p className="text-muted-foreground text-sm max-w-lg mx-auto">
             {t("mi.subtitle")}
           </p>
+          <div className="mt-2">
+            <DataFreshness />
+          </div>
         </motion.div>
 
         <motion.div className="mb-6" initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>

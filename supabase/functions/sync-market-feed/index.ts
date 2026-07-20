@@ -220,6 +220,39 @@ async function fetchCorporateActions(): Promise<CorpAction[]> {
   return actions;
 }
 
+// Upcoming results dates from NSE's board-meetings feed (purpose contains
+// "Results"). Fills the earnings-calendar gap the corporate-actions API
+// doesn't cover. Fails soft -> [] so it never blocks the dividend/split sync.
+async function fetchResultsCalendar(): Promise<CorpAction[]> {
+  try {
+    const data = (await fetchNseJson(
+      "https://www.nseindia.com/api/corporate-board-meetings?index=equities",
+    )) as { bm_symbol: string; bm_date: string; bm_purpose: string; sm_name: string }[];
+
+    const today = new Date().toISOString().slice(0, 10);
+    const seen = new Set<string>();
+    const rows: CorpAction[] = [];
+    for (const r of data ?? []) {
+      if (!/results/i.test(r.bm_purpose ?? "")) continue;
+      const iso = nseDateToISO(r.bm_date);
+      if (!iso || iso < today) continue;
+      const key = `${r.bm_symbol}|${iso}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      rows.push({
+        company: r.bm_symbol || r.sm_name,
+        action_type: "Results",
+        details: `Financial results · ${(r.sm_name ?? "").slice(0, 60)}`.trim(),
+        ex_date: iso,
+      });
+      if (rows.length >= 20) break;
+    }
+    return rows;
+  } catch {
+    return [];
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
@@ -290,17 +323,22 @@ Deno.serve(async (req) => {
     report.mf_navs_error = String(e);
   }
 
-  // ── Corporate actions ──────────────────────────────────────────
+  // ── Corporate actions + upcoming results calendar ──────────────
   try {
-    const actions = await fetchCorporateActions();
+    const [actions, results] = await Promise.all([
+      fetchCorporateActions(),
+      fetchResultsCalendar(),
+    ]);
+    const merged = [...actions, ...results];
     const { error } = await supabase
       .from("corporate_actions")
-      .upsert(actions, { onConflict: "company,action_type,ex_date" });
+      .upsert(merged, { onConflict: "company,action_type,ex_date" });
     if (error) throw error;
     // prune past-dated entries so the list stays fresh
     const today = new Date().toISOString().slice(0, 10);
     await supabase.from("corporate_actions").delete().lt("ex_date", today);
     report.corp_actions_upserted = actions.length;
+    report.results_calendar_upserted = results.length;
   } catch (e) {
     report.corp_actions_error = String(e);
   }

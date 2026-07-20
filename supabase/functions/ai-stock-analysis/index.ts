@@ -1102,16 +1102,18 @@ serve(async (req) => {
       console.warn("Rate limit check failed (non-fatal):", e instanceof Error ? e.message : e);
     }
 
+    // Committee and plain reports cache under separate keys ("SYM#committee"
+    // vs "SYM") so each mode stays fresh without clobbering the other.
+    const cacheKey = committeeMode ? `${stockData.symbol}#committee` : stockData.symbol;
+
     // ── Serve a fresh cached report if one exists and the price hasn't
-    //    drifted materially. One computation serves every viewer for the TTL.
-    //    Committee runs bypass the cache (the user explicitly asked for a
-    //    fresh multi-model read). ──
-    if (!is_chat && !committeeMode && stockData.symbol) {
+    //    drifted materially. One computation serves every viewer for the TTL. ──
+    if (!is_chat && stockData.symbol) {
       try {
         const { data: cached } = await sb
           .from("ai_stock_reports")
           .select("report, model, price, created_at")
-          .eq("symbol", stockData.symbol)
+          .eq("symbol", cacheKey)
           .gte("created_at", new Date(Date.now() - REPORT_CACHE_TTL_MS).toISOString())
           .maybeSingle();
         if (cached) {
@@ -1342,7 +1344,7 @@ serve(async (req) => {
     if (!is_chat && stockData.symbol && result.result && typeof result.result === "object") {
       try {
         await sb.from("ai_stock_reports").upsert({
-          symbol: stockData.symbol,
+          symbol: cacheKey,
           report: result.result,
           model: result.model,
           price: enriched.price ?? currentPrice,
