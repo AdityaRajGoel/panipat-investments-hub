@@ -1177,14 +1177,20 @@ serve(async (req) => {
           candidates.push({ name: m, run: () => askOpenRouter(committeePrompt, false, m) });
         }
         if (GROQ_API_KEY) {
-          // Prefer the last (most capable / most distinct) Groq model for diversity.
+          // Most capable / most distinct Groq model first for diversity...
           const gm = GROQ_MODELS[GROQ_MODELS.length - 1] ?? "llama-3.3-70b-versatile";
           candidates.push({ name: `groq:${gm}`, run: () => askGroq(committeePrompt, false, gm) });
+          // ...but also field the known-good workhorse so the committee still
+          // convenes if the capable model is decommissioned/unavailable.
+          const g0 = GROQ_MODELS[0];
+          if (g0 && g0 !== gm) {
+            candidates.push({ name: `groq:${g0}`, run: () => askGroq(committeePrompt, false, g0) });
+          }
         }
         if (CEREBRAS_API_KEY) {
           candidates.push({ name: `cerebras:${CEREBRAS_MODEL}`, run: () => askCerebras(committeePrompt, false) });
         }
-        const chosen = candidates.slice(0, 3);
+        const chosen = candidates.slice(0, 4);
         console.log(`→ Committee: ${chosen.map((c) => c.name).join(" + ")} in parallel...`);
         const settled = await Promise.allSettled(
           chosen.map((c) => withTimeout(c.run(), FREE_MODEL_TIMEOUT_MS, c.name)),
@@ -1356,7 +1362,16 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, verdict: result.result, model: result.model }),
+      JSON.stringify({
+        success: true,
+        verdict: result.result,
+        model: result.model,
+        // Self-diagnosis for committee runs: which members were fielded and
+        // why any failed. Also proves which code version is deployed.
+        ...(committeeMode
+          ? { committee_debug: { members_responded: committeeMembers.length, errors: errors.slice(0, 6) } }
+          : {}),
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

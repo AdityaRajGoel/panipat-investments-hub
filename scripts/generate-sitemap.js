@@ -43,6 +43,7 @@ const urls = [
   { loc: '/cookie-policy',       changefreq: 'yearly',  priority: '0.3',  lastmod: '2026-01-01' },
   { loc: '/terms',               changefreq: 'yearly',  priority: '0.3',  lastmod: '2026-01-01' },
   { loc: '/disclaimer',          changefreq: 'yearly',  priority: '0.3',  lastmod: '2026-01-01' },
+  { loc: '/investor-corner',     changefreq: 'monthly', priority: '0.5',  lastmod: '2026-07-18' },
 ];
 
 const BASE = 'https://www.sphpnp.com';

@@ -42,7 +42,8 @@ const routes = [
   '/privacy-policy',
   '/cookie-policy',
   '/terms',
-  '/disclaimer'
+  '/disclaimer',
+  '/investor-corner'
 ];
 
 async function prerender() {
