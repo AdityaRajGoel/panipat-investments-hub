@@ -158,10 +158,12 @@ Builds the Vite app and serves it via nginx.
   by the Supabase runtime and never committed.
 - Functions running with `verify_jwt = false` (`telegram-webhook`, `sync-*`) authenticate
   via their own shared secrets and **fail closed** if those secrets are unset.
-- No credentials belong in this repository. `.env` is gitignored.
+- No credentials belong in this repository. `.env` is gitignored, and a pre-commit hook
+  (`scripts/check-secrets.mjs`) blocks staged credentials before they can reach history.
 
-Found a security issue? Please report it privately to the maintainer rather than opening a
-public issue.
+Found a security issue? Report it privately to
+[contact@adityarajgoel.com](mailto:contact@adityarajgoel.com) — see [`SECURITY.md`](SECURITY.md).
+Please don't open a public issue.
 
 ---
 
@@ -236,6 +238,19 @@ modify, redistribute, reproduce its look and feel, or use it to train machine-le
 models. The Licensor's regulatory identifiers and trade marks are reserved and may not be
 reused. Third-party dependencies remain under their own licenses.
 
-Licensing enquiries: [compliance@sphpl.com](mailto:compliance@sphpl.com)
+Licensing enquiries: [contact@adityarajgoel.com](mailto:contact@adityarajgoel.com)
 
 Nothing here constitutes investment advice.
+
+---
+
+## Contact
+
+| Topic | Contact |
+|---|---|
+| This repository — security, licensing, corrections | [contact@adityarajgoel.com](mailto:contact@adityarajgoel.com) |
+| Panipat branch — accounts, services, general queries | [anil@sphpnp.com](mailto:anil@sphpnp.com) |
+| Compliance Officer — Mr. Vivek Sheel Aggarwal | [compliance@sphpl.com](mailto:compliance@sphpl.com) |
+
+Contributions: see [`CONTRIBUTING.md`](CONTRIBUTING.md) — external pull requests are not
+accepted. Security: see [`SECURITY.md`](SECURITY.md).

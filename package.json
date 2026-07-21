@@ -13,7 +13,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "analyze": "vite build --mode analyze && open dist/stats.html",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "prepare": "git config core.hooksPath .githooks || true",
+    "check:secrets": "node scripts/check-secrets.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

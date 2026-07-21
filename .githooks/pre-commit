@@ -1,0 +1,10 @@
+#!/bin/sh
+# Enabled automatically by the "prepare" script in package.json, which points
+# git at this directory via core.hooksPath. No dependency required.
+#
+# Deliberately scoped to secret detection only: a pre-commit hook that runs the
+# full lint/typecheck gets slow, and a slow hook trains people to use
+# --no-verify, which defeats the part that actually matters. Lint, typecheck,
+# tests and build all run in CI.
+
+exec node "$(git rev-parse --show-toplevel)/scripts/check-secrets.mjs"
