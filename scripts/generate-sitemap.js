@@ -34,6 +34,7 @@ const urls = [
   { loc: '/products',            changefreq: 'monthly', priority: '0.7',  lastmod: today },
   { loc: '/brokerage-calculator', changefreq: 'monthly', priority: '0.7', lastmod: today },
   { loc: '/margin-calculator',   changefreq: 'monthly', priority: '0.7',  lastmod: today },
+  { loc: '/sip-calculator',      changefreq: 'monthly', priority: '0.7',  lastmod: today },
   { loc: '/contact',             changefreq: 'monthly', priority: '0.7',  lastmod: today },
   { loc: '/team',                changefreq: 'monthly', priority: '0.6',  lastmod: today },
   { loc: '/holidays',            changefreq: 'monthly', priority: '0.6',  lastmod: today },

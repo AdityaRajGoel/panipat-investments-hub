@@ -34,6 +34,7 @@ const routes = [
   '/depository-services',
   '/brokerage-calculator',
   '/margin-calculator',
+  '/sip-calculator',
   '/team',
   '/contact',
   '/holidays',
