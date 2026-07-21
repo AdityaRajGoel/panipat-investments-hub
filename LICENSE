@@ -1,51 +1,172 @@
-Copyright (c) 2026 Shri Parasram Holdings Pvt. Ltd. All rights reserved.
+PROPRIETARY SOFTWARE LICENCE
+Shri Parasram Holdings Pvt. Ltd. — sphpnp.com
 
-PROPRIETARY — ALL RIGHTS RESERVED
+Copyright (c) 2026 Shri Parasram Holdings Pvt. Ltd.
+CIN: U67120DL1994PTC060726
+All rights reserved.
 
-This source code is made publicly viewable for transparency, security review,
-and reference purposes only. It is not open source.
+SPDX-License-Identifier: LicenseRef-Proprietary-SPHPL
 
-NO PERMISSION IS GRANTED to any person to use, copy, modify, merge, publish,
-distribute, sublicense, sell, or create derivative works from this software or
-any portion of it, whether in source or compiled form, without the prior
-written permission of Shri Parasram Holdings Pvt. Ltd.
+--------------------------------------------------------------------------------
+NOTICE
+--------------------------------------------------------------------------------
 
-You MAY:
-  - View and read this source code.
-  - Reference it for the purposes of security research or interoperability.
-  - Quote short excerpts where permitted by applicable law (for example, fair
-    dealing for criticism, review, or reporting).
+This repository is PUBLICLY VIEWABLE BUT NOT OPEN SOURCE. Public visibility is
+granted solely for transparency, security review, and reference. It does not
+place this work in the public domain and does not grant any licence to use it.
 
-You MAY NOT:
-  - Deploy this software, in whole or in part, for any purpose.
-  - Redistribute it, with or without modification.
-  - Use the names, branding, logos, or trademarks of Shri Parasram Holdings
-    Pvt. Ltd. or any of its affiliates.
+--------------------------------------------------------------------------------
+1. DEFINITIONS
+--------------------------------------------------------------------------------
 
-THIRD-PARTY COMPONENTS
+1.1  "Licensor" means Shri Parasram Holdings Pvt. Ltd., a company incorporated
+     under the laws of India, CIN U67120DL1994PTC060726.
 
-This repository depends on third-party software that is distributed under its
-own separate licenses. Those components remain governed by their respective
-license terms, and nothing in this LICENSE alters, restricts, or extends them.
-This LICENSE applies solely to the original source code authored for this
-project.
+1.2  "Software" means the source code, object code, configuration, database
+     schema and migrations, build and deployment scripts, documentation, and
+     all other material in this repository, in every version and revision,
+     excluding Third-Party Components as defined in Clause 6.
 
-NO WARRANTY
+1.3  "Content" means the text, copy, images, logos, audio, video, page layouts,
+     visual design, and arrangement contained in or produced by the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
-OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+1.4  "You" means any individual or legal entity accessing the Software.
 
-NOT INVESTMENT ADVICE
+--------------------------------------------------------------------------------
+2. RESERVATION OF RIGHTS
+--------------------------------------------------------------------------------
 
-This repository contains the source of a website operated by a SEBI-registered
-intermediary. Nothing in this repository, including any content, calculation,
-model output, or market data logic, constitutes investment advice or a
-recommendation to buy or sell any security. Market data shown by this software
-may be delayed, incomplete, or inaccurate.
+All right, title and interest in and to the Software and the Content, including
+all copyright, database rights, design rights, trade marks, trade secrets and
+other intellectual property rights, are and remain the exclusive property of the
+Licensor. No rights are granted by implication, estoppel, or otherwise, except
+as expressly stated in Clause 3.
 
-For licensing enquiries, contact Shri Parasram Holdings Pvt. Ltd.
+--------------------------------------------------------------------------------
+3. LIMITED PERMISSION
+--------------------------------------------------------------------------------
+
+Subject to Clause 4, You are permitted, without charge, to:
+
+3.1  view and read the Software as published in this repository;
+
+3.2  examine it for the purposes of security research and responsible
+     vulnerability disclosure, and report findings to the Licensor; and
+
+3.3  quote insubstantial extracts to the extent permitted by applicable law,
+     including fair dealing for the purposes of criticism, review, or reporting,
+     provided the Licensor is credited and the extract is not used to reproduce
+     the whole or a substantial part of the Software.
+
+--------------------------------------------------------------------------------
+4. RESTRICTIONS
+--------------------------------------------------------------------------------
+
+Except as expressly permitted in Clause 3, You SHALL NOT, in whole or in part:
+
+4.1  copy, reproduce, download in bulk, clone, fork, mirror, or archive the
+     Software other than the transient copying inherent in viewing it;
+
+4.2  use, execute, deploy, host, or operate the Software for any purpose,
+     whether commercial or non-commercial, internal or public;
+
+4.3  modify, adapt, translate, or create derivative works from the Software;
+
+4.4  distribute, publish, sublicense, sell, rent, lease, or otherwise transfer
+     the Software or any derivative of it to any third party;
+
+4.5  reproduce or imitate the Content, visual design, page structure, or overall
+     look and feel of the website in any competing or unrelated product;
+
+4.6  remove, obscure, or alter this licence, any copyright notice, or any
+     attribution contained in the Software;
+
+4.7  use the Software to train, fine-tune, or evaluate any machine-learning
+     model, or incorporate it into any dataset for that purpose; or
+
+4.8  use the Licensor's names, brands, logos, or trade marks — including
+     "Shri Parasram Holdings", "Parasram India", "Parasram", and "sphpnp" —
+     or any confusingly similar mark, in any manner.
+
+--------------------------------------------------------------------------------
+5. REGULATORY IDENTIFIERS AND CONTENT
+--------------------------------------------------------------------------------
+
+5.1  The Software contains regulatory registration numbers, depository
+     participant identifiers, and compliance disclosures belonging to the
+     Licensor. These identify the Licensor alone.
+
+5.2  Reproducing, adapting, or displaying those identifiers, or presenting them
+     as Your own or as applicable to any other entity, is strictly prohibited
+     and may additionally constitute an offence under applicable securities and
+     criminal law, independently of this licence.
+
+--------------------------------------------------------------------------------
+6. THIRD-PARTY COMPONENTS
+--------------------------------------------------------------------------------
+
+The Software incorporates third-party open-source components that are licensed
+separately by their respective owners under their own terms. Nothing in this
+licence restricts, extends, or otherwise affects Your rights in those
+components, and nothing in their terms grants You any right in the Software.
+Third-party components are identified in package.json and its lockfile.
+
+--------------------------------------------------------------------------------
+7. NO WARRANTY
+--------------------------------------------------------------------------------
+
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, AND
+NON-INFRINGEMENT.
+
+--------------------------------------------------------------------------------
+8. LIMITATION OF LIABILITY
+--------------------------------------------------------------------------------
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL THE LICENSOR BE LIABLE
+FOR ANY CLAIM, DAMAGES, TRADING OR INVESTMENT LOSS, LOSS OF PROFIT, LOSS OF
+DATA, OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT, OR OTHERWISE, ARISING FROM
+OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+--------------------------------------------------------------------------------
+9. NOT INVESTMENT ADVICE
+--------------------------------------------------------------------------------
+
+The Software powers the website of a SEBI-registered intermediary. Nothing in
+this repository — including any content, calculator, market data, or output
+generated by any automated or AI-assisted feature — constitutes investment
+advice or a recommendation to buy or sell any security. Market data may be
+delayed, incomplete, or inaccurate. Past performance is not indicative of future
+results. No assured return is offered or implied.
+
+Investments in the securities market are subject to market risks. Read all
+related documents carefully before investing.
+
+--------------------------------------------------------------------------------
+10. TERMINATION
+--------------------------------------------------------------------------------
+
+The permissions in Clause 3 terminate automatically and without notice upon any
+breach of this licence. Upon termination You shall cease all access and destroy
+any copies in Your possession. Clauses 2, 4, 5, 7, 8, 9, 11 and 12 survive
+termination.
+
+--------------------------------------------------------------------------------
+11. GOVERNING LAW
+--------------------------------------------------------------------------------
+
+This licence is governed by the laws of India. The courts at New Delhi, India
+shall have exclusive jurisdiction, without prejudice to the Licensor's right to
+seek injunctive or other equitable relief in any competent jurisdiction.
+
+--------------------------------------------------------------------------------
+12. CONTACT
+--------------------------------------------------------------------------------
+
+Licensing enquiries and permission requests:
+    Shri Parasram Holdings Pvt. Ltd.
+    compliance@sphpl.com
+
+Security disclosures: please report privately to the address above rather than
+opening a public issue.

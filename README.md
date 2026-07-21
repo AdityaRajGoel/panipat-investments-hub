@@ -229,8 +229,13 @@ future results. No assured returns are guaranteed.
 
 **Proprietary — all rights reserved.** See [`LICENSE`](LICENSE).
 
-This source is published for transparency, security review, and reference. It is *not*
-open source: no permission is granted to deploy, redistribute, or create derivative works.
-Third-party dependencies remain under their own licenses.
+> This repository is **publicly viewable but not open source.**
+
+You may read the source and examine it for security research. You may **not** copy, deploy,
+modify, redistribute, reproduce its look and feel, or use it to train machine-learning
+models. The Licensor's regulatory identifiers and trade marks are reserved and may not be
+reused. Third-party dependencies remain under their own licenses.
+
+Licensing enquiries: [compliance@sphpl.com](mailto:compliance@sphpl.com)
 
 Nothing here constitutes investment advice.
