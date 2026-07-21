@@ -9,16 +9,43 @@ const TELEGRAM_BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN')!;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
+// Shared secret proving a request really came from Telegram. Telegram echoes it
+// back in X-Telegram-Bot-Api-Secret-Token on every webhook delivery once it is
+// supplied to setWebhook. This function runs with verify_jwt = false and writes
+// with the service-role key, so without this check ANY caller could inject
+// arbitrary posts into the public site feed, or re-point the bot's webhook.
+const TELEGRAM_WEBHOOK_SECRET = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
+
+const unauthorized = () =>
+  new Response(JSON.stringify({ ok: false, error: 'unauthorized' }), {
+    status: 401,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Fail CLOSED: an unset secret must lock the endpoint, not open it.
+  if (!TELEGRAM_WEBHOOK_SECRET) {
+    console.error('TELEGRAM_WEBHOOK_SECRET is not configured; refusing all requests.');
+    return unauthorized();
+  }
+
   // GET: Register webhook or fetch recent messages for frontend
   if (req.method === 'GET') {
     const url = new URL(req.url);
     const action = url.searchParams.get('action');
+
+    // register/status are privileged admin actions: they can repoint the bot's
+    // webhook or disclose its configuration, so they require the secret.
+    if (action === 'register' || action === 'status') {
+      if (req.headers.get('x-admin-secret') !== TELEGRAM_WEBHOOK_SECRET) {
+        return unauthorized();
+      }
+    }
 
     // Register webhook with Telegram
     if (action === 'register') {
@@ -31,6 +58,9 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             url: webhookUrl,
             allowed_updates: ['channel_post'],
+            // Telegram will send this back on every delivery so the POST
+            // handler below can verify the caller really is Telegram.
+            secret_token: TELEGRAM_WEBHOOK_SECRET,
           }),
         }
       );
@@ -74,9 +104,13 @@ Deno.serve(async (req) => {
 
   // POST: Telegram webhook callback - receives new channel posts
   if (req.method === 'POST') {
+    // Only Telegram knows the secret it was given at setWebhook time.
+    if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== TELEGRAM_WEBHOOK_SECRET) {
+      return unauthorized();
+    }
+
     try {
       const update = await req.json();
-      console.log('Received Telegram update:', JSON.stringify(update));
 
       // We only care about channel_post updates
       const post = update.channel_post;

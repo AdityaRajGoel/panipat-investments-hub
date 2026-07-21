@@ -242,8 +242,11 @@ async function syncDeals(supabase: ReturnType<typeof createClient>): Promise<{ b
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
+  // Fail CLOSED: this runs with verify_jwt = false and writes using the
+  // service-role key, so a missing SYNC_SECRET must lock the endpoint down
+  // rather than leave it open to the internet.
   const secret = Deno.env.get("SYNC_SECRET");
-  if (secret && req.headers.get("x-sync-secret") !== secret) {
+  if (!secret || req.headers.get("x-sync-secret") !== secret) {
     return new Response(JSON.stringify({ error: "unauthorized" }), {
       status: 401, headers: { ...cors, "Content-Type": "application/json" },
     });

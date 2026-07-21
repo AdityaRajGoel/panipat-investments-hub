@@ -23,7 +23,33 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
-.env*.local
+
+# Secrets — never commit real env files. Only .env.example is tracked.
+.env
+.env.*
+!.env.example
+
+# Credentials / keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+.npmrc
+.netrc
+**/service-account*.json
+**/*credentials*.json
+
+# Supabase CLI local state (project refs, pooler URLs, version pins)
+supabase/.temp/
+.branches/
+
+# Test + build artifacts
+test-results/
+playwright-report/
+blob-report/
+coverage/
 
 # graphify knowledge-graph output
 graphify-out/
