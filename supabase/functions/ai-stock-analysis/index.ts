@@ -48,8 +48,80 @@ const corsHeaders = {
 };
 
 const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+
+// Multiple keys per provider multiply the free-tier quota: when one key is
+// rate-limited or exhausted the cascade retries the same request on the next
+// key before falling through to a slower provider. Order = preference.
+// Unset names are dropped, so configuring only GROQ_API_KEY behaves as before.
+const readKeys = (...names: string[]): string[] =>
+  names.map((n) => Deno.env.get(n)?.trim()).filter((k): k is string => !!k);
+
+const GROQ_API_KEYS = readKeys(
+  "GROQ_API_KEY",
+  "GROQ_API_KEY_SECOND",
+  "GROQ_API_KEY_THIRD",
+  "GROQ_API_KEY_FOURTH",
+);
+const GEMINI_API_KEYS = readKeys("GEMINI_API_KEY", "GEMINI_API_KEY_SECOND");
+
+// Retained for the "is this provider available?" checks in the cascade below.
+const GROQ_API_KEY = GROQ_API_KEYS[0];
+const GEMINI_API_KEY = GEMINI_API_KEYS[0];
+
+// HTTP statuses where a DIFFERENT key can plausibly succeed: quota/rate limit,
+// or a dead/revoked/unfunded key. Any other status is a request-level fault
+// (bad model name, malformed body) that every key would hit identically, so we
+// fail fast instead of burning the whole pool on it.
+const KEY_ROTATION_STATUSES = new Set([401, 402, 403, 429]);
+
+// Gemini is the exception: it reports a revoked/invalid key as 400
+// API_KEY_INVALID rather than 401, so status alone would wrongly classify a
+// dead key as a request-level fault and skip the rest of the pool.
+const KEY_ROTATION_MESSAGES = [/api[_ ]key[_ ]invalid/i, /api key not valid/i];
+
+const shouldRotateKey = (error: unknown): boolean => {
+  if (!(error instanceof ProviderHttpError)) return false;
+  if (KEY_ROTATION_STATUSES.has(error.status)) return true;
+  return KEY_ROTATION_MESSAGES.some((re) => re.test(error.message));
+};
+
+class ProviderHttpError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ProviderHttpError";
+    this.status = status;
+  }
+}
+
+/**
+ * Runs `attempt` against each key in turn, advancing only when the failure
+ * looks key-specific. Throws the last error once the pool is exhausted.
+ */
+async function withKeyRotation<T>(
+  provider: string,
+  keys: string[],
+  attempt: (key: string) => Promise<T>,
+): Promise<T> {
+  if (keys.length === 0) throw new Error(`${provider} API key not configured`);
+
+  let lastError: unknown;
+  for (let i = 0; i < keys.length; i++) {
+    try {
+      return await attempt(keys[i]);
+    } catch (error) {
+      lastError = error;
+      const isLast = i === keys.length - 1;
+      if (shouldRotateKey(error) && !isLast) {
+        const status = error instanceof ProviderHttpError ? error.status : "?";
+        console.warn(`${provider} key #${i + 1}/${keys.length} failed (${status}); rotating to key #${i + 2}`);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
+}
 
 const BOT_USER_AGENTS = [
   "googlebot", "bingbot", "yandexbot", "duckduckbot", "slurp", "baiduspider", "ia_archiver",
@@ -281,38 +353,39 @@ async function askOpenRouter(prompt: string, isChat: boolean = false, modelOverr
 // Provider 2: Groq (Fallback 1)
 // ─────────────────────────────────────────────────────────────
 async function askGroq(prompt: string, isChat: boolean = false, model = "llama-3.3-70b-versatile") {
-  if (!GROQ_API_KEY) throw new Error("Groq API key not configured");
-
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
 
   // Groq has a strict token limit - aggressively truncate
   const maxPromptLen = isChat ? 2000 : 4000;
-  const truncatedPrompt = prompt.length > maxPromptLen 
+  const truncatedPrompt = prompt.length > maxPromptLen
     ? prompt.slice(0, maxPromptLen) + "\n[Data truncated]"
     : prompt;
 
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${GROQ_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: systemMsg },
-        { role: "user", content: truncatedPrompt + (isChat ? "" : "\n\nRespond with ONLY valid JSON.") }
-      ],
-      response_format: { type: isChat ? "text" : "json_object" },
-      temperature: 0.1,
-      max_tokens: isChat ? 2000 : 6000
-    })
-  });
+  const response = await withKeyRotation("Groq", GROQ_API_KEYS, async (apiKey) => {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemMsg },
+          { role: "user", content: truncatedPrompt + (isChat ? "" : "\n\nRespond with ONLY valid JSON.") }
+        ],
+        response_format: { type: isChat ? "text" : "json_object" },
+        temperature: 0.1,
+        max_tokens: isChat ? 2000 : 6000
+      })
+    });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Groq API Error (${response.status}): ${err.slice(0, 100)}`);
-  }
+    if (!res.ok) {
+      const err = await res.text();
+      throw new ProviderHttpError(`Groq API Error (${res.status}): ${err.slice(0, 100)}`, res.status);
+    }
+    return res;
+  });
 
   const data = await response.json();
   let content = data.choices[0].message.content;
@@ -388,8 +461,6 @@ async function askCerebras(prompt: string, isChat: boolean = false) {
 // Provider 3: Gemini Direct (Fallback 2)
 // ─────────────────────────────────────────────────────────────
 async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: boolean = false) {
-  if (!GEMINI_API_KEY) throw new Error("Gemini API key not configured");
-
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
   const geminiModel = isChat ? "gemini-2.5-flash" : GEMINI_REPORT_MODEL;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`;
@@ -410,19 +481,22 @@ async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: 
     bodyData.tools = [{ googleSearch: {} }];
   }
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-goog-api-key": GEMINI_API_KEY
-    },
-    body: JSON.stringify(bodyData)
-  });
+  const response = await withKeyRotation("Gemini", GEMINI_API_KEYS, async (apiKey) => {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-goog-api-key": apiKey
+      },
+      body: JSON.stringify(bodyData)
+    });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Gemini API Error (${response.status}): ${err.slice(0, 100)}`);
-  }
+    if (!res.ok) {
+      const err = await res.text();
+      throw new ProviderHttpError(`Gemini API Error (${res.status}): ${err.slice(0, 100)}`, res.status);
+    }
+    return res;
+  });
 
   const data = await response.json();
   let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
