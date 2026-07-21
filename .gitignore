@@ -54,3 +54,7 @@ coverage/
 # graphify knowledge-graph output
 graphify-out/
 scripts/i18n-out.json
+
+# Python bytecode
+__pycache__/
+*.pyc
