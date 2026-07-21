@@ -19,8 +19,12 @@ const REPORT_MODEL = Deno.env.get("REPORT_MODEL") || "google/gemini-2.5-flash";
 // zero cost). Order = preference. Overridable via FREE_REPORT_MODELS (comma-sep).
 // If a free model returns malformed JSON or errors, the cascade silently moves
 // on - the paid model remains the reliability backstop.
+// Verified against OpenRouter's live :free catalogue — qwen3-next-80b and
+// llama-3.3-70b:free were withdrawn ("This model is unavailable for free")
+// and 404'd every attempt, wasting a cascade step each. These three were
+// confirmed to return parseable JSON under response_format: json_object.
 const FREE_REPORT_MODELS = (Deno.env.get("FREE_REPORT_MODELS") ??
-  "nvidia/nemotron-3-super-120b-a12b:free,qwen/qwen3-next-80b-a3b-instruct:free,meta-llama/llama-3.3-70b-instruct:free")
+  "nvidia/nemotron-3-super-120b-a12b:free,nvidia/nemotron-3-ultra-550b-a55b:free,openai/gpt-oss-20b:free")
   .split(",").map((s) => s.trim()).filter(Boolean);
 // Per-attempt timeout for free models (they can be slower/oversubscribed).
 const FREE_MODEL_TIMEOUT_MS = 22_000;
@@ -29,7 +33,9 @@ const FREE_MODEL_TIMEOUT_MS = 22_000;
 // timeout, leaving the 12s minimum paid budget still inside the hard limit).
 const FREE_TIER_DEADLINE_MS = 24_000;
 // Free model tried first for Q&A chat (falls back to the paid chat model).
-const FREE_CHAT_MODEL = Deno.env.get("FREE_CHAT_MODEL") ?? "meta-llama/llama-3.3-70b-instruct:free";
+// llama-3.3-70b:free was withdrawn from OpenRouter's free tier, so every chat
+// request paid a 404 before falling back. gpt-oss-20b:free is current and fast.
+const FREE_CHAT_MODEL = Deno.env.get("FREE_CHAT_MODEL") ?? "openai/gpt-oss-20b:free";
 // Groq free-tier models, tried in order (a decommissioned model 404s and the
 // cascade just moves to the next one). Overridable via GROQ_MODELS (comma-sep).
 const GROQ_MODELS = (Deno.env.get("GROQ_MODELS") ?? "llama-3.3-70b-versatile,openai/gpt-oss-120b")
@@ -71,7 +77,14 @@ const GROQ_API_KEYS = readKeys(
   "GROQ_API_KEY_THIRD",
   "GROQ_API_KEY_FOURTH",
 );
-const GEMINI_API_KEYS = readKeys("GEMINI_API_KEY", "GEMINI_API_KEY_SECOND");
+// "GEMENI_..." is a misspelling, but it is the name the secret is actually
+// provisioned under in Supabase. Both spellings are read so the pool works
+// either way and renaming the secret later needs no code change.
+const GEMINI_API_KEYS = readKeys(
+  "GEMINI_API_KEY",
+  "GEMINI_API_KEY_SECOND",
+  "GEMENI_API_KEY_SECOND",
+);
 
 // Retained for the "is this provider available?" checks in the cascade below.
 const GROQ_API_KEY = GROQ_API_KEYS[0];
