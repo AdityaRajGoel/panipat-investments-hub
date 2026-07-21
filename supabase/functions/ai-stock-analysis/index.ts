@@ -41,7 +41,14 @@ const CEREBRAS_API_KEY = Deno.env.get("CEREBRAS_API_KEY");
 // current. Override via CEREBRAS_MODEL — /v1/models lists what your account has.
 const CEREBRAS_MODEL = Deno.env.get("CEREBRAS_MODEL") ?? "gpt-oss-120b";
 // Gemini-direct fallback model name (strip the "google/" prefix if present).
-const GEMINI_REPORT_MODEL = (Deno.env.get("REPORT_MODEL") || "gemini-2.5-flash").replace(/^google\//, "");
+// Gemini-direct model ids, kept separate from REPORT_MODEL: that value is an
+// OpenRouter model id and the two catalogs have diverged. gemini-2.5-flash is
+// closed to newly-created Google projects ("no longer available to new users",
+// 404) while OpenRouter still serves it, so deriving one from the other breaks
+// the direct-Gemini fallback depending on which project issued the key.
+// GEMINI_MODEL overrides; REPORT_MODEL is still honoured for back-compat.
+const GEMINI_REPORT_MODEL = (Deno.env.get("GEMINI_MODEL") ?? Deno.env.get("REPORT_MODEL") ?? "gemini-3.5-flash").replace(/^google\//, "");
+const GEMINI_CHAT_MODEL = Deno.env.get("GEMINI_CHAT_MODEL") ?? "gemini-3.5-flash";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -76,10 +83,16 @@ const GEMINI_API_KEY = GEMINI_API_KEYS[0];
 // fail fast instead of burning the whole pool on it.
 const KEY_ROTATION_STATUSES = new Set([401, 402, 403, 429]);
 
-// Gemini is the exception: it reports a revoked/invalid key as 400
-// API_KEY_INVALID rather than 401, so status alone would wrongly classify a
-// dead key as a request-level fault and skip the rest of the pool.
-const KEY_ROTATION_MESSAGES = [/api[_ ]key[_ ]invalid/i, /api key not valid/i];
+// Message-based rotation for failures whose status code lies about the cause:
+//  - Gemini reports a revoked/invalid key as 400 API_KEY_INVALID, not 401.
+//  - Gemini gates model access per Google project, returning 404 "no longer
+//    available to new users" — so the SAME model can 404 on one key and serve
+//    fine on another. That is key-specific, not a request-level fault.
+const KEY_ROTATION_MESSAGES = [
+  /api[_ ]key[_ ]invalid/i,
+  /api key not valid/i,
+  /no longer available to new users/i,
+];
 
 const shouldRotateKey = (error: unknown): boolean => {
   if (!(error instanceof ProviderHttpError)) return false;
@@ -464,7 +477,7 @@ async function askCerebras(prompt: string, isChat: boolean = false) {
 // ─────────────────────────────────────────────────────────────
 async function askGemini(prompt: string, isChat: boolean = false, useWebSearch: boolean = false) {
   const systemMsg = isChat ? CHAT_SYSTEM_PROMPT : REPORT_SYSTEM_PROMPT;
-  const geminiModel = isChat ? "gemini-2.5-flash" : GEMINI_REPORT_MODEL;
+  const geminiModel = isChat ? GEMINI_CHAT_MODEL : GEMINI_REPORT_MODEL;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`;
 
   const bodyData: any = {
