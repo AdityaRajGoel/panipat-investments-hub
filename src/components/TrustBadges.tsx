@@ -14,7 +14,7 @@ const badges = [
   { icon: Building, label: "CDSL IN-DP-47-2015", desc: "DP ID: 12058200", color: "text-primary-blue", bg: "bg-primary/10" },
   { icon: Building, label: "NSDL IN-DP-NSDL-194-2001", desc: "DP ID: IN302365", color: "text-primary-blue", bg: "bg-primary/10" },
   { icon: Building, label: "AMFI Regn. No.", desc: "ARN-35616", color: "text-primary-green", bg: "bg-primary/10" },
-  { icon: Award, label: "50+ Years", desc: "Since 1974", color: "text-brand-gold", bg: "bg-brand-gold/10", countTo: 50, suffix: "+ Years" },
+  { icon: Award, label: "50+ Years", desc: "Since 1970", color: "text-brand-gold", bg: "bg-brand-gold/10", countTo: 50, suffix: "+ Years" },
   { icon: Users, label: "10 Lakh+", desc: "Happy Clients", color: "text-primary", bg: "bg-primary/10", countTo: 10, suffix: " Lakh+" },
 ];
 

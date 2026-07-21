@@ -122,7 +122,7 @@ const AuthPage = () => {
           </Link>
           <h2 className="font-heading text-3xl font-bold mb-4">The Science of Investment</h2>
           <p className="text-primary-foreground/70 text-lg mb-8 max-w-md">
-            Join thousands of investors who trust Parasram India for disciplined wealth creation since 1972.
+            Join thousands of investors who trust Parasram India for disciplined wealth creation since 1970.
           </p>
           <div className="flex items-center justify-center gap-8 text-sm">
             <div className="text-center">

@@ -86,10 +86,12 @@ const teamFAQs = [
 ];
 
 const branchStats = [
-  { label: "Established", value: "1997", icon: Calendar },
+  { label: "Branch Established", value: "1997", icon: Calendar },
   { label: "Active Clients", value: "2,000+", icon: Users },
   { label: "AUM Managed", value: "₹250Cr+", icon: TrendingUp },
-  { label: "SEBI Registered", value: "Since 1997", icon: Shield },
+  // The firm's SEBI registration is not tied to the branch opening date, so show
+  // the registration number rather than a year that contradicts "since 1970".
+  { label: "SEBI Registered", value: "INZ000220838", icon: Shield },
 ];
 
 const TeamMemberCard = ({ member, index }: { member: typeof teamMembers[0]; index: number }) => {
@@ -283,7 +285,7 @@ const TeamPage = () => {
             >
               <Clock className="w-4 h-4 text-brand-gold" />
               <span className="text-sm text-foreground font-medium">
-                Serving investors since 1997
+                Panipat branch serving investors since 1997
               </span>
             </motion.div>
           </motion.div>

@@ -3,7 +3,8 @@ import { useRef } from "react";
 import { Building2, TrendingUp, Award, Users, Globe, Landmark, Sparkles } from "lucide-react";
 
 const milestones = [
-  { year: "1970", title: "Foundation", desc: "Shri Parasram Holdings established as a trusted name in financial services.", icon: Building2, color: "from-primary to-primary/80" },
+  { year: "1970", title: "Foundation", desc: "Parasram begins serving investors, establishing a trusted name in financial services.", icon: Building2, color: "from-primary to-primary/80" },
+  { year: "1994", title: "Incorporated", desc: "The business was incorporated as Shri Parasram Holdings Pvt. Ltd. (CIN: U67120DL1994PTC060726).", icon: Building2, color: "from-primary to-primary/80" },
   { year: "1995", title: "NSE & BSE Membership", desc: "Became a registered member of both the National and Bombay Stock Exchanges.", icon: Award, color: "from-secondary to-brand-green" },
   { year: "1997", title: "Panipat Branch Opens", desc: "Opened our Panipat branch at Shakuntala Complex, Palika Bazaar bringing institutional-grade services to Haryana.", icon: Landmark, color: "from-brand-gold to-brand-orange" },
   { year: "2005", title: "MCX Membership", desc: "Added commodity trading capabilities with MCX membership, expanding our service portfolio.", icon: Globe, color: "from-brand-copper to-brand-orange" },

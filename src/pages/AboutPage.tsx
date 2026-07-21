@@ -14,7 +14,7 @@ import SEOHead from "@/components/SEOHead";
 import PageTransition from "@/components/PageTransition";
 
 const aboutFAQs = [
-  { q: "How long has Parasram India been in business?", a: "Parasram India was established in 1970 and has over 50+ years of experience in the financial markets. Our Panipat branch has been serving clients since 1997." },
+  { q: "How long has Parasram India been in business?", a: "Parasram has been serving investors since 1970, giving us over 50 years of experience in the financial markets. The business was incorporated as Shri Parasram Holdings Pvt. Ltd. in 1994 (CIN: U67120DL1994PTC060726). Our Panipat branch has been serving clients since 1997." },
   { q: "Is Parasram India registered with SEBI?", a: "Yes, Shri Parasram Holdings Pvt. Ltd. is a SEBI-registered stock broker. Its SEBI Registration No. INZ000220838 covers NSE, BSE, MCX and MSEI, and its commodity registration for MCX & NCDEX is INZ000033839. CIN: U67120DL1994PTC060726." },
   { q: "What services does the Panipat branch offer?", a: "Our Panipat branch offers equity trading, derivatives, commodity trading, mutual fund investments, IPO applications, SIP planning, unlisted shares, portfolio management services, and personalized financial advisory." },
   { q: "How can I open a Demat account?", a: "You can open a free Demat account by visiting our branch at Shakuntala Complex, Palika Bazaar, Panipat, or by filling out the online form on our website. You'll need your PAN card, Aadhaar card, and bank details." },
