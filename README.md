@@ -174,14 +174,15 @@ branch, Shakuntala Complex, Palika Bazaar, Panipat, Haryana.
 
 | Body | Registration |
 |---|---|
-| SEBI (Stock Broker) | INZ000220838 |
-| SEBI (Commodity — MCX) | INZ000033839 |
-| NSE — member code | 12583 |
-| BSE — member code | 1153 |
-| MCX — member code | 46510 |
+| SEBI — Stock Broker (NSE, BSE, MCX & MSEI) | INZ000220838 |
+| SEBI — Commodity (MCX & NCDEX) | INZ000033839 |
 | CDSL (Depository Participant) | IN-DP-47-2015 · DP ID 12058200 |
 | NSDL (Depository Participant) | IN-DP-NSDL-194-2001 · DP ID IN302365 |
 | AMFI (Mutual Fund Distributor) | ARN-35616 |
+| CIN | U67120DL1994PTC060726 |
+
+Verified against the official disclosure published on
+[parasramindia.com](https://www.parasramindia.com).
 
 ### Compliance officer
 
@@ -217,10 +218,10 @@ output — constitutes investment advice or a recommendation to buy or sell any 
 Market data may be delayed, incomplete, or inaccurate. Past performance is not indicative of
 future results. No assured returns are guaranteed.
 
-> **Note:** the registration identifiers above are transcribed from the application source.
-> They are reproduced here for reference; the authoritative versions are those published on
-> [parasramindia.com](https://www.parasramindia.com) and on the respective regulator and
-> exchange websites.
+> **Note:** the identifiers above were cross-checked against the official disclosure on
+> [parasramindia.com](https://www.parasramindia.com). They are reproduced here for reference
+> only — the authoritative versions remain those published by the firm and by the respective
+> regulator and exchange websites.
 
 ---
 

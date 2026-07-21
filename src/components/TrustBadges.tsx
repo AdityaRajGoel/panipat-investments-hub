@@ -5,12 +5,15 @@ import { useCountUp } from "@/hooks/useCountUp";
 
 const badges = [
   { icon: Shield, label: "SEBI Registered", desc: "INZ000220838", color: "text-secondary", bg: "bg-secondary/10" },
-  { icon: Building, label: "NSE Member", desc: "Code: INZ000220838", color: "text-primary", bg: "bg-primary/10" },
-  { icon: Building, label: "BSE Member", desc: "Code: INZ000220838", color: "text-brand-gold", bg: "bg-brand-gold/10" },
-  { icon: Globe, label: "MCX Member", desc: "Code: INZ000033839", color: "text-secondary", bg: "bg-secondary/10" },
-  { icon: Building, label: "CDSL IN-DP-47-2015", desc: "Code: DP ID: 12058200", color: "text-primary-blue", bg: "bg-primary/10" },
-  { icon: Building, label: "NSDL IN-DP-NSDL-194-2001", desc: "Code: DP ID: IN302365", color: "text-primary-blue", bg: "bg-primary/10" },
-  { icon: Building, label: "AMFI Regn. No.", desc: "Code: ARN-35616", color: "text-primary-green", bg: "bg-primary/10" },
+  // INZ000220838 is the SEBI registration covering NSE, BSE, MCX and MSEI — it
+  // is not an exchange member code, which is how these badges used to label it.
+  // Wording matches the official disclosure on parasramindia.com.
+  { icon: Building, label: "NSE Member", desc: "SEBI Reg: INZ000220838", color: "text-primary", bg: "bg-primary/10" },
+  { icon: Building, label: "BSE Member", desc: "SEBI Reg: INZ000220838", color: "text-brand-gold", bg: "bg-brand-gold/10" },
+  { icon: Globe, label: "MCX & NCDEX", desc: "SEBI Reg: INZ000033839", color: "text-secondary", bg: "bg-secondary/10" },
+  { icon: Building, label: "CDSL IN-DP-47-2015", desc: "DP ID: 12058200", color: "text-primary-blue", bg: "bg-primary/10" },
+  { icon: Building, label: "NSDL IN-DP-NSDL-194-2001", desc: "DP ID: IN302365", color: "text-primary-blue", bg: "bg-primary/10" },
+  { icon: Building, label: "AMFI Regn. No.", desc: "ARN-35616", color: "text-primary-green", bg: "bg-primary/10" },
   { icon: Award, label: "50+ Years", desc: "Since 1974", color: "text-brand-gold", bg: "bg-brand-gold/10", countTo: 50, suffix: "+ Years" },
   { icon: Users, label: "10 Lakh+", desc: "Happy Clients", color: "text-primary", bg: "bg-primary/10", countTo: 10, suffix: " Lakh+" },
 ];

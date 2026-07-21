@@ -248,7 +248,7 @@ const InvestorCornerPage = () => {
                     parasramindia.com
                   </a>
                   . To reactivate, log in and use the "Reactivation of trading account" option under Update KYC.
-                  Helpdesk: 011-4700-0000 (Ext 64/65/66) · kyc@sphpl.com.
+                  Helpdesk: 011-4700-0000 (Ext 64/65/66) · kyc@sphpl.com
                 </p>
               </SectionCard>
 
