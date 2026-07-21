@@ -167,6 +167,10 @@ public issue.
 
 ## License
 
-No license is currently granted. This is the source of a production commercial website,
-published for transparency and reference — all rights reserved by Shri Parasram Holdings
-Pvt. Ltd. unless a `LICENSE` file is added stating otherwise.
+**Proprietary — all rights reserved.** See [`LICENSE`](LICENSE).
+
+This source is published for transparency, security review, and reference. It is *not*
+open source: no permission is granted to deploy, redistribute, or create derivative works.
+Third-party dependencies remain under their own licenses.
+
+Nothing here constitutes investment advice.
