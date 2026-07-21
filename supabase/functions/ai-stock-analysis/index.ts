@@ -37,7 +37,9 @@ const GROQ_MODELS = (Deno.env.get("GROQ_MODELS") ?? "llama-3.3-70b-versatile,ope
 // Cerebras free tier (fastest inference available). Optional: skipped entirely
 // unless CEREBRAS_API_KEY is set as a Supabase secret.
 const CEREBRAS_API_KEY = Deno.env.get("CEREBRAS_API_KEY");
-const CEREBRAS_MODEL = Deno.env.get("CEREBRAS_MODEL") ?? "llama-3.3-70b";
+// llama-3.3-70b was decommissioned on Cerebras and now 404s; gpt-oss-120b is
+// current. Override via CEREBRAS_MODEL — /v1/models lists what your account has.
+const CEREBRAS_MODEL = Deno.env.get("CEREBRAS_MODEL") ?? "gpt-oss-120b";
 // Gemini-direct fallback model name (strip the "google/" prefix if present).
 const GEMINI_REPORT_MODEL = (Deno.env.get("REPORT_MODEL") || "gemini-2.5-flash").replace(/^google\//, "");
 
