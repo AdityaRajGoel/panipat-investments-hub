@@ -78,11 +78,27 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('node_modules/motion') || id.includes('node_modules/framer-motion')) {
               return 'animation-vendor';
             }
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-              return 'react-vendor';
-            }
+            // These must be matched BEFORE the react-core rule below. A bare
+            // id.includes('react') also matches @radix-ui/react-*, lucide-react
+            // and @tanstack/react-query, which made those rules unreachable and
+            // collapsed everything into one 166KB react-vendor chunk —
+            // query-vendor was never even emitted.
             if (id.includes('@radix-ui') || id.includes('lucide-react')) {
               return 'ui-vendor';
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'query-vendor';
+            }
+            // React core only. Anchored to node_modules/<pkg>/ so sibling
+            // packages whose names merely contain "react" do not get pulled in.
+            if (
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react-router/') ||
+              id.includes('node_modules/react-router-dom/') ||
+              id.includes('node_modules/scheduler/')
+            ) {
+              return 'react-vendor';
             }
             // Tiny utils shared by the app AND recharts (clsx etc.) — pin them
             // to react-vendor or rollup buries them inside chart-vendor, which
@@ -92,9 +108,6 @@ export default defineConfig(({ mode }) => ({
             }
             if (id.includes('recharts') || id.includes('d3')) {
               return 'chart-vendor';
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'query-vendor';
             }
             if (id.includes('@supabase/supabase-js')) {
               return 'supabase-vendor';
