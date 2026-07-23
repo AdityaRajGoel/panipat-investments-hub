@@ -30,12 +30,12 @@ multiple languages.
 
 ## Tech stack
 
-**Frontend** — Vite · React 18 · TypeScript · Tailwind CSS · shadcn/ui · React Router ·
+**Frontend** : Vite · React 18 · TypeScript · Tailwind CSS · shadcn/ui · React Router ·
 TanStack Query · Recharts · Zod
 
-**Backend** — Supabase (Postgres + Auth + Storage) and 14 Deno edge functions
+**Backend** : Supabase (Postgres + Auth + Storage) and 14 Deno edge functions
 
-**Infra** — Vercel (hosting) · GitHub Actions (CI + scheduled data syncs) · Docker + nginx
+**Infra** : Vercel (hosting) · GitHub Actions (CI + scheduled data syncs) · Docker + nginx
 (self-host option)
 
 ---
@@ -169,7 +169,7 @@ Please don't open a public issue.
 
 ## Regulatory & compliance
 
-Operated by **Shri Parasram Holdings Pvt. Ltd.** (trading as *Parasram India*) — Panipat
+Operated by **Shri Parasram Holdings Pvt. Ltd.** (trading as *Parasram India*) : Panipat
 branch, Shakuntala Complex, Palika Bazaar, Panipat, Haryana.
 
 ### Registrations
