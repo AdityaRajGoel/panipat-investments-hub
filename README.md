@@ -1,4 +1,4 @@
-# Shri Parasram Holdings — Panipat
+# Shri Parasram Holdings Panipat
 
 Production website for **Shri Parasram Holdings Pvt. Ltd.**, a SEBI-registered stockbroker
 operating in Panipat, Haryana since 1970.
@@ -176,8 +176,8 @@ branch, Shakuntala Complex, Palika Bazaar, Panipat, Haryana.
 
 | Body | Registration |
 |---|---|
-| SEBI — Stock Broker (NSE, BSE, MCX & MSEI) | INZ000220838 |
-| SEBI — Commodity (MCX & NCDEX) | INZ000033839 |
+| SEBI : Stock Broker (NSE, BSE, MCX & MSEI) | INZ000220838 |
+| SEBI : Commodity (MCX & NCDEX) | INZ000033839 |
 | CDSL (Depository Participant) | IN-DP-47-2015 · DP ID 12058200 |
 | NSDL (Depository Participant) | IN-DP-NSDL-194-2001 · DP ID IN302365 |
 | AMFI (Mutual Fund Distributor) | ARN-35616 |
@@ -195,11 +195,11 @@ Verified against the official disclosure published on
 
 Escalate in order:
 
-1. **Branch / Compliance Officer** — [compliance@sphpl.com](mailto:compliance@sphpl.com)
-2. **Stock exchange** — [NSE Investor Helpline](https://investorhelpline.nseindia.com/) ·
+1. **Branch / Compliance Officer** : [compliance@sphpl.com](mailto:compliance@sphpl.com)
+2. **Stock exchange** : [NSE Investor Helpline](https://investorhelpline.nseindia.com/) ·
    [BSE Investor Services](https://www.bseindia.com/investor.html)
-3. **SEBI SCORES** — [scores.sebi.gov.in](https://scores.sebi.gov.in) (if unresolved after 30 days)
-4. **Online Dispute Resolution** — [smartodr.in](https://smartodr.in/login)
+3. **SEBI SCORES** : [scores.sebi.gov.in](https://scores.sebi.gov.in) (if unresolved after 30 days)
+4. **Online Dispute Resolution** : [smartodr.in](https://smartodr.in/login)
 
 Other channels: KYC helpdesk 011-4700-0000 (ext. 64/65/66) ·
 [kyc@sphpl.com](mailto:kyc@sphpl.com) · trading-account freeze:
@@ -215,8 +215,8 @@ SEBI-mandated disclosures, investor charter, and firm-level policy documents. Se
 > Investments in the securities market are subject to market risks. Read all related
 > documents carefully before investing.
 
-Nothing in this repository — including any content, calculator, market data, or AI-generated
-output — constitutes investment advice or a recommendation to buy or sell any security.
+Nothing in this repository including any content, calculator, market data, or AI-generated
+output constitutes investment advice or a recommendation to buy or sell any security.
 Market data may be delayed, incomplete, or inaccurate. Past performance is not indicative of
 future results. No assured returns are guaranteed.
 
@@ -229,7 +229,7 @@ future results. No assured returns are guaranteed.
 
 ## License
 
-**Proprietary — all rights reserved.** See [`LICENSE`](LICENSE).
+**Proprietary all rights reserved.** See [`LICENSE`](LICENSE).
 
 > This repository is **publicly viewable but not open source.**
 
