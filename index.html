@@ -67,7 +67,10 @@
       min-height: 100vh
     }
   </style>
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <!-- No static robots meta here on purpose: SEOHead emits one per page via
+       react-helmet. A hardcoded copy is not replaced by helmet, it is merely
+       joined by it, so 404.html shipped both "index, follow" and the intended
+       "noindex, nofollow" and relied on Google picking the stricter directive. -->
 
   <!-- Geo & language targeting -->
   <link rel="alternate" hreflang="en-IN" href="https://www.sphpnp.com/" />

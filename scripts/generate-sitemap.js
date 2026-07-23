@@ -5,6 +5,24 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const today = new Date().toISOString().split('T')[0];
 
+// Derived from the content file for the same reason as in prerender.js: an
+// article that exists but is missing from this list would now be a hard 404.
+const learnArticleSlugs = [
+  ...new Set(
+    Array.from(
+      fs
+        .readFileSync(path.resolve(__dirname, '../src/data/learnContent.ts'), 'utf-8')
+        .matchAll(/slug:\s*"([a-z0-9-]+)"/g),
+      (match) => match[1]
+    )
+  ),
+];
+
+if (learnArticleSlugs.length === 0) {
+  console.error('No article slugs found in learnContent.ts - refusing to write an incomplete sitemap.');
+  process.exit(1);
+}
+
 const urls = [
   { loc: '/',                    changefreq: 'daily',   priority: '1.0',  lastmod: today },
   { loc: '/unlisted-space',      changefreq: 'weekly',  priority: '0.9',  lastmod: today },
@@ -18,17 +36,7 @@ const urls = [
   { loc: '/learn',               changefreq: 'weekly',  priority: '0.8',  lastmod: today },
   { loc: '/learn/recommendations', changefreq: 'daily', priority: '0.8',  lastmod: today },
   // Learning Center articles (original content)
-  { loc: '/learn/demat-account',       changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/pe-ratio',            changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/sip-vs-lumpsum',      changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/power-of-compounding', changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/mutual-funds-guide',  changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/ipo-guide',           changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/full-service-vs-discount-broker',           changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/tax-on-share-market-income',           changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/how-to-buy-unlisted-shares',           changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/fno-basics',           changefreq: 'monthly', priority: '0.7', lastmod: today },
-  { loc: '/learn/margin-trading-facility-mtf',           changefreq: 'monthly', priority: '0.7', lastmod: today },
+  ...learnArticleSlugs.map(slug => ({ loc: `/learn/${slug}`, changefreq: 'monthly', priority: '0.7', lastmod: today })),
   { loc: '/52-week-tracker',     changefreq: 'daily',   priority: '0.8',  lastmod: today },
   { loc: '/compare',             changefreq: 'weekly',  priority: '0.7',  lastmod: today },
   { loc: '/products',            changefreq: 'monthly', priority: '0.7',  lastmod: today },

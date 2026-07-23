@@ -5,6 +5,27 @@ import express from 'express';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, '../dist');
 
+// Article routes are derived from the content file rather than hardcoded. Since
+// unmatched paths now return a real 404, an article present in learnContent.ts
+// but missing here would hard-404 instead of quietly falling back to the SPA.
+// Deriving the list makes that drift impossible.
+const learnArticleSlugs = [
+  ...new Set(
+    Array.from(
+      fs
+        .readFileSync(path.resolve(__dirname, '../src/data/learnContent.ts'), 'utf-8')
+        .matchAll(/slug:\s*"([a-z0-9-]+)"/g),
+      (match) => match[1]
+    )
+  ),
+];
+const learnArticleRoutes = learnArticleSlugs.map((slug) => `/learn/${slug}`);
+
+if (learnArticleSlugs.length === 0) {
+  console.error('No article slugs found in learnContent.ts - refusing to prerender an incomplete site.');
+  process.exit(1);
+}
+
 // Define all routes we want to prerender (matching our sitemap)
 const routes = [
   '/',
@@ -17,17 +38,7 @@ const routes = [
   '/fno',
   '/learn',
   '/learn/recommendations',
-  '/learn/demat-account',
-  '/learn/pe-ratio',
-  '/learn/sip-vs-lumpsum',
-  '/learn/power-of-compounding',
-  '/learn/mutual-funds-guide',
-  '/learn/ipo-guide',
-  '/learn/full-service-vs-discount-broker',
-  '/learn/tax-on-share-market-income',
-  '/learn/how-to-buy-unlisted-shares',
-  '/learn/fno-basics',
-  '/learn/margin-trading-facility-mtf',
+  ...learnArticleRoutes,
   '/52-week-tracker',
   '/compare',
   '/products',
@@ -46,6 +57,14 @@ const routes = [
   '/disclaimer',
   '/investor-corner'
 ];
+
+// Prerendered but deliberately absent from the sitemap. Vercel serves
+// dist/404.html for any path matching no static file and no rewrite, replacing
+// the old catch-all rewrite that answered every unknown URL with 200 + the
+// homepage (a soft 404 that burns crawl budget). The route hits the React
+// Router catch-all, so it renders NotFound -> SEOHead noindex and the file
+// ships noindex,nofollow even if the status code ever regresses to 200.
+const ERROR_ROUTE = '/404';
 
 async function prerender() {
   console.log('Starting prerendering process...');
@@ -84,7 +103,7 @@ async function prerender() {
         });
       }
 
-      for (const route of routes) {
+      for (const route of [...routes, ERROR_ROUTE]) {
         console.log(`Prerendering ${route}...`);
         const page = await browser.newPage();
 

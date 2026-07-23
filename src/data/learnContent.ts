@@ -143,7 +143,7 @@ This is why seasoned investors pair P/E with other metrics like **ROE**, **debt-
 
 ## The bottom line
 
-The P/E ratio is a brilliant *first filter*, not a *final verdict*. Use it to shortlist stocks, then dig into the [financial statements](/learn/financial-statements) and business quality before investing.
+The P/E ratio is a brilliant *first filter*, not a *final verdict*. Use it to shortlist stocks, then dig into the **financial statements** and business quality before investing.
 
 > Want to screen Indian stocks by P/E instantly? Try the free [Parasram Stock Screener](/screener) with live NSE/BSE data.`,
   },

@@ -90,9 +90,9 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
+    { "source": "/admin", "destination": "/" },
+    { "source": "/auth", "destination": "/" },
+    { "source": "/reset-password", "destination": "/" },
+    { "source": "/banner-manager", "destination": "/" }
   ]
 }
